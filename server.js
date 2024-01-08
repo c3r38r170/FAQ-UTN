@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
 
+
 var app = express();
 
 app.use(session({
@@ -11,7 +12,6 @@ app.use(session({
 }));
 
 app.use(express.json());
-
 app.use(express.static('frontend/static'));
 
 app.use(cors({
