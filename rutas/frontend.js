@@ -2,6 +2,15 @@ import * as express from "express";
 const router = express.Router();
 import {Pagina,Busqueda} from '../frontend/componentes.js';
 
+// preguntas
+router.get('/pregunta/:id',(req,res)=>{
+	
+})
+
+// respuestas
+
+// usuarios
+
 router.get('/',(req,res)=>{
 	let pagina=new Pagina({
 		ruta:req.path
@@ -18,9 +27,6 @@ router.get('/perfil/:id?',(req,res)=>{
 		,sesion:req.session.usuario
 	});
 	res.send(pagina.render());
-})
-router.get('/pregunta/:id',(req,res)=>{
-
 })
 
 export {router};

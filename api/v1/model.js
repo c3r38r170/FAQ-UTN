@@ -303,7 +303,12 @@ const Respuesta = sequelize.define('respuesta',{
         autoIncrement: true
     }
 })
-
+/* 
+Respuesta.hasOne(Post,{
+    constraints:false,
+    foreignKey:'ID'
+})
+ */
 const Pregunta = sequelize.define('pregunta',{
     ID: {
         type: DataTypes.INTEGER,
