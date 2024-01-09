@@ -1,5 +1,9 @@
 import {Sequelize, DataTypes} from 'sequelize';
 
+import * as bcrypt from "bcrypt";
+
+
+
 const sequelize = new Sequelize(
     'faqutn',
     'vj6h6slqojgkqj8l6upf',
@@ -41,21 +45,26 @@ const Usuario = sequelize.define('usuario', {
     DNI: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
     },
     contrasenia: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        set(value){
+            this.setDataValue('contrasenia', bcrypt.hashSync(value, bcrypt.genSaltSync()));
+        }
     },
     correo: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        isEmail: true
     },
-    fecha_alta: {
-        type: DataTypes.DATEONLY,
-        allowNull: false
+    createdAt:{
+        field:'fecha_alta',
+        type:DataTypes.DATE,
     }
 });
+
 
 
 Token.belongsTo(Usuario,{
@@ -300,25 +309,30 @@ const Respuesta = sequelize.define('respuesta',{
     ID: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: false
     }
 })
-/* 
+
+
 Respuesta.hasOne(Post,{
     constraints:false,
     foreignKey:'ID'
 })
- */
 const Pregunta = sequelize.define('pregunta',{
     ID: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement:false,
     },
     titulo:{
         type:DataTypes.STRING,
         allowNull:false
     }
+})
+
+Pregunta.hasOne(Post,{
+    constraints:false,
+    foreignKey:'ID'
 })
 
 Pregunta.hasMany(Respuesta,{
@@ -408,6 +422,8 @@ Etiqueta.hasMany(SuscripcionesEtiqueta,{
     foreignKey:'etiquetaID'
 })
 
+
 sequelize.sync();
+
 
 export {Usuario, Bloqueo, Token, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
