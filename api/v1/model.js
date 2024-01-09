@@ -1,5 +1,7 @@
 import {Sequelize, DataTypes} from 'sequelize';
+
 import * as bcrypt from "bcrypt";
+
 
 
 const sequelize = new Sequelize(
@@ -311,11 +313,11 @@ const Respuesta = sequelize.define('respuesta',{
     }
 })
 
+
 Respuesta.hasOne(Post,{
     constraints:false,
     foreignKey:'ID'
 })
-
 const Pregunta = sequelize.define('pregunta',{
     ID: {
         type: DataTypes.INTEGER,
@@ -420,11 +422,8 @@ Etiqueta.hasMany(SuscripcionesEtiqueta,{
     foreignKey:'etiquetaID'
 })
 
-sequelize.sync({});
 
-
-
-
+sequelize.sync();
 
 
 export {Usuario, Bloqueo, Token, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
