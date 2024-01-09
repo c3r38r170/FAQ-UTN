@@ -82,9 +82,9 @@ const Bloqueo = sequelize.define('bloqueo',{
         type: DataTypes.STRING,
         allowNull: false
     },
-    fecha: {
-        type: DataTypes.DATEONLY,
-        allowNull: false
+    createdAt:{
+        field:'fecha',
+        type:DataTypes.DATE,
     },
     motivo_desbloqueo: {
         type: DataTypes.STRING
@@ -119,9 +119,9 @@ const ReportesUsuario = sequelize.define('reporteUsuarios',{
         primaryKey: true,
         autoIncrement: true
     },
-    fecha:{
-        type: DataTypes.DATE,
-        allowNull : false
+    createdAt:{
+        field:'fecha',
+        type:DataTypes.DATE,
     }
 });
 
@@ -143,9 +143,9 @@ const Post = sequelize.define('post',{
         primaryKey: true,
         autoIncrement: true
     },
-    fecha:{
-        type: DataTypes.DATE,
-        allowNull: false
+    createdAt:{
+        field:'fecha',
+        type:DataTypes.DATE,
     },
     cuerpo:{
         type: DataTypes.STRING,
@@ -231,9 +231,9 @@ const ReportePost = sequelize.define('reportePost', {
         primaryKey: true,
         autoIncrement: true
     },
-    fecha:{
-        type: DataTypes.DATE,
-        allowNull:false
+    createdAt:{
+        field:'fecha',
+        type:DataTypes.DATE,
     }
 })
 
@@ -401,9 +401,9 @@ const SuscripcionesEtiqueta = sequelize.define('suscripcionesEtiqueta',{
         primaryKey: true,
         autoIncrement: true
     },
-    fecha:{
+    createdAt:{
+        field:'fecha',
         type:DataTypes.DATE,
-        allowNull:false
     },
     fecha_baja:{
         type:DataTypes.DATE,
