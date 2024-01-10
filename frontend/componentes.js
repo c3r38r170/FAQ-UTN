@@ -7,6 +7,7 @@ import { Pregunta } from "./static/componentes/pregunta.js";
 import { Breadcrumb } from "./static/componentes/breadcrumb.js";
 
 class Pagina {
+	// TODO Refactor: ¿No debería ser un string?
   #ruta = {
 	ruta: ""
   };
@@ -34,7 +35,9 @@ class Pagina {
 	this.#sesion = sesion;
 	this.partes = partes;
 
-  
+  // TODO Feature: Poner los 3 modales acá.
+	// Los de registro e inicio, podría chequear si sesion existe para agregarse o no
+	// El de reportar (tanto post y usuario) dejarlos, total no molestan y después se llamarán desde los scripts estáticos
 
     // Navegacion(sesion,ruta)
      if(sesion){

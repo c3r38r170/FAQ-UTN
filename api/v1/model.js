@@ -268,7 +268,7 @@ const Perfil = sequelize.define('perfil',{
 })
 
 Perfil.hasMany(Usuario,{
-    as:'perfil',
+    as:'rol',
     constraints:false,
     foreignKey:'perfilID'
 })

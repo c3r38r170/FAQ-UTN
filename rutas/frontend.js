@@ -9,7 +9,6 @@ import { Pregunta as PreguntaDAO, Usuario as UsuarioDAO } from '../api/v1/model.
 router.get("/", (req, res) => {
 	Pregunta.pagina()
 		.then(pre=>{
-	
 			let pagina = new Pagina({
 				ruta: req.path,
 				titulo: "Inicio",
@@ -34,6 +33,7 @@ router.get("/perfil/:id?", (req, res) => {
 	let usu;
 
 	if(id && (!logueadoId || id != logueadoId)){
+		// TODO Refactor: ver si yield anda como "sincronizador"
 		usu=yield UsuarioDAO.findById(id,{
 			include:{
 				// TODO Feature: Ver si no choca explota. Y si .posts choca con los eliminados
@@ -58,6 +58,44 @@ router.get("/perfil/:id?", (req, res) => {
 					new Pregunta(p.pregunta)
 					:new Respuesta(p.respuesta)
 			})
+		]
+  });
+  res.send(pagina.render());
+});
+
+router.get("/perfil/:id/info", (req, res) => {
+	/* TODO Feature: Hacer que /perfil lleve a /perfil/id/info ??  Pensarlo. */
+	// ! El usuario no puede cambiar rol, legajo, ni nombre (este no estoy tan seguro), pero sí imagen (CU 5.4)
+
+	let id=req.params.id;
+	let logueadoId=req.session.usuario.ID;
+	let titulo="Perfil de ";
+	let usu;
+	let imagenEditable=false;
+
+	if(id && (!logueadoId || id != logueadoId)){
+		usu=yield UsuarioDAO.findById(id,{
+			include:{
+				// TODO Feature: Ver si no choca explota. Y si .posts choca con los eliminados
+				all:true
+				,nested:true
+			}
+		});
+	}else{
+		imagenEditable=true;
+		usu=req.session.usuario;
+	}
+
+  let pagina = new Pagina({
+    ruta: req.path,
+    titulo: 'Perfil de '+usuario.nombreCompleto+' - Información',
+    sesion: req.session.usuario,
+		partes:[
+			// Título('Información básica' (,nivel?(h2,h3...)) )
+			// CampoImagen(usu.id,imagenEditable)
+			// Campo('Nombre completo',usu.nombre)
+			// Campo('Legajo',usu.legajo)
+			// Campo('Rol',usu.rol.nombre)
 		]
   });
   res.send(pagina.render());
