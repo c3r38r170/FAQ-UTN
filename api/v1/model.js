@@ -25,13 +25,7 @@ const sequelize = new Sequelize(
        console.error('Unable to connect to the database: ', error);
     });
 
-const Token = sequelize.define('token', {
-    ID: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    }
-});
+
 const Usuario = sequelize.define('usuario', {
     ID: {
         type: DataTypes.INTEGER,
@@ -63,13 +57,6 @@ const Usuario = sequelize.define('usuario', {
         field:'fecha_alta',
         type:DataTypes.DATE,
     }
-});
-
-
-
-Token.belongsTo(Usuario,{
-    as:'duenio',
-    constraints :false,
 });
 
 const Bloqueo = sequelize.define('bloqueo',{
@@ -154,13 +141,12 @@ const Post = sequelize.define('post',{
 })
 
 Usuario.hasMany(Post, {
-    as: 'duenioPost',
     constraints:false,
     foreignKey:'duenioPostID'
 })
 
 Usuario.hasMany(Post, {
-    as: 'eliminador',
+    as: 'postsEliminados',
     constraints:false,
     foreignKey:'eliminadorID'
 })
@@ -310,6 +296,24 @@ const Respuesta = sequelize.define('respuesta',{
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: false
+    },
+    fecha:{
+        type: DataTypes.VIRTUAL,
+        get(){
+            return this.Post.fecha;
+        },
+        set(value){
+            this.Post.setDataValue('fecha', value);
+        }
+    },
+    cuerpo:{
+        type: DataTypes.VIRTUAL,
+        get(){
+            return this.Post.cuerpo;
+        },
+        set(value){
+            this.Post.setDataValue('cuerpo', value);
+        }
     }
 })
 
@@ -327,6 +331,24 @@ const Pregunta = sequelize.define('pregunta',{
     titulo:{
         type:DataTypes.STRING,
         allowNull:false
+    },
+    fecha:{
+        type: DataTypes.VIRTUAL,
+        get(){
+            return this.Post.fecha;
+        },
+        set(value){
+            this.Post.setDataValue('fecha', value);
+        }
+    },
+    cuerpo:{
+        type: DataTypes.VIRTUAL,
+        get(){
+            return this.Post.cuerpo;
+        },
+        set(value){
+            this.Post.setDataValue('cuerpo', value);
+        }
     }
 })
 
@@ -411,19 +433,45 @@ const SuscripcionesEtiqueta = sequelize.define('suscripcionesEtiqueta',{
 })
 
 Usuario.hasMany(SuscripcionesEtiqueta,{
-    as:'suscripto',
+    as:'suscriptoAEtiqueta',
     constraints:false,
     foreignKey:'suscriptoID'
 });
 
 Etiqueta.hasMany(SuscripcionesEtiqueta,{
-    as:'etiquetaa',
+    as:'etiquetaSuscripta',
     constraints:false,
     foreignKey:'etiquetaID'
 })
 
+const SuscripcionesPregunta = sequelize.define('suscripcionesPregunta',{
+    ID: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    createdAt:{
+        field:'fecha',
+        type:DataTypes.DATE,
+    },
+    fecha_baja:{
+        type:DataTypes.DATE,
+    }
+})
 
-sequelize.sync();
+Usuario.hasMany(SuscripcionesPregunta,{
+    as:'suscriptoAPregunta',
+    constraints:false,
+    foreignKey:'suscriptoID'
+});
+
+Pregunta.hasMany(SuscripcionesPregunta,{
+    as:'preguntaSuscripta',
+    constraints:false,
+    foreignKey:'preguntaID'
+})
+
+sequelize.sync({force:true});
 
 
-export {Usuario, Bloqueo, Token, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
+export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
