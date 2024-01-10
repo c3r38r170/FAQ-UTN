@@ -330,6 +330,48 @@ const Pregunta = sequelize.define('pregunta',{
     }
 })
 
+// TODO Refactor: Llevar arriba de todo si se define que va a quedar acá.
+const PAGINACION={
+	resultadosPorPagina:10
+}
+
+/* * Ejemplo de filtro por asociación de la documentación:
+User.findAll({
+  where: {
+    '$Instruments.size$': { [Op.ne]: 'small' }
+  },
+  include: [{
+    model: Tool,
+    as: 'Instruments'
+  }]
+});
+
+Ejemplo de asociar todo:
+User.findAll({ include: { all: true }});
+*/
+
+Pregunta.pagina=(n=0,{filtro='',etiquetas=[]}={})=>{
+    // TODO Feature: Implementar filtros
+    // TODO Feature: quitar preguntas, dejar solo la más relevante
+    // TODO Feature: Ordenar respuestas por relevancia, y por fecha
+	Pregunta.findAll({
+        /* include:[
+            {
+                model:Respuesta
+                ,separate:true
+                ,order: [
+                    ['createdAt', 'DESC']
+                ]
+            }
+        ], */
+		order:[
+			[Post,'fecha_alta','DESC']
+		]
+		,limit:PAGINACION.resultadosPorPagina
+		,offset:n*PAGINACION.resultadosPorPagina
+	})
+}
+
 Pregunta.hasOne(Post,{
     constraints:false,
     foreignKey:'ID'

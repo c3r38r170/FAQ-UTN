@@ -13,6 +13,7 @@ class Pagina {
   #titulo;
   #sesion;
   partes = [];
+	// * Globales para el JS del frontend
   globales = {};
   #notificaciones = [
     { notificacion: "mesas de examen" },
@@ -27,10 +28,11 @@ class Pagina {
     },
   ];
 
-  constructor({ ruta, titulo, sesion }) {
+  constructor({ ruta, titulo, sesion ,partes=[]}) {
     this.#ruta.ruta = ruta;
     this.#titulo = titulo;
 	this.#sesion = sesion;
+	this.partes = partes;
 
   
 

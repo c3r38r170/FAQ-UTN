@@ -3,6 +3,7 @@ import * as bcrypt from "bcrypt";
 const router = express.Router();
 import {Usuario,Pregunta} from '../api/v1/model.js';
 
+// TODO Refactor: ¿Sacar y poner en models.js? Así el modelo se encarga de la paginación, y a los controladores no les importa.
 const PAGINACION={
 	resultadosPorPagina:10
 }
@@ -16,6 +17,10 @@ router.post('/sesion', function(req, res) {
 		where:{DNI:req.body.DNI}
 		, raw:true,
 		plain:true
+		,include:{
+			all:true
+			// TODO Feature: Ver si esto no mata a todo.
+		}
 	})
 		.then(usu=>{
 			if(!usu){
@@ -28,7 +33,9 @@ router.post('/sesion', function(req, res) {
 		})
 		.then(coinciden=>{
 			if(coinciden){
-				// TODO ver si raw:true funciona
+				// TODO Feature: ver si raw:true funciona
+				// TODO Refactor: plain?
+				// TODO Feature: Refrescar la sesion cada vez que cambia algo (CUD); ¿hacer una funcion que repita el find + =
 				req.session.usuario=usuario;
 			}else{
 				res.status(401).send('Contraseña incorrecta.');
@@ -107,13 +114,8 @@ router.post('/recuperarContrasenia',function(req,res){
 
 //Recibirs)eguntas recientes / revantes
 router.get('/preguntas',(req,res)=>{
-	Pregunta.findAll({
-		order:[
-			[Post,'fecha_alta','DESC']
-		]
-		,limit:PAGINACION.resultadosPorPagina
-		,offset:(+req.pagina)*PAGINACION.resultadosPorPagina
-	})
+	// TODO Feature: Aceptar etiquetas y filtro de texto
+	Pregunta.pagina(+req.pagina)
 		.then(preguntas=>{
 			res.status(200).send(preguntas);
 		})
