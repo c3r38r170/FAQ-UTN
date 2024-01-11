@@ -16,7 +16,7 @@ router.post('/sesion', function(req, res) {
 
 	Usuario.find({
 		where:{DNI:req.body.DNI}
-		, raw:true,
+		, raw:true, nest:true,
 		plain:true
 	})
 		.then(usu=>{
@@ -30,7 +30,6 @@ router.post('/sesion', function(req, res) {
 		})
 		.then(coinciden=>{
 			if(coinciden){
-				// TODO ver si raw:true funciona
 				req.session.usuario=usuario;
 			}else{
 				res.status(401).send('Contraseña incorrecta.');
@@ -51,7 +50,7 @@ router.delete('/sesion', function(req, res) {
 const registro_creacion = function(req,res){
 	Usuario.find({
 		where:{DNI:req.body.DNI}
-		, raw:true,
+		, raw:true, nest:true,
 		plain:true
 	})
     .then(usu=>{
@@ -94,7 +93,7 @@ router.post('/recuperar_contrasenia',function(req,res){
 
     Usuario.find({
 		where:{DNI:req.body.DNI}
-		, raw:true,
+		, raw:true, nest:true,
 		plain:true
 	})
     .then(usu=>{
@@ -130,51 +129,52 @@ router.post('/valorar', function(req,res) {
 	//res tendría idpregunta 
 	//la valoracion(true es positiva, false negativa y null nada(tipo si la quiere sacar)) 
 	//el usuario viene con la sesión
-		Post.find({where:{ID:req.body.votadoID}
-			, raw:true,
-			plain:true
-		}).then(post=>{
-			if(!usu){
-				res.status(401).send("Usuario no tiene sesión válida activa.");
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa.");
+		return;
+	}
+	Post.find({where:{ID:req.body.votadoID}
+		, raw:true, nest:true,
+		plain:true
+	}).then(post=>{
+			if(!post){
+				res.status(404).send("Post no encontrado / disponible.");
 				return;
-			}
-			else{
-				if(!post){
-					res.status(404).send("Post no encontrado / disponible.");
-					return;
-				}else{
-					Voto.find({where:{
-						votadoID:pregunta.ID,
-						votanteID:usu.ID
-					}}).then(voto=>{
-						if(!voto){
-							Voto.create({
-								valoracion: req.body.voto,
-								votadoID: pregunta.ID,
-								votanteID:usu.ID
-							});
+			}else{
+				Voto.find({where:{
+					votadoID:pregunta.ID,
+					votanteID:req.session.usuario.ID
+				}}).then(voto=>{
+					if(!voto){
+						// si no exite el voto lo crea con lo que mandó
+						Voto.create({
+							valoracion: req.body.voto,
+							votadoID: pregunta.ID,
+							votanteID:req.session.usuario.ID
+						});
+					}else{
+						// si existe y es null es que lo quiere sacar
+						if(req.body.valoracion==null){
+							voto.destroy();
 						}else{
-							if(req.body.valoracion==null){//no se si es asi
-								voto.destroy();
-							}else{
-								voto.setDataValue('valoracion', req.body.voto);
-							}
+							//si no es null lo cambia por el otro
+							voto.setDataValue('valoracion', req.body.voto);
 						}
-						res.status(201).send("Reporte registrado.")
-					})
-				}
+					}
+					res.status(201).send("Reporte registrado.")
+				})
 			}
-		})
-		.catch(err=>{
-			res.status(500).send(err);
-		})  
+	})
+	.catch(err=>{
+		res.status(500).send(err);
+	})  
 })
 
 
 //reporte post
 
 router.post('reporte_post', function(req, res){
-	if(!usu){
+	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
@@ -182,7 +182,7 @@ router.post('reporte_post', function(req, res){
 		where:{
 			ID:req.body.ID,	
 		}
-		, raw:true,
+		, raw:true, nest:true,
 		plain:true
 	}).then(pregunta=>{
 		if(!pregunta){
@@ -191,7 +191,7 @@ router.post('reporte_post', function(req, res){
 		}else{
 			ReportePost.create({
 				tipo: req.body.tipo,
-				reportante: usu.ID,
+				reportante: req.session.usuario.ID,
 				reportado: req.body.IDPregunta
 			});
 			res.status(201).send("Reporte registrado")
@@ -205,18 +205,57 @@ router.post('reporte_post', function(req, res){
 //Edición de pregunta
 
 router.post('/editar_pregunta', function(req,res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa.")
+	}
 	Pregunta.find({
 		where:{
 			ID:req.body.ID,	
 		}
-		, raw:true,
-		plain:true
+		, raw:true, nest:true,
+		plain:true,
+		include:Post
 	}).then(pregunta=>{
 		if(!pregunta){
 			res.status(404).send("Pregunta no encontrada");
 			return;
 		}else{
-			if(pregunta.Post.getDataValue('duenioPost')!=usu.ID){
+			if(pregunta.post.getDataValue('duenioPost')!=req.session.usuario.ID){
+				res.status(401).send("Usuario no tiene sesión válida activa.");
+				return;
+			}else{
+				//TODO mandar al gpt
+
+				//si pasa el filtro
+				pregunta.setDataValue('cuerpo', req.body.cuerpo)
+				res.status(200).send("Pregunta actualizada exitosamente");
+			}
+		}
+	})
+    .catch(err=>{
+        res.status(500).send(err);
+    })  
+})
+
+//editar respuesta
+
+router.post('/editar_respuesta', function(req,res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa.")
+	}
+	Respuesta.find({
+		where:{
+			ID:req.body.ID,	
+		}
+		, raw:true, nest:true,
+		plain:true,
+		include:Post
+	}).then(pregunta=>{
+		if(!pregunta){
+			res.status(404).send("Pregunta no encontrada");
+			return;
+		}else{
+			if(pregunta.post.getDataValue('duenioPost')!=req.session.usuario.ID){
 				res.status(401).send("Usuario no tiene sesión válida activa.");
 				return;
 			}else{
@@ -236,7 +275,7 @@ router.post('/editar_pregunta', function(req,res){
 // reporte usuario
 
 router.post('reporte_usuario', function(req, res){
-	if(!usu){
+	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
@@ -244,7 +283,7 @@ router.post('reporte_usuario', function(req, res){
 		where:{
 			ID:req.body.IDUsuario,	
 		}
-		, raw:true,
+		, raw:true, nest:true,
 		plain:true
 	}).then(usuario=>{
 		if(!usuario){
@@ -252,7 +291,7 @@ router.post('reporte_usuario', function(req, res){
 			return;
 		}else{
 			ReportesUsuario.create({
-				reportante: usu.ID,
+				reportante: req.session.usuario.ID,
 				reportado: req.body.IDUsuario
 			});
 			res.status(201).send("Reporte registrado")
@@ -266,7 +305,7 @@ router.post('reporte_usuario', function(req, res){
 //administración de perfil
 
 router.post('/administracion_perfil', function(req, res){
-	if(!usu){
+	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
@@ -274,7 +313,7 @@ router.post('/administracion_perfil', function(req, res){
 		where:{
 			ID:usu.ID,	
 		}
-		, raw:true,
+		, raw:true, nest:true,
 		plain:true
 	}).then(usuario=>{
 		//TODO definir que mas puede cambiar y que constituye datos inválidos
@@ -291,7 +330,7 @@ router.post('/administracion_perfil', function(req, res){
 router.post('/suscripcion_pregunta', function(req,res){
 	//Si no existe suscribe, si existe(sin fecha de baja) desuscribe
 	//TODO acomodar el filtro para que no encuentre suscripciones dadas de baja
-	if(!usu){
+	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
@@ -299,7 +338,7 @@ router.post('/suscripcion_pregunta', function(req,res){
 		where:{
 			ID: req.body.IDPregunta
 		},
-		raw:true,
+		raw:true, nest:true,
 		plain:true
 	}).then(pregunta =>{
 		if(!pregunta){
@@ -309,14 +348,14 @@ router.post('/suscripcion_pregunta', function(req,res){
 			SuscripcionesPregunta.find({
 				where:{
 					preguntaSuscripta: req.body.IDPregunta,
-					suscriptoAPregunta: usu.ID
+					suscriptoAPregunta: req.session.usuario.ID
 				},
-				raw:true,
+				raw:true, nest:true,
 				plain:true
 			}).then(sus=>{
 				if(!sus){
 					SuscripcionesPregunta.create({
-						suscriptoAPregunta: usu.ID,
+						suscriptoAPregunta: req.session.usuario.ID,
 						preguntaSuscripta: req.body.IDPregunta
 					});
 					res.status(201).send("Suscripción creada");
@@ -342,7 +381,7 @@ router.post('/suscripcion_pregunta', function(req,res){
 router.post('/suscripcion_pregunta', function(req,res){
 	//Si no existe suscribe, si existe(sin fecha de baja) desuscribe
 	//TODO acomodar el filtro para que no encuentre suscripciones dadas de baja
-	if(!usu){
+	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
@@ -350,7 +389,7 @@ router.post('/suscripcion_pregunta', function(req,res){
 		where:{
 			ID: req.body.IDEtiqueta
 		},
-		raw:true,
+		raw:true, nest:true,
 		plain:true
 	}).then(etiqueta =>{
 		if(!etiqueta){
@@ -360,14 +399,14 @@ router.post('/suscripcion_pregunta', function(req,res){
 			SuscripcionesEtiqueta.find({
 				where:{
 					etiquetaSuscripta: req.body.IDEtiqueta,
-					suscriptoAEtiqueta: usu.ID
+					suscriptoAEtiqueta: req.session.usuario.ID
 				},
-				raw:true,
+				raw:true, nest:true,
 				plain:true
 			}).then(sus=>{
 				if(!sus){
 					SuscripcionesEtiqueta.create({
-						suscriptoAEtiqueta: usu.ID,
+						suscriptoAEtiqueta: req.session.usuario.ID,
 						etiquetaSuscripta: req.body.IDEtiqueta
 					});
 					res.status(201).send("Suscripción creada");
@@ -390,9 +429,10 @@ router.post('/suscripcion_pregunta', function(req,res){
 
 //busqueda usuarios
 
-router.post('/busqueda_usuarios', function(req,res){
+router.get('/busqueda_usuarios', function(req,res){
 	//TODO permisos
-	if(!usu){
+	//Busca con nombre like? andará eso?
+	if(!req.session.usuario){
 		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
 		return;
 	}
@@ -418,14 +458,14 @@ router.post('/busqueda_usuarios', function(req,res){
 //pregunta
 
 router.post('/pregunta', function(req,res){
-	if(!usu){
+	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
 	//TODO filtrar por el gpt
 	Post.create({
 		cuerpo: req.body.cuerpo,
-		duenioPostID: usu.ID
+		duenioPostID: req.session.usuario.ID
 	}).then(post=>{
 		Pregunta.create({
 			ID: post.ID,
@@ -445,14 +485,14 @@ router.post('/pregunta', function(req,res){
 //respuesta
 
 router.post('/respuesta', function(req,res){
-	if(!usu){
+	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
 	//TODO filtrar por el gpt
 	Pregunta.find({
 		where:{ID:req.body.IDPregunta},
-		raw:true,
+		raw:true, nest:true,
 		plain:true
 	}).then(pregunta=>{
 		if(!pregunta){
@@ -460,7 +500,7 @@ router.post('/respuesta', function(req,res){
 		}else{
 			Post.create({
 				cuerpo: req.body.cuerpo,
-				duenioPostID: usu.ID
+				duenioPostID: req.session.usuario.ID
 			}).then(post=>{
 				Respuesta.create({
 					ID: post.ID,
@@ -484,6 +524,85 @@ router.post('/respuesta', function(req,res){
 })
 
 //moderación de preguntas y respuestas
+
+router.post('moderacion_preguntas', function(req,res){
+	if(!req.session.usuario){
+		//Falta lo de permisos
+		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
+		return;
+	}
+	Post.find({
+		where:{ID:req.body.IDPost},
+		raw:true, nest:true,
+		plain:true
+	}).then(post=>{
+		if(!post){
+			res.status(404).send("Pregunta no encontrada/disponible");
+			return;
+		}else{
+			if(req.body.accion == "eliminar"){
+				post.setDataValue("eliminadorID", usu.ID);
+				res.status(200).send("Estado del post consistente con interfaz");
+				return;
+			}else if(req.body.accion== "unificar"){
+				//que hacemos aca?
+			}else{
+				//Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
+				ReportePost.find({
+					where:{ID: req.body.IDReporte},
+					raw:true, nest:true,
+					plain:true
+					}).then(reporte=>{
+						if(!reporte){
+							res.status(404).send("Reporte no encontrado");
+							return;
+						}else{
+							reporte.destroy();
+							res.status(200).send("Estado del post consistente con interfaz");
+							return;
+						}
+					}).catch(err=>{
+						res.status(500).send(err);
+					})
+			}
+		}
+	}).catch(err=>{
+		res.status(500).send(err);
+	})
+})
+
+//get_etiquetas
+
+router.get('/get_etiquetas', function(req,res){
+	//sin paginación porque no deberían ser tantas
+	Etiqueta.findAll({
+		raw:true,
+		nest:true
+	}).then(etiquetas=>{
+		res.status(200).send(etiquetas);
+	}).catch(err=>{
+		res.status(500).send(err);
+	})
+})
+
+
+//get_notificaciones
+
+router.get('/get_notificaciones', function(req,res){
+	Notification.findAll({
+		order:[
+			['visto','DESC']
+		]
+		,limit:PAGINACION.resultadosPorPagina
+		,offset:(+req.pagina)*PAGINACION.resultadosPorPagina,
+		raw:true,
+		nest:true
+	}).then(notificaciones=>{
+		res.status(200).send(notificaciones);
+	}).catch(err=>{
+		res.status(500).send(err);
+	})
+})
 
 /* router.get('/',(req,res)=>{
 }) */

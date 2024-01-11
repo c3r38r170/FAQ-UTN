@@ -1,4 +1,4 @@
-import {Sequelize, DataTypes} from 'sequelize';
+import {Sequelize, DataTypes, VIRTUAL} from 'sequelize';
 
 import * as bcrypt from "bcrypt";
 
@@ -130,13 +130,16 @@ const Post = sequelize.define('post',{
         primaryKey: true,
         autoIncrement: true
     },
-    createdAt:{
-        field:'fecha',
-        type:DataTypes.DATE,
-    },
     cuerpo:{
         type: DataTypes.STRING,
         allowNull: false
+    },
+    fecha:{
+        type:DataTypes.DATE,
+        defaultValue: ()=> new Date().toISOString()
+    },
+    createdAt:{
+        type: DataTypes.VIRTUAL(DataTypes.DATE, ['fecha'])
     }
 })
 
@@ -279,17 +282,8 @@ const PerfilesPermiso = sequelize.define('perfilesPermiso', {
     }
 })
 
-Permiso.hasMany(PerfilesPermiso,{
-    as:'permiso',
-    constraints:false,
-    foreignKey:'permisoID'
-})
-
-Perfil.hasMany(PerfilesPermiso,{
-    as:'perfill',
-    constraints:false,
-    foreignKey:'perfilID'
-})
+Perfil.belongsToMany(Permiso, { through: PerfilesPermiso });
+Permiso.belongsToMany(Perfil, { through: PerfilesPermiso });
 
 const Respuesta = sequelize.define('respuesta',{
     ID: {
@@ -298,21 +292,21 @@ const Respuesta = sequelize.define('respuesta',{
         autoIncrement: false
     },
     fecha:{
-        type: DataTypes.VIRTUAL,
+        type: DataTypes.VIRTUAL(DataTypes.DATE, ['post.fecha']),
         get(){
-            return this.Post.fecha;
+            return this.post.fecha;
         },
         set(value){
-            this.Post.setDataValue('fecha', value);
+            this.post.setDataValue('fecha', value);
         }
     },
     cuerpo:{
-        type: DataTypes.VIRTUAL,
+        type: DataTypes.VIRTUAL(DataTypes.STRING, ['post.cuerpo']),
         get(){
-            return this.Post.cuerpo;
+            return this.post.cuerpo;
         },
         set(value){
-            this.Post.setDataValue('cuerpo', value);
+            this.post.setDataValue('cuerpo', value);
         }
     }
 })
@@ -333,21 +327,21 @@ const Pregunta = sequelize.define('pregunta',{
         allowNull:false
     },
     fecha:{
-        type: DataTypes.VIRTUAL,
+        type: DataTypes.VIRTUAL(DataTypes.DATE, ['post.fecha']),
         get(){
-            return this.Post.fecha;
+            return this.post.fecha;
         },
         set(value){
-            this.Post.setDataValue('fecha', value);
+            this.post.setDataValue('fecha', value);
         }
     },
     cuerpo:{
-        type: DataTypes.VIRTUAL,
+        type: DataTypes.VIRTUAL(DataTypes.STRING, ['post.cuerpo']),
         get(){
-            return this.Post.cuerpo;
+            return this.post.cuerpo;
         },
         set(value){
-            this.Post.setDataValue('cuerpo', value);
+            this.post.setDataValue('cuerpo', value);
         }
     }
 })
@@ -471,7 +465,56 @@ Pregunta.hasMany(SuscripcionesPregunta,{
     foreignKey:'preguntaID'
 })
 
-sequelize.sync({force:true});
+//Post.sync({force:true});
+//Pregunta.sync({force:true});
+
+/*Post.create({
+    cuerpo:"hola"
+});
+Post.create({
+    cuerpo:"hola2"
+});
+Post.create({
+    cuerpo:"hola3"
+});
+Post.create({
+    cuerpo:"hola4"
+});
+Post.create({
+    cuerpo:"hola5"
+});
+*/
+/*
+Pregunta.create({
+    ID:1,
+    titulo:"chau"
+});
+Pregunta.create({
+    ID:2,
+    titulo:"chau2"
+});
+Pregunta.create({
+    ID:3,
+    titulo:"chau3"
+});
+Pregunta.create({
+    ID:4,
+    titulo:"chau4"
+});
+Pregunta.create({
+    ID:5,
+    titulo:"chau5"
+});
+*/
+
+/*sequelize.sync({}).then(()=>{
+    Pregunta.findAll({raw:true,
+        plain:true,
+        nest:true,
+    include:Post}).then(pregunta=>console.log(pregunta.cuerpo));
+})*/
+
+
 
 
 export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
