@@ -45,6 +45,8 @@ router.get("/perfil/:id?", (req, res) => {
 		usu=req.session.usuario;
 	}
 
+	// TODO Feature: Obtener los posts paginados por ID del usuario, la sesion no guarda las asociaciones
+
 		// TODO Feature: Componente "Tarjeta de Usuario", o hacer una versión del Chip de Usuario con esteroides? Ya no sería chip... Pero llevan básicamente la misma info
 		/* tarjeta de usuario 
 		actividad*/
@@ -53,6 +55,7 @@ router.get("/perfil/:id?", (req, res) => {
     titulo: 'Perfil de '+usuario.nombreCompleto,
     sesion: req.session.usuario,
 		partes:[
+			// TODO Feature: Implementar scroll infinito
 			usuario.posts.map(p=>{
 				return p.pregunta?
 					new Pregunta(p.pregunta)
@@ -63,10 +66,11 @@ router.get("/perfil/:id?", (req, res) => {
   res.send(pagina.render());
 });
 
-router.get("/perfil/:id/info", (req, res) => {
+router.get("/perfil/info", (req, res) => {
 	/* TODO Feature: Hacer que /perfil lleve a /perfil/id/info ??  Pensarlo. */
-	// ! El usuario no puede cambiar rol, legajo, ni nombre (este no estoy tan seguro), pero sí imagen (CU 5.4)
-
+	// ! El usuario no puede cambiar rol, legajo, ni nombre (este no estoy tan seguro), pero sí imagen (CU 5.4) y contraseña
+	// * No permitir entrar al de alguien más, si ya toda la info está en /perfil/:id
+/* 
 	let id=req.params.id;
 	let logueadoId=req.session.usuario.ID;
 	let titulo="Perfil de ";
@@ -85,17 +89,20 @@ router.get("/perfil/:id/info", (req, res) => {
 		imagenEditable=true;
 		usu=req.session.usuario;
 	}
+ */
+	let usu=req.session.usuario;
 
   let pagina = new Pagina({
     ruta: req.path,
-    titulo: 'Perfil de '+usuario.nombreCompleto+' - Información',
-    sesion: req.session.usuario,
+    titulo: 'Perfil de '+usu.nombreCompleto+' - Información',
+    sesion: usu /* req.session.usuario */,
 		partes:[
 			// Título('Información básica' (,nivel?(h2,h3...)) )
-			// CampoImagen(usu.id,imagenEditable)
+			// CampoImagen(usu.id) // Editable
 			// Campo('Nombre completo',usu.nombre)
 			// Campo('Legajo',usu.legajo)
 			// Campo('Rol',usu.rol.nombre)
+			// Campo('Contraseña'); // Editable
 		]
   });
   res.send(pagina.render());
@@ -117,6 +124,7 @@ router.get("/pregunta/:id?", (req, res) => {
 				// TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
 				new Pregunta(p)
 				,...p.respuestas.map(r=>new Respuesta(r))
+				// TODO Feature: si está logueado, campo de hacer una respuesta
 			);
 			res.send(pagina.render());
 		})
