@@ -141,6 +141,12 @@ const Post = sequelize.define('post',{
     createdAt:{
         type: DataTypes.VIRTUAL(DataTypes.DATE, ['fecha'])
     }
+},{
+    indexes:[
+        {
+          type: 'FULLTEXT', fields:['cuerpo']
+        }
+    ]
 })
 
 Usuario.hasMany(Post, {
@@ -344,6 +350,12 @@ const Pregunta = sequelize.define('pregunta',{
             this.post.setDataValue('cuerpo', value);
         }
     }
+},{
+    indexes:[
+        {
+          type: 'FULLTEXT', fields:['titulo']
+        }
+    ]
 })
 
 Pregunta.hasOne(Post,{
