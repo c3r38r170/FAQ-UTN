@@ -482,6 +482,36 @@ Pregunta.hasMany(SuscripcionesPregunta,{
     foreignKey:'preguntaID'
 })
 
+const Carrera = sequelize.define('carrera',{
+    ID: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    nombre:{
+        type: DataTypes.STRING,
+        allowNull:false
+    }
+})
+
+const CarrerasUsuario = sequelize.define('carrerasUsuario',{
+    ID: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    }
+})
+
+Usuario.belongsToMany(Carrera, { 
+    through: CarrerasUsuario,
+    constraints:false
+});
+
+Carrera.belongsToMany(Usuario, { 
+    through: CarrerasUsuario,
+    constraints:false
+});
+
 //Post.sync({force:true});
 //Pregunta.sync({force:true});
 
