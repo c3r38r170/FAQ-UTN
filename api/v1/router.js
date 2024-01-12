@@ -391,7 +391,10 @@ router.post('/suscripcion_pregunta', function(req,res){
 			SuscripcionesPregunta.findAll({
 				where:{
 					preguntaSuscripta: req.body.IDPregunta,
-					suscriptoAPregunta: req.session.usuario.ID
+					suscriptoAPregunta: req.session.usuario.ID,
+					fecha_baja:{
+						[Op.is]:null
+					}
 				},
 				raw:true, nest:true,
 				plain:true
@@ -442,7 +445,10 @@ router.post('/suscripcion_etiqueta', function(req,res){
 			SuscripcionesEtiqueta.findAll({
 				where:{
 					etiquetaSuscripta: req.body.IDEtiqueta,
-					suscriptoAEtiqueta: req.session.usuario.ID
+					suscriptoAEtiqueta: req.session.usuario.ID,
+					fecha_baja:{
+						[Op.is]:null
+					}
 				},
 				raw:true, nest:true,
 				plain:true
