@@ -389,17 +389,9 @@ const EtiquetasPregunta = sequelize.define('etiquetasPregunta',{
     }
 })
 
-Pregunta.hasMany(EtiquetasPregunta,{
-    as:'preguntaa',
-    constraints:false,
-    foreignKey:'preguntaID'
-})
+Pregunta.belongsToMany(Etiqueta, { through: EtiquetasPregunta });
+Etiqueta.belongsToMany(Pregunta, { through: EtiquetasPregunta });
 
-Etiqueta.hasMany(EtiquetasPregunta,{
-    as:'etiqueta',
-    constraints:false,
-    foreignKey:'etiquetaID'
-})
 
 const Categoria = sequelize.define('categoria',{
     ID: {

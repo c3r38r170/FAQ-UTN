@@ -539,6 +539,63 @@ router.post('/pregunta', function(req,res){
 	})
 })
 
+
+//sugerir preguntas, una re chanchada
+router.get('/sugerir_pregunta', function(req,res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+	let apropiado = moderar(req.body.cuerpo).apropiado;
+	if(apropiado < rechazaPost){
+		res.status(400).send("Texto rechazo por moderación automática");
+		return;
+	}
+	//Rara la busqueda, busca el mejor match de titulo con titulo, de titulo con cuerpo, de cuerpo con titulo y de cuerpo con cuerpo
+	// ver si anda lo de match
+	//hice union atada con alambre, ver cuan lento es
+	//al ser distintas tablas no puedo hacer un unico indice con las dos columnas
+	Promise.all([
+		Pregunta.findAll({
+			where:['MATCH(titulo) against(?)',req.body.titulo],
+			order:[
+				[Post,'fecha_alta','DESC']
+			]
+			,limit:1,
+			include:Post
+		}),
+		Pregunta.findAll({
+			where:['MATCH(cuerpo) against(?)',req.body.titulo],
+			order:[
+				[Post,'fecha_alta','DESC']
+			]
+			,limit:1,
+			include:Post
+		}),
+		Pregunta.findAll({
+			where:['MATCH(cuerpo) against(?)',req.body.cuerpo],
+			order:[
+				[Post,'fecha_alta','DESC']
+			]
+			,limit:1,
+			include:Post
+		}),
+		Pregunta.findAll({
+			where:['MATCH(titulo) against(?)',req.body.cuerpo],
+			order:[
+				[Post,'fecha_alta','DESC']
+			]
+			,limit:1,
+			include:Post
+		})
+		])
+			.then(preguntas=>{
+				res.status(200).send(preguntas);
+			})
+
+
+})
+
 //respuesta
 
 router.post('/respuesta', function(req,res){
