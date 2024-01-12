@@ -18,7 +18,7 @@ const reportaPost = 70;
 router.post('/sesion', function(req, res) {
 	let usuario;
 
-	Usuario.find({
+	Usuario.findAll({
 		where:{DNI:req.body.DNI}
 		, raw:true, nest:true,
 		plain:true
@@ -52,7 +52,7 @@ router.delete('/sesion', function(req, res) {
 // usuario
 
 const registro_creacion = function(req,res){
-	Usuario.find({
+	Usuario.findAll({
 		where:{DNI:req.body.DNI}
 		, raw:true, nest:true,
 		plain:true
@@ -95,7 +95,7 @@ router.post('/recuperar_contrasenia',function(req,res){
         return retVal;
     }
 
-    Usuario.find({
+    Usuario.findAll({
 		where:{DNI:req.body.DNI}
 		, raw:true, nest:true,
 		plain:true
@@ -153,7 +153,7 @@ router.post('/valorar', function(req,res) {
 		res.status(401).send("Usuario no tiene sesión válida activa.");
 		return;
 	}
-	Post.find({where:{ID:req.body.votadoID}
+	Post.findAll({where:{ID:req.body.votadoID}
 		, raw:true, nest:true,
 		plain:true
 	}).then(post=>{
@@ -161,10 +161,14 @@ router.post('/valorar', function(req,res) {
 				res.status(404).send("Post no encontrado / disponible.");
 				return;
 			}else{
-				Voto.find({where:{
+				Voto.findAll({where:{
 					votadoID:pregunta.ID,
 					votanteID:req.session.usuario.ID
-				}}).then(voto=>{
+					},
+					raw:true,
+					nest:true,
+					plain:true
+				}).then(voto=>{
 					if(!voto){
 						// si no exite el voto lo crea con lo que mandó
 						Voto.create({
@@ -198,7 +202,7 @@ router.post('reporte_post', function(req, res){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	Pregunta.find({
+	Pregunta.findAll({
 		where:{
 			ID:req.body.ID,	
 		}
@@ -228,7 +232,7 @@ router.post('/editar_pregunta', function(req,res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
-	Pregunta.find({
+	Pregunta.findAll({
 		where:{
 			ID:req.body.ID,	
 		}
@@ -272,7 +276,7 @@ router.post('/editar_respuesta', function(req,res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
-	Respuesta.find({
+	Respuesta.findAll({
 		where:{
 			ID:req.body.ID,	
 		}
@@ -318,7 +322,7 @@ router.post('reporte_usuario', function(req, res){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	Usuario.find({
+	Usuario.findAll({
 		where:{
 			ID:req.body.IDUsuario,	
 		}
@@ -348,7 +352,7 @@ router.post('/administracion_perfil', function(req, res){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	Usuario.find({
+	Usuario.findAll({
 		where:{
 			ID:usu.ID,	
 		}
@@ -373,7 +377,7 @@ router.post('/suscripcion_pregunta', function(req,res){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	Pregunta.find({
+	Pregunta.findAll({
 		where:{
 			ID: req.body.IDPregunta
 		},
@@ -384,7 +388,7 @@ router.post('/suscripcion_pregunta', function(req,res){
 			res.status(404).send("Pregunta no encontrada / disponible");
 			return;
 		}else{
-			SuscripcionesPregunta.find({
+			SuscripcionesPregunta.findAll({
 				where:{
 					preguntaSuscripta: req.body.IDPregunta,
 					suscriptoAPregunta: req.session.usuario.ID
@@ -417,14 +421,14 @@ router.post('/suscripcion_pregunta', function(req,res){
 
 //Suscripción / desuscripción a etiqueta
 
-router.post('/suscripcion_pregunta', function(req,res){
+router.post('/suscripcion_etiqueta', function(req,res){
 	//Si no existe suscribe, si existe(sin fecha de baja) desuscribe
 	//TODO acomodar el filtro para que no encuentre suscripciones dadas de baja
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	Etiqueta.find({
+	Etiqueta.findAllAll({
 		where:{
 			ID: req.body.IDEtiqueta
 		},
@@ -435,7 +439,7 @@ router.post('/suscripcion_pregunta', function(req,res){
 			res.status(404).send("Etiqueta no encontrada / disponible");
 			return;
 		}else{
-			SuscripcionesEtiqueta.find({
+			SuscripcionesEtiqueta.findAll({
 				where:{
 					etiquetaSuscripta: req.body.IDEtiqueta,
 					suscriptoAEtiqueta: req.session.usuario.ID
@@ -541,7 +545,7 @@ router.post('/respuesta', function(req,res){
 		res.status(400).send("Texto rechazo por moderación automática");
 		return;
 	}
-	Pregunta.find({
+	Pregunta.findAll({
 		where:{ID:req.body.IDPregunta},
 		raw:true, nest:true,
 		plain:true
@@ -580,13 +584,13 @@ router.post('/respuesta', function(req,res){
 
 //moderación de preguntas y respuestas
 
-router.post('moderacion_preguntas', function(req,res){
+router.post('moderacion_pregunta', function(req,res){
 	if(!req.session.usuario){
 		//Falta lo de permisos
 		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
 		return;
 	}
-	Post.find({
+	Post.findAll({
 		where:{ID:req.body.IDPost},
 		raw:true, nest:true,
 		plain:true
@@ -603,7 +607,53 @@ router.post('moderacion_preguntas', function(req,res){
 				//que hacemos aca?
 			}else{
 				//Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
-				ReportePost.find({
+				ReportePost.findAll({
+					where:{ID: req.body.IDReporte},
+					raw:true, nest:true,
+					plain:true
+					}).then(reporte=>{
+						if(!reporte){
+							res.status(404).send("Reporte no encontrado");
+							return;
+						}else{
+							reporte.destroy();
+							res.status(200).send("Estado del post consistente con interfaz");
+							return;
+						}
+					}).catch(err=>{
+						res.status(500).send(err);
+					})
+			}
+		}
+	}).catch(err=>{
+		res.status(500).send(err);
+	})
+})
+
+//moderación respuestas
+
+router.post('moderacion_respuesta', function(req,res){
+	if(!req.session.usuario){
+		//Falta lo de permisos
+		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
+		return;
+	}
+	Post.findAll({
+		where:{ID:req.body.IDPost},
+		raw:true, nest:true,
+		plain:true
+	}).then(post=>{
+		if(!post){
+			res.status(404).send("Respuesta no encontrada/disponible");
+			return;
+		}else{
+			if(req.body.accion == "eliminar"){
+				post.setDataValue("eliminadorID", usu.ID);
+				res.status(200).send("Estado del post consistente con interfaz");
+				return;
+			}else{
+				//Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
+				ReportePost.findAll({
 					where:{ID: req.body.IDReporte},
 					raw:true, nest:true,
 					plain:true
@@ -644,9 +694,11 @@ router.get('/get_etiquetas', function(req,res){
 //get_notificaciones
 
 router.get('/get_notificaciones', function(req,res){
+	//ver si está bien el orden
 	Notification.findAll({
 		order:[
-			['visto','DESC']
+			['visto','ASC'],
+			['createdAt', 'DESC']
 		]
 		,limit:PAGINACION.resultadosPorPagina
 		,offset:(+req.pagina)*PAGINACION.resultadosPorPagina,
