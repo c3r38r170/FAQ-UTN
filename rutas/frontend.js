@@ -2,7 +2,7 @@ import * as express from "express";
 const router = express.Router();
 import { Pagina, Busqueda } from "../frontend/componentes.js";
 import { Pregunta } from "../frontend/static/componentes/pregunta.js";
-import { Pregunta as PreguntaDAO, Usuario as UsuarioDAO } from '../api/v1/model.js';
+import { Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO } from '../api/v1/model.js';
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
@@ -23,6 +23,43 @@ router.get("/", (req, res) => {
 		})
 		// TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
 });
+
+router.get("/suscripciones",(req,res)=>{
+	if(!req.session.usuario){
+		res.status(401).send();
+		return;
+	}
+
+	PreguntaDAO.findAll({
+		// TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta 
+		include:{
+			model:SuscripcionesPregunta
+			,where:{
+				suscriptoAPregunta:req.session.usuario.ID
+			}
+		}
+	})
+		.then((preguntas)=>{
+			let partes;
+			if(preguntas){
+				// TODO Feature: Indicar que acá es con la primera pregunta. Quizá buscar con el DAO con o sin Preguntas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
+				partes=preguntas.map(p=>new Pregunta(p));
+			}else{
+				// TODO UX: Mensaje de que no hay suscripciones. Componente mensaje PFU-130
+				partes=[];
+			}
+
+			let pagina=new Pagina({
+				ruta:req.path
+				,titulo:p.titulo
+				,sesion:req.session.usuario
+			});
+			// TODO Feature: Scroll infinito. usar el endpoint de paginacion. Quizá como el de tabla, haya que definir un componente Scroll infinito
+			pagina.partes=partes;
+			
+			res.send(pagina.render());
+		})
+})
 
 router.get("/perfil/:id?", (req, res) => {
 	// TODO Feature: Ordenar posts por fecha
@@ -109,7 +146,7 @@ router.get("/perfil/info", (req, res) => {
 });
 
 router.get("/pregunta/:id?", (req, res) => {
-	PreguntaDAO.findById(req.params.id,{plain: true})
+	PreguntaDAO.findById(req.params.id,{plain: true}) // TODO Refactor: hace falta el plain?? ¿No es raw + nest? 
 		.then((p)=>{
 			if(!p){
 				res.status(404).send('ID de pregunta inválida');
