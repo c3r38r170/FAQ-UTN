@@ -288,8 +288,14 @@ const PerfilesPermiso = sequelize.define('perfilesPermiso', {
     }
 })
 
-Perfil.belongsToMany(Permiso, { through: PerfilesPermiso });
-Permiso.belongsToMany(Perfil, { through: PerfilesPermiso });
+Perfil.belongsToMany(Permiso, {
+    through: PerfilesPermiso,
+    constraints:false });
+
+Permiso.belongsToMany(Perfil, { 
+    through: PerfilesPermiso ,
+    constraints:false
+});
 
 const Respuesta = sequelize.define('respuesta',{
     ID: {
@@ -389,8 +395,15 @@ const EtiquetasPregunta = sequelize.define('etiquetasPregunta',{
     }
 })
 
-Pregunta.belongsToMany(Etiqueta, { through: EtiquetasPregunta });
-Etiqueta.belongsToMany(Pregunta, { through: EtiquetasPregunta });
+Pregunta.belongsToMany(Etiqueta, { 
+    through: EtiquetasPregunta,
+    constraints:false
+});
+
+ Etiqueta.belongsToMany(Pregunta, { 
+    through: EtiquetasPregunta,
+    constraints:false 
+});
 
 
 const Categoria = sequelize.define('categoria',{
@@ -519,6 +532,6 @@ Pregunta.create({
 })*/
 
 
-
+sequelize.sync({alter:true});
 
 export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}

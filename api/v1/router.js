@@ -228,7 +228,7 @@ router.post('reporte_post', function(req, res){
 
 //Edición de pregunta
 
-router.post('/editar_pregunta', function(req,res){
+router.patch('/editar_pregunta', function(req,res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
@@ -272,7 +272,7 @@ router.post('/editar_pregunta', function(req,res){
 
 //editar respuesta
 
-router.post('/editar_respuesta', function(req,res){
+router.patch('/editar_respuesta', function(req,res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
@@ -347,7 +347,7 @@ router.post('reporte_usuario', function(req, res){
 
 //administración de perfil
 
-router.post('/administracion_perfil', function(req, res){
+router.patch('/administracion_perfil', function(req, res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
