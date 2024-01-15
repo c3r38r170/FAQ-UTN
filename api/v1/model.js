@@ -150,6 +150,9 @@ const Post = sequelize.define('post',{
     cuerpo:{
         type: DataTypes.STRING,
         allowNull: false
+    },
+    createdAt:{
+        type:DataTypes.DATE,
     }
 })
 
@@ -318,6 +321,11 @@ Respuesta.hasOne(Post,{
     constraints:false,
     foreignKey:'ID'
 })
+
+
+
+
+
 const Pregunta = sequelize.define('pregunta',{
     ID: {
         type: DataTypes.INTEGER,
@@ -372,6 +380,9 @@ Pregunta.pagina=(n=0,{filtro='',etiquetas=[]}={})=>{
 	})
 }
 
+
+
+
 Pregunta.hasOne(Post,{
     constraints:false,
     foreignKey:'ID'
@@ -382,6 +393,7 @@ Pregunta.hasMany(Respuesta,{
     constraints:false,
     foreignKey:'preguntaID'
 })
+
 
 const Etiqueta = sequelize.define('etiqueta',{
     ID: {

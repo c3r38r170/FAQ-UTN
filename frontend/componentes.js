@@ -61,6 +61,7 @@ class Pagina {
 		<script src="${this.#ruta + ".js"}"></script>
 		<link rel="stylesheet" href="${this.#ruta + ".css"}">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
 	</head>
 	<body>
 		${new Encabezado(this.#sesion).render()}
@@ -73,7 +74,7 @@ class Pagina {
 				${this.partes.map((p) => p.render()).join("")}
 				
 			</div>
-			<div id="columna-3" class="column is-6">
+			<div id="columna-3" class="column is-4">
 				<div id="notificacion-titulo">Notificaciones</div>
 				${this.#notificaciones.map((n) => new Notificacion(n).render()).join("")}
 			</div>

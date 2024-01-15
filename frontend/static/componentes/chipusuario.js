@@ -15,7 +15,7 @@ class ChipUsuario{
             <div class="column is-narrow">
                 <img id="img-usuario" src="${this.#imagenperfil}"></img>
             </div>
-            <div class="column is-narrow">
+            <div class="column is-narrow pl-0">
                 <div id="nombre-usuario">${this.#nombreusuario}</div>
                 <div id="tipo-usuario">${this.#tipousuario}</div>
             </div>

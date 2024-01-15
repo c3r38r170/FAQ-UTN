@@ -136,8 +136,8 @@ div.notificacion{
 	padding: 0.5rem 0;
 	margin-bottom: 0.5rem;
 	div#img-container{
-		flex-shrink: 0;
-		width: 14%;
+		min-width: 60px;
+		text-align: center;
 		img{
 		width: 40px;
 		margin: auto;
@@ -146,8 +146,8 @@ div.notificacion{
 		}
 	}
 	div#noti-container{
-		flex-shrink: 0;
-		width: 80%;
+		display: inline-block;
+		padding-right:20px;
 		a{
 			color: $text;
             overflow: hidden;
@@ -178,7 +178,7 @@ div.notificacion{
 		display: inline-block;
 	}
 	#img-usuario{
-		width: 36px;
+		width: 30px;
 		border-radius: 100%;
 	}
 }
@@ -190,11 +190,20 @@ div.notificacion{
 	margin-right: auto;
 	padding: 0px $p-central 1rem $p-central;
 	border-bottom: 2px solid lightgray;
+	
 	#fecha{
 		margin-left: 0.5rem;
 		color: $text;
 		font-size: 0.9rem;
 		font-weight: 300;
+		display: inline-block;
+	}
+	#titulo{
+		margin-left: 0.2rem;
+		color: $text;
+		font-size: 1.1rem;
+		line-height: 2;
+		font-weight: 700;
 		display: inline-block;
 	}
 	#cuerpo{
@@ -226,14 +235,6 @@ div.notificacion{
 	}
 }
 
-.respuesta{
-	#fecha{
-
-	}
-	#cuerpo{
-
-	}
-}
 
 div.buscador{
 	padding: 0px $p-central 1.8rem $p-central;
@@ -276,45 +277,61 @@ footer#footer{
 }
 
 
+#chip-valoracion{
+	display: flex;
+    flex-direction: column;
+    gap: 0rem;
+	justify-content: center;
+    align-items: center;
+	text-align: center;
 
-  div#triangulo{
-	height:60px;
-	margin:0;
-	padding:0;
-	overflow:hidden;
-  }
-  
-  .triangulo-redondeado,
-  .triangulo-redondeado:before,
-  .triangulo-redondeado:after {
-	position: relative;
-	display:block;
-	width:  20px;
-	height: 20px;
-	background: #a8a8a8;
-	border-top-right-radius: 10px;
-  }
-  .triangulo-redondeado {
-	margin: 10px auto 0 auto;
-	transform: rotate(-60deg) skewX(-30deg) scale(1,.866);
-  }
-  .triangulo-redondeado:before,
-  .triangulo-redondeado:after {
-	content: '';
-	position: absolute;
-  }
-  .triangulo-redondeado:before {
-	transform: rotate(-135deg) skewX(-45deg) scale(1.414,.707) translate(0,-50%);
-  }
-  .triangulo-redondeado:after {
-	transform: rotate(135deg) skewY(-45deg) scale(.707,1.414) translate(50%);
-  }
+	button{
+		border-radius: 50%;
+		padding: 2px 10px;
+		border: none;
+		background-color: lightgray;
+		transition: all 60ms ease-in-out;
+		cursor: pointer;
+		span{
+			font-size: 1.8rem;
+			color: $text;
+		}
+	}
+	button#positiva{
+		&:hover{
+			background-color: $text-hover;
+		}
+	}
+	button#negativa{
+		&:hover{
+			background-color: gray;
+		}
+	}
+	div#valoraciones{
+		line-height: 1.5;
+		margin: 0.5rem;
+		font-weight: 700;
+		font-size: medium;
+	}
 
+}
 
   div#respuesta{
 	padding: 0 $p-central;
 	display: flex;
     gap: 1rem;
+	#contenedor-reporte{
+		display: block;
+		text-align: right;
+		margin-bottom: 15px;
+	}
+	#fecha{
+		margin-left: 0.5rem;
+		color: $text;
+		font-size: 0.9rem;
+		font-weight: 300;
+		display: inline-block;
+	}
 	.valoracion{
 		min-width: 60px;
 	}
@@ -324,4 +341,36 @@ footer#footer{
 			margin-top: 1.2rem
 		}
 	}
+  }
+
+
+  #reporte{
+	background-color: white;
+	border: none;
+	padding: 0;
+	position: relative;
+	right: 0;
+	margin-left: auto;
+    margin-right: 1rem;
+	span{
+		font-size: 1.5rem;
+		color: gray;
+		&:hover{
+			color: #d1be69;
+			cursor: pointer;
+		}
+
+	}
+  }
+
+  button.mi-boton{
+	line-height: 1.6;
+	font-size: 0.8rem;
+	font-weight: 700;
+	padding: 8px 20px;
+	border-radius: 7px;
+	border: none;
+	background-color: lightgray;
+	cursor: pointer;
+	margin: 20px auto;
   }

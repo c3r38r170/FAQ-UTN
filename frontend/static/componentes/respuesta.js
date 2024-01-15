@@ -2,17 +2,15 @@ import { ChipUsuario } from "./chipusuario.js";
 import { ChipValoracion } from "./chipvaloracion.js"
 
 class Respuesta {
-  #valoracion;
-  #estado = {
+  #valoracion = {
+    valoracion: '40',
     estado: false
-  };
+  }
   #cuerpo;
   #fecha;
-  #usuario;
   #chipusuario;
   etiquetas = [];
   constructor({ usuario, cuerpo, fecha, valoracion }) {
-    this.#usuario = usuario;
     this.#valoracion = valoracion;
     this.#cuerpo = cuerpo;
     this.#fecha = fecha;
@@ -21,10 +19,16 @@ class Respuesta {
   render() {
     return `
         <div id="respuesta">
-            <div class="valoracion is narrow">
-                ${new ChipValoracion(this.#valoracion, this.#estado).render()}
-            </div>
-            <div class="cuerpo">
+              ${new ChipValoracion(this.#valoracion).render()}
+              <div class="cuerpo">
+                <div id="contenedor-reporte">
+                  <button id="reporte" onclick="${this.reportar()}">
+                  <span>
+                      <i class="fa-solid fa-circle-exclamation">
+                      </i>
+                  </span>
+                  </button>
+                </div>
                 ${this.#cuerpo}
                 <div class="columns is-vcentered mb-1 usuario">
                     <div class="column is-narrow pr-0 py-0">
@@ -33,11 +37,17 @@ class Respuesta {
                     <div class="column is-narrow pl-0 py-0">
                         <div id="fecha">  •  ${this.#fecha}</div>
                     </div>
+                    
                 </div>
             </div>
         </div>
         `;
   }
+
+  reportar(){
+
+  }
+
 }
 
 export { Respuesta };

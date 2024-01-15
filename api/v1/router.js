@@ -1,7 +1,7 @@
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 const router = express.Router();
-import {Usuario,Pregunta} from '../api/v1/model.js';
+import {Usuario,Pregunta} from './model.js';
 
 // TODO Refactor: ¿Sacar y poner en models.js? Así el modelo se encarga de la paginación, y a los controladores no les importa.
 const PAGINACION={

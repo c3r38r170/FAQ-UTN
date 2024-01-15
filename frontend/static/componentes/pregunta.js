@@ -1,6 +1,7 @@
 import { ChipUsuario } from "./chipusuario.js";
 import { Etiqueta } from "./etiqueta.js";
 import { Respuesta } from "./respuesta.js";
+import { Boton } from "./boton.js"
 
 class Pregunta{
     #titulo;
@@ -46,10 +47,16 @@ class Pregunta{
                 ${this.#chipusuario.render()}
                 </div>
                 <div class="column is-narrow pl-0 py-0">
-                    <div id="fecha">  •  ${this.#fecha}</div>
+                    <div id="fecha">•  ${this.#fecha}</div>
                 </div>
+                <button id="reporte" onclick="${this.reportar()}">
+                    <span>
+                        <i class="fa-solid fa-circle-exclamation">
+                        </i>
+                    </span>
+                </button>
             </div>
-                       
+            <div id="titulo">${this.#titulo}</div>
             <div id="cuerpo">${this.#cuerpo}</div>
             <div id="etiquetas">
             ${this.#etiquetas.map(e=> new Etiqueta(e).render()).join('')}
@@ -59,6 +66,10 @@ class Pregunta{
         ${this.#respuestas.map((r) => new Respuesta(r).render()).join("")}
         `;
 	}
+
+    reportar(){
+
+    }
 }
 
 export {Pregunta};
