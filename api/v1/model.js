@@ -27,6 +27,7 @@ const sequelize = new Sequelize(
 
 
 const Usuario = sequelize.define('usuario', {
+    // TODO Feature: Cambiar ID por DNI?? que DNI sea la clave primaria
     ID: {
         type: DataTypes.INTEGER,
         primaryKey: true,
