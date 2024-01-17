@@ -4,18 +4,22 @@ const router = express.Router();
 import {Usuario,Pregunta} from '../api/v1/model.js';
 import { ReportePost, SuscripcionesPregunta, Voto } from "./model.js";
 import { Sequelize } from "sequelize";
+import {moderar} from "../api/v1/ia.js";
 
 // TODO Refactor: ¿Sacar y poner en models.js? Así el modelo se encarga de la paginación, y a los controladores no les importa.
 const PAGINACION={
 	resultadosPorPagina:10
 }
 
+const rechazaPost = 40;
+const reportaPost = 70;
+
 // sesiones
 
 router.post('/sesion', function(req, res) {
 	let usuario;
 
-	Usuario.find({
+	Usuario.findAll({
 		where:{DNI:req.body.DNI}
 		, raw:true, nest:true,
 		plain:true
@@ -53,7 +57,7 @@ router.delete('/sesion', function(req, res) {
 // usuario
 
 const registro_creacion = function(req,res){
-	Usuario.find({
+	Usuario.findAll({
 		where:{DNI:req.body.DNI}
 		, raw:true, nest:true,
 		plain:true
@@ -96,7 +100,7 @@ router.post('/recuperar_contrasenia',function(req,res){
         return retVal;
     }
 
-    Usuario.find({
+    Usuario.findAll({
 		where:{DNI:req.body.DNI}
 		, raw:true, nest:true,
 		plain:true
@@ -114,10 +118,28 @@ router.post('/recuperar_contrasenia',function(req,res){
     })
 });
 
-//Recibir preguntas recientes / revantes
+//Recibir preguntas recientes / relevantes
 router.get('/preguntas',(req,res)=>{
 	// TODO Feature: Aceptar etiquetas y filtro de texto
-	Pregunta.pagina(+req.pagina)
+	// Pregunta.pagina(+req.pagina)
+
+	// TODO Feature: ver si anda lo de match, y lo del or
+	//hice union atada con alambre, ver cuan lento es
+	//al ser distintas tablas no puedo hacer un unico indice con las dos columnas
+	Pregunta.findAll({
+		where:{
+			[Sequelize.or]:[
+				['MATCH(titulo) against(?)',req.body.cuerpo],
+				['MATCH(cuerpo) against(?)',req.body.cuerpo]
+			]
+		},
+		order:[
+			[Post,'fecha_alta','DESC']
+		]
+		,limit:PAGINACION.resultadosPorPagina
+		,offset:(+req.pagina)*PAGINACION.resultadosPorPagina,
+		include:Post
+	})
 		.then(preguntas=>{
 			res.status(200).send(preguntas);
 		})
@@ -133,7 +155,7 @@ router.post('/valorar', function(req,res) {
 		res.status(401).send("Usuario no tiene sesión válida activa.");
 		return;
 	}
-	Post.find({where:{ID:req.body.votadoID}
+	Post.findAll({where:{ID:req.body.votadoID}
 		, raw:true, nest:true,
 		plain:true
 	}).then(post=>{
@@ -141,10 +163,14 @@ router.post('/valorar', function(req,res) {
 				res.status(404).send("Post no encontrado / disponible.");
 				return;
 			}else{
-				Voto.find({where:{
+				Voto.findAll({where:{
 					votadoID:pregunta.ID,
 					votanteID:req.session.usuario.ID
-				}}).then(voto=>{
+					},
+					raw:true,
+					nest:true,
+					plain:true
+				}).then(voto=>{
 					if(!voto){
 						// si no exite el voto lo crea con lo que mandó
 						Voto.create({
@@ -178,7 +204,7 @@ router.post('reporte_post', function(req, res){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	Pregunta.find({
+	Pregunta.findAll({
 		where:{
 			ID:req.body.ID,	
 		}
@@ -204,11 +230,11 @@ router.post('reporte_post', function(req, res){
 
 //Edición de pregunta
 
-router.post('/editar_pregunta', function(req,res){
+router.patch('/editar_pregunta', function(req,res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
-	Pregunta.find({
+	Pregunta.findAll({
 		where:{
 			ID:req.body.ID,	
 		}
@@ -224,8 +250,17 @@ router.post('/editar_pregunta', function(req,res){
 				res.status(401).send("Usuario no tiene sesión válida activa.");
 				return;
 			}else{
-				//TODO mandar al gpt
-
+				let apropiado = moderar(req.body.cuerpo).apropiado;
+				if(apropiado < rechazaPost){
+					res.status(400).send("Texto rechazo por moderación automática");
+					return;
+				}else if(apropiado<reportaPost){
+					//Crear reporte
+					//TODO definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front
+					ReportePost.create({
+						reportadoID: pregunta.ID
+					});
+				}
 				//si pasa el filtro
 				pregunta.setDataValue('cuerpo', req.body.cuerpo)
 				res.status(200).send("Pregunta actualizada exitosamente");
@@ -239,31 +274,41 @@ router.post('/editar_pregunta', function(req,res){
 
 //editar respuesta
 
-router.post('/editar_respuesta', function(req,res){
+router.patch('/editar_respuesta', function(req,res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
-	Respuesta.find({
+	Respuesta.findAll({
 		where:{
 			ID:req.body.ID,	
 		}
 		, raw:true, nest:true,
 		plain:true,
 		include:Post
-	}).then(pregunta=>{
-		if(!pregunta){
-			res.status(404).send("Pregunta no encontrada");
+	}).then(respuesta=>{
+		if(!respuesta){
+			res.status(404).send("Respuesta no encontrada");
 			return;
 		}else{
-			if(pregunta.post.getDataValue('duenioPost')!=req.session.usuario.ID){
+			if(respuesta.post.getDataValue('duenioPost')!=req.session.usuario.ID){
 				res.status(401).send("Usuario no tiene sesión válida activa.");
 				return;
 			}else{
-				//TODO mandar al gpt
-
-				//si pasa el filtro
-				pregunta.setDataValue('cuerpo', req.body.cuerpo)
-				res.status(200).send("Pregunta actualizada exitosamente");
+				//filtro IA
+				let apropiado = moderar(req.body.cuerpo).apropiado;
+				if(apropiado < rechazaPost){
+					res.status(400).send("Texto rechazo por moderación automática");
+					return;
+				}else if(apropiado<reportaPost){
+					//Crear reporte
+					//TODO definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front
+					ReportePost.create({
+						reportadoID: respuesta.ID
+					});
+				}
+				//pasa el filtro
+				respuesta.setDataValue('cuerpo', req.body.cuerpo)
+				res.status(200).send("Respuesta actualizada exitosamente");
 			}
 		}
 	})
@@ -279,7 +324,7 @@ router.post('reporte_usuario', function(req, res){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	Usuario.find({
+	Usuario.findAll({
 		where:{
 			ID:req.body.IDUsuario,	
 		}
@@ -304,12 +349,12 @@ router.post('reporte_usuario', function(req, res){
 
 //administración de perfil
 
-router.post('/administracion_perfil', function(req, res){
+router.patch('/administracion_perfil', function(req, res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	Usuario.find({
+	Usuario.findAll({
 		where:{
 			ID:usu.ID,	
 		}
@@ -334,7 +379,7 @@ router.post('/suscripcion_pregunta', function(req,res){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	Pregunta.find({
+	Pregunta.findAll({
 		where:{
 			ID: req.body.IDPregunta
 		},
@@ -345,10 +390,13 @@ router.post('/suscripcion_pregunta', function(req,res){
 			res.status(404).send("Pregunta no encontrada / disponible");
 			return;
 		}else{
-			SuscripcionesPregunta.find({
+			SuscripcionesPregunta.findAll({
 				where:{
 					preguntaSuscripta: req.body.IDPregunta,
-					suscriptoAPregunta: req.session.usuario.ID
+					suscriptoAPregunta: req.session.usuario.ID,
+					fecha_baja:{
+						[Op.is]:null
+					}
 				},
 				raw:true, nest:true,
 				plain:true
@@ -378,14 +426,14 @@ router.post('/suscripcion_pregunta', function(req,res){
 
 //Suscripción / desuscripción a etiqueta
 
-router.post('/suscripcion_pregunta', function(req,res){
+router.post('/suscripcion_etiqueta', function(req,res){
 	//Si no existe suscribe, si existe(sin fecha de baja) desuscribe
 	//TODO acomodar el filtro para que no encuentre suscripciones dadas de baja
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	Etiqueta.find({
+	Etiqueta.findAllAll({
 		where:{
 			ID: req.body.IDEtiqueta
 		},
@@ -396,10 +444,13 @@ router.post('/suscripcion_pregunta', function(req,res){
 			res.status(404).send("Etiqueta no encontrada / disponible");
 			return;
 		}else{
-			SuscripcionesEtiqueta.find({
+			SuscripcionesEtiqueta.findAll({
 				where:{
 					etiquetaSuscripta: req.body.IDEtiqueta,
-					suscriptoAEtiqueta: req.session.usuario.ID
+					suscriptoAEtiqueta: req.session.usuario.ID,
+					fecha_baja:{
+						[Op.is]:null
+					}
 				},
 				raw:true, nest:true,
 				plain:true
@@ -462,7 +513,11 @@ router.post('/pregunta', function(req,res){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	//TODO filtrar por el gpt
+	let apropiado = moderar(req.body.cuerpo).apropiado;
+	if(apropiado < rechazaPost){
+		res.status(400).send("Texto rechazo por moderación automática");
+		return;
+	}
 	Post.create({
 		cuerpo: req.body.cuerpo,
 		duenioPostID: req.session.usuario.ID
@@ -470,9 +525,13 @@ router.post('/pregunta', function(req,res){
 		Pregunta.create({
 			ID: post.ID,
 			titulo: req.body.titulo
-		}).then(
-			res.status(201).send(post.ID)
-		)
+		}).then(()=>{
+			if(apropiado < reportaPost){
+				ReportePost.create({
+					reportadoID: post.ID})
+			}
+			res.status(201).send(post.ID);
+		})
 		.catch(err=>{
 			res.status(500).send(err);
 		})
@@ -482,6 +541,63 @@ router.post('/pregunta', function(req,res){
 	})
 })
 
+
+//sugerir preguntas, una re chanchada
+router.get('/sugerir_pregunta', function(req,res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+	let apropiado = moderar(req.body.cuerpo).apropiado;
+	if(apropiado < rechazaPost){
+		res.status(400).send("Texto rechazo por moderación automática");
+		return;
+	}
+	//Rara la busqueda, busca el mejor match de titulo con titulo, de titulo con cuerpo, de cuerpo con titulo y de cuerpo con cuerpo
+	// ver si anda lo de match
+	//hice union atada con alambre, ver cuan lento es
+	//al ser distintas tablas no puedo hacer un unico indice con las dos columnas
+	Promise.all([
+		Pregunta.findAll({
+			where:['MATCH(titulo) against(?)',req.body.titulo],
+			order:[
+				[Post,'fecha_alta','DESC']
+			]
+			,limit:1,
+			include:Post
+		}),
+		Pregunta.findAll({
+			where:['MATCH(cuerpo) against(?)',req.body.titulo],
+			order:[
+				[Post,'fecha_alta','DESC']
+			]
+			,limit:1,
+			include:Post
+		}),
+		Pregunta.findAll({
+			where:['MATCH(cuerpo) against(?)',req.body.cuerpo],
+			order:[
+				[Post,'fecha_alta','DESC']
+			]
+			,limit:1,
+			include:Post
+		}),
+		Pregunta.findAll({
+			where:['MATCH(titulo) against(?)',req.body.cuerpo],
+			order:[
+				[Post,'fecha_alta','DESC']
+			]
+			,limit:1,
+			include:Post
+		})
+		])
+			.then(preguntas=>{
+				res.status(200).send(preguntas);
+			})
+
+
+})
+
 //respuesta
 
 router.post('/respuesta', function(req,res){
@@ -489,8 +605,12 @@ router.post('/respuesta', function(req,res){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	//TODO filtrar por el gpt
-	Pregunta.find({
+	let apropiado = moderar(req.body.cuerpo).apropiado;
+	if(apropiado < rechazaPost){
+		res.status(400).send("Texto rechazo por moderación automática");
+		return;
+	}
+	Pregunta.findAll({
 		where:{ID:req.body.IDPregunta},
 		raw:true, nest:true,
 		plain:true
@@ -506,9 +626,13 @@ router.post('/respuesta', function(req,res){
 					ID: post.ID,
 					titulo: req.body.titulo,
 					preguntaID: req.body.IDPregunta
-				}).then(
-					res.status(201).send("Respuesta registrada")
-				)
+				}).then(()=>{
+					if(apropiado < reportaPost){
+						ReportePost.create({
+							reportadoID: post.ID})
+					}
+					res.status(201).send(post.ID);
+				})
 				.catch(err=>{
 					res.status(500).send(err);
 				})
@@ -525,13 +649,13 @@ router.post('/respuesta', function(req,res){
 
 //moderación de preguntas y respuestas
 
-router.post('moderacion_preguntas', function(req,res){
+router.post('moderacion_pregunta', function(req,res){
 	if(!req.session.usuario){
 		//Falta lo de permisos
 		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
 		return;
 	}
-	Post.find({
+	Post.findAll({
 		where:{ID:req.body.IDPost},
 		raw:true, nest:true,
 		plain:true
@@ -548,7 +672,53 @@ router.post('moderacion_preguntas', function(req,res){
 				//que hacemos aca?
 			}else{
 				//Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
-				ReportePost.find({
+				ReportePost.findAll({
+					where:{ID: req.body.IDReporte},
+					raw:true, nest:true,
+					plain:true
+					}).then(reporte=>{
+						if(!reporte){
+							res.status(404).send("Reporte no encontrado");
+							return;
+						}else{
+							reporte.destroy();
+							res.status(200).send("Estado del post consistente con interfaz");
+							return;
+						}
+					}).catch(err=>{
+						res.status(500).send(err);
+					})
+			}
+		}
+	}).catch(err=>{
+		res.status(500).send(err);
+	})
+})
+
+//moderación respuestas
+
+router.post('moderacion_respuesta', function(req,res){
+	if(!req.session.usuario){
+		//Falta lo de permisos
+		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
+		return;
+	}
+	Post.findAll({
+		where:{ID:req.body.IDPost},
+		raw:true, nest:true,
+		plain:true
+	}).then(post=>{
+		if(!post){
+			res.status(404).send("Respuesta no encontrada/disponible");
+			return;
+		}else{
+			if(req.body.accion == "eliminar"){
+				post.setDataValue("eliminadorID", usu.ID);
+				res.status(200).send("Estado del post consistente con interfaz");
+				return;
+			}else{
+				//Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
+				ReportePost.findAll({
 					where:{ID: req.body.IDReporte},
 					raw:true, nest:true,
 					plain:true
@@ -589,9 +759,11 @@ router.get('/get_etiquetas', function(req,res){
 //get_notificaciones
 
 router.get('/get_notificaciones', function(req,res){
+	//ver si está bien el orden
 	Notification.findAll({
 		order:[
-			['visto','DESC']
+			['visto','ASC'],
+			['createdAt', 'DESC']
 		]
 		,limit:PAGINACION.resultadosPorPagina
 		,offset:(+req.pagina)*PAGINACION.resultadosPorPagina,

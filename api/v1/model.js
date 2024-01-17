@@ -141,6 +141,12 @@ const Post = sequelize.define('post',{
     createdAt:{
         type: DataTypes.VIRTUAL(DataTypes.DATE, ['fecha'])
     }
+},{
+    indexes:[
+        {
+          type: 'FULLTEXT', fields:['cuerpo']
+        }
+    ]
 })
 
 Usuario.hasMany(Post, {
@@ -282,8 +288,14 @@ const PerfilesPermiso = sequelize.define('perfilesPermiso', {
     }
 })
 
-Perfil.belongsToMany(Permiso, { through: PerfilesPermiso });
-Permiso.belongsToMany(Perfil, { through: PerfilesPermiso });
+Perfil.belongsToMany(Permiso, {
+    through: PerfilesPermiso,
+    constraints:false });
+
+Permiso.belongsToMany(Perfil, { 
+    through: PerfilesPermiso ,
+    constraints:false
+});
 
 const Respuesta = sequelize.define('respuesta',{
     ID: {
@@ -344,6 +356,12 @@ const Pregunta = sequelize.define('pregunta',{
             this.post.setDataValue('cuerpo', value);
         }
     }
+},{
+    indexes:[
+        {
+          type: 'FULLTEXT', fields:['titulo']
+        }
+    ]
 })
 
 // TODO Refactor: Llevar arriba de todo si se define que va a quedar acá.
@@ -419,17 +437,16 @@ const EtiquetasPregunta = sequelize.define('etiquetasPregunta',{
     }
 })
 
-Pregunta.hasMany(EtiquetasPregunta,{
-    as:'preguntaa',
-    constraints:false,
-    foreignKey:'preguntaID'
-})
+Pregunta.belongsToMany(Etiqueta, { 
+    through: EtiquetasPregunta,
+    constraints:false
+});
 
-Etiqueta.hasMany(EtiquetasPregunta,{
-    as:'etiqueta',
-    constraints:false,
-    foreignKey:'etiquetaID'
-})
+ Etiqueta.belongsToMany(Pregunta, { 
+    through: EtiquetasPregunta,
+    constraints:false 
+});
+
 
 const Categoria = sequelize.define('categoria',{
     ID: {
@@ -507,6 +524,36 @@ Pregunta.hasMany(SuscripcionesPregunta,{
     foreignKey:'preguntaID'
 })
 
+const Carrera = sequelize.define('carrera',{
+    ID: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    nombre:{
+        type: DataTypes.STRING,
+        allowNull:false
+    }
+})
+
+const CarrerasUsuario = sequelize.define('carrerasUsuario',{
+    ID: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    }
+})
+
+Usuario.belongsToMany(Carrera, { 
+    through: CarrerasUsuario,
+    constraints:false
+});
+
+Carrera.belongsToMany(Usuario, { 
+    through: CarrerasUsuario,
+    constraints:false
+});
+
 //Post.sync({force:true});
 //Pregunta.sync({force:true});
 
@@ -557,6 +604,6 @@ Pregunta.create({
 })*/
 
 
-
+sequelize.sync({alter:true});
 
 export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
