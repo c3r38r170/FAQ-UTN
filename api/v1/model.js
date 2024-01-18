@@ -142,7 +142,9 @@ const Post = sequelize.define('post',{
         defaultValue: ()=> new Date().toISOString()
     },
     createdAt:{
-        type: DataTypes.VIRTUAL(DataTypes.DATE, ['fecha'])
+        //type: DataTypes.VIRTUAL(DataTypes.DATE, ['fecha'])
+        type:DataTypes.DATE,
+        defaultValue: ()=> new Date().toISOString()
     }
 },{
     indexes:[

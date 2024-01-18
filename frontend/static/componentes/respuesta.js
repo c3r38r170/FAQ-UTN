@@ -1,5 +1,6 @@
 import { ChipUsuario } from "./chipusuario.js";
 import { ChipValoracion } from "./chipvaloracion.js"
+import { Fecha } from "./fecha.js"
 
 class Respuesta {
   #valoracion = {
@@ -13,7 +14,7 @@ class Respuesta {
   constructor({ usuario, cuerpo, fecha, valoracion }) {
     this.#valoracion = valoracion;
     this.#cuerpo = cuerpo;
-    this.#fecha = fecha;
+    this.#fecha = new Fecha(fecha);
     this.#chipusuario = new ChipUsuario(usuario);
   }
   render() {
@@ -35,7 +36,7 @@ class Respuesta {
                     ${this.#chipusuario.render()}
                     </div>
                     <div class="column is-narrow pl-0 py-0">
-                        <div id="fecha">  •  ${this.#fecha}</div>
+                        ${this.#fecha.render()}
                     </div>
                     
                 </div>

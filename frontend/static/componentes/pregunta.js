@@ -3,10 +3,9 @@ import { Etiqueta } from "./etiqueta.js";
 import { Respuesta } from "./respuesta.js";
 import { Boton } from "./boton.js"
 import { Usuario as UsuarioDAO } from "../../../api/v1/model.js"
+import { Fecha } from "./fecha.js"
 
 class Pregunta{
-    #opcionesDeFormato = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
-    #fechaformateada;
     #titulo;
     #cuerpo;
     #fecha;
@@ -14,7 +13,7 @@ class Pregunta{
     #usuario={
         nombre: 'John Doe',
         tipo: 'Administrador',
-        imagen: 'https://definicion.de/wp-content/uploads/2019/07/perfil-de-usuario.png'
+        imagen: '../user.webp'
     }
     #user;
     #etiquetas= [
@@ -28,7 +27,7 @@ class Pregunta{
         },
         valoracion: '30',
         cuerpo: 'andard dum andapsum is simply dummy text of the printing and the inrd dumandard dum',
-        fecha: '25 de Diciembre de 2024'
+        fecha: '2024-01-17T16:32:26.000Z'
     }]
     #chipusuario;
     // TODO Feature: Hay 2 representaciones de pregunta. En el inicio, donde hay un listado, se ve la pregunta y la primera respuesta; y en la página propia se ve solo la pregunta y las respuestas se verían abajo con su propia representación.
@@ -38,8 +37,7 @@ class Pregunta{
         if (titulo && cuerpo && fecha) {
             this.#titulo = titulo;
             this.#cuerpo = cuerpo;
-            this.#fecha = new Date(fecha)
-            this.#fechaformateada = this.#fecha.toLocaleDateString('es-ES', this.#opcionesDeFormato);
+            this.#fecha = new Fecha(fecha)
             this.#duenioPostID = post.duenioPostID;
             this.buscarUsuario();
             console.log(this.#chipusuario);
@@ -75,7 +73,7 @@ class Pregunta{
                     ${this.#chipusuario ? this.#chipusuario.render() : ''}
                     </div>
                     <div class="column is-narrow pl-0 py-0">
-                        <div id="fecha">•  ${this.#fechaformateada}</div>
+                        ${this.#fecha.render()}
                     </div>
                     <button id="reporte" onclick="${this.reportar()}">
                         <span>

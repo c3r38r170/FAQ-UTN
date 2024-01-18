@@ -7,7 +7,7 @@ class Navegacion{
                 <li>
                     <img id="icono" src="">
                     </img>
-                    <a id="link" src="./buscar">Buscar</a>
+                    <a id="link" href="http://localhost:8080/explorar">Buscar</a>
                 </li>
                 <li>
                     <img id="icono" src="">
