@@ -4,10 +4,11 @@ import { Pagina, Busqueda } from "../frontend/componentes.js";
 import { Pregunta } from "../frontend/static/componentes/pregunta.js";
 import { Pregunta as PreguntaDAO, Usuario as UsuarioDAO, Post, Usuario, Respuesta } from '../api/v1/model.js';
 import { ChipUsuario } from "../frontend/static/componentes/chipusuario.js";
+import { Busqueda as BusquedaDAO } from "../frontend/static/componentes/busqueda.js"
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
-
+/*
 router.get("/", (req, res) => {
 	PreguntaDAO.pagina()
 		.then(pre=>{
@@ -26,6 +27,56 @@ router.get("/", (req, res) => {
 		})
 		// TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
 });
+*/
+
+//Ruta que muestra todas las preguntas y respuestas
+// Falta implementar la paginación
+
+router.get("/", async (req, res) =>  {
+    try {
+        const preguntas = await PreguntaDAO.findAll({
+            include: [
+                {
+                    model: Post,
+                    as: 'post'
+                },
+                {
+                    model: Respuesta,
+                    as: 'respuestas',
+                    include: [
+                        {
+                            model: Post,
+                            as: 'post'
+                        }
+                    ]
+                }
+            ]
+        });
+
+        if (!preguntas || preguntas.length === 0) {
+            res.status(404).send('No se encontraron preguntas');
+            return;
+        }
+
+        let pagina = new Pagina({
+            ruta: req.path,
+            titulo: 'Inicio',
+            sesion: req.session.usuario
+        });
+
+
+		for(let i=0; i < preguntas.length;i++){
+			pagina.partes.push(new Pregunta(preguntas[i].dataValues))
+		}
+
+        res.send(pagina.render());
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error interno del servidor');
+    }
+});
+
+
 
 router.get("/perfil/:id?", (req, res) => {
 	// TODO Feature: Ordenar posts por fecha
@@ -65,51 +116,7 @@ router.get("/perfil/:id?", (req, res) => {
   res.send(pagina.render());
 });
 
-// Rompe el servidor porque no recibe los valores de la base de datos
-/*
-router.get("/pregunta/:id?", async (req, res) =>  {
-	PreguntaDAO.findByPk(req.params.id,
-		{raw:true,
-        plain:true,
-        nest:true,
-    	include: [
-			{
-				model: Post,
-				as: 'post'
-			},
-			{
-				model: Respuesta,
-				as: 'respuestas',
-				include: [
-					{
-						model: Post,
-						as: 'post'
-					}
-				]
-			}
-		]})
-		.then((p)=>{
-			if(!p){
-				res.status(404).send('ID de pregunta inválida');
-			}
-
-			let pagina=new Pagina({
-				ruta:req.path,
-				titulo: "p.titulo", 
-				sesion:req.session.usuario
-			});
-			pagina.partes.push(
-				// TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
-				
-				new Pregunta(p)
-				//,...p.respuestas.map(r=>new Respuesta(r))
-			);
-			res.send(pagina.render());
-		}) 
-
-});
-*/
-
+// Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) =>  {
     try {
         const p = await PreguntaDAO.findByPk(req.params.id, {
@@ -161,7 +168,6 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 });
 
 
-
 // Ruta Para Pruebas de Componentes
 router.get("/componentes", (req, res) => {
   let pagina = new Pagina({
@@ -202,6 +208,21 @@ router.get("/usuario/:id?", async (req, res) =>  {
 
 });
 
+
+// Ruta Para búsqueda
+// Solo muestra el formulario de búsqueda
+// ToDo Feature 
+// Se puede implementar que se muestren preguntas recientes... etc
+router.get("/explorar", (req, res) => {
+	let pagina = new Pagina({
+	  ruta: req.path,
+	  titulo: "Explorar",
+	  sesion: req.session.usuario,
+	});
+	pagina.partes.push(new BusquedaDAO())
+	res.send(pagina.render());
+  });
+  
 
 
 export { router };

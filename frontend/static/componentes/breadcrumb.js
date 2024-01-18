@@ -4,7 +4,6 @@ class Breadcrumb{
 	constructor({
         ruta
     }){
-        console.log('Valor de ruta en el constructor:', ruta);
 
         if (typeof ruta !== 'string') {
             throw new Error('El parámetro "ruta" debe ser una cadena (string).');

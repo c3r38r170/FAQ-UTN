@@ -169,8 +169,12 @@ div.notificacion div#noti-container #fecha {
   margin-bottom: 2rem;
   margin-left: auto;
   margin-right: auto;
-  padding: 0px 4rem 1rem 4rem;
+  padding: 2rem 4rem 1rem 4rem;
   border-bottom: 2px solid lightgray;
+}
+.pregunta:nth-child(n+3) {
+  border-top: 2px solid red; /* Puedes ajustar el color y el estilo del borde según tus preferencias */
+  margin-top: 2rem;
 }
 .pregunta #fecha {
   margin-left: 0.5rem;

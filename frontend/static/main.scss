@@ -85,6 +85,7 @@ div#columna-principal{
 	border-right: 2px solid lightgray;
 	padding-left: 0;
 	padding-right: 0;
+
 }
 
 div#breadcrumbs{
@@ -191,8 +192,13 @@ div.notificacion{
 	margin-bottom: 2rem;
 	margin-left: auto;
 	margin-right: auto;
-	padding: 0px $p-central 1rem $p-central;
+	padding: 2rem $p-central 1rem $p-central;
 	border-bottom: 2px solid lightgray;
+	&:nth-child(n+3) {
+		border-top: 2px solid red; /* Puedes ajustar el color y el estilo del borde según tus preferencias */
+		margin-top: 2rem;
+	}
+	
 	
 	#fecha{
 		margin-left: 0.5rem;

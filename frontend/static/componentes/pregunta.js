@@ -10,12 +10,6 @@ class Pregunta{
     #cuerpo;
     #fecha;
     #duenioPostID;
-    #usuario={
-        nombre: 'John Doe',
-        tipo: 'Administrador',
-        imagen: '../user.webp'
-    }
-    #user;
     #etiquetas= [
         {etiqueta: 'facultad'},
         {etiqueta: 'estudio'},
@@ -40,7 +34,7 @@ class Pregunta{
             this.#fecha = new Fecha(fecha)
             this.#duenioPostID = post.duenioPostID;
             this.buscarUsuario();
-            console.log(this.#chipusuario);
+            //console.log(this.#chipusuario);
             
         }
 	}
@@ -58,7 +52,7 @@ class Pregunta{
                     console.log('NO HAY USUARIO');
                 }
         
-                console.log('BUSCARUSUARIO():', u);
+                //console.log('BUSCARUSUARIO():', u);
                 this.#chipusuario = new ChipUsuario(u);
             } catch (error) {
                 console.log(error);
