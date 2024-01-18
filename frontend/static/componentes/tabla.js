@@ -27,9 +27,10 @@ class Tabla{
 		let fieldset=form.firstElementChild;
 		fieldset.disabled=true;
 		this.#pagina+=(+e.submitter.value);
+		// TODO Feature: Ver si tiene o no ?, y entonces poner ? o &. Quizá hacerlo en el constructor y tener algo como un this.#parametroPagina
 		let url=this.#endpointPaginacion+`?pagina=${this.#pagina-1}`;
 
-		fetch(this.#endpointPaginacion,{
+		fetch(url,{
 			credentials:'include',
 			method:'GET'
 		})

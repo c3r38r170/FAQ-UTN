@@ -70,9 +70,12 @@ const Bloqueo = sequelize.define('bloqueo',{
         type: DataTypes.STRING,
         allowNull: false
     },
-    createdAt:{
-        field:'fecha',
+    fecha:{
         type:DataTypes.DATE,
+        defaultValue: ()=> new Date().toISOString()
+    },
+    createdAt:{
+        type: DataTypes.VIRTUAL(DataTypes.DATE, ['fecha'])
     },
     motivo_desbloqueo: {
         type: DataTypes.STRING
@@ -107,9 +110,12 @@ const ReportesUsuario = sequelize.define('reporteUsuarios',{
         primaryKey: true,
         autoIncrement: true
     },
-    createdAt:{
-        field:'fecha',
+    fecha:{
         type:DataTypes.DATE,
+        defaultValue: ()=> new Date().toISOString()
+    },
+    createdAt:{
+        type: DataTypes.VIRTUAL(DataTypes.DATE, ['fecha'])
     }
 });
 

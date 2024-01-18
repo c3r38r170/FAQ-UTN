@@ -197,8 +197,12 @@ router.patch('/usuario', function(req, res){
 // TODO Refactor: Ver si consultas GET aceptan body, o hay que poner las cosas en la URL (chequear proyecto de TTADS)
 router.get('/pregunta',(req,res)=>{
 	// TODO Feature: Aceptar etiquetas y filtro de texto
+	// TODO Feature: Considerar el hecho de enviar la cantidad de respuestas y no las respuestas en sí. Quizá con una bandera.
+
+	// TODO Feature: Actualizar Pregunta.pagina así lo puede usar el frontend.
 	// Pregunta.pagina(+req.pagina)
 
+	// TODO Refactor: Ir considerando qué filtros poner. Va a haber consultas sin busqueda, por ejemplo.
 	// TODO Feature: ver si anda lo de match, y lo del or
 	//hice union atada con alambre, ver cuan lento es
 	//al ser distintas tablas no puedo hacer un unico indice con las dos columnas
