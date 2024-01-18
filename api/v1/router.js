@@ -83,11 +83,11 @@ const registro_creacion = function(req,res){
     })        
 }
 
-router.post('/registro', registro_creacion(req,res));
+router.post('/registro', registro_creacion);
 
 //creación usuario
 
-router.post('/creacion_usuario', registro_creacion(req,res));
+router.post('/creacion_usuario', registro_creacion);
 
 // recuperación de contraseña
 

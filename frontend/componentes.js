@@ -10,7 +10,9 @@ class Pagina {
   #ruta = {
 	ruta: ""
   };
-  #titulo;
+  #titulo = {
+	titulo: ""
+  };
   #sesion;
   partes = [];
 	// * Globales para el JS del frontend

@@ -15,8 +15,10 @@ const sequelize = new Sequelize(
         ssl: {
           rejectUnauthorized: true,
         },
-      }
-     }
+      },
+      logging: false
+     },
+    
    );
    
    sequelize.authenticate().then(() => {
@@ -39,7 +41,8 @@ const Usuario = sequelize.define('usuario', {
     DNI: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+        // Me tira error -> dice que está agregando más restricciones de las 64 permitidas (? 
+        //unique: true,
     },
     contrasenia: {
         type: DataTypes.STRING,
@@ -420,7 +423,7 @@ Pregunta.hasOne(Post,{
 })
 
 Pregunta.hasMany(Respuesta,{
-    as:'pregunta',
+    as:'respuestas',
     constraints:false,
     foreignKey:'preguntaID'
 })

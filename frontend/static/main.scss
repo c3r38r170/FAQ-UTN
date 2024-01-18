@@ -89,10 +89,13 @@ div#columna-principal{
 
 div#breadcrumbs{
 	padding: 0 2rem;
-	margin-bottom: 1rem;
+	margin-bottom: 2rem;
 	span{
 		font-size: 0.9rem;
 		color: $text-light!important;
+		i{
+			margin: auto 6px;
+		}
 		a{
 			color: $text-light!important;
 			&:hover{
@@ -204,7 +207,7 @@ div.notificacion{
 		font-size: 1.1rem;
 		line-height: 2;
 		font-weight: 700;
-		display: inline-block;
+		display:block;
 	}
 	#cuerpo{
 		margin-left: 0.2rem;

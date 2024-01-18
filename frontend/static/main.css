@@ -75,11 +75,14 @@ div#columna-principal {
 
 div#breadcrumbs {
   padding: 0 2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 div#breadcrumbs span {
   font-size: 0.9rem;
   color: #636363 !important;
+}
+div#breadcrumbs span i {
+  margin: auto 6px;
 }
 div#breadcrumbs span a {
   color: #636363 !important;
@@ -182,7 +185,7 @@ div.notificacion div#noti-container #fecha {
   font-size: 1.1rem;
   line-height: 2;
   font-weight: 700;
-  display: inline-block;
+  display: block;
 }
 .pregunta #cuerpo {
   margin-left: 0.2rem;
