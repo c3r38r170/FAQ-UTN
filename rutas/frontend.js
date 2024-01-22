@@ -10,6 +10,7 @@ import { Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, 
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
 router.get("/", (req, res) => {
+	// TODO Feature: la búsqueda sería esto mismo, pero con una query parameter de ?busqueda y de ?etiquetas, y se hace la división por si alguno está seteado
 	Pregunta.pagina()
 		.then(pre=>{
 			let pagina = new Pagina({
@@ -21,6 +22,7 @@ router.get("/", (req, res) => {
 				new Busqueda(/* ??? */'Hola')
 				,...pre.map(p=>new Pregunta(p))
 				// TODO Feature: , control de paginación
+				// TODO Feature: Desplazamiento infinito
 			)
 			res.send(pagina.render());
 		})
@@ -28,25 +30,42 @@ router.get("/", (req, res) => {
 });
 
 router.get("/pregunta/:id?", (req, res) => {
-	PreguntaDAO.findById(req.params.id,{plain: true}) // TODO Refactor: hace falta el plain?? ¿No es raw + nest? 
-		.then((p)=>{
-			if(!p){
-				res.status(404).send('ID de pregunta inválida');
-			}
-
-			let pagina=new Pagina({
-				ruta:req.path
-				,titulo:p.titulo
-				,sesion:req.session.usuario
-			});
-			pagina.partes.push(
-				// TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
-				new Pregunta(p)
-				,...p.respuestas.map(r=>new Respuesta(r))
-				// TODO Feature: si está logueado, campo de hacer una respuesta
-			);
-			res.send(pagina.render());
-		})
+	if(req.params.id){
+		PreguntaDAO.findById(req.params.id,{plain: true}) // TODO Refactor: hace falta el plain?? ¿No es raw + nest? 
+			.then((p)=>{
+				if(!p){
+					res.status(404).send('ID de pregunta inválida');
+				}
+	
+				let pagina=new Pagina({
+					ruta:req.path
+					,titulo:p.titulo
+					,sesion:req.session.usuario
+					,partes:[
+						// TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
+						new Pregunta(p)
+						,...p.respuestas.map(r=>new Respuesta(r))
+						// TODO Feature: si está logueado, campo de hacer una respuesta
+					]
+				});
+				res.send(pagina.render());
+			})
+	}else{ // * Nueva pregunta.
+		let pagina=new Pagina({
+			ruta:req.path
+			,titulo:p.titulo
+			,sesion:req.session.usuario
+			,partes:[
+				/* TODO Feature: Formulario de creación de preguntas */
+				// Campo de Título. Tiene que sugerir preguntar relacionadas. 
+				// Campo de etiquetas. Se deben obtener las etiquetas, mostrarlas, permitir elegirlas.
+				// Campo de cuerpo. Texto largo con un máximo y ya.
+				// Las sugerencias pueden ser un panel abajo, o abajo del título... que se vaya actualizando a medida que se escribe el cuerpo.
+				// Botón de crear pregunta. Se bloquea, si hay un error salta cartel (como por moderación), si no lleva a la página de la pregunta. Reemplaza, así volver para atrás va al inicio y no a la creación de preguntas.
+			]
+		});
+		res.send(pagina.render());
+	}
 });
 
 router.get("/suscripciones",(req,res)=>{

@@ -46,6 +46,7 @@ class Pagina {
 		} 
   }
   render() {
+		// TODO Feature: Meta properties. https://es.stackoverflow.com/questions/66388/poner-una-imagen-de-preview-y-t%C3%ADtulo-en-mi-p%C3%A1gina-para-que-se-visualice-en-face
     return `<!DOCTYPE html>
 	<html lang="en">
 	<head>
@@ -199,4 +200,15 @@ class DesplazamientoInfinito{
 	}
 }
 
-export { Pagina, Busqueda, DesplazamientoInfinito };
+class ComponenteLiteral{
+	// * Para casos de un solo uso, donde querramos inyectar algo de HTML o un componente nuevo muy específico. También da flexibilidad entre líneas de desarrollo, para no tener que esperar a que se cree algun componente para probar cosas.
+	#funcion=null;
+	constructor(funcion){
+		this.#funcion=funcion;
+	}
+	render(){
+		return this.#funcion();
+	}
+}
+
+export { Pagina, Busqueda, DesplazamientoInfinito, ComponenteLiteral };
