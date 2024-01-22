@@ -11,13 +11,13 @@ class ChipValoracion{
 	render(){
 		return`
         <div id="chip-valoracion">
-            <button id="positiva">
+            <button id="positiva" onclick="${this.votoPositivo()}">
                 <span>
                     <i class="fa-solid fa-caret-up"></i>
                 </span>
             </button>
             <div id="valoraciones">${this.#valoracion}</div>
-            <button id="negativa">
+            <button id="negativa" onclick="${this.votoPositivo()}">
                 <span>
                     <i class="fa-solid fa-caret-down"></i>
                 </span>
@@ -25,6 +25,14 @@ class ChipValoracion{
         </div>
         `;
 	}
+
+    votoPositivo(){
+        // código para implementar el voto positivo
+      }
+
+    votoNegativo(){
+    // código para implementar el voto negativo
+    }
 }
 
 export {ChipValoracion};

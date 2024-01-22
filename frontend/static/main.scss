@@ -1,6 +1,6 @@
 // TODO Refactor: usar imports para separar en archivos si se vuelve innavegable. Ponerlos en una carpetita y cambiar
 
-$p-central: 4rem;
+$p-central: 3rem;
 $text-hover: rgb(141, 141, 223);
 $text: #383838;
 $text-light: #636363;
@@ -83,6 +83,7 @@ div#contenedor-principal{
 div#columna-principal{
 	border-left: 2px solid lightgray;
 	border-right: 2px solid lightgray;
+	padding-top: 1.5rem;
 	padding-left: 0;
 	padding-right: 0;
 
@@ -104,6 +105,10 @@ div#breadcrumbs{
 			}
 		}
 	}
+}
+
+div#titulo-principal.title{
+	margin-left: 3rem;
 }
 
 div #navegacion-container{
@@ -188,16 +193,12 @@ div.notificacion{
 }
 
 .pregunta{
+	position: relative;
 	display: block;
-	margin-bottom: 2rem;
 	margin-left: auto;
 	margin-right: auto;
 	padding: 2rem $p-central 1rem $p-central;
-	border-bottom: 2px solid lightgray;
-	&:nth-child(n+3) {
-		border-top: 2px solid red; /* Puedes ajustar el color y el estilo del borde según tus preferencias */
-		margin-top: 2rem;
-	}
+	border-top: 2px solid lightgray;
 	
 	
 	#fecha{
@@ -214,6 +215,9 @@ div.notificacion{
 		line-height: 2;
 		font-weight: 700;
 		display:block;
+		&:hover{
+			color: $text-light;
+		}
 	}
 	#cuerpo{
 		margin-left: 0.2rem;
@@ -225,14 +229,14 @@ div.notificacion{
 	
 }
 
+
+
 #etiquetas{
-	display: flex;
-	justify-content: star;
-	padding-left: 1.5rem;
+	margin-top: 0.8rem;
+	//padding-left: 1.5rem;
 }
 .etiqueta{
-	margin-top: 1.2rem;
-	line-height: 2;
+	line-height: 2.4;
 	margin-left: 1rem;
 	margin-right: 1.2rem;
 	color: gray;
@@ -326,9 +330,16 @@ footer#footer{
 }
 
   div#respuesta{
-	padding: 0 $p-central;
+	margin-left: auto;
+	margin: 1.5rem auto;
+	padding-left: 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid lightgray;
 	display: flex;
     gap: 1rem;
+	&:last-child{
+		border-bottom: none;
+	}
 	#contenedor-reporte{
 		display: block;
 		text-align: right;
@@ -347,7 +358,9 @@ footer#footer{
 	.cuerpo{
 
 		.usuario{
-			margin-top: 1.2rem
+			margin-top: 1.2rem;
+			display: flex;
+			flex-wrap: wrap;
 		}
 	}
   }

@@ -148,7 +148,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 
         let pagina = new Pagina({
             ruta: req.path,
-            titulo: p.titulo,
+            titulo: 'Post',
             sesion: req.session.usuario
         });
 

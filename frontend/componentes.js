@@ -73,6 +73,7 @@ class Pagina {
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
+				<div id="titulo-principal" class="title is-5">${this.#titulo}</div>
 				${this.partes.map((p) => p.render()).join("")}
 				
 			</div>
@@ -118,8 +119,8 @@ class Encabezado {
 	<div id=encabezado-derecho>
 		${
       this.#posibleUsuario ||
-      "<button id=ingresar>Ingresar</button>" +
-        "<button id=registrarse>Registrarse</button>"
+      "<button class='button is-info is-outlined'>Ingresar</button>" +
+        "<button class='button is-info'>Registrarse</button>"
     }
 	</div>
 </div>`;

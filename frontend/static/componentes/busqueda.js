@@ -20,7 +20,6 @@ class Busqueda{
 	render(){
 		return`
         <div class="buscador">
-            <div class="titulo">Buscar</div>
             <form id="searchForm" onsubmit="manejoBusqueda(event);">
                 <input class="input" type="text" name="searchInput" placeholder="Buscar..." />
             </form>

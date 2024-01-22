@@ -17,11 +17,13 @@ class Breadcrumb{
 
         const partes = this.#ruta.split('/').filter(Boolean);
 
+        
         // Crea los breadcrumbs a partir de las partes
         const breadcrumbs = partes.map((parte, index) => {
             const rutaParcial = `/${partes.slice(0, index + 1).join('/')}`;
             return { nombre: parte, ruta: rutaParcial };
         });
+
 
         return breadcrumbs;
     }

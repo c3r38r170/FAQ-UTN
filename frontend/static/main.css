@@ -69,6 +69,7 @@ div#contenedor-principal {
 div#columna-principal {
   border-left: 2px solid lightgray;
   border-right: 2px solid lightgray;
+  padding-top: 1.5rem;
   padding-left: 0;
   padding-right: 0;
 }
@@ -89,6 +90,10 @@ div#breadcrumbs span a {
 }
 div#breadcrumbs span a:hover {
   color: rgb(141, 141, 223) !important;
+}
+
+div#titulo-principal.title {
+  margin-left: 3rem;
 }
 
 div #navegacion-container {
@@ -165,16 +170,12 @@ div.notificacion div#noti-container #fecha {
 }
 
 .pregunta {
+  position: relative;
   display: block;
-  margin-bottom: 2rem;
   margin-left: auto;
   margin-right: auto;
-  padding: 2rem 4rem 1rem 4rem;
-  border-bottom: 2px solid lightgray;
-}
-.pregunta:nth-child(n+3) {
-  border-top: 2px solid red; /* Puedes ajustar el color y el estilo del borde según tus preferencias */
-  margin-top: 2rem;
+  padding: 2rem 3rem 1rem 3rem;
+  border-top: 2px solid lightgray;
 }
 .pregunta #fecha {
   margin-left: 0.5rem;
@@ -191,6 +192,9 @@ div.notificacion div#noti-container #fecha {
   font-weight: 700;
   display: block;
 }
+.pregunta #titulo:hover {
+  color: #636363;
+}
 .pregunta #cuerpo {
   margin-left: 0.2rem;
   color: #383838;
@@ -200,14 +204,11 @@ div.notificacion div#noti-container #fecha {
 }
 
 #etiquetas {
-  display: flex;
-  justify-content: star;
-  padding-left: 1.5rem;
+  margin-top: 0.8rem;
 }
 
 .etiqueta {
-  margin-top: 1.2rem;
-  line-height: 2;
+  line-height: 2.4;
   margin-left: 1rem;
   margin-right: 1.2rem;
   color: gray;
@@ -220,7 +221,7 @@ div.notificacion div#noti-container #fecha {
 }
 
 div.buscador {
-  padding: 0px 4rem 1.8rem 4rem;
+  padding: 0px 3rem 1.8rem 3rem;
   margin-bottom: 3rem;
   display: flex;
   flex-direction: column;
@@ -288,9 +289,16 @@ footer#footer ul li a:hover {
 }
 
 div#respuesta {
-  padding: 0 4rem;
+  margin-left: auto;
+  margin: 1.5rem auto;
+  padding-left: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid lightgray;
   display: flex;
   gap: 1rem;
+}
+div#respuesta:last-child {
+  border-bottom: none;
 }
 div#respuesta #contenedor-reporte {
   display: block;
@@ -309,6 +317,8 @@ div#respuesta .valoracion {
 }
 div#respuesta .cuerpo .usuario {
   margin-top: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 #reporte {

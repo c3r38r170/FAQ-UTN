@@ -5,9 +5,10 @@ class Etiqueta{
     }){
 		this.#descripcion = etiqueta;
 	}
+	// ToDo Refactor: FALTA RUTA PARA VER ETIQUETAS 
 	render(){
 		return`
-        <a class="etiqueta" src="">${this.#descripcion}</a>
+        <a class="etiqueta" href="">${this.#descripcion}</a>
         `;
 	}
 }
