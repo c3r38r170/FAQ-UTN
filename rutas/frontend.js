@@ -1,7 +1,7 @@
 import * as express from "express";
 import {Sequelize} from 'sequelize';
 const router = express.Router();
-import { Pagina, Busqueda } from "../frontend/componentes.js";
+import { Pagina, Busqueda, DesplazamientoInfinito } from "../frontend/componentes.js";
 import { Pregunta } from "../frontend/static/componentes/pregunta.js";
 import { Respuesta } from "../frontend/static/componentes/respuesta.js";
 import { Tabla } from "../frontend/static/componentes/tabla.js";
@@ -56,6 +56,7 @@ router.get("/suscripciones",(req,res)=>{
 	}
 
 	PreguntaDAO.findAll({
+		// TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
 		// TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta 
 		include:{
 			model:SuscripcionesPregunta
@@ -65,22 +66,19 @@ router.get("/suscripciones",(req,res)=>{
 		}
 	})
 		.then((preguntas)=>{
-			let partes;
-			if(preguntas){
-				// TODO Feature: Indicar que acá es con la primera pregunta. Quizá buscar con el DAO con o sin Preguntas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
-				partes=preguntas.map(p=>new Pregunta(p));
-			}else{
-				// TODO UX: Mensaje de que no hay suscripciones. Componente mensaje PFU-130
-				partes=[];
-			}
-
 			let pagina=new Pagina({
 				ruta:req.path
 				,titulo:p.titulo
 				,sesion:req.session.usuario
+				// TODO Feature: endpoint de preguntas por suscripción
+				,partes:new DesplazamientoInfinito(
+					'suscripciones-desplinf',
+					'/preguntas?suscritas',
+					// TODO Feature: Indicar que acá es con la primera respuesta. Quizá buscar con el DAO con o sin Respuestas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
+					p=>new Pregunta(p),
+					preguntas
+				)
 			});
-			// TODO Feature: Scroll infinito. usar el endpoint de paginacion. Quizá como el de tabla, haya que definir un componente Scroll infinito
-			pagina.partes=partes;
 			
 			res.send(pagina.render());
 		})
@@ -89,40 +87,44 @@ router.get("/suscripciones",(req,res)=>{
 router.get("/perfil/:id?", (req, res) => {
 	// TODO Feature: Ordenar posts por fecha
 	/* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
-	let id=req.params.id;
-	let logueadoId=req.session.usuario.ID;
-	let titulo="Perfil de ";
+	// TODO Refactor: DNI??
+	let id=req.params.id/* ||req.session.usuario.ID */;
+	// let logueadoId=req.session.usuario.ID;
+	// let titulo="Perfil de ";
 	let usu;
 
 	if(id && (!logueadoId || id != logueadoId)){
 		// TODO Refactor: ver si yield anda como "sincronizador"
-		usu=yield UsuarioDAO.findById(id,{
+		usu=yield UsuarioDAO.findById(id/* ,{
 			include:{
 				// TODO Feature: Ver si no choca explota. Y si .posts choca con los eliminados
 				all:true
 				,nested:true
 			}
-		});
+		} */);
 	}else{
+		// TODO Feature: Obtener los posts paginados por ID del usuario, la sesion no guarda las asociaciones
 		usu=req.session.usuario;
 	}
-
-	// TODO Feature: Obtener los posts paginados por ID del usuario, la sesion no guarda las asociaciones
 
 		// TODO Feature: Componente "Tarjeta de Usuario", o hacer una versión del Chip de Usuario con esteroides? Ya no sería chip... Pero llevan básicamente la misma info. Y además daría la opción de reportar o banear dependiedno si el usuario está logueado y tiene permisos
 		/* tarjeta de usuario 
 		actividad*/
   let pagina = new Pagina({
     ruta: req.path,
-    titulo: 'Perfil de '+usuario.nombreCompleto,
+    titulo: 'Perfil de '+usu.nombreCompleto,
     sesion: req.session.usuario,
 		partes:[
-			// TODO Feature: Implementar scroll infinito
-			usuario.posts.map(p=>{
-				return p.pregunta?
-					new Pregunta(p.pregunta)
-					:new Respuesta(p.respuesta)
-			})
+			new DesplazamientoInfinito(
+				'perfil-desplinf'
+				,`/api/v1/usuario/${usu.DNI}/posts`
+				,p=>{
+					return p.pregunta?
+						new Pregunta(p.pregunta)
+						:new Respuesta(p.respuesta)
+				}
+				// ,usu.posts
+			)
 		]
   });
   res.send(pagina.render());
@@ -170,7 +172,7 @@ router.get("/perfil/info", (req, res) => {
   res.send(pagina.render());
 });
 
-// TODO UX: ¿Qué habría en /administración? ¿Algunas stats con links? (reportes nuevos, usuarios nuevos, qsy)
+// TODO UX: ¿Qué habría en /administración? ¿Algunas stats con links? (reportes nuevos, usuarios nuevos, qsy)  Estaría bueno.
 
 router.get('/administracion/usuarios',(req,res)=>{
 	let usu=req.session.usuario;
@@ -239,12 +241,13 @@ router.get('/administracion/usuarios',(req,res)=>{
 
 router.get('/perfil/preguntas',(req, res) => {
 	let usu=req.session.usuario;
-	let preguntas=yield PreguntaDAO.findAll({
+	// TODO Feature: Transformar esto en el endpoint correspondiente
+	/* let preguntas=yield PreguntaDAO.findAll({
 		include:[{
 			model:PostDAO,include:{model:UsuarioDAO,as:'duenioPostID'}
 	}]
 		,where:{'duenioPostID':usu.ID}
-	});
+	}); */
 
   let pagina = new Pagina({
     ruta: req.path,
@@ -253,8 +256,12 @@ router.get('/perfil/preguntas',(req, res) => {
 		partes:[
 			// Título('Tus preguntas' (,nivel?(h2,h3...)) )
 			// ChipUsuario() // Solo imagen y nombre; (O) Jhon Dow
-			// TODO Feature: Scroll infinito.
-			preguntas.map(p=>new Pregunta(p)) // Sin chip de usuario, con botones de editar y borrar, con cantidad de respuestas...
+			
+			new DesplazamientoInfinito(
+				'perfil-desplinf'
+				,`/api/v1/usuario/${usu.DNI}/preguntas`
+				,p=>new Pregunta(p.pregunta) // Sin chip de usuario, con botones de editar y borrar, con cantidad de respuestas...
+			)
 		]
   });
   res.send(pagina.render());
@@ -263,11 +270,14 @@ router.get('/perfil/preguntas',(req, res) => {
 // TODO Refactor: Ver si se puede unificar el algoritmo de prefil/preguntas y perfil/respuestas
 router.get('/perfil/respuestas',(req, res) => {
 	let usu=req.session.usuario;
+
+	// TODO Feature: Transformar esto en el endpoint correspondiente
 	// TODO Feature: vER SI anda esto. Tanto acá como en Preguntas
-	let respuestas=yield RespuestaDAO.findAll({
+	/* let respuestas=yield RespuestaDAO.findAll({
 		include:[PostDAO,{model:UsuarioDAO,as:'duenioPostID'}]
 		,where:{'duenioPostID':usu.ID}
 	});
+ */
 
   let pagina = new Pagina({
     ruta: req.path,
@@ -276,8 +286,11 @@ router.get('/perfil/respuestas',(req, res) => {
 		partes:[
 			// Título('Tus Respuestas' (,nivel?(h2,h3...)) )
 			// ChipUsuario() // Solo imagen y nombre; (O) Jhon Dow
-			// TODO Feature: Scroll infinito.
-			respuestas.map(p=>new Respuesta(p)) // Sin chip de usuario, con botones de editar y borrar, con cantidad de respuestas...
+			new DesplazamientoInfinito(
+				'perfil-desplinf'
+				,`/api/v1/usuario/${usu.DNI}/respuestas`
+				,p=>new Respuesta(p.respuesta) // Sin chip de usuario, con botones de editar y borrar, con cantidad de respuestas...
+			)
 			// TODO UX: Ver la pregunta (titulo nomás). Que la respuesta sea un link a la pregunta.
 		]
   });
