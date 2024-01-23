@@ -1,10 +1,11 @@
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 const router = express.Router();
-import {Usuario,Pregunta} from '../api/v1/model.js';
-import { ReportePost, SuscripcionesPregunta, Voto } from "./model.js";
+import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta } from "./model.js";
 import { Sequelize } from "sequelize";
-import {moderar} from "../api/v1/ia.js";
+import {moderar} from "./ia.js";
+
+
 
 // TODO Refactor: ¿Sacar y poner en models.js? Así el modelo se encarga de la paginación, y a los controladores no les importa.
 const PAGINACION={
@@ -40,6 +41,7 @@ router.post('/sesion', function(req, res) {
 		.then(coinciden=>{
 			if(coinciden){
 				req.session.usuario=usuario;
+				res.status(200).send();
 			}else{
 				res.status(401).send('Contraseña incorrecta.');
 			}
@@ -92,10 +94,10 @@ const registroCreacion = function(req,res){
     .then(usu=>{
         if(!usu){
             Usuario.create({
-                nombre: body.req.nombre,
-                DNI: body.req.DNI,
-                correo: body.req.correo,
-                contrasenia: body.req.contrasenia
+                nombre: req.body.nombre,
+                DNI: req.body.DNI,
+                correo: req.body.correo,
+                contrasenia: req.body.contrasenia
             })
             res.status(200).send('Registro exitoso');
             return;
@@ -120,12 +122,7 @@ router.post('/usuario/:DNI/contrasenia',function(req,res){
         return retVal;
     }
 
-		// TODO Refactor: Ver diferencia entre find y findAll acá. Por DNI debería ser o find o incluso findByPk
-    Usuario.find({
-		where:{DNI:req.params.DNI}
-		, raw:true, nest:true,
-		plain:true
-	})
+    Usuario.findOne(req.params.DNI)
     .then(usu=>{
         if(!usu){
             res.status(404).send('DNI inexistente')

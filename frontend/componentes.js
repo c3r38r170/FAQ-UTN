@@ -211,4 +211,6 @@ class ComponenteLiteral{
 	}
 }
 
-export { Pagina, Busqueda, DesplazamientoInfinito, ComponenteLiteral };
+export { Pagina, Busqueda, DesplazamientoInfinito, ComponenteLiteral};
+
+

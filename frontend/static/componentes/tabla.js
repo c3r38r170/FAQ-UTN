@@ -96,3 +96,5 @@ class Tabla{
 		return html;
 	}
 }
+
+export {Tabla};

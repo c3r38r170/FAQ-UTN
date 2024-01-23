@@ -114,7 +114,7 @@ router.get("/perfil/:id?", (req, res) => {
 
 	if(id && (!logueadoId || id != logueadoId)){
 		// TODO Refactor: ver si yield anda como "sincronizador"
-		usu=yield UsuarioDAO.findById(id/* ,{
+		usu= UsuarioDAO.findByPk(id/* ,{
 			include:{
 				// TODO Feature: Ver si no choca explota. Y si .posts choca con los eliminados
 				all:true
@@ -198,7 +198,7 @@ router.get('/administracion/usuarios',(req,res)=>{
 	// TODO Security: Permisos. Acá y en todos lados.
 
 	// TODO Refactor: Página. Un método que se encargue de la paginación, los límites, los filtros, la agrupación, los datos extra (cantidadDeReportes)
-	let usuariosReportados=yield ReportesUsuarioDAO.findAll({
+	let usuariosReportados= ReportesUsuarioDAO.findAll({
 		include:[
 			{
 				model:UsuarioDAO

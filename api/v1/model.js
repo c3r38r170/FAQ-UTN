@@ -607,6 +607,6 @@ Pregunta.create({
 })*/
 
 
-sequelize.sync({force:true});
+//sequelize.sync({});
 
 export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
