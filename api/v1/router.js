@@ -5,8 +5,6 @@ import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta } from "./mod
 import { Sequelize } from "sequelize";
 import {moderar} from "./ia.js";
 
-
-
 // TODO Refactor: ¿Sacar y poner en models.js? Así el modelo se encarga de la paginación, y a los controladores no les importa.
 const PAGINACION={
 	resultadosPorPagina:10
@@ -20,15 +18,7 @@ const reportaPost = 70;
 router.post('/sesion', function(req, res) {
 	let usuario;
 
-	Usuario.findAll({
-		where:{DNI:req.body.DNI}
-		, raw:true, nest:true,
-		plain:true
-		,include:{
-			all:true
-			// TODO Feature: Ver si esto no mata a todo.
-		}
-	})
+	Usuario.findByPk(req.body.DNI)
 		.then(usu=>{
 			if(!usu){
 				res.status(404).send('El DNI no se encuentra registrado.');
@@ -193,7 +183,7 @@ router.patch('/usuario', function(req, res){
 
 // TODO Refactor: Ver si consultas GET aceptan body, o hay que poner las cosas en la URL (chequear proyecto de TTADS)
 router.get('/pregunta',(req,res)=>{
-	// TODO Feature: Aceptar etiquetas y filtro de texto
+	// TODO Feature: Aceptar etiquetas y filtro de texto. https://masteringjs.io/tutorials/express/query-parameters
 	// TODO Feature: Considerar el hecho de enviar la cantidad de respuestas y no las respuestas en sí. Quizá con una bandera.
 
 	// TODO Feature: Actualizar Pregunta.pagina así lo puede usar el frontend.
