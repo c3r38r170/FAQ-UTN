@@ -5,8 +5,6 @@ import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta } from "./mod
 import { Sequelize } from "sequelize";
 import {moderar} from "./ia.js";
 
-
-
 // TODO Refactor: ¿Sacar y poner en models.js? Así el modelo se encarga de la paginación, y a los controladores no les importa.
 const PAGINACION={
 	resultadosPorPagina:10
@@ -19,36 +17,32 @@ const reportaPost = 70;
 
 router.post('/sesion', function(req, res) {
 	let usuario;
-
-	Usuario.findAll({
-		where:{DNI:req.body.DNI}
-		, raw:true, nest:true,
-		plain:true
-		,include:{
-			all:true
-			// TODO Feature: Ver si esto no mata a todo.
-		}
-	})
+	//TODO cambiar por findbypk
+	Usuario.findByPk(req.body.DNI)
 		.then(usu=>{
 			if(!usu){
 				res.status(404).send('El DNI no se encuentra registrado.');
 				return;
-			}
+			}else{
 
 			usuario=usu;
-			return bcrypt.compare(req.body.contrasenia,usu.contrasenia);
+			return bcrypt.compare(req.body.contrasenia,usu.contrasenia);}
 		})
 		.then(coinciden=>{
 			if(coinciden){
 				req.session.usuario=usuario;
 				res.status(200).send();
+				return;
 			}else{
 				res.status(401).send('Contraseña incorrecta.');
+				return;
 			}
 		})
 		.catch(err=>{
+			// Crashea server aca :/
 			// TODO mensaje representativo
-			res.status(500).send(err);
+			//res.status(500).send(err);
+			return;
 		})
 })
 router.delete('/sesion', function(req, res) {
@@ -60,7 +54,7 @@ router.delete('/sesion', function(req, res) {
 
 router.get('/usuario', function(req,res){
 	//TODO Feature: permisos
-	//Busca con nombre like? andará eso?
+	//Busca con nombre like? andará eso? NO NO ANDA
 	if(!req.session.usuario){
 		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
 		return;
@@ -68,12 +62,12 @@ router.get('/usuario', function(req,res){
 
 	Usuario.findAll({
 		where:{
-			nombre:{[Sequelize.OP.like]: `%${req.body.nombre}%`}
+			nombre:{[Sequelize.Op.substring]: req.body.nombre}
 		},
 		limit:PAGINACION.resultadosPorPagina,
-		offset:(+req.pagina)*PAGINACION.resultadosPorPagina
+		offset:(+req.body.pagina)*PAGINACION.resultadosPorPagina
 	}).then(usuarios=>{
-		if(!usuarios){
+		if(usuarios.length==0){
 			res.status(404).send("No se encontraron usuarios");
 			return;
 		}else{
@@ -122,42 +116,37 @@ router.post('/usuario/:DNI/contrasenia',function(req,res){
         return retVal;
     }
 
-    Usuario.findOne(req.params.DNI)
+    Usuario.findByPk(req.params.DNI)
     .then(usu=>{
         if(!usu){
             res.status(404).send('DNI inexistente')
             return;
         }
 		let contraseniaNueva = generarContrasenia();
-		usu.setDataValue('contrasenia', contraseniaNueva);
+		usu.contrasenia= contraseniaNueva;
 
-        //TODO Feature: mandar mail
-        res.status(200).send('DNI encontrado, correo enviado')
+		//TODO Feature: mandar mail
+		usu.save().then(res.status(200).send('DNI encontrado, correo enviado'));
+
+        
+        
     })
 });
 
-router.post('/usuario/:ID/reporte', function(req, res){
+router.post('/usuario/:DNI/reporte', function(req, res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-
-	let usuarioID=req.params.ID;
-	Usuario.findAll({
-		where:{
-			ID: usuarioID,	
-		}
-		, raw:true, nest:true,
-		plain:true
-	}).then(usuario=>{
+	Usuario.findByPk(req.params.DNI).then(usuario=>{
 		if(!usuario){
 			res.status(404).send("Usuario no encontrado");
 			return;
 		}else{
 			// TODO Refactor: Usar Sequelize, usuario.addReporteUsuario(new ReporteUsuario({reportante: ... o como sea }))
 			ReportesUsuario.create({
-				reportante: req.session.usuario.ID,
-				reportado: usuarioID
+				reportante: req.session.usuario.DNI,
+				reportado: req.params.DNI
 			});
 			res.status(201).send("Reporte registrado")
 		}
@@ -172,15 +161,12 @@ router.patch('/usuario', function(req, res){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-	Usuario.findAll({
-		where:{
-			ID:usu.ID,	
-		}
-		, raw:true, nest:true,
-		plain:true
-	}).then(usuario=>{
+	Usuario.findByPk(
+			req.session.usuario.DNI,	
+		).then(usuario=>{
 		//TODO Feature: definir que mas puede cambiar y que constituye datos inválidos
 		usuario.contrasenia=req.body.contrasenia;
+		usuario.save();
 		res.status(200).send("Datos actualizados exitosamente");
 	})
     .catch(err=>{
