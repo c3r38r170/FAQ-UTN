@@ -1,7 +1,7 @@
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 const router = express.Router();
-import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta } from "./model.js";
+import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta, ReportesUsuario, Post } from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar} from "./ia.js";
 
@@ -53,7 +53,6 @@ router.delete('/sesion', function(req, res) {
 
 router.get('/usuario', function(req,res){
 	//TODO Feature: permisos
-	//Busca con nombre like? andará eso? NO NO ANDA
 	if(!req.session.usuario){
 		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
 		return;
@@ -144,13 +143,15 @@ router.post('/usuario/:DNI/reporte', function(req, res){
 		}else{
 			// TODO Refactor: Usar Sequelize, usuario.addReporteUsuario(new ReporteUsuario({reportante: ... o como sea }))
 			ReportesUsuario.create({
-				reportante: req.session.usuario.DNI,
-				reportado: req.params.DNI
+				usuarioReportanteID: req.session.usuario.DNI,
+				usuarioReportadoID: req.params.DNI
 			});
+			
 			res.status(201).send("Reporte registrado")
 		}
 	})
     .catch(err=>{
+		console.log(err);
         res.status(500).send(err);
     })  
 })
@@ -189,17 +190,16 @@ router.get('/pregunta',(req,res)=>{
 	//hice union atada con alambre, ver cuan lento es
 	//al ser distintas tablas no puedo hacer un unico indice con las dos columnas
 	Pregunta.findAll({
-		where:{
-			[Sequelize.or]:[
-				['MATCH(titulo) against(?)',req.body.cuerpo],
-				['MATCH(cuerpo) against(?)',req.body.cuerpo]
-			]
-		},
+		where:	Sequelize.or(
+				Sequelize.literal('match(cuerpo) against ("'+req.body.cuerpo+'")'),
+				Sequelize.literal('match(titulo) against ("'+req.body.cuerpo+'")')	
+				)
+		,
 		order:[
-			[Post,'fecha_alta','DESC']
+			[Post,'fecha','DESC']
 		]
-		,limit:PAGINACION.resultadosPorPagina
-		,offset:(+req.pagina)*PAGINACION.resultadosPorPagina,
+		,limit:PAGINACION.resultadosPorPagina,
+		offset:(+req.body.pagina)*PAGINACION.resultadosPorPagina,
 		include:Post
 	})
 		.then(preguntas=>{
@@ -211,23 +211,20 @@ router.patch('/pregunta', function(req,res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
-	Pregunta.findAll({
-		where:{
-			ID:req.body.ID,	
-		}
-		, raw:true, nest:true,
-		plain:true,
+	Pregunta.findByPk(req.body.ID, {
 		include:Post
 	}).then(pregunta=>{
 		if(!pregunta){
 			res.status(404).send("Pregunta no encontrada");
 			return;
 		}else{
-			if(pregunta.post.getDataValue('duenioPost')!=req.session.usuario.ID){
+			if(pregunta.post.duenioPostID!=req.session.usuario.DNI){
 				res.status(401).send("Usuario no tiene sesión válida activa.");
 				return;
 			}else{
-				let apropiado = moderar(req.body.cuerpo).apropiado;
+				//TODO IA
+				//let apropiado = moderar(req.body.cuerpo).apropiado;
+				let apropiado =90;
 				if(apropiado < rechazaPost){
 					res.status(400).send("Texto rechazo por moderación automática");
 					return;
@@ -239,12 +236,15 @@ router.patch('/pregunta', function(req,res){
 					});
 				}
 				//si pasa el filtro
-				pregunta.setDataValue('cuerpo', req.body.cuerpo)
+				pregunta.post.cuerpo=req.body.cuerpo;
+				//no se porque pero asi anda pregunta.save() no
+				pregunta.post.save();
 				res.status(200).send("Pregunta actualizada exitosamente");
 			}
 		}
 	})
     .catch(err=>{
+		console.log(err);
         res.status(500).send(err);
     })  
 })
@@ -359,7 +359,9 @@ router.post('/pregunta', function(req,res){
 		return;
 	}
 
-	let apropiado = moderar(req.body.cuerpo).apropiado;
+	//testear bien la ia, le estoy mandando el apropiado por la api para probar los distintos escenarios
+	//let apropiado = moderar(req.body.cuerpo).apropiado;
+	let apropiado = req.body.apropiado;
 	if(apropiado < rechazaPost){
 		res.status(400).send("Texto rechazo por moderación automática");
 		return;
@@ -367,7 +369,7 @@ router.post('/pregunta', function(req,res){
 
 	Post.create({
 		cuerpo: req.body.cuerpo,
-		duenioPostID: req.session.usuario.ID
+		duenioPostID: req.session.usuario.DNI
 	}).then(post=>{
 		Pregunta.create({
 			ID: post.ID,
@@ -377,13 +379,15 @@ router.post('/pregunta', function(req,res){
 				ReportePost.create({
 					reportadoID: post.ID})
 			}
-			res.status(201).send(post.ID);
+			//Sin las comillas se piensa que pusimos el status dentro del send
+			res.status(201).send(post.ID+"");
 		})
 		.catch(err=>{
 			res.status(500).send(err);
 		})
 	})
 	.catch(err=>{
+		console.log(err);
 		res.status(500).send(err);
 	})
 })
