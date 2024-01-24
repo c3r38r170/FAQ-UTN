@@ -5,6 +5,7 @@ import { Navegacion } from "./static/componentes/navegacion.js";
 import { Notificacion } from "./static/componentes/notificacion.js";
 import { Pregunta } from "./static/componentes/pregunta.js";
 import { Breadcrumb } from "./static/componentes/breadcrumb.js";
+import { Modal } from "./static/componentes/modal.js";
 
 class Pagina {
   #ruta = {
@@ -82,8 +83,23 @@ class Pagina {
 				${this.#notificaciones.map((n) => new Notificacion(n).render()).join("")}
 			</div>
 		</div>
+			
+		<div id="modal-login" class="modal">
+		<div class="modal-background"></div>
+	  
+		<div class="modal-content">
+		  <div class="box">
+			<p>Modal JS example</p>
+			<!-- Your content -->
+		  </div>
+		</div>
+	  
+		<button class="modal-close is-large" aria-label="close"></button>
+	  </div>
+	
+			
 		<footer id="footer">
-        	<div>
+			<div>
 				<img src="/logo.jpg">
 			</div>
 			<div>
@@ -93,15 +109,60 @@ class Pagina {
 			Este es 3
 			</div>
 			<div>
-			 Site design - F.A.Q. UTN 2024
+			Site design - F.A.Q. UTN 2024
 			</div>
-    	</footer>
-	</body>
+		</footer>
+		</body>
+		<script>
+		document.addEventListener('DOMContentLoaded', () => {
+		// Funciones para abrir y cerrar el modal
+		function openModal($el) {
+			$el.classList.add('is-active');
+		}
+
+		function closeModal($el) {
+			$el.classList.remove('is-active');
+		}
+
+		function closeAllModals() {
+			(document.querySelectorAll('.modal') || []).forEach(($modal) => {
+			closeModal($modal);
+			});
+		}
+
+		// Agrega un evento de clic en los botones para abrir un modal específico
+		(document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+			const modal = $trigger.dataset.target;
+			const $target = document.getElementById(modal);
+
+			$trigger.addEventListener('click', () => {
+			openModal($target);
+			});
+		});
+
+		// Agrega un evento de clic en varios elementos secundarios para cerrar el modal principal
+		(document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
+			const $target = $close.closest('.modal');
+
+			$close.addEventListener('click', () => {
+			closeModal($target);
+			});
+		});
+
+		// Agrega un evento de teclado para cerrar todos los modales
+		document.addEventListener('keydown', (event) => {
+			if(event.key === "Escape") {
+			closeAllModals();
+			}
+		});
+		});
+		</script>
 </html>`;
   }
 }
 
 class Encabezado {
+	#modal;
   #posibleUsuario;
   constructor(sesion) {
     if (sesion) {
@@ -119,12 +180,23 @@ class Encabezado {
 	<div id=encabezado-derecho>
 		${
       this.#posibleUsuario ||
-      "<button class='button is-info is-outlined'>Ingresar</button>" +
+      "<button class='button is-info is-outlined js-modal-trigger' data-target='modal-login' onclick='abrirModalLogin({title:'Título del Modal', content:'Contenido del Modal',modal:'modal-login'})'>Ingresar</button>" +
         "<button class='button is-info'>Registrarse</button>"
     }
 	</div>
 </div>`;
   }
+
+  abrirModalLogin(title, content, modal){
+	this.#modal = new Modal(title,content,modal) 
+	// Agrega el HTML del modal al cuerpo del documento
+	document.body.insertAdjacentHTML(this.#modal.render());
+
+	// Muestra el modal
+	this.#modal.open();
+	console.log("BOTON MODAL LOGIN ///////////////////")
+  }
+
 }
 
 export { Pagina, Busqueda };
