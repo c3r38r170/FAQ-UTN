@@ -222,24 +222,24 @@ router.patch('/pregunta', function(req,res){
 				res.status(401).send("Usuario no tiene sesión válida activa.");
 				return;
 			}else{
-				//TODO IA
-				//let apropiado = moderar(req.body.cuerpo).apropiado;
-				let apropiado =90;
-				if(apropiado < rechazaPost){
-					res.status(400).send("Texto rechazo por moderación automática");
-					return;
-				}else if(apropiado<reportaPost){
-					//Crear reporte
-					//TODO Feature: definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front (Santiago: Yo digo dejarlo NULL y que se encargue el frontend.)
-					ReportePost.create({
-						reportadoID: pregunta.ID
-					});
-				}
-				//si pasa el filtro
-				pregunta.post.cuerpo=req.body.cuerpo;
-				//no se porque pero asi anda pregunta.save() no
-				pregunta.post.save();
-				res.status(200).send("Pregunta actualizada exitosamente");
+				moderarWithRetry(req.body.cuerpo,10).then(respuesta=>{
+					if(respuesta.apropiado < rechazaPost){
+						res.status(400).send("Texto rechazo por moderación automática");
+						return;
+					}else if(respuesta.apropiado<reportaPost){
+						//Crear reporte
+						//TODO Feature: definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front (Santiago: Yo digo dejarlo NULL y que se encargue el frontend.)
+						ReportePost.create({
+							reportadoID: pregunta.ID
+						});
+					}
+					//si pasa el filtro
+					pregunta.post.cuerpo=req.body.cuerpo;
+					//no se porque pero asi anda pregunta.save() no
+					pregunta.post.save();
+					res.status(200).send("Pregunta actualizada exitosamente");
+				});
+				
 			}
 		}
 	})
@@ -360,7 +360,7 @@ router.post('/pregunta', function(req,res){
 	}
 
 	//A veces crashea la ia
-	moderarWithRetry(req.body.cuerpo, 10).then(respuesta=>{
+	moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10).then(respuesta=>{
 		if(respuesta.apropiado < rechazaPost){
 			//esto anda
 			res.status(400).send("Texto rechazo por moderación automática");

@@ -1,5 +1,6 @@
 import axios from 'axios'
-
+import event from 'events'
+event.EventEmitter.defaultMaxListeners=50;
 
 const apiKey = 'B0ayZrLmS19aqobZA2wsYToeSqDz9cTm';
 const base_url = 'https://api.deepinfra.com/v1/openai';
