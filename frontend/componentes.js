@@ -7,6 +7,8 @@ import { Pregunta } from "./static/componentes/pregunta.js";
 import { Breadcrumb } from "./static/componentes/breadcrumb.js";
 import { Tabla } from "./static/componentes/tabla.js";
 
+// TODO Feature: Tirar errores en los constructores con parámetros necesarios 
+
 class Pagina {
 	// TODO Refactor: ¿No debería ser un string?
   #ruta = {
@@ -154,7 +156,7 @@ class DesplazamientoInfinito{
 		this.#generadorDeComponentes=transformarRespuestaEnComponente;
 		this.#entidadesIniciales=primerasEntidades;
 
-		Tabla.instancias[id]=this;
+		DesplazamientoInfinito.instancias[id]=this;
 	}
 
 	navegar(e){
