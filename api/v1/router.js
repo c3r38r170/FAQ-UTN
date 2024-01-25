@@ -3,7 +3,7 @@ import * as bcrypt from "bcrypt";
 const router = express.Router();
 import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta, ReportesUsuario, Post } from "./model.js";
 import { Sequelize } from "sequelize";
-import {moderar} from "./ia.js";
+import {moderar, moderarWithRetry} from "./ia.js";
 
 // TODO Refactor: ¿Sacar y poner en models.js? Así el modelo se encarga de la paginación, y a los controladores no les importa.
 const PAGINACION={
@@ -359,31 +359,32 @@ router.post('/pregunta', function(req,res){
 		return;
 	}
 
-	//testear bien la ia, le estoy mandando el apropiado por la api para probar los distintos escenarios
-	//let apropiado = moderar(req.body.cuerpo).apropiado;
-	let apropiado = req.body.apropiado;
-	if(apropiado < rechazaPost){
-		res.status(400).send("Texto rechazo por moderación automática");
-		return;
-	}
-
-	Post.create({
-		cuerpo: req.body.cuerpo,
-		duenioPostID: req.session.usuario.DNI
-	}).then(post=>{
-		Pregunta.create({
-			ID: post.ID,
-			titulo: req.body.titulo
-		}).then(()=>{
-			if(apropiado < reportaPost){
-				ReportePost.create({
-					reportadoID: post.ID})
-			}
-			//Sin las comillas se piensa que pusimos el status dentro del send
-			res.status(201).send(post.ID+"");
-		})
-		.catch(err=>{
-			res.status(500).send(err);
+	//A veces crashea la ia
+	moderarWithRetry(req.body.cuerpo, 10).then(respuesta=>{
+		if(respuesta.apropiado < rechazaPost){
+			//esto anda
+			res.status(400).send("Texto rechazo por moderación automática");
+			return;
+		}
+		Post.create({
+			cuerpo: req.body.cuerpo,
+			duenioPostID: req.session.usuario.DNI
+		}).then(post=>{
+			Pregunta.create({
+				ID: post.ID,
+				titulo: req.body.titulo
+			}).then(()=>{
+				if(respuesta.apropiado < reportaPost){
+					//testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
+					ReportePost.create({
+						reportadoID: post.ID})
+				}
+				//Sin las comillas se piensa que pusimos el status dentro del send
+				res.status(201).send(post.ID+"");
+			})
+			.catch(err=>{
+				res.status(500).send(err);
+			})
 		})
 	})
 	.catch(err=>{
