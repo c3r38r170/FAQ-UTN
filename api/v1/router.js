@@ -1,7 +1,7 @@
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 const router = express.Router();
-import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta, ReportesUsuario, Post, Respuesta } from "./model.js";
+import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta, ReportesUsuario, Post, Respuesta, Etiqueta, SuscripcionesEtiqueta, Notificacion } from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar, moderarWithRetry} from "./ia.js";
 
@@ -459,31 +459,36 @@ const valorarPost=function(req,res) {
 				return;
 			}else{
 				Voto.findAll({where:{
-					votadoID,
-					votanteID:req.session.usuario.ID
+					votadoID:IDvotado,
+					votanteID:req.session.usuario.DNI
 					},
 					nest:true,
 					plain:true
 				}).then(voto=>{
 					if(!voto){
 						// si no exite el voto lo crea con lo que mandó
-						Voto.create({
-							valoracion: req.body.voto,
-							votadoID,
-							votanteID:req.session.usuario.ID
-						}).then(v=>v.save());
+						if(req.body.valoracion=="null"){
+							res.status(403).send("No existe la valoracion")
+						}else{
+							Voto.create({
+								valoracion: req.body.valoracion,
+								votadoID:IDvotado,
+								votanteID:req.session.usuario.DNI
+							}).then(v=>v.save());
+					}
 					}else{
 						// TODO Feature: router.delete('/pregunta/:votadoID/valoracion')
 						// si existe y es null es que lo quiere sacar
 						// TODO Refactor: .body.valoracion vs .body.voto ?
-						if(req.body.valoracion==null){
+						if(req.body.valoracion=="null"){
 							voto.destroy();
 						}else{
 							//si no es null lo cambia por el otro
-							voto.setDataValue('valoracion', req.body.voto);
+							voto.valoracion=req.body.valoracion;
+							voto.save();
 						}
 					}
-					res.status(201).send("Reporte registrado.")
+					res.status(201).send("Voto registrado.")
 				})
 			}
 	})
@@ -507,23 +512,20 @@ const reportarPost=function(req, res){
 
 	let reportadoID=req.params.reportadoID;
 
-	Pregunta.findAll({
-		where:{
-			ID:reportadoID,	
-		}
-		, raw:true, nest:true,
-		plain:true
-	}).then(pregunta=>{
+	Post.findByPk(reportadoID
+	).then(pregunta=>{
 		if(!pregunta){
-			res.status(404).send("Pregunta no encontrada");
+			res.status(404).send("Pregunta/respuesta no encontrada");
 			return;
 		}else{
-			// TODO Feature: ver si ya se reportó, y prohibir
+			// TODO Feature: ver si ya se reportó, y prohibir 
+			// Se podría hacer un get a los reportes y si ya existe que aparezca mensajito de ya está reportado y directamente no te aparezca el form
+			// TODO Feature: determinar tipos
 			ReportePost.create({
 				tipo: req.body.tipo,
-				reportante: req.session.usuario.ID,
+				reportante: req.session.usuario.DNI,
 				reportado: reportadoID
-			});
+			}).then(r=>r.save());
 			res.status(201).send("Reporte registrado")
 		}
 	})
@@ -654,40 +656,37 @@ router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 		return;
 	}
 
-	let etiquetaID=req.params.etiquetaID;
+	let IDetiqueta=req.params.etiquetaID;
 
-	Etiqueta.findAllAll({
-		where:{
-			ID: etiquetaID
-		},
-		raw:true, nest:true,
-		plain:true
-	}).then(etiqueta =>{
+	Etiqueta.findByPk(
+			IDetiqueta
+	).then(etiqueta =>{
 		if(!etiqueta){
 			res.status(404).send("Etiqueta no encontrada / disponible");
 			return;
 		}else{
 			SuscripcionesEtiqueta.findAll({
 				where:{
-					etiquetaSuscripta: etiquetaID,
-					suscriptoAEtiqueta: req.session.usuario.ID,
+					etiquetaID:IDetiqueta,
+					suscriptoID: req.session.usuario.DNI,
 					fecha_baja:{
-						[Op.is]:null
+						[Sequelize.Op.is]:null
 					}
 				},
-				raw:true, nest:true,
 				plain:true
 			}).then(sus=>{
 				if(!sus){
 					SuscripcionesEtiqueta.create({
-						suscriptoAEtiqueta: req.session.usuario.ID,
-						etiquetaSuscripta: etiquetaID
-					});
+						suscriptoID: req.session.usuario.DNI,
+						etiquetaID:IDetiqueta
+					}).then(s=>s.save());
 					res.status(201).send("Suscripción creada");
 					return;
 				}else{
 					// TODO Feature: router.delete
 					sus.fecha_baja= new Date().toISOString().split('T')[0];
+					sus.save();
+					//manda el 204 pero no el mensaje
 					res.status(204).send("Suscripción cancelada");
 				}
 			})
@@ -697,6 +696,7 @@ router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 		}
 	})
 	.catch(err=>{
+		console.log(err);
         res.status(500).send(err);
     })  
 })
@@ -705,13 +705,13 @@ router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 //notificaciones
 
 router.get('/notificaciones', function(req,res){
-	Notification.findAll({
+	Notificacion.findAll({
 		order:[
 			['visto','ASC'],
 			['createdAt', 'DESC']
 		]
 		,limit:PAGINACION.resultadosPorPagina
-		,offset:(+req.pagina)*PAGINACION.resultadosPorPagina,
+		,offset:(+req.body.pagina)*PAGINACION.resultadosPorPagina,
 		raw:true,
 		nest:true
 	}).then(notificaciones=>{
