@@ -51,6 +51,7 @@ async function moderar(post) {
   };
 
   try {
+    message="";
     const response = await axiosInstance.post('/chat/completions', requestData);
     const stream = response.data;
 

@@ -1,7 +1,7 @@
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 const router = express.Router();
-import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta, ReportesUsuario, Post } from "./model.js";
+import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta, ReportesUsuario, Post, Respuesta } from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar, moderarWithRetry} from "./ia.js";
 
@@ -253,37 +253,35 @@ router.patch('/respuesta', function(req,res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
-	Respuesta.findAll({
-		where:{
-			ID:req.body.ID,	
-		}
-		, raw:true, nest:true,
-		plain:true,
+	Respuesta.findByPk(req.body.ID,	{
 		include:Post
 	}).then(respuesta=>{
 		if(!respuesta){
 			res.status(404).send("Respuesta no encontrada");
 			return;
 		}else{
-			if(respuesta.post.getDataValue('duenioPost')!=req.session.usuario.ID){
+			if(respuesta.post.duenioPostID!=req.session.usuario.DNI){
 				res.status(401).send("Usuario no tiene sesión válida activa.");
 				return;
 			}else{
 				//filtro IA
-				let apropiado = moderar(req.body.cuerpo).apropiado;
-				if(apropiado < rechazaPost){
-					res.status(400).send("Texto rechazo por moderación automática");
-					return;
-				}else if(apropiado<reportaPost){
-					//Crear reporte
-					//TODO definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front
-					ReportePost.create({
-						reportadoID: respuesta.ID
-					});
-				}
-				//pasa el filtro
-				respuesta.setDataValue('cuerpo', req.body.cuerpo)
-				res.status(200).send("Respuesta actualizada exitosamente");
+				moderarWithRetry(req.body.cuerpo,10).then(resp=>{
+					if(resp.apropiado < rechazaPost){
+						res.status(400).send("Texto rechazo por moderación automática");
+						return;
+					}else if(resp.apropiado<reportaPost){
+						//Crear reporte
+						//TODO definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front
+						ReportePost.create({
+							reportadoID: respuesta.ID
+						});
+					}
+					//pasa el filtro
+					respuesta.cuerpo=req.body.cuerpo;
+					respuesta.save();
+					res.status(200).send("Respuesta actualizada exitosamente");
+				})
+				
 			}
 		}
 	})
@@ -302,15 +300,9 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 		return;
 	}
 
-	let preguntaID=req.params.preguntaID;
+	let IDpregunta=req.params.preguntaID;
 
-	Pregunta.findAll({
-		where:{
-			ID: preguntaID
-		},
-		raw:true, nest:true,
-		plain:true
-	}).then(pregunta =>{
+	Pregunta.findByPk(IDpregunta, {include:Post}).then(pregunta =>{
 		if(!pregunta){
 			res.status(404).send("Pregunta no encontrada / disponible");
 			return;
@@ -318,34 +310,38 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 			// TODO Refactor: Esto no hace falta, se puede hacer pregunta.SuscripcionesPregunta o algo así
 			SuscripcionesPregunta.findAll({
 				where:{
-					preguntaSuscripta: preguntaID,
-					suscriptoAPregunta: req.session.usuario.ID,
+					preguntaID: IDpregunta,
+					suscriptoID: req.session.usuario.DNI,
 					fecha_baja:{
-						[Op.is]:null
+						[Sequelize.Op.is]:null
 					}
-				},
-				raw:true, nest:true,
+				}, 
+				nest:true,
 				plain:true
 			}).then(sus=>{
 				if(!sus){
 					SuscripcionesPregunta.create({
-						suscriptoAPregunta: req.session.usuario.ID,
-						preguntaSuscripta: preguntaID
-					});
+						suscriptoID: req.session.usuario.DNI,
+						preguntaID: IDpregunta
+					}).then(susc=>susc.save());
 					res.status(201).send("Suscripción creada");
 					return;
 				}else{
 					// TODO Feature: delete('/pregunta/:preguntaID/suscripcion'); quizá con el DNI al final
 					sus.fecha_baja= new Date().toISOString().split('T')[0];
+					sus.save();
+					//devuelve el 204 pero no el mensaje
 					res.status(204).send("Suscripción cancelada");
 				}
 			})
 			.catch(err=>{
+				console.log(err);
 				res.status(500).send(err);
 			})  
 		}
 	})
 	.catch(err=>{
+		console.log(err);
         res.status(500).send(err);
     })  
 })
@@ -416,13 +412,19 @@ router.get('/sugerir_pregunta', function(req,res){
 	//al ser distintas tablas no puedo hacer un unico indice con las dos columnas
 	/* Promise.all([ */
 		Pregunta.findAll({
-			// Acá propongo 2 opciones: match trayendo titulo y cuerpo, o match with query expansion solo con titulo
-			where:['MATCH(titulo,cuerpo) against(?)',req.body.titulo+' '+req.body.cuerpo],
-			order:[
-				[Post,'fecha_alta','DESC']
-			]
-			,limit:1,
-			include:Post
+			// Probar si el or anda con 4 o hay que hacer varios or
+			where:	Sequelize.or(
+				Sequelize.literal('match(cuerpo) against ("'+req.body.cuerpo+'")'),
+				Sequelize.literal('match(titulo) against ("'+req.body.cuerpo+'")'),
+				Sequelize.literal('match(cuerpo) against ("'+req.body.titulo+'")'),
+				Sequelize.literal('match(titulo) against ("'+req.body.titulo+'")')	
+				)
+		,
+		order:[
+			[Post,'fecha','DESC']
+		]
+		,limit:5,
+		include:Post
 		})/* ,
 		Pregunta.findAll({
 			where:['MATCH(cuerpo) against(?)',req.body.titulo],
@@ -460,51 +462,51 @@ router.get('/sugerir_pregunta', function(req,res){
 
 router.post('/respuesta', function(req,res){
 	// TODO Feature: crear las notificaciones correspondientes.
-
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
 
-	let apropiado = moderar(req.body.cuerpo).apropiado;
-	if(apropiado < rechazaPost){
-		// TODO Feature: ¿Devolver razón? Si se decidió que no, está bien.
-		res.status(400).send("Texto rechazo por moderación automática");
-		return;
-	}
-
-	// TODO Refactor: Quizá sea más facil usar yield para esta parte, o ir devolviendo las premisas. O ambas cosas.
-	Pregunta.findAll({
-		where:{ID:req.body.IDPregunta},
-		raw:true, nest:true,
-		plain:true
-	}).then(pregunta=>{
-		if(!pregunta){
-			res.status(404).send("Pregunta no encontrada / disponible")
-		}else{
-			Post.create({
-				cuerpo: req.body.cuerpo,
-				duenioPostID: req.session.usuario.ID
-			}).then(post=>{
-				Respuesta.create({
-					ID: post.ID,
-					titulo: req.body.titulo,
-					preguntaID: req.body.IDPregunta
-				}).then(()=>{
-					if(apropiado < reportaPost){
-						ReportePost.create({
-							reportadoID: post.ID})
-					}
-					res.status(201).send(post.ID);
+	moderarWithRetry(req.body.cuerpo,10).then(respuesta=>{
+		if(respuesta.apropiado < rechazaPost){
+			// TODO Feature: ¿Devolver razón? Si se decidió que no, está bien.
+			res.status(400).send("Texto rechazo por moderación automática");
+			return;
+		}
+	
+		// TODO Refactor: Quizá sea más facil usar yield para esta parte, o ir devolviendo las premisas. O ambas cosas.
+		Pregunta.findByPk(req.body.IDPregunta,{include:Post})
+		.then(pregunta=>{
+			if(!pregunta){
+				res.status(404).send("Pregunta no encontrada / disponible")
+			}else{
+				Post.create({
+					cuerpo: req.body.cuerpo,
+					duenioPostID: req.session.usuario.DNI
+				}).then(post=>{
+					Respuesta.create({
+						ID: post.ID,
+						preguntaID: req.body.IDPregunta
+					}).then((resp)=>{
+						if(respuesta.apropiado < reportaPost){
+							ReportePost.create({
+								reportadoID: post.ID})
+						}
+						resp.save();
+						//si adentro de send hay un int tira error porque piensa que es el status
+						res.status(201).send(post.ID+"");
+					})
+					.catch(err=>{
+						console.log(err);
+						res.status(500).send(err);
+					})
 				})
 				.catch(err=>{
+					console.log(err);
 					res.status(500).send(err);
 				})
-			})
-			.catch(err=>{
-				res.status(500).send(err);
-			})
-		}
+			}
+		})
 	})
 	.catch(err=>{
 		res.status(500).send(err);
@@ -525,10 +527,7 @@ const valorarPost=function(req,res) {
 
 	// TODO Refactor: buscar por PK, ver si es posible traer solo un si existe
 	let votadoID=req.params.votadoID;
-	Post.findAll({where:{ID:votadoID}
-		, raw:true, nest:true,
-		plain:true
-	}).then(post=>{
+	Post.findByPk(votadoID).then(post=>{
 			if(!post){
 				res.status(404).send("Post no encontrado / disponible.");
 				return;
@@ -537,7 +536,6 @@ const valorarPost=function(req,res) {
 					votadoID,
 					votanteID:req.session.usuario.ID
 					},
-					raw:true,
 					nest:true,
 					plain:true
 				}).then(voto=>{
@@ -547,7 +545,7 @@ const valorarPost=function(req,res) {
 							valoracion: req.body.voto,
 							votadoID,
 							votanteID:req.session.usuario.ID
-						});
+						}).then(v=>v.save());
 					}else{
 						// TODO Feature: router.delete('/pregunta/:votadoID/valoracion')
 						// si existe y es null es que lo quiere sacar
