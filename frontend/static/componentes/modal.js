@@ -14,8 +14,8 @@ class Modal {
 	    <div class="modal-background"></div>
         <div class="modal-content">
             <div class="box">
-            <h2>${this.title}</h2>
-            <p>${this.content}</p>
+            <h2>${this.#title}</h2>
+            <p>${this.#content}</p>
             <!-- Tu contenido aquí -->
             </div>
         </div>
@@ -26,4 +26,3 @@ class Modal {
   }
   
 export {Modal};
-  

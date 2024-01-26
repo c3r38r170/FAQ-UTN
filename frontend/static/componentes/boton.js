@@ -1,18 +1,27 @@
 class Boton{
-    #funcionClick;
+    #onClick;
     #titulo;
+    #dataTarget;
+    #type;
+    #classes;
     constructor({
-        funcionClick,
+        onClick,
         titulo,
+        classes,
+        dataTarget,
+        type,
 
     }) {
-        this.#funcionClick = funcionClick;
+        this.#onClick = onClick;
         this.#titulo = titulo;
+        this.#dataTarget = dataTarget;
+        this.#type = type;
+        this.#classes = classes;
       }
 
     render(){
-        return`
-        <button class="mi-boton" onclick="${this.#funcionClick}">
+        return `
+        <button class="${this.#classes}" data-target="${this.#dataTarget}" onclick="${this.#onClick}">
           ${
             this.#titulo
           }
