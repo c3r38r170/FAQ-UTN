@@ -17,7 +17,6 @@ const reportaPost = 70;
 
 router.post('/sesion', function(req, res) {
 	let usuario;
-	//TODO cambiar por findbypk
 	Usuario.findByPk(req.body.DNI)
 		.then(usu=>{
 			if(!usu){
@@ -77,7 +76,7 @@ router.get('/usuario', function(req,res){
     })  
 })
 
-const registroCreacion = function(req,res){
+router.post('/usuario', (req,res)=>{
 	Usuario.findAll({
 		where:{DNI:req.body.DNI}
 		, raw:true, nest:true,
@@ -99,9 +98,7 @@ const registroCreacion = function(req,res){
     .catch(err=>{
         res.status(500).send(err);
     })        
-}
-
-router.post('/usuario', registroCreacion);
+});
 
 router.post('/usuario/:DNI/contrasenia',function(req,res){
     function generarContrasenia() {
@@ -120,14 +117,11 @@ router.post('/usuario/:DNI/contrasenia',function(req,res){
             res.status(404).send('DNI inexistente')
             return;
         }
-		let contraseniaNueva = generarContrasenia();
-		usu.contrasenia= contraseniaNueva;
+			let contraseniaNueva = generarContrasenia();
+			usu.contrasenia= contraseniaNueva;
 
-		//TODO Feature: mandar mail
-		usu.save().then(res.status(200).send('DNI encontrado, correo enviado'));
-
-        
-        
+			//TODO Feature: mandar mail
+			usu.save().then(res.status(200).send('DNI encontrado, correo enviado'));
     })
 });
 
@@ -179,7 +173,7 @@ router.patch('/usuario', function(req, res){
 
 // TODO Refactor: Ver si consultas GET aceptan body, o hay que poner las cosas en la URL (chequear proyecto de TTADS)
 router.get('/pregunta',(req,res)=>{
-	// TODO Feature: Aceptar etiquetas y filtro de texto
+	// TODO Feature: Aceptar etiquetas y filtro de texto. https://masteringjs.io/tutorials/express/query-parameters
 	// TODO Feature: Considerar el hecho de enviar la cantidad de respuestas y no las respuestas en sí. Quizá con una bandera.
 
 	// TODO Feature: Actualizar Pregunta.pagina así lo puede usar el frontend.
@@ -208,6 +202,7 @@ router.get('/pregunta',(req,res)=>{
 })
 
 router.patch('/pregunta', function(req,res){
+	// TODO Feature: editar título y etiquetas.
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
@@ -219,7 +214,7 @@ router.patch('/pregunta', function(req,res){
 			return;
 		}else{
 			if(pregunta.post.duenioPostID!=req.session.usuario.DNI){
-				res.status(401).send("Usuario no tiene sesión válida activa.");
+				res.status(403).send("No puede editar una pregunta ajena.");
 				return;
 			}else{
 				moderarWithRetry(req.body.cuerpo,10).then(respuesta=>{
@@ -261,7 +256,7 @@ router.patch('/respuesta', function(req,res){
 			return;
 		}else{
 			if(respuesta.post.duenioPostID!=req.session.usuario.DNI){
-				res.status(401).send("Usuario no tiene sesión válida activa.");
+				res.status(403).send("No puede editar una respuesta ajena.");
 				return;
 			}else{
 				//filtro IA
@@ -271,7 +266,7 @@ router.patch('/respuesta', function(req,res){
 						return;
 					}else if(resp.apropiado<reportaPost){
 						//Crear reporte
-						//TODO definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front
+						//TODO Feature: definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front
 						ReportePost.create({
 							reportadoID: respuesta.ID
 						});
@@ -389,75 +384,6 @@ router.post('/pregunta', function(req,res){
 	})
 })
 
-
-//sugerir preguntas, una re chanchada
-// TODO Refactor: Unificar con get('/pregunta')
-router.get('/sugerir_pregunta', function(req,res){
-	// * https://database.guide/how-the-match-function-works-in-mysql/
-	if(!req.session.usuario){
-		res.status(401).send("Usuario no tiene sesión válida activa");
-		return;
-	}
-
-	// TODO Feature: No moderar acá, moderar después de "terminar" el post y "enviar" a publicar. En vez de publicarse de una, se modera, y si sale negativo, se devuelve una negativa.
-	let apropiado = moderar(req.body.cuerpo).apropiado;
-	if(apropiado < rechazaPost){
-		res.status(400).send("Texto rechazo por moderación automática");
-		return;
-	}
-	// TODO Feature: ordenar por relevancia
-	//Rara la busqueda, busca el mejor match de titulo con titulo, de titulo con cuerpo, de cuerpo con titulo y de cuerpo con cuerpo
-	// ver si anda lo de match
-	//hice union atada con alambre, ver cuan lento es
-	//al ser distintas tablas no puedo hacer un unico indice con las dos columnas
-	/* Promise.all([ */
-		Pregunta.findAll({
-			// Probar si el or anda con 4 o hay que hacer varios or
-			where:	Sequelize.or(
-				Sequelize.literal('match(cuerpo) against ("'+req.body.cuerpo+'")'),
-				Sequelize.literal('match(titulo) against ("'+req.body.cuerpo+'")'),
-				Sequelize.literal('match(cuerpo) against ("'+req.body.titulo+'")'),
-				Sequelize.literal('match(titulo) against ("'+req.body.titulo+'")')	
-				)
-		,
-		order:[
-			[Post,'fecha','DESC']
-		]
-		,limit:5,
-		include:Post
-		})/* ,
-		Pregunta.findAll({
-			where:['MATCH(cuerpo) against(?)',req.body.titulo],
-			order:[
-				[Post,'fecha_alta','DESC']
-			]
-			,limit:1,
-			include:Post
-		}),
-		Pregunta.findAll({
-			where:['MATCH(cuerpo) against(?)',req.body.cuerpo],
-			order:[
-				[Post,'fecha_alta','DESC']
-			]
-			,limit:1,
-			include:Post
-		}),
-		Pregunta.findAll({
-			where:['MATCH(titulo) against(?)',req.body.cuerpo],
-			order:[
-				[Post,'fecha_alta','DESC']
-			]
-			,limit:1,
-			include:Post
-		}) 
-		])*/
-			.then(preguntas=>{
-				res.status(200).send(preguntas);
-			})
-
-
-})
-
 //respuesta
 
 router.post('/respuesta', function(req,res){
@@ -525,9 +451,9 @@ const valorarPost=function(req,res) {
 		return;
 	}
 
-	// TODO Refactor: buscar por PK, ver si es posible traer solo un si existe
-	let IDvotado=req.params.votadoID;
-	Post.findByPk(IDvotado).then(post=>{
+	// TODO Refactor: ver si es posible traer solo un si existe
+	let votadoID=req.params.votadoID;
+	Post.findByPk(votadoID).then(post=>{
 			if(!post){
 				res.status(404).send("Post no encontrado / disponible.");
 				return;

@@ -5,6 +5,9 @@ import { Navegacion } from "./static/componentes/navegacion.js";
 import { Notificacion } from "./static/componentes/notificacion.js";
 import { Pregunta } from "./static/componentes/pregunta.js";
 import { Breadcrumb } from "./static/componentes/breadcrumb.js";
+import { Tabla } from "./static/componentes/tabla.js";
+
+// TODO Feature: Tirar errores en los constructores con parámetros necesarios 
 
 class Pagina {
 	// TODO Refactor: ¿No debería ser un string?
@@ -16,6 +19,12 @@ class Pagina {
   partes = [];
 	// * Globales para el JS del frontend
   globales = {};
+	/* ! Notificaciones:{
+		usuario:Usuario
+		post:Pregunta|Respuesta
+		// Dependiendo del tipo de post, y de quien es, el texto de la notificación. Ejemplos: "Nueva respuesta en tu pregunta {titulo}", "Nueva pregunta sobre {etiqueta suscrita". "Nueva respuesta en la pregunta {pregunta suscrita}". Preferentemente podrían tener una pequeña preview sobre el contenido del post.
+		visto:boolean
+	} */
   #notificaciones = [
     { notificacion: "mesas de examen" },
     {
@@ -147,7 +156,7 @@ class DesplazamientoInfinito{
 		this.#generadorDeComponentes=transformarRespuestaEnComponente;
 		this.#entidadesIniciales=primerasEntidades;
 
-		Tabla.instancias[id]=this;
+		DesplazamientoInfinito.instancias[id]=this;
 	}
 
 	navegar(e){
