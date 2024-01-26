@@ -8,29 +8,51 @@ import { Busqueda as BusquedaDAO } from "../frontend/static/componentes/busqueda
 import { Respuesta } from "../frontend/static/componentes/respuesta.js";
 import { Tabla } from "../frontend/static/componentes/tabla.js";
 import { Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
+
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
 /*
 router.get("/", (req, res) => {
-	// TODO Feature: la búsqueda sería esto mismo, pero con una query parameter de ?busqueda y de ?etiquetas, y se hace la división por si alguno está seteado
-	Pregunta.pagina()
-	PreguntaDAO.pagina()
-		.then(pre=>{
-			let pagina = new Pagina({
-				ruta: req.path,
-				titulo: "Inicio",
-				sesion: req.session.usuario,
-			});
-			pagina.partes.push(
-				new Busqueda('Hola')
-				,...pre.map(p=>new Pregunta(p))
-				// TODO Feature: , control de paginación
-				// TODO Feature: Desplazamiento infinito
-			)
-			res.send(pagina.render());
+	if(req.query.consulta || req.query.etiquetas){
+		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
+		let queryString = req.url.substring(req.url.indexOf('?'));
+		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+		Pregunta.pagina({
+			consulta:req.query.consulta,
+			etiquetas:req.query.etiquetas
 		})
-		// TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
+		PreguntaDAO.pagina()
+		.then(pre=>{
+				let pagina = new Pagina({
+					ruta: req.path,
+					titulo: "Inicio",
+					sesion: req.session.usuario,
+				});
+				pagina.partes.push(
+					new Busqueda('Hola')
+					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas'+queryString,p=>new Pregunta(p),pre)
+					// TODO Feature: , control de paginación
+					// TODO Feature: Desplazamiento infinito
+				)
+				res.send(pagina.render());
+			})
+	}else{ // * Inicio regular.
+		/* Pregunta.pagina()
+			.then(pre=>{ */
+				let pagina = new Pagina({
+					ruta: req.path,
+					titulo: "Inicio",
+					sesion: req.session.usuario,
+				});
+				pagina.partes.push(
+					new Busqueda(/* ??? */'Hola')
+					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>new Pregunta(p))
+				)
+				res.send(pagina.render());
+			// })
+			// TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
+	}
 });
 */
 
@@ -156,7 +178,7 @@ router.get("/suscripciones",(req,res)=>{
 router.get("/perfil/:id?", (req, res) => {
 	// TODO Feature: Ordenar posts por fecha
 	/* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
-	// TODO Refactor: DNI??
+	// TODO Refactor: DNI
 	let id=req.params.id/* ||req.session.usuario.ID */;
 	// let logueadoId=req.session.usuario.ID;
 	// let titulo="Perfil de ";
@@ -164,7 +186,7 @@ router.get("/perfil/:id?", (req, res) => {
 
 	if(id && (!logueadoId || id != logueadoId)){
 		// TODO Refactor: ver si yield anda como "sincronizador"
-		usu= UsuarioDAO.findByPk(id/* ,{
+		usu=UsuarioDAO.findByPk(id/* ,{
 			include:{
 				// TODO Feature: Ver si no choca explota. Y si .posts choca con los eliminados
 				all:true
@@ -292,7 +314,7 @@ router.get('/administracion/usuarios',(req,res)=>{
 	// TODO Security: Permisos. Acá y en todos lados.
 
 	// TODO Refactor: Página. Un método que se encargue de la paginación, los límites, los filtros, la agrupación, los datos extra (cantidadDeReportes)
-	let usuariosReportados= ReportesUsuarioDAO.findAll({
+	let usuariosReportados=ReportesUsuarioDAO.findAll({
 		include:[
 			{
 				model:UsuarioDAO

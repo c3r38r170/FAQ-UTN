@@ -27,15 +27,15 @@ const sequelize = new Sequelize(
 
 
 const Usuario = sequelize.define('usuario', {
-    nombre: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
     DNI: {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
         autoIncrement:false
+    },
+    nombre: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
     contrasenia: {
         type: DataTypes.STRING,
@@ -81,22 +81,37 @@ const Bloqueo = sequelize.define('bloqueo',{
 });
 
 Usuario.hasMany(Bloqueo, {
-    as:'bloqueador',
+    as:'bloqueosRealizados',
     constraints :false,
     foreignKey: 'bloqueadorID',
 });
 
+Bloqueo.belongsTo(Usuario,{
+    as:'bloqueador'
+    ,constraints:false
+})
+
 Usuario.hasMany(Bloqueo, {
-    as:'bloqueado',
+    as:'bloqueosRecibidos',
     constraints :false,
     foreignKey: 'bloqueadoID',
 });
 
+Bloqueo.belongsTo(Usuario,{
+    as:'bloqueado'
+    ,constraints:false
+})
+
 Usuario.hasMany(Bloqueo, {
-    as:'desbloqueador',
+    as:'desbloqueosRealizados',
     constraints :false,
     foreignKey: 'desbloqueadorID',
 });
+
+Bloqueo.belongsTo(Usuario,{
+    as:'desbloqueador'
+    ,constraints:false
+})
 
 
 const ReportesUsuario = sequelize.define('reporteUsuarios',{
@@ -115,16 +130,26 @@ const ReportesUsuario = sequelize.define('reporteUsuarios',{
 });
 
 Usuario.hasMany(ReportesUsuario, {
-    as: 'usuarioReportado',
+    as: 'reportesRecibidos',
     constraints: false,
-    foreignKey: 'usuarioReportadoID'
+    foreignKey: 'reportadoID'
 });
 
+ReportesUsuario.belongsTo(Usuario,{
+    as:'reportado'
+    ,constraints:false
+})
+
 Usuario.hasMany(ReportesUsuario, {
-    as: 'usuarioReportante',
+    as: 'reportesRealizados',
     constraints: false,
-    foreignKey: 'usuarioReportanteID'
+    foreignKey: 'reportanteID'
 });
+
+ReportesUsuario.belongsTo(Usuario,{
+    as:'reportante'
+    ,constraints:false
+})
 
 const Post = sequelize.define('post',{
     ID: {
@@ -153,13 +178,23 @@ const Post = sequelize.define('post',{
 
 Usuario.hasMany(Post, {
     constraints:false,
-    foreignKey:'duenioPostID'
+    foreignKey:'duenioDNI'
+})
+
+Post.belongsTo(Usuario,{
+    as:'duenio'
+    ,constraints:false
 })
 
 Usuario.hasMany(Post, {
     as: 'postsEliminados',
     constraints:false,
-    foreignKey:'eliminadorID'
+    foreignKey:'eliminadorDNI'
+})
+
+Post.belongsTo(Usuario,{
+    as:'eliminador'
+    ,constraints:false
 })
 
 const Notificacion = sequelize.define('notificacion',{
@@ -176,15 +211,23 @@ const Notificacion = sequelize.define('notificacion',{
 })
 
 Usuario.hasMany(Notificacion,{
-    as: 'notificado',
+    as: 'notificaciones',
     constraints: false,
     foreignKey: 'notificadoID'
 })
 
+Notificacion.belongsTo(Usuario,{
+    constraints:false
+})
+
 Post.hasMany(Notificacion, {
-    as: 'postNotificado',
+    as: 'notificaciones',
     constraints: false,
     foreignKey: 'postNotificadoID'
+})
+
+Notificacion.belongsTo(Post,{
+    constraints:false
 })
 
 const Voto = sequelize.define('voto', {
@@ -199,16 +242,26 @@ const Voto = sequelize.define('voto', {
 })
 
 Usuario.hasMany(Voto,{
-    as:'votante',
+    // as:'votante',
     constraints:false,
-    foreignKey:'votanteID'
+    foreignKey:'votanteDNI'
 })
 
+Voto.belongsTo(Usuario,{
+    as:'votante',
+    constraints:false
+});
+
 Post.hasMany(Voto,{
-    as:'votado',
+    // as:'votado',
     constraints:false,
     foreignKey:'votadoID'
 })
+
+Voto.belongsTo(Post,{
+    as:'votado',
+    constraints:false
+});
 
 const TipoReporte = sequelize.define('tipoReporte',{
     ID: {
@@ -235,22 +288,34 @@ const ReportePost = sequelize.define('reportePost', {
 })
 
 TipoReporte.hasMany(ReportePost,{
-    as: 'tipo',
     constraints:false,
     foreignKey:'tipoID'
 })
 
+ReportePost.belongsTo(TipoReporte,{
+    as: 'tipo',
+    constraints:false
+});
+
 Usuario.hasMany(ReportePost,{
-    as:'reportante',
     constraints:false,
     foreignKey: 'reportanteID'
-})
+});
+
+ReportePost.belongsTo(Usuario,{
+    as:'reportante',
+    constraints:false
+});
 
 Post.hasMany(ReportePost,{
-    as:'reportado',
     constraints:false,
     foreignKey:'reportadoID'
 })
+
+ReportePost.belongsTo(Post,{
+    as:'reportado',
+    constraints:false
+});
 
 const Perfil = sequelize.define('perfil',{
     ID: {
@@ -258,6 +323,7 @@ const Perfil = sequelize.define('perfil',{
         primaryKey: true,
         autoIncrement: true
     },
+    // TODO Refactor: cambiar a Descripcion
     nombre:{
         type:DataTypes.STRING,
         allowNull:false
@@ -269,6 +335,10 @@ Perfil.hasMany(Usuario,{
     constraints:false,
     foreignKey:'perfilID'
 })
+
+Usuario.belongsTo(Perfil,{
+    constraints:false
+});
 
 const Permiso = sequelize.define('permiso',{
     ID: {
@@ -292,7 +362,8 @@ const PerfilesPermiso = sequelize.define('perfilesPermiso', {
 
 Perfil.belongsToMany(Permiso, {
     through: PerfilesPermiso,
-    constraints:false });
+    constraints:false
+});
 
 Permiso.belongsToMany(Perfil, { 
     through: PerfilesPermiso ,
@@ -325,15 +396,10 @@ const Respuesta = sequelize.define('respuesta',{
     }
 })
 
-
 Respuesta.hasOne(Post,{
     constraints:false,
     foreignKey:'ID'
 })
-
-
-
-
 
 const Pregunta = sequelize.define('pregunta',{
     ID: {
@@ -425,11 +491,14 @@ Pregunta.hasOne(Post,{
 })
 
 Pregunta.hasMany(Respuesta,{
-    as:'respuestas',
+    // as:'pregunta',
     constraints:false,
     foreignKey:'preguntaID'
 })
 
+Respuesta.belongsTo(Pregunta,{
+    constraints:false
+});
 
 const Etiqueta = sequelize.define('etiqueta',{
     ID: {
@@ -482,7 +551,11 @@ Categoria.hasMany(Etiqueta,{
     as:'categoria',
     constraints:false,
     foreignKey:'categoriaID'
-})
+});
+
+Etiqueta.belongsTo(Categoria,{
+    constraints:false
+});
 
 const SuscripcionesEtiqueta = sequelize.define('suscripcionesEtiqueta',{
     ID: {
@@ -498,6 +571,8 @@ const SuscripcionesEtiqueta = sequelize.define('suscripcionesEtiqueta',{
         type:DataTypes.DATE,
     }
 })
+
+// TODO Feature: Ver si no se puede hacer algo como un Many to Many. Tanto acá como en otros como el voto, el reporte...
 
 Usuario.hasMany(SuscripcionesEtiqueta,{
     as:'suscriptoAEtiqueta',
@@ -618,6 +693,6 @@ Pregunta.create({
 })*/
 
 
-//sequelize.sync({});
+// sequelize.sync({alter:true});
 
 export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}

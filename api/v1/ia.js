@@ -1,5 +1,6 @@
 import axios from 'axios'
-
+import event from 'events'
+event.EventEmitter.defaultMaxListeners=50;
 
 const apiKey = 'B0ayZrLmS19aqobZA2wsYToeSqDz9cTm';
 const base_url = 'https://api.deepinfra.com/v1/openai';
@@ -38,38 +39,74 @@ const handleStreamData = (chunk) => {
 };
 
 
-function moderar(post){
 
-  //let post= "no te anotes en soporte no enseña nada"
-
+async function moderar(post) {
   const requestData = {
     model: MODEL_DI,
     messages: [
-      { role: 'user', content: "Sos un filtro para moderar contenido por favor solo responde en formato json con cuan apropiado (del 0 al 100, no se permiten insultos) es el siguiente post en un contexto de un foro universitario donde los estudiantes se dan consejos: formato= { apropiado: xx, motivo:xx}"+post
-  }],
+      { role: 'user', content: "Sos un filtro para moderar contenido por favor solo responde en formato json con cuan apropiado (del 0 al 100, no se permiten insultos) es el siguiente post en un contexto de un foro universitario donde los estudiantes se dan consejos: formato= { apropiado: xx, motivo:xx} Mensaje: " + post }
+    ],
     stream: stream,
     max_tokens: 1000,
   };
 
+  try {
+    message="";
+    const response = await axiosInstance.post('/chat/completions', requestData);
+    const stream = response.data;
 
-  axiosInstance.post('/chat/completions', requestData)
-    .then(response => {
-      const stream = response.data;
-      console.log(requestData.messages[0].content)
-      stream.on('data', handleStreamData);
+    console.log(requestData.messages[0].content);
+
+    return new Promise((resolve, reject) => {
+      stream.on('data', (data) => {
+        // Assuming `handleStreamData` is a function that updates the message variable
+        handleStreamData(data);
+      });
 
       stream.on('end', () => {
-        message = message.split("undefined")[0]; //al final siempre tiene un undefined
-        console.log(JSON.parse(message.trim())); //ESTA ES LA RESPUESTA
-        return JSON.parse(message.trim())
+        try {
+          message = "{" + message.split('undefined')[0].split('{')[1]; // Remove trailing 'undefined'
+          console.log(message);
+          const parsedResult = JSON.parse(message.trim());
+          console.log(parsedResult);
+          resolve(parsedResult);
+        } catch (parseError) {
+          console.error('JSON Parse Error:', parseError);
+          reject(parseError);
+        }
       });
-    })
-    .catch(error => {
-      console.error('API Error:', error.response ? error.response.data : error.message);
+
+      stream.on('error', (error) => {
+        console.error('Stream Error:', error);
+        reject(error);
+      });
     });
+  } catch (error) {
+    console.error('API Error:', error.response ? error.response.data : error.message);
+    throw error; // Re-throw the error to indicate the failure of the asynchronous operation
+  }
+}
 
+async function moderarWithRetry(post, maxRetries = 3, retryDelay = 1000) {
+  let retries = 0;
 
+  while (retries < maxRetries) {
+    try {
+      // Attempt the operation
+      const result = await moderar(post);
+      return result;
+    } catch (error) {
+      console.error(`Attempt ${retries + 1} failed. Retrying in ${retryDelay / 1000} seconds. Error:`, error);
+      retries++;
+
+      // Wait for a specified delay before retrying
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+    }
+  }
+
+  // If all retries fail, throw the last error
+  throw new Error(`Failed after ${maxRetries} attempts.`);
 }
 
 
-export {moderar};
+export {moderar, moderarWithRetry};
