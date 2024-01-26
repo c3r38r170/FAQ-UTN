@@ -31,8 +31,13 @@ const handleStreamData = (chunk) => {
   const jsonObjects = dataBuffer.substring(5,dataBuffer.length);
   if (jsonObjects.length > 1) {
     if(!jsonObjects.includes("DONE")){
+      try{
       const event = JSON.parse(jsonObjects);
+      
       message += event.choices[0].delta.content; //guarda cada parte de la respuesta
+      }catch(error){
+
+      }
     }
     dataBuffer = '';
   }
