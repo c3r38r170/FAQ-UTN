@@ -2,7 +2,7 @@
 import {superFetch} from 'https://unpkg.com/@c3r38r170/c3tools@1.1.0/c3tools.m.js';
 
 class Formulario{
-	static instancias = [];
+	static instancias = {};
 
 	#endpoint='';
 	#id='';
@@ -58,7 +58,7 @@ class Formulario{
 	}
 
 	render(){
-		return `<form onclick="Formulario.instancias[${this.#id}].enviar(event)">`
+		return `<form onsubmit="Formulario.instancias[${this.#id}].enviar(event)">`
 			+this.campos.reduce((html,c)=>html+(new Campo(...c)).render(),'')
 			+`<input type=submit value="${this.#textoEnviar}">`
 			+'</form>';
