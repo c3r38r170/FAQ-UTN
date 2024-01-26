@@ -8,6 +8,7 @@ import { Breadcrumb } from "./static/componentes/breadcrumb.js";
 import { Modal } from "./static/componentes/modal.js";
 
 class Pagina {
+	// TODO Refactor: ¿No debería ser un string?
   #ruta = {
 	ruta: ""
   };
@@ -35,9 +36,11 @@ class Pagina {
     this.#ruta.ruta = ruta;
     this.#titulo = titulo;
 	this.#sesion = sesion;
-	this.partes = partes;
+	this.partes = Array.isArray(partes) ? partes : [partes];
 
-  
+  // TODO Feature: Poner los 3 modales acá.
+	// Los de registro e inicio, podría chequear si sesion existe para agregarse o no
+	// El de reportar (tanto post y usuario) dejarlos, total no molestan y después se llamarán desde los scripts estáticos
 
     // Navegacion(sesion,ruta)
      if(sesion){
@@ -46,6 +49,7 @@ class Pagina {
 		} 
   }
   render() {
+		// TODO Feature: Meta properties. https://es.stackoverflow.com/questions/66388/poner-una-imagen-de-preview-y-t%C3%ADtulo-en-mi-p%C3%A1gina-para-que-se-visualice-en-face
     return `<!DOCTYPE html>
 	<html lang="en">
 	<head>
@@ -199,4 +203,90 @@ class Encabezado {
 
 }
 
-export { Pagina, Busqueda };
+class DesplazamientoInfinito{
+	// TODO Refactor: Unificar configuracion de paginacion; como cantidad por pagina
+	// Esto será de algún componente
+	// Específicamente: Preguntas, Notificaciones...
+	static instancias={};
+
+	#endpoint='';
+	#pagina=1;
+	#id='';
+	#generadorDeComponentes=null;
+
+	#entidadesIniciales=[];
+
+ 	constructor(id,endpoint,transformarRespuestaEnComponente,primerasEntidades=[]){
+		// TODO Feature: fallar si no se proveen los parámetros obligatorios. Aplicar a todfas las clases.
+		this.#id=id;
+		this.#endpoint=endpoint;
+		this.#generadorDeComponentes=transformarRespuestaEnComponente;
+		this.#entidadesIniciales=primerasEntidades;
+
+		Tabla.instancias[id]=this;
+	}
+
+	navegar(e){
+		let imagenAlcahuete=e.target;
+		let contenedor=imagenAlcahuete.parentNode;
+		// TODO Feature: Ver si tiene o no ?, y entonces poner ? o &. Quizá hacerlo en el constructor y tener algo como un this.#parametroPagina.  Mejor solución (aplicar a tabla): poner en el constructor de manera inteligente uno u otro, guardar la url con el parametro página, y simplemente hacer +(this.#pagina...);
+		let url=this.#endpoint+`?pagina=${this.#pagina-1}`;
+		this.#pagina++;
+
+		fetch(url,{
+			credentials:'include',
+			method:'GET'
+		})
+			.then(res=>res.json())
+		/* new Promise((resolve, reject)=>{
+			resolve(new Array(3).fill(null).map((n,i)=>(3*(this.#pagina-1)+i)));
+		}) */
+			.then((nuevasEntidades)=>{
+				let html='';
+
+				for(let ent of nuevasEntidades){
+					html+=this.#generadorDeComponentes(ent);
+				}
+
+				imagenAlcahuete.remove();
+				html+=this.#generarUltimoComponente(nuevasEntidades.length);
+
+				contenedor.innerHTML+=html;
+			})
+			// TODO Feature: catch; y finally?
+	}
+
+	#generarUltimoComponente(cantidadDeEntidadesEnIteracion=this.#entidadesIniciales.length){
+		let html='';
+
+		// TODO Refactor: Poner algún componente de paginación en el frontend, que en su defecto obtenga la info del backend. Ver que no destruya ninguna renderización... quizá llevar la configuración del frontend AL backend? Suena a lo más oportuno, por mas que sea antiintuitivo...
+		if(cantidadDeEntidadesEnIteracion<10){
+			// TODO UX: Mensaje de que no hay más entidades, de que se llegó al fin del desplazamiento. Componente mensaje PFU-130
+		}else{
+			// TODO UX: Un loading GIF que no de asco. Y que pegue con el resto.
+			html+=`<img loading="lazy" src="/loading.gif" onload="DesplazamientoInfinito.instancias['${this.#id}'].navegar(event)">`;
+		}
+
+		return html;
+	}
+
+	render(){
+		// TODO UX: CSS de esto
+		return `<div id=${this.#id}>`+this.#entidadesIniciales.map(this.#generadorDeComponentes)+this.#generarUltimoComponente()+`</div>`;
+	}
+}
+
+class ComponenteLiteral{
+	// * Para casos de un solo uso, donde querramos inyectar algo de HTML o un componente nuevo muy específico. También da flexibilidad entre líneas de desarrollo, para no tener que esperar a que se cree algun componente para probar cosas.
+	#funcion=null;
+	constructor(funcion){
+		this.#funcion=funcion;
+	}
+	render(){
+		return this.#funcion();
+	}
+}
+
+export { Pagina, Busqueda, DesplazamientoInfinito, ComponenteLiteral};
+
+

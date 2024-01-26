@@ -1,8 +1,6 @@
-import {Sequelize, DataTypes, VIRTUAL} from 'sequelize';
+import {Sequelize, DataTypes} from 'sequelize';
 
 import * as bcrypt from "bcrypt";
-
-
 
 const sequelize = new Sequelize(
     'faqutn',
@@ -29,11 +27,6 @@ const sequelize = new Sequelize(
 
 
 const Usuario = sequelize.define('usuario', {
-    ID: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
     nombre: {
         type: DataTypes.STRING,
         allowNull: false
@@ -41,8 +34,8 @@ const Usuario = sequelize.define('usuario', {
     DNI: {
         type: DataTypes.STRING,
         allowNull: false,
-        // Me tira error -> dice que está agregando más restricciones de las 64 permitidas (? 
-        //unique: true,
+        primaryKey: true,
+        autoIncrement:false
     },
     contrasenia: {
         type: DataTypes.STRING,
@@ -72,9 +65,12 @@ const Bloqueo = sequelize.define('bloqueo',{
         type: DataTypes.STRING,
         allowNull: false
     },
-    createdAt:{
-        field:'fecha',
+    fecha:{
         type:DataTypes.DATE,
+        defaultValue: ()=> new Date().toISOString()
+    },
+    createdAt:{
+        type: DataTypes.VIRTUAL(DataTypes.DATE, ['fecha'])
     },
     motivo_desbloqueo: {
         type: DataTypes.STRING
@@ -109,9 +105,12 @@ const ReportesUsuario = sequelize.define('reporteUsuarios',{
         primaryKey: true,
         autoIncrement: true
     },
-    createdAt:{
-        field:'fecha',
+    fecha:{
         type:DataTypes.DATE,
+        defaultValue: ()=> new Date().toISOString()
+    },
+    createdAt:{
+        type: DataTypes.VIRTUAL(DataTypes.DATE, ['fecha'])
     }
 });
 
@@ -142,9 +141,7 @@ const Post = sequelize.define('post',{
         defaultValue: ()=> new Date().toISOString()
     },
     createdAt:{
-        //type: DataTypes.VIRTUAL(DataTypes.DATE, ['fecha'])
-        type:DataTypes.DATE,
-        defaultValue: ()=> new Date().toISOString()
+        type: DataTypes.VIRTUAL(DataTypes.DATE, ['fecha'])
     }
 },{
     indexes:[
@@ -268,7 +265,7 @@ const Perfil = sequelize.define('perfil',{
 })
 
 Perfil.hasMany(Usuario,{
-    as:'perfil',
+    as:'rol',
     constraints:false,
     foreignKey:'perfilID'
 })
@@ -379,7 +376,8 @@ const PAGINACION={
 	resultadosPorPagina:10
 }
 
-/* * Ejemplo de filtro por asociación de la documentación:
+/* *
+Ejemplo de filtro por asociación de la documentación:
 User.findAll({
   where: {
     '$Instruments.size$': { [Op.ne]: 'small' }
@@ -392,11 +390,13 @@ User.findAll({
 
 Ejemplo de asociar todo:
 User.findAll({ include: { all: true }});
+
+Fuente: https://stackoverflow.com/questions/18838433/sequelize-find-based-on-association
 */
 
 Pregunta.pagina=(n=0,{filtro='',etiquetas=[]}={})=>{
     // TODO Feature: Implementar filtros
-    // TODO Feature: quitar preguntas, dejar solo la más relevante
+    // TODO Feature: quitar respuestas, dejar solo la más relevante  o no? Hacer por algún parámetro como "formato", para saber si mandar todo, solo la primera respuesta, o incluso solo el título y la ID (para las sugerencias)
     // TODO Feature: Ordenar respuestas por relevancia, y por fecha
 	Pregunta.findAll({
         /* include:[
@@ -618,6 +618,6 @@ Pregunta.create({
 })*/
 
 
-sequelize.sync({alter:true});
+//sequelize.sync({});
 
 export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
