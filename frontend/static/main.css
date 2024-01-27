@@ -202,6 +202,11 @@ div.notificacion div#noti-container #fecha {
   font-weight: 500;
   display: inline-block;
 }
+.pregunta .cantRespuestas {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: #636363;
+}
 
 #etiquetas {
   margin-top: 0.8rem;

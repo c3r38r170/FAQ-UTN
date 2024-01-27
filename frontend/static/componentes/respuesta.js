@@ -11,14 +11,13 @@ class Respuesta {
   }
   #cuerpo;
   #fecha;
-  #chipusuario;
+  #usuario;
   etiquetas = [];
-  constructor({ ID, usuario, cuerpo, fecha, valoracion }) {
+  constructor({ ID, cuerpo, fecha, post }) {
     this.#ID = ID;
-    this.#valoracion = valoracion;
     this.#cuerpo = cuerpo;
     this.#fecha = new Fecha(fecha);
-    this.#chipusuario = new ChipUsuario(usuario);
+    this.#usuario = post.duenio;
   }
   render() {
     return `
@@ -31,7 +30,7 @@ class Respuesta {
                 ${this.#cuerpo}
                 <div class="columns is-vcentered mb-1 usuario">
                     <div class="column is-narrow pr-0 py-0">
-                    ${this.#chipusuario.render()}
+                    ${new ChipUsuario(this.#usuario).render()}
                     </div>
                     <div class="column pl-0 py-0">
                         ${this.#fecha.render()}

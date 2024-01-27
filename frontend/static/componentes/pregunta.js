@@ -11,71 +11,31 @@ class Pregunta{
     #titulo;
     #cuerpo;
     #fecha;
-    #duenioPostID;
-    #etiquetas= [
-        {etiqueta: 'facultad'},
-        {etiqueta: 'estudio'},
-        {etiqueta: 'materias'},
-        {etiqueta: 'facultad'},
-        {etiqueta: 'estudio'}
-    ]
-    #respuestas= [{
-        usuario: {
-            nombre: 'Jane Doe'
-        },
-        valoracion: '30',
-        cuerpo: 'Andard dum andaandard dum andapsum is simply dummy text of the printinandard dum andapsum is simply dummy text of the printinandard dum andapsum is simply dummy text of the printinandard dum andapsum is simply dummy text of the printinandard dum andapsum is simply dummy text of the printinandard dum andapsum is simply dummy text of the printinpsum is simply dummy text of the printing and the inrd dumandard dum',
-        fecha: '2024-01-17T16:32:26.000Z'
-    },{
-    usuario: {
-        nombre: 'Jane Doe'
-    },
-    valoracion: '30',
-    cuerpo: 'Andard dum andapsum is simply dummy text of the printing and the inrd dumandard dum',
-    fecha: '2024-01-17T16:32:26.000Z'}]
-    #chipusuario;
+    #usuario;
+    #etiquetas= []
+    #respuestas= []
     // TODO Feature: Hay 2 representaciones de pregunta. En el inicio, donde hay un listado, se ve la pregunta y la primera respuesta; y en la página propia se ve solo la pregunta y las respuestas se verían abajo con su propia representación.
 	constructor({
-        ID, titulo, cuerpo, fecha, post
+        ID, titulo, cuerpo, fecha, post, respuesta, etiqueta
     }){
         if (titulo && cuerpo && fecha) {
             this.#titulo = titulo;
             this.#cuerpo = cuerpo;
             this.#fecha = new Fecha(fecha)
-            this.#duenioPostID = post.duenioPostID;
+            this.#usuario = post.duenio;
+            this.#respuestas = respuesta;
             this.#ID = ID;
-            this.buscarUsuario();
-            //console.log(this.#chipusuario);
+            this.#etiquetas = etiqueta;
             
         }
 	}
-
-    // NO RENDERIZA EL USUARIO - BUSCAR OTRA FORMA
-    async buscarUsuario() {
-            try {
-                const u = await UsuarioDAO.findByPk(this.#duenioPostID, {
-                    raw: true,
-                    plain: true,
-                    nest: true
-                });
-        
-                if (!u) {
-                    console.log('NO HAY USUARIO');
-                }
-        
-                //console.log('BUSCARUSUARIO():', u);
-                this.#chipusuario = new ChipUsuario(u);
-            } catch (error) {
-                console.log(error);
-            }
-        }
 
 	render(){      
         return`
             <div class="pregunta">
                 <div class="columns is-vcentered mb-1">
                     <div class="column is-narrow pr-0 py-0">
-                    ${this.#chipusuario ? this.#chipusuario.render() : ''}
+                    ${new ChipUsuario(this.#usuario).render()}
                     </div>
                     <div class="column is-narrow pl-0 py-0">
                         ${this.#fecha.render()}
@@ -87,9 +47,10 @@ class Pregunta{
                 </a>
                 <div id="cuerpo">${this.#cuerpo}</div>
                 <div id="etiquetas">
-                ${this.#etiquetas.map(e=> new Etiqueta(e).render()).join('')}
+                ${this.#etiquetas ? this.#etiquetas.map(e=> new Etiqueta(e).render()).join('') : ''}
                 </div>
-                ${this.#respuestas.map((r) => new Respuesta(r).render()).join("")}
+                <div class="cantRespuestas">${this.#respuestas.length > 0 ? this.#respuestas.length + ' Respuestas' : ''}</div>
+                ${ this.#respuestas.map((r) => new Respuesta(r).render()).join("") }
             </div>
 
             `;

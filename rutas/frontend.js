@@ -7,7 +7,7 @@ import { ChipUsuario } from "../frontend/static/componentes/chipusuario.js";
 import { Busqueda as BusquedaDAO } from "../frontend/static/componentes/busqueda.js"
 import { Respuesta } from "../frontend/static/componentes/respuesta.js";
 import { Tabla } from "../frontend/static/componentes/tabla.js";
-import { Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
+import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
@@ -38,15 +38,15 @@ router.get("/", (req, res) => {
 				res.send(pagina.render());
 			})
 	}else{ // * Inicio regular.
-		/* Pregunta.pagina()
-			.then(pre=>{ */
+		 Pregunta.pagina()
+			.then(pre=>{ 
 				let pagina = new Pagina({
 					ruta: req.path,
 					titulo: "Inicio",
 					sesion: req.session.usuario,
 				});
 				pagina.partes.push(
-					new Busqueda(/* ??? */'Hola')
+					new Busqueda(??? 'Hola')
 					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>new Pregunta(p))
 				)
 				res.send(pagina.render());
@@ -65,12 +65,33 @@ router.get("/", async (req, res) =>  {
             include: [
                 {
                     model: PostDAO,
-                    as: 'post'
+                    as: 'post',
+					include: [
+						{
+							model: UsuarioDAO,
+							as: 'duenio'
+						}
+					]
                 },
                 {
                     model: RespuestaDAO,
-                    as: 'respuestas'
-                }
+                    //as: 'pregunta',
+					include: [
+						{
+							model: PostDAO,
+							as: 'post',
+							include: [
+								{
+									model: UsuarioDAO,
+									as: 'duenio'
+								}
+							]
+						}
+					]
+                },
+				{
+					model: EtiquetaDAO
+				}
             ]
         });
 
@@ -87,7 +108,7 @@ router.get("/", async (req, res) =>  {
 
 
 		for(let i=0; i < preguntas.length;i++){
-			pagina.partes.push(new Pregunta(preguntas[i].dataValues))
+			pagina.partes.push(new Pregunta(preguntas[i].dataValues));
 		}
 
         res.send(pagina.render());
@@ -267,18 +288,39 @@ router.get("/perfil/info", (req, res) => {
 router.get("/pregunta/:id?", async (req, res) =>  {
     try {
         const p = await PreguntaDAO.findByPk(req.params.id, {
-            raw: true,
-            plain: true,
-            nest: true,
+            //raw: true,
+            //plain: true,
+            //nest: true,
             include: [
                 {
                     model: PostDAO,
-                    as: 'post'
+                    as: 'post',
+					include: [
+						{
+							model: UsuarioDAO,
+							as: 'duenio'
+						}
+					]
                 },
                 {
                     model: RespuestaDAO,
-                    as: 'respuestas'
-                }
+                    //as: 'respuestas',
+					include: [
+						{
+							model: PostDAO,
+							as: 'post',
+							include: [
+								{
+									model: UsuarioDAO,
+									as: 'duenio'
+								}
+							]
+						}
+					]
+                },
+				{
+					model: EtiquetaDAO
+				}
             ]
         });
 
@@ -299,7 +341,6 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 			
             //,...p.respuestas.map(r=>new Respuesta(r))
         );
-		console.log('Pregunta PUSHH',p);
 
         res.send(pagina.render());
     } catch (error) {
@@ -488,6 +529,77 @@ router.get("/explorar", (req, res) => {
 	res.send(pagina.render());
   });
   
+
+// RUTA DE PRUEBA
+  router.get("/prueba/preguntas", async (req, res) =>  {
+    try {
+        const preguntas = await PreguntaDAO.findAll({
+            include: [
+                {
+                    model: PostDAO,
+                    as: 'post',
+					include: [
+						{
+							model: UsuarioDAO,
+							as: 'duenio'
+						}
+					]
+                },
+                {
+                    model: RespuestaDAO,
+                    //as: 'pregunta',
+					include: [
+						{
+							model: PostDAO,
+							as: 'post',
+							include: [
+								{
+									model: UsuarioDAO,
+									as: 'duenio'
+								}
+							]
+						}
+					]
+                },
+				{
+					model: EtiquetaDAO
+				}
+            ]
+        });
+
+        if (!preguntas || preguntas.length === 0) {
+            res.status(404).send('No se encontraron preguntas');
+            return;
+        }
+
+		let pagina = new Pagina({
+            ruta: req.path,
+            titulo: 'Prueba de Preguntas',
+            sesion: req.session.usuario
+        });
+
+
+		for(let i=0; i < preguntas.length;i++){
+			pagina.partes.push(new Pregunta(preguntas[i].dataValues));
+			//console.log('PREGUNTA NÚMERO: ',i,'  -  ',preguntas[i].dataValues);
+		}
+
+        res.send(preguntas);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error interno del servidor de prueba/preguntas');
+    }
+});
+
+
+
+
+
+
+
+
+
+
 
 
 export { router };
