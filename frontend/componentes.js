@@ -160,6 +160,17 @@ class Pagina {
 				}
 			});
 			});
+
+			// Cierra los cartelitos notificaciones
+			document.addEventListener('DOMContentLoaded', () => {
+				(document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
+				  const $notification = $delete.parentNode;
+			  
+				  $delete.addEventListener('click', () => {
+					$notification.parentNode.removeChild($notification);
+				  });
+				});
+			  });
 			</script>
 		</body>
 </html>`;
@@ -184,10 +195,11 @@ class Encabezado {
 	</div>
 	<div id=encabezado-derecho>
 		${
+			// ACOMODAR EL TEMA DEL MODAL DE LOGIN
       this.#posibleUsuario ||
        new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render() + 
 		//	"<button class='button is-info is-outlined js-modal-trigger' dataTarget:'modal-login'>Ingresar</button>" +
-	  new Modal('Login','Contenido del Modal','modal-login').render() +
+	  new Modal('Login','modal-login').render() +
         //"<button class='button is-info'>Registrarse</button>"
 		new Boton({titulo:'Registrarse', classes: 'button is-info'}).render()
     }
@@ -281,6 +293,6 @@ class ComponenteLiteral{
 	}
 }
 
-export { Pagina, Busqueda, DesplazamientoInfinito, ComponenteLiteral};
+export { Pagina, DesplazamientoInfinito, ComponenteLiteral};
 
 

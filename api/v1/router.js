@@ -725,4 +725,16 @@ router.get('/notificaciones', function(req,res){
 	// retornar estado de la api, disponible o no
 }) */
 
+router.get('/verificar-autenticacion', (req, res) => {
+	if (req.session && req.session.usuario) {
+	  // El usuario está autenticado
+	  res.send(`Bienvenido, ${req.session.usuario.nombre}`);
+	} else {
+	  // El usuario no está autenticado
+	  res.send('Por favor, inicia sesión.');
+	}
+  });
+
+
+
 export {router};

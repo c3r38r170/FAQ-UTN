@@ -4,7 +4,6 @@ class ChipUsuario{
         nombre
     }){
 		this.#nombreusuario = nombre;
-         //console.log('CHIPUSUARIO CONSTRUCTOR',nombre)
 	}
 	render(){
 		return`

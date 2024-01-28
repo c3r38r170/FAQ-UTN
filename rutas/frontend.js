@@ -1,13 +1,16 @@
 import * as express from "express";
 import {Sequelize} from 'sequelize';
 const router = express.Router();
-import { Pagina, Busqueda, DesplazamientoInfinito } from "../frontend/componentes.js";
+import { Pagina, DesplazamientoInfinito } from "../frontend/componentes.js";
 import { Pregunta } from "../frontend/static/componentes/pregunta.js";
 import { ChipUsuario } from "../frontend/static/componentes/chipusuario.js";
-import { Busqueda as BusquedaDAO } from "../frontend/static/componentes/busqueda.js"
+import { Busqueda  } from "../frontend/static/componentes/busqueda.js"
 import { Respuesta } from "../frontend/static/componentes/respuesta.js";
 import { Tabla } from "../frontend/static/componentes/tabla.js";
 import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
+import { MensajeInterfaz } from "../frontend/static/componentes/mensajeInterfaz.js";
+import { Titulo } from "../frontend/static/componentes/titulo.js"
+//import { Formulario } from "../frontend/static/componentes/formulario.js";
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
@@ -18,7 +21,7 @@ router.get("/", (req, res) => {
 		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
 		let queryString = req.url.substring(req.url.indexOf('?'));
 		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-		Pregunta.pagina({
+		PreguntaDAO.pagina({
 			consulta:req.query.consulta,
 			etiquetas:req.query.etiquetas
 		})
@@ -38,7 +41,7 @@ router.get("/", (req, res) => {
 				res.send(pagina.render());
 			})
 	}else{ // * Inicio regular.
-		 Pregunta.pagina()
+		 PreguntaDAO.pagina()
 			.then(pre=>{ 
 				let pagina = new Pagina({
 					ruta: req.path,
@@ -46,19 +49,20 @@ router.get("/", (req, res) => {
 					sesion: req.session.usuario,
 				});
 				pagina.partes.push(
-					new Busqueda(??? 'Hola')
+					new Busqueda('Hola')
 					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>new Pregunta(p))
 				)
 				res.send(pagina.render());
-			// })
+			 })
 			// TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
 	}
 });
 */
 
+
+
 //Ruta que muestra todas las preguntas y respuestas
 // Falta implementar la paginación
-
 router.get("/", async (req, res) =>  {
     try {
         const preguntas = await PreguntaDAO.findAll({
@@ -87,7 +91,8 @@ router.get("/", async (req, res) =>  {
 								}
 							]
 						}
-					]
+					],
+					order: [['createdAt', 'DESC']]
                 },
 				{
 					model: EtiquetaDAO
@@ -162,18 +167,19 @@ router.get("/pregunta/:id?", (req, res) => {
 */
 
 router.get("/suscripciones",(req,res)=>{
+	
 	if(!req.session.usuario){
 		res.status(401).send();
 		return;
 	}
-
+	
 	PreguntaDAO.findAll({
 		// TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
 		// TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta 
 		include:{
 			model:SuscripcionesPregunta
 			,where:{
-				suscriptoAPregunta:req.session.usuario.ID
+				suscriptoAPregunta:req.session.usuario.DNI
 			}
 		}
 	})
@@ -200,8 +206,8 @@ router.get("/perfil/:id?", (req, res) => {
 	// TODO Feature: Ordenar posts por fecha
 	/* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
 	// TODO Refactor: DNI
-	let id=req.params.id/* ||req.session.usuario.ID */;
-	// let logueadoId=req.session.usuario.ID;
+	let id=req.params.id /* || req.session.usuario.DNI*/ ;
+	let logueadoId /*=req.session.usuario.DNI;*/
 	// let titulo="Perfil de ";
 	let usu;
 
@@ -214,17 +220,17 @@ router.get("/perfil/:id?", (req, res) => {
 				,nested:true
 			}
 		} */);
+
 	}else{
 		// TODO Feature: Obtener los posts paginados por ID del usuario, la sesion no guarda las asociaciones
 		usu=req.session.usuario;
 	}
-
 		// TODO Feature: Componente "Tarjeta de Usuario", o hacer una versión del Chip de Usuario con esteroides? Ya no sería chip... Pero llevan básicamente la misma info. Y además daría la opción de reportar o banear dependiedno si el usuario está logueado y tiene permisos
 		/* tarjeta de usuario 
 		actividad*/
   let pagina = new Pagina({
     ruta: req.path,
-    titulo: 'Perfil de '+usu.nombreCompleto,
+    titulo: 'Perfil de '+usu.nombre,
     sesion: req.session.usuario,
 		partes:[
 			new DesplazamientoInfinito(
@@ -474,27 +480,6 @@ router.get('/perfil/respuestas',(req, res) => {
 })
 
 
-// Ruta Para Pruebas de Componentes
-router.get("/componentes", (req, res) => {
-  let pagina = new Pagina({
-    ruta: req.path,
-    titulo: "Componentes",
-    sesion: req.session.usuario,
-  });
-  pagina.partes.push(new Pregunta({
-	titulo: "Este es el titulo",
-	cuerpo:
-	  "Lorem Ipsum is simply dummy text of the printing and the industrys standard dummy text ever since the 1500s?",
-	fecha: "31 de Marzo de 2023",
-	post: {
-		duenioPostID: 1
-	}
-  }))
-  res.send(pagina.render());
-});
-
-
-
 router.get("/usuario/:id?", async (req, res) =>  {
 	UsuarioDAO.findByPk(req.params.id,
 		{raw:true,
@@ -525,79 +510,40 @@ router.get("/explorar", (req, res) => {
 	  titulo: "Explorar",
 	  sesion: req.session.usuario,
 	});
-	pagina.partes.push(new BusquedaDAO())
+	pagina.partes.push(new Busqueda())
 	res.send(pagina.render());
   });
   
 
-// RUTA DE PRUEBA
-  router.get("/prueba/preguntas", async (req, res) =>  {
+// RUTA DE PRUEBA PARA PROBAR
+   router.get("/prueba/mensaje", async (req, res) =>  {
     try {
-        const preguntas = await PreguntaDAO.findAll({
-            include: [
-                {
-                    model: PostDAO,
-                    as: 'post',
-					include: [
-						{
-							model: UsuarioDAO,
-							as: 'duenio'
-						}
-					]
-                },
-                {
-                    model: RespuestaDAO,
-                    //as: 'pregunta',
-					include: [
-						{
-							model: PostDAO,
-							as: 'post',
-							include: [
-								{
-									model: UsuarioDAO,
-									as: 'duenio'
-								}
-							]
-						}
-					]
-                },
-				{
-					model: EtiquetaDAO
-				}
-            ]
-        });
-
-        if (!preguntas || preguntas.length === 0) {
-            res.status(404).send('No se encontraron preguntas');
-            return;
-        }
-
+        
 		let pagina = new Pagina({
             ruta: req.path,
-            titulo: 'Prueba de Preguntas',
+            titulo: 'Prueba de Formulario',
             sesion: req.session.usuario
         });
 
+		
 
-		for(let i=0; i < preguntas.length;i++){
-			pagina.partes.push(new Pregunta(preguntas[i].dataValues));
-			//console.log('PREGUNTA NÚMERO: ',i,'  -  ',preguntas[i].dataValues);
-		}
+		pagina.partes.push(new MensajeInterfaz(1,'No hay resultados'));
+		pagina.partes.push(new MensajeInterfaz(2,'No hay resultados'));
 
-        res.send(preguntas);
+		pagina.partes.push(new Titulo(5,'Este el título 5'));
+		
+
+        res.send(pagina.render());
     } catch (error) {
         console.error(error);
-        res.status(500).send('Error interno del servidor de prueba/preguntas');
+        res.status(500).send('Error interno del servidor de prueba/mensaje');
     }
 });
 
 
 
 
-
-
-
-
+  
 
 
 

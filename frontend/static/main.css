@@ -354,4 +354,9 @@ button.mi-boton {
   background-color: lightgray;
   cursor: pointer;
   margin: 20px auto;
+}
+
+.modal .modal-content .box h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
 }/*# sourceMappingURL=main.css.map */
