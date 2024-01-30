@@ -486,13 +486,14 @@ Pregunta.hasOne(Post,{
 })
 
 Pregunta.hasMany(Respuesta,{
-    // as:'pregunta',
+    as:'respuestas',
     constraints:false,
     foreignKey:'preguntaID'
 })
 
 Respuesta.belongsTo(Pregunta,{
-    constraints:false
+    constraints:false,
+    as:'pregunta'
 });
 
 const Etiqueta = sequelize.define('etiqueta',{
