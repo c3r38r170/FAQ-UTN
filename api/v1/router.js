@@ -680,7 +680,6 @@ router.get('/etiqueta', function(req,res){
 
 router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 	//Si no existe suscribe, si existe(sin fecha de baja) desuscribe
-	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
