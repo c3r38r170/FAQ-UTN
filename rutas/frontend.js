@@ -53,22 +53,40 @@ router.get("/", (req, res) => {
 
 router.get("/pregunta/:id?", (req, res) => {
 	if(req.params.id){
-		PreguntaDAO.findById(req.params.id,{plain: true}) // TODO Refactor: hace falta el plain?? ¿No es raw + nest? 
-			.then((p)=>{
-				if(!p){
+		PreguntaDAO.findByPk(req.params.id,{
+			include: [
+			  {
+				model: RespuestaDAO,
+				as: 'respuestas',
+				include: [
+				  {
+					model: PostDAO,
+					include:[{model:UsuarioDAO, as:'duenio'}]
+				  }
+				]
+			  },
+			  {
+				model: PostDAO,
+				include:[{model:UsuarioDAO, as: 'duenio'}] 
+			  }
+			]
+		  })
+			.then(pregunta=>{
+				if(!pregunta){
 					res.status(404).send('ID de pregunta inválida');
+					return;
 				}
-	
 				let pagina=new Pagina({
 					ruta:req.path
-					,titulo:p.titulo
+					,titulo:pregunta.titulo
 					,sesion:req.session.usuario
 					,partes:[
 						// TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
-						new Pregunta(p)
-						,...p.respuestas.map(r=>new Respuesta(r))
+						
+						new Pregunta(pregunta)
+						,...pregunta.respuesta.map(r=>new Respuesta(r))
 						// TODO Feature: si está logueado, campo de hacer una respuesta
-					]
+						]
 				});
 				res.send(pagina.render());
 			})
