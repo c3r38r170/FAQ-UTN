@@ -1,7 +1,20 @@
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 const router = express.Router();
-import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta, ReportesUsuario, Post, Respuesta, Etiqueta, SuscripcionesEtiqueta, Notificacion } from "./model.js";
+import {
+	Usuario
+	, Perfil
+	, Voto
+	, ReportePost
+	,Pregunta
+	, SuscripcionesPregunta
+	, ReportesUsuario
+	, Post
+	, Respuesta
+	, Etiqueta
+	, SuscripcionesEtiqueta
+	, Notificacion
+} from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar, moderarWithRetry} from "./ia.js";
 
@@ -173,6 +186,8 @@ router.patch('/usuario', function(req, res){
 
 // TODO Refactor: Ver si consultas GET aceptan body, o hay que poner las cosas en la URL (chequear proyecto de TTADS)
 router.get('/pregunta',(req,res)=>{
+	// ! Siempre pedir el Post, por más que no se consulten los datos.
+
 	// TODO Feature: Aceptar etiquetas y filtro de texto. https://masteringjs.io/tutorials/express/query-parameters
 	// TODO Feature: Considerar el hecho de enviar la cantidad de respuestas y no las respuestas en sí. Quizá con una bandera.
 
@@ -180,13 +195,214 @@ router.get('/pregunta',(req,res)=>{
 	// Pregunta.pagina(+req.pagina)
 
 	// TODO Refactor: Ir considerando qué filtros poner. Va a haber consultas sin busqueda, por ejemplo.
-	// TODO Feature: ver si anda lo de match, y lo del or
+	/* 
+		1) Inicio: Pregunta y primera respuesta, ordenada por más recientes
+		2) Búsqueda: Pregunta y primera respuesta, filtrado por texto y etiquetas, ordenada por coincidencia
+		3) Perfil: Preguntas y primera respuesta, filtradas por usuario, ordenada por más recientes
+		4) Sugerencias: Solo título e ID, filtrado por texto de título y cuerpo, ordenada por coincidencia
+		5) Suscripciones: Solo título e ID (y respuesta?? la última o la cantidad... o el mensaje... o quizá se solucione en el frontend, no se.), filtrado por suscripcion (sesión), ordenada por más recientes
+
+		Los reportes se conseguirán de /pregunta/reporte y otro endpoint, este no.
+
+		El formato largo incluye:
+		- Pregunta
+			- fecha
+			- ID
+		- Cuerpo
+		- 1ra respuesta
+			- Dueño??
+				- nombre
+				- ID
+				- rol
+			- fecha
+			- Valoración
+			- cuerpo
+		- Valoración
+		- Dueño
+			- nombre
+			- ID
+			- rol
+		El formato corto:
+		- Pregunta / título
+		- ID
+
+		Parámetros para lograr esto:
+		{
+			filtro:null (puede ser texto (busqueda o titulo+cuerpo por sugerencia), vacío, o un objeto con texto y etiquetas; si está definido, se ordena por coincidencia)
+
+			formatoCorto:false (booleano. Todos los datos o solo pregunta/título e ID)
+
+			duenioID:null (duenioID, )
+
+			pagina: Paginación, paralelo a cualquier conjunto de las superiores
+		}
+		 filtro  |     sí     |      no
+		f. largo |  búsqueda  | inicio/perfil
+		f. corto | sugerencia |  suscripcion
+
+		if(req.body.duenioID){
+			// 3) Perfil
+		}else if(req.body.filtros){
+			if(req.body.formatoCorto){
+				// 4) Sugerencias
+			}else{
+				// 2) Búsqueda
+			}
+		}else if(req.body.formatoCorto){
+			// 5) Suscripciones
+		}else{
+			// 1) Inicio
+		}
+
+		if(req.body.duenioID){
+			// devolver en formato largo y sin filtros, según el dueño
+		}else{
+			if(req.body.filtros){
+				// Ver si el filtro es solo texto o etiquetas también
+				// Agregar filtro de match al where, y de etiquetas.
+			}
+			if(req.body.formatoCorto){
+				// Agregar raw, y eso para que sean pocos datos. No hace falta cruzar con casi nada.
+				// Otra opción es manipular lo que se obtiene para mandar objetos reducidos.
+			}
+
+			if(req.body.filtros && !req.body.formatoCorto){
+				// Búsqueda: Agregar relevancia por votaciones y respuestas... Desarrollar algoritmo de puntaje teniendo en cuenta todo.
+			}
+
+			// Devolver lo que se obtuvo, como objeto...
+		}
+	*/
+	
+	if(req.body.duenioID){
+		Pregunta.findAll({
+			include:[
+				{
+					model:Post
+					,include:[
+						{
+							model:Voto
+							// ,as:'votado'
+							,include:{model:Usuario,as:'votante'}
+						}
+						,{
+							model:Usuario
+							,as:'duenio'
+							,include:{
+								model:Perfil
+								,attributes:['ID','nombre']
+							}
+							,attributes:['DNI','nombre']
+						}
+					]
+				},
+				{
+					model:Respuesta
+					,as:'respuestas'
+					,include:/* [ */
+						Post
+						
+					/* ] */
+					
+					// ,
+					/* {
+						model:Post
+						,include:[
+							 */
+							/* {
+								model:Voto
+								// ,as:'votado'
+								,include:{model:Usuario,as:'votante'}
+							}
+							,{
+								model:Usuario,
+								as:'duenio'
+							} */
+						/* ]
+					} */
+					,attributes:{
+						include:[
+							[
+								Sequelize.literal(`(SELECT SUM(IF(valoracion=1,1,-1)) FROM votos AS v WHERE v.votadoID = post.ID)`),
+								'puntuacion'
+							]
+						]
+					}
+					/* ,order: [
+							[Sequelize.literal('puntuacion'), 'DESC']
+							// ,['fecha', 'DESC']
+					] */
+					// ,limit:1
+					/* ,attributes:[
+						'ID'
+						// ,Sequelize.fn('sum',Sequelize.col('post.votos.valoracion'))
+						// ,Sequelize.literal
+						,'post.ID'
+						,'post.cuerpo'
+					] */
+					/* ,attributes:[
+						'ID'
+						,'post.cuerpo'
+						,[
+							Sequelize.fn('sum',Sequelize.col('post.voto.valoracion'))
+							,'valoracionTotal'
+						]
+					]
+					,order:[
+						['valoracionTotal','DESC']
+					]
+					,limit:1 */
+				}
+			],
+			/* attributes:[
+				'ID'
+				,'titulo'
+				,'fecha'
+				,'cuerpo'
+				,'post.duenio.DNI'
+			], */
+			/* attributes:{
+				include:[
+					[
+						Sequelize.literal(`(SELECT SUM(IF(valoracion=1,1,-1)) as respuestas, v.votadoID FROM votos AS v WHERE v.votadoID = respuestas.post.ID)`),
+						'respuestas.puntuacion'
+					]
+				]
+			}, */
+			where:{
+				'$post.duenio.DNI$':+req.body.duenioID
+			}
+			// ,raw:true,nest:true
+		})
+			.then(preguntas=>{
+				res.status(200).send(preguntas)
+			})
+			.catch(err=>{
+				console.log(err)
+			});
+	}else{
+		/* if(req.body.filtros){
+			// Ver si el filtro es solo texto o etiquetas también
+			// Agregar filtro de match al where, y de etiquetas.
+		}
+		if(req.body.formatoCorto){
+			// Agregar raw, y eso para que sean pocos datos. No hace falta cruzar con casi nada.
+			// Otra opción es manipular lo que se obtiene para mandar objetos reducidos.
+		}
+
+		if(req.body.filtros && !req.body.formatoCorto){
+			// Búsqueda: Agregar relevancia por votaciones y respuestas... Desarrollar algoritmo de puntaje teniendo en cuenta todo.
+		} */
+	}
+	return;
+
+	// TODO Feature: ver si anda lo de match, y lo del or  quizá haya que poner tabla.columna en vez de solo las columnas
 	//hice union atada con alambre, ver cuan lento es
 	//al ser distintas tablas no puedo hacer un unico indice con las dos columnas
 	Pregunta.findAll({
 		where:	Sequelize.or(
-				Sequelize.literal('match(cuerpo) against ("'+req.body.cuerpo+'")'),
-				Sequelize.literal('match(titulo) against ("'+req.body.cuerpo+'")')	
+				Sequelize.literal('match(cuerpo) against ("'+req.body.filtro+'")'),
+				Sequelize.literal('match(titulo) against ("'+req.body.filtro+'")')	
 				)
 		,
 		order:[
