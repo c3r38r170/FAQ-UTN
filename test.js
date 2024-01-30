@@ -156,6 +156,7 @@ describe('Express API Tests', () => {
     const response = await makeRequest('patch', '/api/pregunta', {
       ID: '9',
       cuerpo: 'pelados puttos',
+      titulo: '¿que dia se rinde analisis?'
     });
 
     assert.strictEqual(response.status, 400);
