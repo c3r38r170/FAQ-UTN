@@ -197,10 +197,13 @@ router.get('/pregunta',(req,res)=>{
 	// TODO Refactor: Ir considerando qué filtros poner. Va a haber consultas sin busqueda, por ejemplo.
 	/* 
 		1) Inicio: Pregunta y primera respuesta, ordenada por más recientes
+			Esto es la funcion .pagina().
 		2) Búsqueda: Pregunta y primera respuesta, filtrado por texto y etiquetas, ordenada por coincidencia
 		3) Perfil: Preguntas y primera respuesta, filtradas por usuario, ordenada por más recientes
 		4) Sugerencias: Solo título e ID, filtrado por texto de título y cuerpo, ordenada por coincidencia
+
 		5) Suscripciones: Solo título e ID (y respuesta?? la última o la cantidad... o el mensaje... o quizá se solucione en el frontend, no se.), filtrado por suscripcion (sesión), ordenada por más recientes
+			Endpoint de notificaciones... no creo que importe 
 
 		Los reportes se conseguirán de /pregunta/reporte y otro endpoint, este no.
 
@@ -276,6 +279,7 @@ router.get('/pregunta',(req,res)=>{
 	
 	if(req.body.duenioID){
 		Pregunta.findAll({
+			// TODO Feature: try subQUery:false again and separate: true
 			include:[
 				{
 					model:Post
@@ -321,14 +325,14 @@ router.get('/pregunta',(req,res)=>{
 							} */
 						/* ]
 					} */
-					,attributes:{
+					/* ,attributes:{
 						include:[
 							[
 								Sequelize.literal(`(SELECT SUM(IF(valoracion=1,1,-1)) FROM votos AS v WHERE v.votadoID = post.ID)`),
 								'puntuacion'
 							]
 						]
-					}
+					} */
 					/* ,order: [
 							[Sequelize.literal('puntuacion'), 'DESC']
 							// ,['fecha', 'DESC']
@@ -354,6 +358,8 @@ router.get('/pregunta',(req,res)=>{
 					]
 					,limit:1 */
 				}
+				,Etiqueta
+				,{model:SuscripcionesPregunta,as:'preguntaSuscripta'}
 			],
 			/* attributes:[
 				'ID'
@@ -382,7 +388,13 @@ router.get('/pregunta',(req,res)=>{
 				console.log(err)
 			});
 	}else{
-		let opciones={include:[Post]};
+		let opciones={
+			include:[Post],
+			limit:PAGINACION.resultadosPorPagina,
+			offset:(+(req.body.pagina||0))*PAGINACION.resultadosPorPagina,
+			subQuery:false
+		};
+		let filtraEtiquetas=false;
 
 		if(req.body.filtrar){
 			let filtrar=req.body.filtrar;
@@ -395,6 +407,7 @@ router.get('/pregunta',(req,res)=>{
 			}
 			
 			if(filtrar.etiquetas){
+				// TODO Feature: Ver cómo traer las otras etiqeutas, además de las usadas en el filtro
 				opciones.include.push({
 					model: Etiqueta,
 					required: true,
@@ -402,6 +415,7 @@ router.get('/pregunta',(req,res)=>{
 						ID:filtrar.etiquetas
 					}
 				});
+				filtraEtiquetas=true;
 			}
 		}
 
@@ -458,10 +472,14 @@ router.get('/pregunta',(req,res)=>{
 					,as:'respuestas'
 					,include:Post
 				}
+				,{model:SuscripcionesPregunta,as:'preguntaSuscripta'}
 			);
+			if(!filtraEtiquetas){
+				opciones.include.push(Etiqueta)
+			}
 		}
 
-		if(req.body.filtrar && !req.body.formatoCorto){
+		if(req.body.filtrar /* && !req.body.formatoCorto */){
 			// Búsqueda: Agregar relevancia por votaciones y respuestas... Desarrollar algoritmo de puntaje teniendo en cuenta todo.
 			// opciones.attributes={include:[Sequelize.literal('(SELECT COUNT(r.*)*2 FROM respuestas ON )'),'puntuacion']}
 		}else{
