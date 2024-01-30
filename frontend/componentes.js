@@ -8,13 +8,17 @@ import { Breadcrumb } from "./static/componentes/breadcrumb.js";
 import { Tabla } from "./static/componentes/tabla.js";
 
 // TODO Feature: Tirar errores en los constructores con parámetros necesarios 
+import { Modal } from "./static/componentes/modal.js";
+import { Boton } from "./static/componentes/boton.js";
 
 class Pagina {
 	// TODO Refactor: ¿No debería ser un string?
   #ruta = {
 	ruta: ""
   };
-  #titulo;
+  #titulo = {
+	titulo: ""
+  };
   #sesion;
   partes = [];
 	// * Globales para el JS del frontend
@@ -74,6 +78,7 @@ class Pagina {
 		<script src="${this.#ruta + ".js"}"></script>
 		<link rel="stylesheet" href="${this.#ruta + ".css"}">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
 	</head>
 	<body>
 		${new Encabezado(this.#sesion).render()}
@@ -83,16 +88,23 @@ class Pagina {
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
+				<div id="titulo-principal" class="title is-5">${this.#titulo}</div>
 				${this.partes.map((p) => p.render()).join("")}
 				
 			</div>
-			<div id="columna-3" class="column is-6">
+			<div id="columna-3" class="column is-4">
 				<div id="notificacion-titulo">Notificaciones</div>
 				${this.#notificaciones.map((n) => new Notificacion(n).render()).join("")}
 			</div>
 		</div>
+			
+	
+		<button class="modal-close is-large" aria-label="close"></button>
+	  </div>
+	
+			
 		<footer id="footer">
-        	<div>
+			<div>
 				<img src="/logo.jpg">
 			</div>
 			<div>
@@ -102,15 +114,71 @@ class Pagina {
 			Este es 3
 			</div>
 			<div>
-			 Site design - F.A.Q. UTN 2024
+			Site design - F.A.Q. UTN 2024
 			</div>
-    	</footer>
-	</body>
+		</footer>
+		<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			// Funciones para abrir y cerrar el modal
+			function openModal($el) {
+				$el.classList.add('is-active');
+			}
+		
+			function closeModal($el) {
+				$el.classList.remove('is-active');
+			}
+		
+			function closeAllModals() {
+				(document.querySelectorAll('.modal') || []).forEach(($modal) => {
+				closeModal($modal);
+				});
+			}
+		
+			// Agrega un evento de clic en los botones para abrir un modal específico
+			(document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+				const modal = $trigger.dataset.target;
+				const $target = document.getElementById(modal);
+		
+				$trigger.addEventListener('click', () => {
+				openModal($target);
+				});
+			});
+		
+			// Agrega un evento de clic en varios elementos secundarios para cerrar el modal principal
+			(document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
+				const $target = $close.closest('.modal');
+		
+				$close.addEventListener('click', () => {
+				closeModal($target);
+				});
+			});
+		
+			// Agrega un evento de teclado para cerrar todos los modales
+			document.addEventListener('keydown', (event) => {
+				if(event.key === "Escape") {
+				closeAllModals();
+				}
+			});
+			});
+
+			// Cierra los cartelitos notificaciones
+			document.addEventListener('DOMContentLoaded', () => {
+				(document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
+				  const $notification = $delete.parentNode;
+			  
+				  $delete.addEventListener('click', () => {
+					$notification.parentNode.removeChild($notification);
+				  });
+				});
+			  });
+			</script>
+		</body>
 </html>`;
   }
 }
 
 class Encabezado {
+	#modal;
   #posibleUsuario;
   constructor(sesion) {
     if (sesion) {
@@ -127,13 +195,18 @@ class Encabezado {
 	</div>
 	<div id=encabezado-derecho>
 		${
+			// ACOMODAR EL TEMA DEL MODAL DE LOGIN
       this.#posibleUsuario ||
-      "<button id=ingresar>Ingresar</button>" +
-        "<button id=registrarse>Registrarse</button>"
+       new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render() + 
+		//	"<button class='button is-info is-outlined js-modal-trigger' dataTarget:'modal-login'>Ingresar</button>" +
+	  new Modal('Login','modal-login').render() +
+        //"<button class='button is-info'>Registrarse</button>"
+		new Boton({titulo:'Registrarse', classes: 'button is-info'}).render()
     }
 	</div>
 </div>`;
   }
+
 }
 
 class DesplazamientoInfinito{
@@ -220,6 +293,6 @@ class ComponenteLiteral{
 	}
 }
 
-export { Pagina, Busqueda, DesplazamientoInfinito, ComponenteLiteral};
+export { Pagina, DesplazamientoInfinito, ComponenteLiteral};
 
 

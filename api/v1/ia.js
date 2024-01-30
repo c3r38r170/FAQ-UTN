@@ -31,8 +31,13 @@ const handleStreamData = (chunk) => {
   const jsonObjects = dataBuffer.substring(5,dataBuffer.length);
   if (jsonObjects.length > 1) {
     if(!jsonObjects.includes("DONE")){
+      try{
       const event = JSON.parse(jsonObjects);
+      
       message += event.choices[0].delta.content; //guarda cada parte de la respuesta
+      }catch(error){
+
+      }
     }
     dataBuffer = '';
   }
@@ -71,18 +76,18 @@ async function moderar(post) {
           console.log(parsedResult);
           resolve(parsedResult);
         } catch (parseError) {
-          console.error('JSON Parse Error:', parseError);
+          //console.error('JSON Parse Error:', parseError);
           reject(parseError);
         }
       });
 
       stream.on('error', (error) => {
-        console.error('Stream Error:', error);
+        //console.error('Stream Error:', error);
         reject(error);
       });
     });
   } catch (error) {
-    console.error('API Error:', error.response ? error.response.data : error.message);
+    //console.error('API Error:', error.response ? error.response.data : error.message);
     throw error; // Re-throw the error to indicate the failure of the asynchronous operation
   }
 }

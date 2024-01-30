@@ -150,8 +150,8 @@ router.post('/usuario/:DNI/reporte', function(req, res){
 		}else{
 			// TODO Refactor: Usar Sequelize, usuario.addReporteUsuario(new ReporteUsuario({reportante: ... o como sea }))
 			ReportesUsuario.create({
-				usuarioReportanteID: req.session.usuario.DNI,
-				usuarioReportadoID: req.params.DNI
+				usuarioReportanteDNI: req.session.usuario.DNI,
+				usuarioReportadoDNI: req.params.DNI
 			});
 			
 			res.status(201).send("Reporte registrado")
@@ -500,7 +500,7 @@ router.get('/pregunta',(req,res)=>{
 })
 
 router.patch('/pregunta', function(req,res){
-	// TODO Feature: editar título y etiquetas.
+	// TODO Feature: editar etiquetas.
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
@@ -511,11 +511,11 @@ router.patch('/pregunta', function(req,res){
 			res.status(404).send("Pregunta no encontrada");
 			return;
 		}else{
-			if(pregunta.post.duenioPostID!=req.session.usuario.DNI){
+			if(pregunta.post.duenioDNI!=req.session.usuario.DNI){
 				res.status(403).send("No puede editar una pregunta ajena.");
 				return;
 			}else{
-				moderarWithRetry(req.body.cuerpo,10).then(respuesta=>{
+				moderarWithRetry((req.body.titulo + " " + req.body.cuerpo),10).then(respuesta=>{
 					if(respuesta.apropiado < rechazaPost){
 						res.status(400).send("Texto rechazo por moderación automática");
 						return;
@@ -528,6 +528,7 @@ router.patch('/pregunta', function(req,res){
 					}
 					//si pasa el filtro
 					pregunta.post.cuerpo=req.body.cuerpo;
+					pregunta.titulo=req.body.titulo;
 					//no se porque pero asi anda pregunta.save() no
 					pregunta.post.save();
 					res.status(200).send("Pregunta actualizada exitosamente");
@@ -553,7 +554,7 @@ router.patch('/respuesta', function(req,res){
 			res.status(404).send("Respuesta no encontrada");
 			return;
 		}else{
-			if(respuesta.post.duenioPostID!=req.session.usuario.DNI){
+			if(respuesta.post.duenioDNI!=req.session.usuario.DNI){
 				res.status(403).send("No puede editar una respuesta ajena.");
 				return;
 			}else{
@@ -604,7 +605,7 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 			SuscripcionesPregunta.findAll({
 				where:{
 					preguntaID: IDpregunta,
-					suscriptoID: req.session.usuario.DNI,
+					suscriptoDNI: req.session.usuario.DNI,
 					fecha_baja:{
 						[Sequelize.Op.is]:null
 					}
@@ -614,7 +615,7 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 			}).then(sus=>{
 				if(!sus){
 					SuscripcionesPregunta.create({
-						suscriptoID: req.session.usuario.DNI,
+						suscriptoDNI: req.session.usuario.DNI,
 						preguntaID: IDpregunta
 					}).then(susc=>susc.save());
 					res.status(201).send("Suscripción creada");
@@ -657,7 +658,7 @@ router.post('/pregunta', function(req,res){
 		}
 		Post.create({
 			cuerpo: req.body.cuerpo,
-			duenioPostID: req.session.usuario.DNI
+			duenioDNI: req.session.usuario.DNI
 		}).then(post=>{
 			Pregunta.create({
 				ID: post.ID,
@@ -706,7 +707,7 @@ router.post('/respuesta', function(req,res){
 			}else{
 				Post.create({
 					cuerpo: req.body.cuerpo,
-					duenioPostID: req.session.usuario.DNI
+					duenioDNI: req.session.usuario.DNI
 				}).then(post=>{
 					Respuesta.create({
 						ID: post.ID,
@@ -741,7 +742,7 @@ router.post('/respuesta', function(req,res){
 
 const valorarPost=function(req,res) {
 	//res tendría idpregunta 
-	//la valoracion(true es positiva, false negativa y null nada(tipo si la quiere sacar)) 
+	//la valoracion(true es positiva, false negativa) 
 	//el usuario viene con la sesión
 
 	if(!req.session.usuario){
@@ -750,15 +751,16 @@ const valorarPost=function(req,res) {
 	}
 
 	// TODO Refactor: ver si es posible traer solo un si existe
-	let votadoID=req.params.votadoID;
-	Post.findByPk(votadoID).then(post=>{
+	let IDvotado=req.params.votadoID;
+
+	Post.findByPk(IDvotado).then(post=>{
 			if(!post){
 				res.status(404).send("Post no encontrado / disponible.");
 				return;
 			}else{
 				Voto.findAll({where:{
 					votadoID:IDvotado,
-					votanteID:req.session.usuario.DNI
+					votanteDNI:req.session.usuario.DNI
 					},
 					nest:true,
 					plain:true
@@ -771,20 +773,12 @@ const valorarPost=function(req,res) {
 							Voto.create({
 								valoracion: req.body.valoracion,
 								votadoID:IDvotado,
-								votanteID:req.session.usuario.DNI
+								votanteDNI:req.session.usuario.DNI
 							}).then(v=>v.save());
 					}
 					}else{
-						// TODO Feature: router.delete('/pregunta/:votadoID/valoracion')
-						// si existe y es null es que lo quiere sacar
-						// TODO Refactor: .body.valoracion vs .body.voto ?
-						if(req.body.valoracion=="null"){
-							voto.destroy();
-						}else{
-							//si no es null lo cambia por el otro
-							voto.valoracion=req.body.valoracion;
-							voto.save();
-						}
+						voto.valoracion=req.body.valoracion;
+						voto.save();
 					}
 					res.status(201).send("Voto registrado.")
 				})
@@ -795,9 +789,45 @@ const valorarPost=function(req,res) {
 	})  
 };
 
+const eliminarVoto=function(req,res) {
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa.");
+		return;
+	}
+	let IDvotado=req.params.votadoID;
+	Post.findByPk(IDvotado).then(post=>{
+			if(!post){
+				res.status(404).send("Post no encontrado / disponible.");
+				return;
+			}else{
+				Voto.findAll({where:{
+					votadoID:IDvotado,
+					votanteDNI:req.session.usuario.DNI
+					},
+					nest:true,
+					plain:true
+				}).then(voto=>{
+					if(!voto){
+						res.status.status(403).send("No existe la valoración")
+					}
+					else{
+						voto.destroy();
+					}
+					res.status(201).send("Voto Eliminado.")
+				})
+			}
+	})
+	.catch(err=>{
+		res.status(500).send(err);
+	})  
+};
+
+
 router.post('/pregunta/:votadoID/valoracion', valorarPost)
 router.post('/respuesta/:votadoID/valoracion', valorarPost)
 
+router.delete('/pregunta/:votadoID/valoracion', eliminarVoto)
+router.delete('/respuesta/:votadoID/valoracion', eliminarVoto)
 
 //reporte post
 
@@ -948,7 +978,6 @@ router.get('/etiqueta', function(req,res){
 
 router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 	//Si no existe suscribe, si existe(sin fecha de baja) desuscribe
-	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
@@ -966,7 +995,7 @@ router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 			SuscripcionesEtiqueta.findAll({
 				where:{
 					etiquetaID:IDetiqueta,
-					suscriptoID: req.session.usuario.DNI,
+					suscriptoDNI: req.session.usuario.DNI,
 					fecha_baja:{
 						[Sequelize.Op.is]:null
 					}
@@ -975,7 +1004,7 @@ router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 			}).then(sus=>{
 				if(!sus){
 					SuscripcionesEtiqueta.create({
-						suscriptoID: req.session.usuario.DNI,
+						suscriptoDNI: req.session.usuario.DNI,
 						etiquetaID:IDetiqueta
 					}).then(s=>s.save());
 					res.status(201).send("Suscripción creada");
