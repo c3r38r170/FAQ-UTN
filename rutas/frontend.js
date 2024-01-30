@@ -11,6 +11,7 @@ import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pre
 import { MensajeInterfaz } from "../frontend/static/componentes/mensajeInterfaz.js";
 import { Titulo } from "../frontend/static/componentes/titulo.js"
 import { Desplegable } from "../frontend/static/componentes/desplegable.js";
+import { Modal } from "../frontend/static/componentes/modal.js";
 //import { Formulario } from "../frontend/static/componentes/formulario.js";
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
@@ -80,7 +81,7 @@ router.get("/", async (req, res) =>  {
                 },
                 {
                     model: RespuestaDAO,
-                    //as: 'pregunta',
+                    as: 'respuestas',
 					include: [
 						{
 							model: PostDAO,
@@ -111,7 +112,6 @@ router.get("/", async (req, res) =>  {
             titulo: 'Inicio',
             sesion: req.session.usuario
         });
-
 
 		for(let i=0; i < preguntas.length;i++){
 			pagina.partes.push(new Pregunta(preguntas[i].dataValues));
@@ -311,7 +311,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
                 },
                 {
                     model: RespuestaDAO,
-                    //as: 'respuestas',
+                    as: 'respuestas',
 					include: [
 						{
 							model: PostDAO,
@@ -323,7 +323,8 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 								}
 							]
 						}
-					]
+					],
+					order: [['updatedAt', 'DESC']]
                 },
 				{
 					model: EtiquetaDAO

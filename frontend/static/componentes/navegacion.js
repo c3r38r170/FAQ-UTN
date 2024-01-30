@@ -1,6 +1,10 @@
 class Navegacion{
+
+    //TODO REFACTOR
+    // Comprobar sesion --> sino mostrar sólo búsqueda
+    // Enviar objeto para mapear y renderizar el menú
 	
-    constructo(sesion){
+    constructor(sesion){
         
     }
 
