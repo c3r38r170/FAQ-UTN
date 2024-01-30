@@ -10,6 +10,7 @@ import { Tabla } from "../frontend/static/componentes/tabla.js";
 import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
 import { MensajeInterfaz } from "../frontend/static/componentes/mensajeInterfaz.js";
 import { Titulo } from "../frontend/static/componentes/titulo.js"
+import { Desplegable } from "../frontend/static/componentes/desplegable.js";
 //import { Formulario } from "../frontend/static/componentes/formulario.js";
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
@@ -530,7 +531,20 @@ router.get("/explorar", (req, res) => {
 		pagina.partes.push(new MensajeInterfaz(1,'No hay resultados'));
 		pagina.partes.push(new MensajeInterfaz(2,'No hay resultados'));
 
-		pagina.partes.push(new Titulo(5,'Este el título 5'));
+		pagina.partes.push(new Titulo(5,'Desplegable'));
+		let desplegable = new Desplegable('myDesplegable','Desplegable');
+		let opciones = [{
+			descripcion: 'Opcion 1',
+			tipo: 'link',
+			href: '#'
+		},
+		{
+			descripcion: 'Opcion 2',
+			tipo: 'link',
+			href: '#'
+		}]
+		desplegable.opciones = opciones;
+		pagina.partes.push(desplegable);
 		
 
         res.send(pagina.render());

@@ -6,6 +6,7 @@ import { Notificacion } from "./static/componentes/notificacion.js";
 import { Pregunta } from "./static/componentes/pregunta.js";
 import { Breadcrumb } from "./static/componentes/breadcrumb.js";
 import { Tabla } from "./static/componentes/tabla.js";
+import { Formulario } from "./static/componentes/formulario.js"
 
 // TODO Feature: Tirar errores en los constructores con parámetros necesarios 
 import { Modal } from "./static/componentes/modal.js";
@@ -97,9 +98,6 @@ class Pagina {
 				${this.#notificaciones.map((n) => new Notificacion(n).render()).join("")}
 			</div>
 		</div>
-			
-	
-		<button class="modal-close is-large" aria-label="close"></button>
 	  </div>
 	
 			
@@ -183,8 +181,24 @@ class Encabezado {
   constructor(sesion) {
     if (sesion) {
       this.#posibleUsuario = new ChipUsuario(sesion);
-    }
+    }else{
+		this.#modal = new Modal('Login','modal-login');
+		let form = new Formulario('formularioSesion', 'http://localhost:8080/api/sesion', [
+			['DNI', 'DNI', { type: 'text' }],
+			['contrasenia', 'Contraseña', { type: 'password' }],
+		  ], this.procesarRespuesta, { textoEnviar: 'Iniciar Sesión' });
+		this.#modal.contenido.push(form);
+	}
+
   }
+
+  procesarRespuesta(respuesta) {
+	console.log('Respuesta del servidor:', respuesta);
+	// Aquí puedes agregar lógica adicional según lo que necesites hacer con la respuesta del servidor
+  }
+  
+
+  
   render() {
     return `<div id="encabezado">
 	<div id=encabezado-izquierdo>
@@ -197,12 +211,9 @@ class Encabezado {
 		${
 			// ACOMODAR EL TEMA DEL MODAL DE LOGIN
       this.#posibleUsuario ||
-       new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render() + 
-		//	"<button class='button is-info is-outlined js-modal-trigger' dataTarget:'modal-login'>Ingresar</button>" +
-	  new Modal('Login','modal-login').render() +
-        //"<button class='button is-info'>Registrarse</button>"
-		new Boton({titulo:'Registrarse', classes: 'button is-info'}).render()
-    }
+       new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render() }
+	 		${ this.#modal.render() }
+			${ new Boton({titulo:'Registrarse', classes: 'button is-info'}).render() }
 	</div>
 </div>`;
   }
