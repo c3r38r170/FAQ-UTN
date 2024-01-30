@@ -313,6 +313,7 @@ router.get('/pregunta',(req,res)=>{
 								model:Voto
 								// ,as:'votado'
 								,include:{model:Usuario,as:'votante'}
+								// TODO Feature: Intentar agrupar votos, y ofrecer una medida resumen para ordenar. Quitar el resto afuera (antes intentar limit)
 							}
 							,{
 								model:Usuario,
@@ -381,18 +382,99 @@ router.get('/pregunta',(req,res)=>{
 				console.log(err)
 			});
 	}else{
-		/* if(req.body.filtros){
-			// Ver si el filtro es solo texto o etiquetas también
-			// Agregar filtro de match al where, y de etiquetas.
+		let opciones={include:[Post]};
+
+		if(req.body.filtrar){
+			let filtrar=req.body.filtrar;
+
+			if(filtrar.texto){
+				opciones.where=Sequelize.or(
+					Sequelize.literal('match(post.cuerpo) against ("'+filtrar.texto+'")'),
+					Sequelize.literal('match(titulo) against ("'+filtrar.texto+'")')	
+				);
+			}
+			
+			if(filtrar.etiquetas){
+				opciones.include.push({
+					model: Etiqueta,
+					required: true,
+					where: {
+						ID:filtrar.etiquetas
+					}
+				});
+			}
 		}
+
+		/* El formato largo incluye:
+		- Pregunta ✅
+			- fecha ✅
+			- ID ✅
+		- Cuerpo ✅
+		- 1ra respuesta
+			- Dueño??
+				- nombre
+				- ID
+				- rol
+			- fecha ✅
+			- Valoración
+			- cuerpo ✅
+		- Valoración ✅
+		- Dueño ✅
+			- nombre ✅
+			- ID ✅
+			- rol ✅
+		El formato corto: ✅
+		- Pregunta / título ✅
+		- ID  ✅*/
 		if(req.body.formatoCorto){
 			// Agregar raw, y eso para que sean pocos datos. No hace falta cruzar con casi nada.
 			// Otra opción es manipular lo que se obtiene para mandar objetos reducidos.
+			opciones.attributes=['ID','titulo'];
+		}else{
+			// * Datos propios
+			opciones.include[0]={
+				model:Post
+				,include:[
+					{
+						model:Voto
+						,include:{model:Usuario,as:'votante'}
+					}
+					,{
+						model:Usuario
+						,as:'duenio'
+						,include:{
+							model:Perfil
+							,attributes:['ID','nombre']
+						}
+						,attributes:['DNI','nombre']
+					}
+				]
+			};
+			// * Respuesta más interesante
+			opciones.include.push(
+				// TODO Feature: Ordenar respuesta y tener una sola. Resolver primero en el caso de preguntas por usuario y después traer acá (es más cómodo trabajar allá)
+				{
+					model:Respuesta
+					,as:'respuestas'
+					,include:Post
+				}
+			);
 		}
 
-		if(req.body.filtros && !req.body.formatoCorto){
+		if(req.body.filtrar && !req.body.formatoCorto){
 			// Búsqueda: Agregar relevancia por votaciones y respuestas... Desarrollar algoritmo de puntaje teniendo en cuenta todo.
-		} */
+			// opciones.attributes={include:[Sequelize.literal('(SELECT COUNT(r.*)*2 FROM respuestas ON )'),'puntuacion']}
+		}else{
+			opciones.order=[[Post,'fecha','DESC']];
+		}
+
+		Pregunta.findAll(opciones)
+			.then(preguntas=>{
+				res.status(200).send(preguntas)
+			})
+			.catch(err=>{
+				console.log(err)
+			});
 	}
 	return;
 
