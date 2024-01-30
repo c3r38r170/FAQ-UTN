@@ -202,7 +202,7 @@ router.get('/pregunta',(req,res)=>{
 })
 
 router.patch('/pregunta', function(req,res){
-	// TODO Feature: editar título y etiquetas.
+	// TODO Feature: editar etiquetas.
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
@@ -217,7 +217,7 @@ router.patch('/pregunta', function(req,res){
 				res.status(403).send("No puede editar una pregunta ajena.");
 				return;
 			}else{
-				moderarWithRetry(req.body.cuerpo,10).then(respuesta=>{
+				moderarWithRetry((req.body.titulo + " " + req.body.cuerpo),10).then(respuesta=>{
 					if(respuesta.apropiado < rechazaPost){
 						res.status(400).send("Texto rechazo por moderación automática");
 						return;
@@ -230,6 +230,7 @@ router.patch('/pregunta', function(req,res){
 					}
 					//si pasa el filtro
 					pregunta.post.cuerpo=req.body.cuerpo;
+					pregunta.titulo=req.body.titulo;
 					//no se porque pero asi anda pregunta.save() no
 					pregunta.post.save();
 					res.status(200).send("Pregunta actualizada exitosamente");
@@ -443,7 +444,7 @@ router.post('/respuesta', function(req,res){
 
 const valorarPost=function(req,res) {
 	//res tendría idpregunta 
-	//la valoracion(true es positiva, false negativa y null nada(tipo si la quiere sacar)) 
+	//la valoracion(true es positiva, false negativa) 
 	//el usuario viene con la sesión
 
 	if(!req.session.usuario){
@@ -478,16 +479,8 @@ const valorarPost=function(req,res) {
 							}).then(v=>v.save());
 					}
 					}else{
-						// TODO Feature: router.delete('/pregunta/:votadoID/valoracion')
-						// si existe y es null es que lo quiere sacar
-						// TODO Refactor: .body.valoracion vs .body.voto ?
-						if(req.body.valoracion=="null"){
-							voto.destroy();
-						}else{
-							//si no es null lo cambia por el otro
-							voto.valoracion=req.body.valoracion;
-							voto.save();
-						}
+						voto.valoracion=req.body.valoracion;
+						voto.save();
 					}
 					res.status(201).send("Voto registrado.")
 				})
@@ -498,9 +491,45 @@ const valorarPost=function(req,res) {
 	})  
 };
 
+const eliminarVoto=function(req,res) {
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa.");
+		return;
+	}
+	let IDvotado=req.params.votadoID;
+	Post.findByPk(IDvotado).then(post=>{
+			if(!post){
+				res.status(404).send("Post no encontrado / disponible.");
+				return;
+			}else{
+				Voto.findAll({where:{
+					votadoID:IDvotado,
+					votanteDNI:req.session.usuario.DNI
+					},
+					nest:true,
+					plain:true
+				}).then(voto=>{
+					if(!voto){
+						res.status.status(403).send("No existe la valoración")
+					}
+					else{
+						voto.destroy();
+					}
+					res.status(201).send("Voto Eliminado.")
+				})
+			}
+	})
+	.catch(err=>{
+		res.status(500).send(err);
+	})  
+};
+
+
 router.post('/pregunta/:votadoID/valoracion', valorarPost)
 router.post('/respuesta/:votadoID/valoracion', valorarPost)
 
+router.delete('/pregunta/:votadoID/valoracion', eliminarVoto)
+router.delete('/respuesta/:votadoID/valoracion', eliminarVoto)
 
 //reporte post
 

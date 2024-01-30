@@ -1,64 +1,63 @@
 import { ChipUsuario } from "./chipusuario.js";
 import { Etiqueta } from "./etiqueta.js";
 import { Respuesta } from "./respuesta.js";
+import { Boton } from "./boton.js"
+import { Usuario as UsuarioDAO } from "../../../api/v1/model.js"
+import { Fecha } from "./fecha.js"
+import { BotonReporte } from "./botonReporte.js";
 
 class Pregunta{
+    #ID;
     #titulo;
     #cuerpo;
     #fecha;
-    #usuario={
-        nombre: 'John Doe',
-        tipo: 'Administrador',
-        imagen: 'https://definicion.de/wp-content/uploads/2019/07/perfil-de-usuario.png'
-    }
-    #etiquetas= [
-        {etiqueta: 'facultad'},
-        {etiqueta: 'estudio'},
-        {etiqueta: 'materias'}
-    ]
-    #respuestas= [{
-        usuario: {
-            nombre: 'Jane Doe',
-            tipo: 'Alumno',
-            imagen: 'https://definicion.de/wp-content/uploads/2019/07/perfil-de-usuario.png'
-        },
-        valoracion: '30',
-        cuerpo: 'andard dum andapsum is simply dummy text of the printing and the inrd dumandard dum',
-        fecha: '25 de Diciembre de 2024'
-    }]
-    #chipusuario;
+    #usuario;
+    #etiquetas= []
+    #respuestas= []
     // TODO Feature: Hay 2 representaciones de pregunta. En el inicio, donde hay un listado, se ve la pregunta y la primera respuesta; y en la página propia se ve solo la pregunta y las respuestas se verían abajo con su propia representación.
 	constructor({
-        titulo, cuerpo, fecha
+        ID, titulo, cuerpo, fecha, post, respuestas, etiqueta
     }){
-		this.#titulo = titulo;
-		this.#cuerpo= cuerpo;
-        this.#fecha = fecha;
-        this.#chipusuario = new ChipUsuario(this.#usuario)
-        //pregunta.etiquetas.map(e=>this.etiquetas.push(new Etiqueta(e)))
-        
+        if (titulo && cuerpo && fecha) {
+            this.#titulo = titulo;
+            this.#cuerpo = cuerpo;
+            this.#fecha = new Fecha(fecha)
+            this.#usuario = post.duenio;
+            this.#respuestas = respuestas;
+            this.#ID = ID;
+            this.#etiquetas = etiqueta;
+            
+        }
 	}
-	render(){
-		return`
-        <div class="pregunta">
-            <div class="columns is-vcentered mb-1">
-                <div class="column is-narrow pr-0 py-0">
-                ${this.#chipusuario.render()}
-                </div>
-                <div class="column is-narrow pl-0 py-0">
-                    <div id="fecha">  •  ${this.#fecha}</div>
-                </div>
-            </div>
-                       
-            <div id="cuerpo">${this.#cuerpo}</div>
-            <div id="etiquetas">
-            ${this.#etiquetas.map(e=> new Etiqueta(e).render()).join('')}
-            </div>
-        </div>
 
-        ${this.#respuestas.map((r) => new Respuesta(r).render()).join("")}
-        `;
-	}
+	render(){      
+        return`
+            <div class="pregunta">
+                <div class="columns is-vcentered mb-1">
+                    <div class="column is-narrow pr-0 py-0">
+                    ${new ChipUsuario(this.#usuario).render()}
+                    </div>
+                    <div class="column is-narrow pl-0 py-0">
+                        ${this.#fecha.render()}
+                    </div>
+                    ${ new BotonReporte({idPost:this.#ID}).render() }
+                </div>
+                <a href="http://localhost:8080/pregunta/${this.#ID}">
+                    <div id="titulo">${this.#titulo}</div>
+                </a>
+                <div id="cuerpo">${this.#cuerpo}</div>
+                <div id="etiquetas">
+                ${this.#etiquetas ? this.#etiquetas.map(e=> new Etiqueta(e).render()).join('') : ''}
+                </div>
+                <div class="cantRespuestas">${this.#respuestas.length > 0 ? this.#respuestas.length + ' Respuestas' : ''}</div>
+                ${ this.#respuestas.slice(0,3).map((r) => new Respuesta(r).render()).join("") }
+            </div>
+
+            `;
+
+    }
+        
+
 }
 
 export {Pregunta};

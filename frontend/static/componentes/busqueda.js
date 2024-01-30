@@ -7,13 +7,24 @@ class Busqueda{
         {etiqueta: 'apuntes'},
 		{etiqueta: 'tp'}
     ]
+
+
+    manejoBusqueda(event) {
+        event.preventDefault();
+        const searchTerm = event.target.elements.searchInput.value;
+        // IMPLEMENTAR BUSQUEDA
+        console.log('Búsqueda:', searchTerm);
+    }
+
+
 	render(){
 		return`
         <div class="buscador">
-            <div class="titulo">Buscar</div>
-            <input class="input" type="text" placeholder="Buscar...">
+            <form id="searchForm" onsubmit="manejoBusqueda(event);">
+                <input class="input" type="text" name="searchInput" placeholder="Buscar..." />
+            </form>
             <div id="etiquetas">
-            ${this.#etiquetas.map(e=> new Etiqueta(e).render()).join('')}
+                ${this.#etiquetas.map(e => new Etiqueta(e).render()).join('')}
             </div>  
         </div>
         `;

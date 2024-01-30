@@ -113,6 +113,7 @@ describe('Express API Tests', () => {
     const response = await makeRequest('patch', '/api/pregunta', {
       ID: 9,
       cuerpo: 'probando',
+      titulo: '¿que dia se rinde analisis?'
     });
 
     assert.strictEqual(response.status, 200);
@@ -123,6 +124,7 @@ describe('Express API Tests', () => {
     const response = await makeRequest('patch', '/api/pregunta', {
       ID: 3,
       cuerpo: 'probando',
+      titulo: '¿que dia se rinde analisis?'
     });
 
     assert.strictEqual(response.status, 403);
@@ -133,6 +135,7 @@ describe('Express API Tests', () => {
     const response = await makeRequest('patch', '/api/pregunta', {
       ID: 2,
       cuerpo: 'probando',
+      titulo: '¿que dia se rinde analisis?'
     });
 
     assert.strictEqual(response.status, 404);
