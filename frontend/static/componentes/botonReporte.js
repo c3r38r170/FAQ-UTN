@@ -1,15 +1,17 @@
-class BotonReporte{
-    #idPost
-    constructor({
-        idPost
+import { MensajeInterfaz } from "../componentes/mensajeInterfaz.js";
 
-    }) {
-        this.#idPost = idPost;
+class BotonReporte{
+    #postID;
+    #modal;
+    constructor(postID, modal) {
+        this.#postID = postID;
+        this.#modal = modal;
+
       }
 
     render(){
         return`
-        <button id="reporte" onclick="${this.reportar()}">
+        <button id="reporte" class="js-modal-trigger" data-target="${this.#modal.ID}" onclick="${this.reportar()}">
             <span>
                 <i class="fa-sm fa-solid fa-circle-exclamation">
                 </i>
@@ -20,6 +22,10 @@ class BotonReporte{
 
     reportar(){
         // Implementar código de reporte de Post
+        let mensaje = 'Quieres reportar el post #'+this.#postID
+        this.#modal.contenido.push(new MensajeInterfaz(2,mensaje))
+        this.#modal.render();
+        
     }
 
 }

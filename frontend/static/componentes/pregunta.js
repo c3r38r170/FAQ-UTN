@@ -14,10 +14,9 @@ class Pregunta{
     #usuario;
     #etiquetas= []
     #respuestas= []
+    #instanciaModal;
     // TODO Feature: Hay 2 representaciones de pregunta. En el inicio, donde hay un listado, se ve la pregunta y la primera respuesta; y en la página propia se ve solo la pregunta y las respuestas se verían abajo con su propia representación.
-	constructor({
-        ID, titulo, cuerpo, fecha, post, respuestas, etiqueta
-    }){
+	constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiqueta},instanciaModal){
         if (titulo && cuerpo && fecha) {
             this.#titulo = titulo;
             this.#cuerpo = cuerpo;
@@ -26,6 +25,7 @@ class Pregunta{
             this.#respuestas = respuestas;
             this.#ID = ID;
             this.#etiquetas = etiqueta;
+            this.#instanciaModal = instanciaModal;
             
         }
 	}
@@ -33,24 +33,22 @@ class Pregunta{
 	render(){      
         return`
             <div class="pregunta">
-                <div class="columns is-vcentered mb-1">
-                    <div class="column is-narrow pr-0 py-0">
+                <div class="encabezado">
                     ${new ChipUsuario(this.#usuario).render()}
-                    </div>
-                    <div class="column is-narrow pl-0 py-0">
+                    <div class="pl-0 py-0">
                         ${this.#fecha.render()}
                     </div>
-                    ${ new BotonReporte({idPost:this.#ID}).render() }
+                    ${ new BotonReporte(this.#ID, this.#instanciaModal).render() }
                 </div>
                 <a href="http://localhost:8080/pregunta/${this.#ID}">
                     <div id="titulo">${this.#titulo}</div>
                 </a>
                 <div id="cuerpo">${this.#cuerpo}</div>
-                <div id="etiquetas">
+                <div class="etiquetas">
                 ${this.#etiquetas ? this.#etiquetas.map(e=> new Etiqueta(e).render()).join('') : ''}
                 </div>
                 <div class="cantRespuestas">${this.#respuestas.length > 0 ? this.#respuestas.length + ' Respuestas' : ''}</div>
-                ${ this.#respuestas.map((r) => new Respuesta(r).render()).join("") }
+                ${ this.#respuestas.map((r) => new Respuesta(r,this.#instanciaModal).render()).join("") }
             </div>
 
             `;

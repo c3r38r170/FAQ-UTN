@@ -2,10 +2,10 @@ import { Etiqueta } from './etiqueta.js'
 
 class Busqueda{
     #etiquetas= [
-        {etiqueta: 'mesas de examen'},
-        {etiqueta: 'excepcion'},
-        {etiqueta: 'apuntes'},
-		{etiqueta: 'tp'}
+        {descripcion: 'mesas de examen'},
+        {descripcion: 'excepcion'},
+        {descripcion: 'apuntes'},
+		{descripcion: 'tp'}
     ]
 
 
@@ -23,7 +23,7 @@ class Busqueda{
             <form id="searchForm" onsubmit="manejoBusqueda(event);">
                 <input class="input" type="text" name="searchInput" placeholder="Buscar..." />
             </form>
-            <div id="etiquetas">
+            <div class="etiquetas">
                 ${this.#etiquetas.map(e => new Etiqueta(e).render()).join('')}
             </div>  
         </div>

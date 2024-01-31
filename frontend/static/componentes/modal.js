@@ -1,15 +1,15 @@
 class Modal {
     #titulo;
     contenido = [];
-    #ID;
+    ID;
     constructor(titulo, modalID) {
       this.#titulo = titulo;
-      this.#ID = modalID;
+      this.ID = modalID;
     }
   
     render() {
       return `
-        <div id="${this.#ID}" class="modal">
+        <div id="${this.ID}" class="modal">
           <div class="modal-background"></div>
           <div class="modal-content">
             <div class="box">
