@@ -83,7 +83,7 @@ const Bloqueo = sequelize.define('bloqueo',{
 Usuario.hasMany(Bloqueo, {
     as:'bloqueosRealizados',
     constraints :false,
-    foreignKey: 'bloqueadorID',
+    foreignKey: 'bloqueadorDNI',
 });
 
 Bloqueo.belongsTo(Usuario,{
@@ -94,7 +94,7 @@ Bloqueo.belongsTo(Usuario,{
 Usuario.hasMany(Bloqueo, {
     as:'bloqueosRecibidos',
     constraints :false,
-    foreignKey: 'bloqueadoID',
+    foreignKey: 'bloqueadoDNI',
 });
 
 Bloqueo.belongsTo(Usuario,{
@@ -105,7 +105,7 @@ Bloqueo.belongsTo(Usuario,{
 Usuario.hasMany(Bloqueo, {
     as:'desbloqueosRealizados',
     constraints :false,
-    foreignKey: 'desbloqueadorID',
+    foreignKey: 'desbloqueadorDNI',
 });
 
 Bloqueo.belongsTo(Usuario,{
@@ -132,7 +132,7 @@ const ReportesUsuario = sequelize.define('reporteUsuarios',{
 Usuario.hasMany(ReportesUsuario, {
     as: 'reportesRecibidos',
     constraints: false,
-    foreignKey: 'reportadoID'
+    foreignKey: 'reportadoDNI'
 });
 
 ReportesUsuario.belongsTo(Usuario,{
@@ -143,7 +143,7 @@ ReportesUsuario.belongsTo(Usuario,{
 Usuario.hasMany(ReportesUsuario, {
     as: 'reportesRealizados',
     constraints: false,
-    foreignKey: 'reportanteID'
+    foreignKey: 'reportanteDNI'
 });
 
 ReportesUsuario.belongsTo(Usuario,{
@@ -213,7 +213,7 @@ const Notificacion = sequelize.define('notificacion',{
 Usuario.hasMany(Notificacion,{
     as: 'notificaciones',
     constraints: false,
-    foreignKey: 'notificadoID'
+    foreignKey: 'notificadoDNI'
 })
 
 Notificacion.belongsTo(Usuario,{
@@ -299,7 +299,7 @@ ReportePost.belongsTo(TipoReporte,{
 
 Usuario.hasMany(ReportePost,{
     constraints:false,
-    foreignKey: 'reportanteID'
+    foreignKey: 'reportanteDNI'
 });
 
 ReportePost.belongsTo(Usuario,{
@@ -578,7 +578,7 @@ const SuscripcionesEtiqueta = sequelize.define('suscripcionesEtiqueta',{
 Usuario.hasMany(SuscripcionesEtiqueta,{
     as:'suscriptoAEtiqueta',
     constraints:false,
-    foreignKey:'suscriptoID'
+    foreignKey:'suscriptoDNI'
 });
 
 Etiqueta.hasMany(SuscripcionesEtiqueta,{
@@ -605,7 +605,7 @@ const SuscripcionesPregunta = sequelize.define('suscripcionesPregunta',{
 Usuario.hasMany(SuscripcionesPregunta,{
     as:'suscriptoAPregunta',
     constraints:false,
-    foreignKey:'suscriptoID'
+    foreignKey:'suscriptoDNI'
 });
 
 Pregunta.hasMany(SuscripcionesPregunta,{
@@ -694,6 +694,6 @@ Pregunta.create({
 })*/
 
 
-// sequelize.sync({alter:true});
+//sequelize.sync({alter:true});
 
 export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
