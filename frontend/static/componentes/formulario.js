@@ -1,5 +1,5 @@
-// import {Boton} from ''
-import {superFetch} from 'https://unpkg.com/@c3r38r170/c3tools@1.1.0/c3tools.m.js';
+import { superFetch } from '../superFetch.js'
+//import {superFetch} from 'https://unpkg.com/@c3r38r170/c3tools@1.1.0/c3tools.m.js';
 
 class Formulario{
 	static instancias = {};
@@ -80,7 +80,7 @@ class Campo{
 		this.#type=type;
 	}
 	render(){
-		html=`<label><span>${this.#etiqueta}</span><input name="${this.#name}"`;
+		let html=`<label><span>${this.#etiqueta}</span><input name="${this.#name}"`;
 		
 		if(this.#type)
 			html+=` type="${this.#type}"`;

@@ -29,16 +29,25 @@ class Breadcrumb{
     }
 	render() {
         let html = ''
-        html+= '<div id="breadcrumbs">'
+        html+= '<nav class="breadcrumb ml-5 pl-5" aria-label="breadcrumbs"><ul>'
 
+        html += `<li id="breadcrumb"><a href="#">Inicio</a></li>`
+
+        /*
         this.#crumbs.forEach((crumb, index) => {
             html += `<span id="breadcrumb"><i class="fa-solid fa-angle-right fa-sm"></i><a href="http://localhost:8080/${crumb.nombre}"> ${crumb.nombre}</a></span>`;
-
+            
+        });
+        */
+        this.#crumbs.forEach((crumb, index) => {
+            let nombreCapitalizado = crumb.nombre.charAt(0).toUpperCase() + crumb.nombre.slice(1);
+            html += `<li id="breadcrumb"><a href="#">${nombreCapitalizado}</a></li>`;
             
         });
 
-        html += '</div>'
+        html += '</ul></nav>'
         return html;
+
     }
 }
 
