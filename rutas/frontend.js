@@ -367,8 +367,9 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 					order: [['updatedAt', 'DESC']]
                 },
 				{
-					model: EtiquetaDAO,
-					as: 'etiquetas'
+					model: EtiquetasPreguntaDAO,
+					as:'etiquetas',
+					include:EtiquetaDAO
 				}
             ]
         });
