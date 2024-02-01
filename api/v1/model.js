@@ -653,7 +653,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
                     model:Etiqueta,
                     as: 'etiquetas'
                 }
-				,{model:SuscripcionesPregunta,as:'preguntaSuscripta'}
+				
 			],
 			/* attributes:[
 				'ID'
@@ -780,7 +780,6 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
                         ]
                     }
 				}
-				,{model:SuscripcionesPregunta,as:'preguntaSuscripta'}
 			);
 			if(!filtraEtiquetas){
 				opciones.include.push({
