@@ -635,7 +635,10 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 					]
 					,limit:1 */
 				}
-				,Etiqueta
+				,{
+                    model:Etiqueta,
+                    as: 'etiquetas'
+                }
 				,{model:SuscripcionesPregunta,as:'preguntaSuscripta'}
 			],
 			/* attributes:[
@@ -682,6 +685,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 				// TODO Feature: Ver cómo traer las otras etiqeutas, además de las usadas en el filtro
 				opciones.include.push({
 					model: Etiqueta,
+                    as: 'etiquetas',
 					required: true,
 					where: {
 						ID:filtrar.etiquetas
@@ -751,7 +755,10 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 				,{model:SuscripcionesPregunta,as:'preguntaSuscripta'}
 			);
 			if(!filtraEtiquetas){
-				opciones.include.push(Etiqueta)
+				opciones.include.push({
+                    model:Etiqueta, 
+                    as: 'etiquetas'
+                })
 			}
 		}
 
