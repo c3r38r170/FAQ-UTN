@@ -785,18 +785,37 @@ router.get('/notificaciones', function(req,res){
 	//ppregunta ajena es notificacion por etiqueta suscripta 
 	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
 	//respuesta propia es notificación por valoración
+	if(!req.session.usuario){
+		res.status(403).send("No se posee sesión válida activa");
+		return;
+	}
 	Notificacion.findAll({
-		order:[
-			['visto','ASC'],
-			['createdAt', 'DESC']
-		]
-		,limit:PAGINACION.resultadosPorPagina
-		,offset:(+req.body.pagina)*PAGINACION.resultadosPorPagina,
-		raw:true,
-		nest:true
-	}).then(notificaciones=>{
+		order: [
+		  ['visto', 'ASC'],
+		  ['createdAt', 'DESC']
+		],
+		limit: PAGINACION.resultadosPorPagina,
+		offset: (+req.body.pagina) * PAGINACION.resultadosPorPagina,
+		include: [
+		  {
+			model: Post,
+			include: [
+			  { model: Usuario, as: 'duenio' }, 
+			  { model: Respuesta, as: 'respuesta', required: false }, 
+			  { model: Pregunta, as: 'pregunta', required: false } 
+			]
+		  }
+		],
+		where: {
+		  'notificadodni': { [Sequelize.Op.ne]: Sequelize.col('post.duenio.dni') },
+		  notificadoDNI: req.session.usuario.DNI
+		},
+		raw: true,
+		nest: true
+	  }).then(notificaciones=>{
 		res.status(200).send(notificaciones);
 	}).catch(err=>{
+		console.log(err);
 		res.status(500).send(err);
 	})
 })

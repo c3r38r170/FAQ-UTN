@@ -215,7 +215,8 @@ Usuario.hasMany(Notificacion,{
 })
 
 Notificacion.belongsTo(Usuario,{
-    constraints:false
+    constraints:false,
+    foreignKey: 'notificadoDNI'
 })
 
 Post.hasMany(Notificacion, {
@@ -225,7 +226,8 @@ Post.hasMany(Notificacion, {
 })
 
 Notificacion.belongsTo(Post,{
-    constraints:false
+    constraints:false,
+    foreignKey: 'postNotificadoID'
 })
 
 const Voto = sequelize.define('voto', {
@@ -399,6 +401,12 @@ Respuesta.hasOne(Post,{
     foreignKey:'ID'
 })
 
+Post.belongsTo(Respuesta,{
+    constraints:false,
+    as:'respuesta',
+    foreignKey:'ID'
+})
+
 const Pregunta = sequelize.define('pregunta',{
     ID: {
         type: DataTypes.INTEGER,
@@ -482,6 +490,12 @@ Pregunta.pagina=(n=0,{filtro='',etiquetas=[]}={})=>{
 
 Pregunta.hasOne(Post,{
     constraints:false,
+    foreignKey:'ID'
+})
+
+Post.belongsTo(Pregunta,{
+    constraints:false,
+    as:'pregunta',
     foreignKey:'ID'
 })
 
