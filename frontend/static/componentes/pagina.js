@@ -1,21 +1,16 @@
-import { Busqueda } from "./static/componentes/busqueda.js";
-import { ChipUsuario } from "./static/componentes/chipusuario.js";
-import { Etiqueta } from "./static/componentes/etiqueta.js";
-import { Navegacion } from "./static/componentes/navegacion.js";
-import { Notificacion } from "./static/componentes/notificacion.js";
-import { Pregunta } from "./static/componentes/pregunta.js";
-import { Breadcrumb } from "./static/componentes/breadcrumb.js";
-import { Tabla } from "./static/componentes/tabla.js";
-
 // TODO Feature: Tirar errores en los constructores con parámetros necesarios 
-import { Modal } from "./static/componentes/modal.js";
-import { Boton } from "./static/componentes/boton.js";
+import { Modal } from "./modal.js";
+import { Boton } from "./boton.js";
+import { Breadcrumb } from "./breadcrumb.js";
+import { Navegacion } from "./navegacion.js";
+import { Notificacion } from "./notificacion.js";
+import { Formulario } from './formulario.js';
 
 class Pagina {
 	// TODO Refactor: ¿No debería ser un string?
-  #ruta = {
+  #ruta=''/*  = {
 	ruta: ""
-  };
+  } */;
   #titulo = {
 	titulo: ""
   };
@@ -42,8 +37,8 @@ class Pagina {
     },
   ];
 
-  constructor({ ruta, titulo, sesion ,partes=[]}) {
-    this.#ruta.ruta = ruta;
+  constructor({ ruta='index', titulo, sesion ,partes=[]}) {
+    this.#ruta/* .ruta */ = ruta;
     this.#titulo = titulo;
 	this.#sesion = sesion;
 	this.partes = Array.isArray(partes) ? partes : [partes];
@@ -75,8 +70,9 @@ class Pagina {
 		<script src="/main.js" type=module></script>
 		<link rel="stylesheet" href="/main.css">
 
-		<script src="${this.#ruta + ".js"}"></script>
-		<link rel="stylesheet" href="${this.#ruta + ".css"}">
+		<script src="scripts/visibilizar-clases.js" type="module"></script>
+		<script src="scripts/${this.#ruta + ".js"}" type="module"></script>
+		<link rel="stylesheet" href="styles/${this.#ruta + ".css"}">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
 	</head>
@@ -97,9 +93,7 @@ class Pagina {
 				${this.#notificaciones.map((n) => new Notificacion(n).render()).join("")}
 			</div>
 		</div>
-			
 	
-		<button class="modal-close is-large" aria-label="close"></button>
 	  </div>
 	
 			
@@ -171,6 +165,8 @@ class Pagina {
 				  });
 				});
 			  });
+			  
+			
 			</script>
 		</body>
 </html>`;
@@ -183,8 +179,24 @@ class Encabezado {
   constructor(sesion) {
     if (sesion) {
       this.#posibleUsuario = new ChipUsuario(sesion);
-    }
+    }else{ 
+		this.#modal = new Modal('Login','modal-login');
+		let form = new Formulario('formularioSesion', 'http://localhost:8080/api/sesion', [
+		['DNI', 'D.N.I.', { type: 'text' }],
+		['contrasenia', 'Contraseña', { type: 'password' }],
+		], this.procesarRespuesta);
+		this.#modal.contenido.push(form);
+	}
+
   }
+
+  procesarRespuesta(respuesta) {
+	console.log('Respuesta del servidor:', respuesta);
+	// Aquí puedes agregar lógica adicional según lo que necesites hacer con la respuesta del servidor
+  }
+  
+
+  
   render() {
     return `<div id="encabezado">
 	<div id=encabezado-izquierdo>
@@ -197,102 +209,13 @@ class Encabezado {
 		${
 			// ACOMODAR EL TEMA DEL MODAL DE LOGIN
       this.#posibleUsuario ||
-       new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render() + 
-		//	"<button class='button is-info is-outlined js-modal-trigger' dataTarget:'modal-login'>Ingresar</button>" +
-	  new Modal('Login','modal-login').render() +
-        //"<button class='button is-info'>Registrarse</button>"
-		new Boton({titulo:'Registrarse', classes: 'button is-info'}).render()
-    }
+       new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render() }
+	 		${ this.#modal.render() }
+			${ new Boton({titulo:'Registrarse', classes: 'button is-info'}).render() }
 	</div>
 </div>`;
   }
 
 }
 
-class DesplazamientoInfinito{
-	// TODO Refactor: Unificar configuracion de paginacion; como cantidad por pagina
-	// Esto será de algún componente
-	// Específicamente: Preguntas, Notificaciones...
-	static instancias={};
-
-	#endpoint='';
-	#pagina=1;
-	#id='';
-	#generadorDeComponentes=null;
-
-	#entidadesIniciales=[];
-
- 	constructor(id,endpoint,transformarRespuestaEnComponente,primerasEntidades=[]){
-		// TODO Feature: fallar si no se proveen los parámetros obligatorios. Aplicar a todfas las clases.
-		this.#id=id;
-		this.#endpoint=endpoint;
-		this.#generadorDeComponentes=transformarRespuestaEnComponente;
-		this.#entidadesIniciales=primerasEntidades;
-
-		DesplazamientoInfinito.instancias[id]=this;
-	}
-
-	navegar(e){
-		let imagenAlcahuete=e.target;
-		let contenedor=imagenAlcahuete.parentNode;
-		// TODO Feature: Ver si tiene o no ?, y entonces poner ? o &. Quizá hacerlo en el constructor y tener algo como un this.#parametroPagina.  Mejor solución (aplicar a tabla): poner en el constructor de manera inteligente uno u otro, guardar la url con el parametro página, y simplemente hacer +(this.#pagina...);
-		let url=this.#endpoint+`?pagina=${this.#pagina-1}`;
-		this.#pagina++;
-
-		fetch(url,{
-			credentials:'include',
-			method:'GET'
-		})
-			.then(res=>res.json())
-		/* new Promise((resolve, reject)=>{
-			resolve(new Array(3).fill(null).map((n,i)=>(3*(this.#pagina-1)+i)));
-		}) */
-			.then((nuevasEntidades)=>{
-				let html='';
-
-				for(let ent of nuevasEntidades){
-					html+=this.#generadorDeComponentes(ent);
-				}
-
-				imagenAlcahuete.remove();
-				html+=this.#generarUltimoComponente(nuevasEntidades.length);
-
-				contenedor.innerHTML+=html;
-			})
-			// TODO Feature: catch; y finally?
-	}
-
-	#generarUltimoComponente(cantidadDeEntidadesEnIteracion=this.#entidadesIniciales.length){
-		let html='';
-
-		// TODO Refactor: Poner algún componente de paginación en el frontend, que en su defecto obtenga la info del backend. Ver que no destruya ninguna renderización... quizá llevar la configuración del frontend AL backend? Suena a lo más oportuno, por mas que sea antiintuitivo...
-		if(cantidadDeEntidadesEnIteracion<10){
-			// TODO UX: Mensaje de que no hay más entidades, de que se llegó al fin del desplazamiento. Componente mensaje PFU-130
-		}else{
-			// TODO UX: Un loading GIF que no de asco. Y que pegue con el resto.
-			html+=`<img loading="lazy" src="/loading.gif" onload="DesplazamientoInfinito.instancias['${this.#id}'].navegar(event)">`;
-		}
-
-		return html;
-	}
-
-	render(){
-		// TODO UX: CSS de esto
-		return `<div id=${this.#id}>`+this.#entidadesIniciales.map(this.#generadorDeComponentes)+this.#generarUltimoComponente()+`</div>`;
-	}
-}
-
-class ComponenteLiteral{
-	// * Para casos de un solo uso, donde querramos inyectar algo de HTML o un componente nuevo muy específico. También da flexibilidad entre líneas de desarrollo, para no tener que esperar a que se cree algun componente para probar cosas.
-	#funcion=null;
-	constructor(funcion){
-		this.#funcion=funcion;
-	}
-	render(){
-		return this.#funcion();
-	}
-}
-
-export { Pagina, DesplazamientoInfinito, ComponenteLiteral};
-
-
+export {Pagina,Encabezado};

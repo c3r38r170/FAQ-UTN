@@ -1,6 +1,6 @@
 import { ChipUsuario } from "./chipusuario.js";
-import { ChipValoracion } from "./chipvaloracion.js"
-import { Fecha } from "./fecha.js"
+import { ChipValoracion } from "./chipvaloracion.js";
+import { Fecha } from "./fecha.js";
 import { BotonReporte } from "./botonReporte.js";
 
 class Respuesta {
@@ -13,11 +13,13 @@ class Respuesta {
   #fecha;
   #usuario;
   etiquetas = [];
-  constructor({ ID, cuerpo, fecha, post }) {
+  #instanciaModal;
+  constructor({ ID, cuerpo, fecha, post },instanciaModal) {
     this.#ID = ID;
     this.#cuerpo = cuerpo;
     this.#fecha = new Fecha(fecha);
     this.#usuario = post.duenio;
+    this.#instanciaModal = instanciaModal;
   }
   render() {
     return `
@@ -25,17 +27,12 @@ class Respuesta {
               ${new ChipValoracion(this.#valoracion).render()}
               <div class="cuerpo">
                 <div id="contenedor-reporte">
-                  ${ new BotonReporte({idPost: this.#ID}).render()}
+                  ${ new BotonReporte(this.#ID, this.#instanciaModal).render()}
                 </div>
                 ${this.#cuerpo}
-                <div class="columns is-vcentered mb-1 usuario">
-                    <div class="column is-narrow pr-0 py-0">
+                <div class="usuario">
                     ${new ChipUsuario(this.#usuario).render()}
-                    </div>
-                    <div class="column pl-0 py-0">
-                        ${this.#fecha.render()}
-                    </div>
-                    
+                    ${this.#fecha.render()}
                 </div>
             </div>
         </div>

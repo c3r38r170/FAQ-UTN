@@ -1,7 +1,22 @@
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 const router = express.Router();
-import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta, ReportesUsuario, Post, Respuesta, Etiqueta, SuscripcionesEtiqueta, Notificacion, EtiquetasPregunta } from "./model.js";
+
+import {
+	Usuario
+	, Perfil
+	, Voto
+	, ReportePost
+	,Pregunta
+	, SuscripcionesPregunta
+	, ReportesUsuario
+	, Post
+	, Respuesta
+	, Etiqueta
+	, SuscripcionesEtiqueta
+	, Notificacion
+  , EtiquetasPregunta
+} from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar, moderarWithRetry} from "./ia.js";
 
@@ -173,27 +188,37 @@ router.patch('/usuario', function(req, res){
 
 // TODO Refactor: Ver si consultas GET aceptan body, o hay que poner las cosas en la URL (chequear proyecto de TTADS)
 router.get('/pregunta',(req,res)=>{
+	// ! Siempre pedir el Post, por más que no se consulten los datos.
+
 	// TODO Feature: Aceptar etiquetas y filtro de texto. https://masteringjs.io/tutorials/express/query-parameters
-	// TODO Feature: Considerar el hecho de enviar la cantidad de respuestas y no las respuestas en sí. Quizá con una bandera.
 
-	// TODO Feature: Actualizar Pregunta.pagina así lo puede usar el frontend.
-	// Pregunta.pagina(+req.pagina)
+		// console.log(opciones);
 
-	// TODO Refactor: Ir considerando qué filtros poner. Va a haber consultas sin busqueda, por ejemplo.
-	// TODO Feature: ver si anda lo de match, y lo del or
+		Pregunta.pagina(req.query)
+		// Pregunta.findAll(opciones)
+			.then(preguntas=>{
+				res.status(200).send(preguntas)
+			})
+			.catch(err=>{
+				console.log(err)
+			});
+	// }
+	return;
+
+	// TODO Feature: ver si anda lo de match, y lo del or  quizá haya que poner tabla.columna en vez de solo las columnas
 	//hice union atada con alambre, ver cuan lento es
 	//al ser distintas tablas no puedo hacer un unico indice con las dos columnas
 	Pregunta.findAll({
 		where:	Sequelize.or(
-				Sequelize.literal('match(cuerpo) against ("'+req.body.cuerpo+'")'),
-				Sequelize.literal('match(titulo) against ("'+req.body.cuerpo+'")')	
+				Sequelize.literal('match(cuerpo) against ("'+req.query.filtro+'")'),
+				Sequelize.literal('match(titulo) against ("'+req.query.filtro+'")')	
 				)
 		,
 		order:[
 			[Post,'fecha','DESC']
 		]
 		,limit:PAGINACION.resultadosPorPagina,
-		offset:(+req.body.pagina)*PAGINACION.resultadosPorPagina,
+		offset:(+req.query.pagina)*PAGINACION.resultadosPorPagina,
 		include:Post
 	})
 		.then(preguntas=>{

@@ -13,7 +13,7 @@ class Tabla{
 
  	constructor(id,endpoint,columnas,entidades=[],cantidadDePaginas=1){
 		this.#id=id;
-		this.#endpointPaginacion=endpoint;
+		this.#endpointPaginacion=endpoint+(endpoint.includes('?')?'&':'?');
 		this.#columnas=columnas;
 		this.#entidades=entidades;
 		this.cantidadDePaginas=cantidadDePaginas
@@ -23,12 +23,13 @@ class Tabla{
 
 	navegar(e){
 		e.preventDefault();
+		
 		let form=e.target;
 		let fieldset=form.firstElementChild;
 		fieldset.disabled=true;
 		this.#pagina+=(+e.submitter.value);
 		// TODO Feature: Ver si tiene o no ?, y entonces poner ? o &. Quizá hacerlo en el constructor y tener algo como un this.#parametroPagina
-		let url=this.#endpointPaginacion+`?pagina=${this.#pagina-1}`;
+		let url=this.#endpointPaginacion+`pagina=${this.#pagina-1}`;
 
 		fetch(url,{
 			credentials:'include',
@@ -67,6 +68,7 @@ class Tabla{
 	}
 
 	generarElementosPaginacion(){
+		// TODO Refactor: Hacer new Boton() (y elemento texto?)
 		return`<input class="fa fa-arrow-left" name=accion value=-1 type=submit `+(this.#pagina==1?' disabled':'')+`>
 		<span>${this.#pagina} / ${this.cantidadDePaginas}</span>
 		<input class="fa fa-arrow-right" name=accion value=1 type=submit `+(this.#pagina==this.cantidadDePaginas?' disabled':'')+`>`;

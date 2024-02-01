@@ -1,7 +1,7 @@
 // TODO Refactor: usar imports para separar en archivos si se vuelve innavegable. Ponerlos en una carpetita y cambiar
 
 $p-central: 3rem;
-$text-hover: rgb(141, 141, 223);
+$text-hover: #3e8ed0;
 $text: #383838;
 $text-light: #636363;
 
@@ -61,10 +61,14 @@ $text-light: #636363;
 
 
 
-#columna-1, #columna-principal, #columna-3{
+#columna-1, #columna-principal, #columna-3 {
 	padding-top: 1.8rem;
-	min-height: calc(100vh - 300px);
-}
+	min-height: calc(100vh - 252px);
+  
+	@media screen and (max-width: 768px) {
+	  min-height: auto;
+	}
+  }
 
 #columna-1, #columna-3{
 	padding-left: 2rem;
@@ -74,6 +78,13 @@ $text-light: #636363;
 #columna-1{
 	display: flex;
 	justify-content: end;
+	@media screen and (max-width: 768px) {
+		justify-content: center;
+	  }
+	
+	  @media screen and (max-width: 576px) {
+		justify-content: start;
+	  }
 }
 
 div#contenedor-principal{
@@ -88,6 +99,7 @@ div#columna-principal{
 	padding-right: 0;
 
 }
+
 
 div#breadcrumbs{
 	padding: 0 2rem;
@@ -174,25 +186,29 @@ div.notificacion{
 
 
 .chip-usuario{
-	#nombre-usuario{
+	display: flex;
+	justify-content: start;
+	align-items: center;
+	.nombre-usuario{
 		font-size: 1rem;
 		font-weight: 600;
 		display: inline-block;
 	}
-	#tipo-usuario{
-		margin-left: 0.2rem;
+	.tipo-usuario{
+		margin-left: 0.4rem;
 		color: gray;
 		font-size: 0.9rem;
 		font-weight: 300;
 		display: inline-block;
 	}
-	#img-usuario{
-		width: 30px;
+	.img-usuario{
+		width: 32px;
 		border-radius: 100%;
 	}
 }
 
 .pregunta{
+	
 	position: relative;
 	display: block;
 	margin-left: auto;
@@ -200,7 +216,16 @@ div.notificacion{
 	padding: 2rem $p-central 1rem $p-central;
 	border-top: 2px solid lightgray;
 	
-	
+	&:first-child{
+		border-top: none;
+		padding-top: 3rem;
+	  }
+	.encabezado{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-bottom: 1.3rem;
+	}
 	#fecha{
 		margin-left: 0.5rem;
 		color: $text;
@@ -216,7 +241,7 @@ div.notificacion{
 		font-weight: 700;
 		display:block;
 		&:hover{
-			color: $text-light;
+			opacity: 0.75;
 		}
 	}
 	#cuerpo{
@@ -226,37 +251,37 @@ div.notificacion{
 		font-weight: 500;
 		display: inline-block;
 	}
+	
 	.cantRespuestas{
 		margin-top: 1rem;
 		font-size: 1rem;
 		color: $text-light;
 	}
 	
+	
 }
 
-
-
-#etiquetas{
+.etiquetas{
+	display: flex;
+	justify-content: start;
 	margin-top: 0.8rem;
-	//padding-left: 1.5rem;
-}
-.etiqueta{
-	line-height: 2.4;
-	margin-left: 1rem;
-	margin-right: 1.2rem;
-	color: gray;
-	font-size: 0.8rem;
-	font-weight: 300;
-	display: inline-block;
-	&:hover{
-		color: $text-hover;
+	.etiqueta{
+		line-height: 2.4;
+		margin-left: 1rem;
+		margin-right: 1.2rem;
+		color: gray;
+		font-size: 0.8rem;
+		font-weight: 300;
+		display: inline-block;
+		&:hover{
+			color: $text-hover;
+		}
 	}
 }
 
 
 div.buscador{
 	padding: 0px $p-central 1.8rem $p-central;
-    margin-bottom: 3rem;
     display: flex;
     flex-direction: column;
     gap: 0rem;
@@ -271,7 +296,7 @@ div.buscador{
 
 footer#footer{
 	padding: 30px 40px;
-	height: 160px;
+	min-height: 160px;
 	display: flex;
 	justify-content: space-around;
 	background-color: $text;
@@ -302,34 +327,36 @@ footer#footer{
 	justify-content: center;
     align-items: center;
 	text-align: center;
+	width: 10%;
 
 	button{
-		border-radius: 50%;
-		padding: 2px 10px;
+		// border-radius: 50%;
+		padding: 0;
 		border: none;
-		background-color: lightgray;
+		background-color: white;
 		transition: all 60ms ease-in-out;
 		cursor: pointer;
 		span{
-			font-size: 1.8rem;
-			color: $text;
+			font-size: 2.6rem;
+			color: $text-light;
 		}
 	}
 	button#positiva{
 		&:hover{
-			background-color: $text-hover;
+			//background-color: $text-hover;
+			opacity: 0.75;
 		}
 	}
 	button#negativa{
 		&:hover{
-			background-color: gray;
+			opacity: 0.75;
 		}
 	}
 	div#valoraciones{
-		line-height: 1.5;
-		margin: 0.5rem;
+		line-height: 1;
+		//margin: 0.5rem;
 		font-weight: 700;
-		font-size: medium;
+		font-size: 1.2rem;
 	}
 
 }
@@ -341,7 +368,8 @@ footer#footer{
 	padding-top: 1rem;
 	border-top: 1px solid lightgray;
 	display: flex;
-    gap: 1rem;
+	justify-content: right;
+    gap: 1.5rem;
 	&:last-child{
 		border-bottom: none;
 	}
@@ -349,6 +377,7 @@ footer#footer{
 		display: block;
 		text-align: right;
 		margin-bottom: 15px;
+
 	}
 	#fecha{
 		margin-left: 0.5rem;
@@ -361,11 +390,18 @@ footer#footer{
 		min-width: 60px;
 	}
 	.cuerpo{
-
+		min-width: 85%;
 		.usuario{
-			margin-top: 1.2rem;
+			margin-top: 1.5rem;
 			display: flex;
+			justify-content: end;
+			align-items: center;
+			margin-left: auto;
 			flex-wrap: wrap;
+			margin-right: 1.5rem;
+			& .chip-usuario img{
+				width: 24px;
+			}
 		}
 	}
   }
@@ -411,5 +447,14 @@ footer#footer{
 				font-weight: 700;
 			}
 		}
+	}
+  }
+
+  .loading{
+	display: flex;
+	justify-content: center;
+	margin: 2rem auto;
+	img{
+		width: 50px;
 	}
   }

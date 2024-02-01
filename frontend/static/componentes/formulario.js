@@ -1,5 +1,5 @@
-// import {Boton} from ''
-import {superFetch} from 'https://unpkg.com/@c3r38r170/c3tools@1.1.0/c3tools.m.js';
+import { superFetch } from '../superFetch.js'
+//import {superFetch} from 'https://unpkg.com/@c3r38r170/c3tools@1.1.0/c3tools.m.js';
 
 class Formulario{
 	static instancias = {};
@@ -26,9 +26,9 @@ class Formulario{
 
 		// ! No funciona GET con FormData.
 		// TODO Refactor: Ver si funciona superFetch
-		superFetch(this.#endpoint,new FormData(e.target))
+		 superFetch(this.#endpoint,new FormData(e.target))
 			.then(res=>res.json)
-			.then(this.#funcionRetorno);
+			.then(this.#funcionRetorno); 
 		/* let options={
 			credentials:'include'
 		}
@@ -58,9 +58,9 @@ class Formulario{
 	}
 
 	render(){
-		return `<form onsubmit="Formulario.instancias[${this.#id}].enviar(event)">`
+		return `<form class=""onsubmit="Formulario.instancias[${this.#id}].enviar(event)">`
 			+this.campos.reduce((html,c)=>html+(new Campo(...c)).render(),'')
-			+`<input type=submit value="${this.#textoEnviar}">`
+			+`<input class="button is-primary mt-3" type=submit value="${this.#textoEnviar}">`
 			+'</form>';
 	}
 }
@@ -80,7 +80,7 @@ class Campo{
 		this.#type=type;
 	}
 	render(){
-		html=`<label><span>${this.#etiqueta}</span><input name="${this.#name}"`;
+		let html=`<label class="label">${this.#etiqueta}</label><input class="input" name="${this.#name}"`;
 		
 		if(this.#type)
 			html+=` type="${this.#type}"`;
@@ -89,7 +89,7 @@ class Campo{
 		if(this.#value)
 			html+=` value="${this.#value}"`;
 			
-		return html+'/></label';
+		return html+'/></label>';
 	}
 }
 

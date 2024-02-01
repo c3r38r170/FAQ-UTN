@@ -1,5 +1,5 @@
 class Fecha{
-    #opcionesDeFormato = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+    #opcionesDeFormato = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false };
     #fecha;
     #fechaformateada;
     constructor(fecha) {

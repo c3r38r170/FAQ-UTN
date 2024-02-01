@@ -1,7 +1,12 @@
 import * as express from "express";
 import {Sequelize} from 'sequelize';
 const router = express.Router();
-import { Pagina, DesplazamientoInfinito } from "../frontend/componentes.js";
+/* 
+*/
+import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "../frontend/static/componentes/todos.js";
+import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
+
+/* import { Pagina, DesplazamientoInfinito } from "../frontend/componentes.js";
 import { Pregunta } from "../frontend/static/componentes/pregunta.js";
 import { ChipUsuario } from "../frontend/static/componentes/chipusuario.js";
 import { Busqueda  } from "../frontend/static/componentes/busqueda.js"
@@ -10,60 +15,68 @@ import { Tabla } from "../frontend/static/componentes/tabla.js";
 import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
 import { MensajeInterfaz } from "../frontend/static/componentes/mensajeInterfaz.js";
 import { Titulo } from "../frontend/static/componentes/titulo.js"
+import { Desplegable } from "../frontend/static/componentes/desplegable.js";
+import { Modal } from "../frontend/static/componentes/modal.js";
 //import { Formulario } from "../frontend/static/componentes/formulario.js";
+*/
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
-/*
+import { PaginaInicio, /* PaginaExplorar, */ } from '../frontend/static/pantallas/todas.js';
+
 router.get("/", (req, res) => {
-	if(req.query.consulta || req.query.etiquetas){
+	// ! req.path es ''
+	// TODO Feature: query vs body
+	// TODO Refactor: agarrar el get de preguntas, y convertirlo en el metodo pagina.
+	if(req.query.filtrar){
 		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
 		let queryString = req.url.substring(req.url.indexOf('?'));
 		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-		PreguntaDAO.pagina({
-			consulta:req.query.consulta,
-			etiquetas:req.query.etiquetas
-		})
-		PreguntaDAO.pagina()
+		PreguntaDAO.pagina(req.query)
+		// PreguntaDAO.pagina()
 		.then(pre=>{
-				let pagina = new Pagina({
-					ruta: req.path,
-					titulo: "Inicio",
-					sesion: req.session.usuario,
-				});
-				pagina.partes.push(
-					new Busqueda('Hola')
-					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas'+queryString,p=>new Pregunta(p),pre)
-					// TODO Feature: , control de paginación
-					// TODO Feature: Desplazamiento infinito
-				)
+			
+				//let pagina=new Pagina({
+					// ruta: req.path,
+				//	titulo: "Inicio",
+				//	sesion: req.session.usuario,
+				// 	partes:PaginaInicio
+					
+				// });
+				// pagina.partes[1]/* DesplazamientoIfinito */.entidadesIniciales=pre;
+
+				let pagina=PaginaInicio(req.path,req.session.usuario,queryString);
+
 				res.send(pagina.render());
 			})
 	}else{ // * Inicio regular.
 		 PreguntaDAO.pagina()
 			.then(pre=>{ 
 				let pagina = new Pagina({
-					ruta: req.path,
+					// ruta: req.path,
 					titulo: "Inicio",
 					sesion: req.session.usuario,
 				});
+
+				let modal = new Modal('General','modal-general');
+				pagina.partes.push(modal);
 				pagina.partes.push(
 					new Busqueda('Hola')
-					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>new Pregunta(p))
+					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>(new Pregunta(p,modal)).render(),pre)
 				)
 				res.send(pagina.render());
 			 })
 			// TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
 	}
 });
-*/
+
 
 
 
 //Ruta que muestra todas las preguntas y respuestas
 // Falta implementar la paginación
-router.get("/", async (req, res) =>  {
+ router.get("/inicio", async (req, res) =>  {
     try {
         const preguntas = await PreguntaDAO.findAll({
             include: [
@@ -112,9 +125,12 @@ router.get("/", async (req, res) =>  {
             sesion: req.session.usuario
         });
 
-
+		
+		let modal = new Modal('General','modal-general');
+		pagina.partes.push(modal);
+		pagina.partes.push(new Busqueda(req.session))
 		for(let i=0; i < preguntas.length;i++){
-			pagina.partes.push(new Pregunta(preguntas[i].dataValues));
+			pagina.partes.push(new Pregunta(preguntas[i].dataValues,modal));
 		}
 
         res.send(pagina.render());
@@ -122,7 +138,7 @@ router.get("/", async (req, res) =>  {
         console.error(error);
         res.status(500).send('Error interno del servidor');
     }
-});
+}); 
 
 
 /*
@@ -248,6 +264,7 @@ router.get("/perfil/:id?", (req, res) => {
 		/* tarjeta de usuario 
 		actividad*/
   let pagina = new Pagina({
+		// TODO Feature: Quizá haya que pasar 'perfil' nomás
     ruta: req.path,
     titulo: 'Perfil de '+usu.nombre,
     sesion: req.session.usuario,
@@ -341,7 +358,8 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 								}
 							]
 						}
-					]
+					],
+					order: [['updatedAt', 'DESC']]
                 },
 				{
 					model: EtiquetaDAO,
@@ -361,9 +379,12 @@ router.get("/pregunta/:id?", async (req, res) =>  {
             sesion: req.session.usuario
         });
 
+		let modal = new Modal('General','modal-general');
+		pagina.partes.push(modal);
+
         pagina.partes.push(
             // TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
-            new Pregunta(p)
+            new Pregunta(p, modal)
 			
             //,...p.respuestas.map(r=>new Respuesta(r))
         );
@@ -550,7 +571,20 @@ router.get("/explorar", (req, res) => {
 		pagina.partes.push(new MensajeInterfaz(1,'No hay resultados'));
 		pagina.partes.push(new MensajeInterfaz(2,'No hay resultados'));
 
-		pagina.partes.push(new Titulo(5,'Este el título 5'));
+		pagina.partes.push(new Titulo(5,'Desplegable'));
+		let desplegable = new Desplegable('myDesplegable','Desplegable');
+		let opciones = [{
+			descripcion: 'Opcion 1',
+			tipo: 'link',
+			href: '#'
+		},
+		{
+			descripcion: 'Opcion 2',
+			tipo: 'link',
+			href: '#'
+		}]
+		desplegable.opciones = opciones;
+		pagina.partes.push(desplegable);
 		
 
         res.send(pagina.render());
