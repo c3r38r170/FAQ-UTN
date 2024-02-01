@@ -399,4 +399,13 @@ button.mi-boton {
 .modal .modal-content .box h2 {
   font-size: 1.2rem;
   font-weight: 700;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  margin: 2rem auto;
+}
+.loading img {
+  width: 50px;
 }/*# sourceMappingURL=main.css.map */

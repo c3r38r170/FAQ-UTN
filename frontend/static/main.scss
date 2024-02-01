@@ -449,3 +449,12 @@ footer#footer{
 		}
 	}
   }
+
+  .loading{
+	display: flex;
+	justify-content: center;
+	margin: 2rem auto;
+	img{
+		width: 50px;
+	}
+  }

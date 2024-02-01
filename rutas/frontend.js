@@ -3,7 +3,7 @@ import {Sequelize} from 'sequelize';
 const router = express.Router();
 /* 
 */
-import { Pagina, DesplazamientoInfinito, Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "../frontend/static/componentes/todos.js";
+import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "../frontend/static/componentes/todos.js";
 import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
 
 /* import { Pagina, DesplazamientoInfinito } from "../frontend/componentes.js";
@@ -18,6 +18,7 @@ import { Titulo } from "../frontend/static/componentes/titulo.js"
 import { Desplegable } from "../frontend/static/componentes/desplegable.js";
 import { Modal } from "../frontend/static/componentes/modal.js";
 //import { Formulario } from "../frontend/static/componentes/formulario.js";
+*/
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
@@ -28,26 +29,24 @@ router.get("/", (req, res) => {
 	// ! req.path es ''
 	// TODO Feature: query vs body
 	// TODO Refactor: agarrar el get de preguntas, y convertirlo en el metodo pagina.
-	if(req.query.consulta || req.query.etiquetas){
+	if(req.query.filtrar){
 		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
 		let queryString = req.url.substring(req.url.indexOf('?'));
 		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-		PreguntaDAO.pagina({
-			consulta:req.query.consulta,
-			etiquetas:req.query.etiquetas
-		})
+		PreguntaDAO.pagina(req.query)
 		// PreguntaDAO.pagina()
 		.then(pre=>{
-				let pagina=new Pagina({
+			
+				//let pagina=new Pagina({
 					// ruta: req.path,
-					titulo: "Inicio",
-					sesion: req.session.usuario,
-					partes:PaginaInicio
+				//	titulo: "Inicio",
+				//	sesion: req.session.usuario,
+				// 	partes:PaginaInicio
 					
-				});
-				pagina.partes[1]/* DesplazamientoIfinito */.entidadesIniciales=pre;
+				// });
+				// pagina.partes[1]/* DesplazamientoIfinito */.entidadesIniciales=pre;
 
-				pagina=PaginaInicio(req.path,req.session.usuario,queryString);
+				let pagina=PaginaInicio(req.path,req.session.usuario,queryString);
 
 				res.send(pagina.render());
 			})
@@ -59,9 +58,12 @@ router.get("/", (req, res) => {
 					titulo: "Inicio",
 					sesion: req.session.usuario,
 				});
+
+				let modal = new Modal('General','modal-general');
+				pagina.partes.push(modal);
 				pagina.partes.push(
 					new Busqueda('Hola')
-					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>(new Pregunta(p)).render(),pre)
+					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>(new Pregunta(p,modal)).render(),pre)
 				)
 				res.send(pagina.render());
 			 })
@@ -74,7 +76,7 @@ router.get("/", (req, res) => {
 
 //Ruta que muestra todas las preguntas y respuestas
 // Falta implementar la paginación
-/* router.get("/", async (req, res) =>  {
+ router.get("/inicio", async (req, res) =>  {
     try {
         const preguntas = await PreguntaDAO.findAll({
             include: [
@@ -135,7 +137,7 @@ router.get("/", (req, res) => {
         console.error(error);
         res.status(500).send('Error interno del servidor');
     }
-}); */
+}); 
 
 
 /*
@@ -375,9 +377,12 @@ router.get("/pregunta/:id?", async (req, res) =>  {
             sesion: req.session.usuario
         });
 
+		let modal = new Modal('General','modal-general');
+		pagina.partes.push(modal);
+
         pagina.partes.push(
             // TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
-            new Pregunta(p)
+            new Pregunta(p, modal)
 			
             //,...p.respuestas.map(r=>new Respuesta(r))
         );

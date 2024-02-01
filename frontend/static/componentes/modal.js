@@ -6,6 +6,10 @@ class Modal {
       this.#titulo = titulo;
       this.ID = modalID;
     }
+
+    rellenar(){
+      
+    }
   
     render() {
       return `
