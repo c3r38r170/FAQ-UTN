@@ -17,7 +17,7 @@ class Modal {
           <div class="modal-background"></div>
           <div class="modal-content">
             <div class="box">
-              <h2>${this.#titulo}</h2>
+              <h2 class="" style="text-align: center; margin-bottom: 2rem;">${this.#titulo}</h2>
               <p>${this.contenido.map((c) => c.render()).join("")}</p>
             </div>
           </div>

@@ -10,14 +10,16 @@ class Formulario{
 	#funcionRetorno=null;
 	campos=[];
 	verbo=[];
+	#clasesBotonEnviar;
 
-	constructor(id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST'}={}){
+	constructor(id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST'}={},clasesBotonEnviar){
 		this.#id=id;
 		this.#endpoint=endpoint;
 		this.campos=campos;
 		this.verbo=verbo;
 		this.#textoEnviar=textoEnviar;
 		this.#funcionRetorno=funcionRetorno;
+		this.#clasesBotonEnviar=clasesBotonEnviar;
 
 		Formulario.instancias[id]=this;
 	}
@@ -74,8 +76,8 @@ class Formulario{
 
 	render(){
 		return `<form class=""onsubmit="Formulario.instancias['${this.#id}'].enviar(event)">`
-			+this.campos.reduce((html,c)=>html+(new Campo(...c)).render(),'')
-			+`<input class="button is-primary mt-3" type=submit value="${this.#textoEnviar}">`
+			+ this.campos.reduce((html,c)=>html+(new Campo(...c)).render(),'') 
+			+`<input class="button ${this.#clasesBotonEnviar}" type=submit value="${this.#textoEnviar}">`
 			+'</form>';
 	}
 }
@@ -86,16 +88,19 @@ class Campo{
 	#type;
 	#required=true;
 	#value;
+	#clases;
 
-	constructor(name,etiqueta,{type,required=true,value}){
+	constructor(name,etiqueta,{type,required=true,value},
+		clases){
 		this.#name=name;
 		this.#etiqueta=etiqueta;
 		this.#required=required;
 		this.#value=value;
 		this.#type=type;
+		this.#clases = clases
 	}
 	render(){
-		let html=`<label class="label">${this.#etiqueta}</label><input class="input" name="${this.#name}"`;
+		let html=`<label class="label">${this.#etiqueta}</label><input class="input ${this.#clases}" name="${this.#name}"`;
 		
 		if(this.#type)
 			html+=` type="${this.#type}"`;
