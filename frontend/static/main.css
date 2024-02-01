@@ -46,6 +46,13 @@
   border-radius: 10px;
   font-weight: bold;
 }
+* #encabezado #encabezado-derecho .chip-usuario {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 0.8rem;
+  flex-direction: row-reverse;
+}
 
 #columna-1, #columna-principal, #columna-3 {
   padding-top: 1.8rem;

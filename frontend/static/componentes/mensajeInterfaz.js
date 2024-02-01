@@ -17,7 +17,7 @@ class MensajeInterfaz {
 
     render() {
       return `
-        <div class='notification is-light ${this.#tipo} mx-4'>
+        <div class='notification is-light ${this.#tipo} m-4'>
             <button class="delete"></button>
             ${this.#mensaje}
         </div>

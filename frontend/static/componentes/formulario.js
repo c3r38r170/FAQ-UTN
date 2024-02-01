@@ -23,10 +23,25 @@ class Formulario{
 	}
 
 	enviar(e){
-
+		e.preventDefault();
+		console.log(e.target);
 		// ! No funciona GET con FormData.
 		// TODO Refactor: Ver si funciona superFetch
-		 superFetch(this.#endpoint,new FormData(e.target))
+
+
+		// Crear un objeto FormData para facilitar la obtención de datos del formulario
+		const formData = new FormData(e.target);
+
+		// Crear un objeto para almacenar los datos
+		const datos = {};
+	
+		// Iterar sobre las entradas de FormData y asignarlas al objeto de datos
+		formData.forEach((valor, clave) => {
+			datos[clave] = valor;
+		});
+
+
+		 superFetch(this.#endpoint,datos,{ method: this.verbo})
 			.then(res=>res.json)
 			.then(this.#funcionRetorno); 
 		/* let options={
@@ -58,7 +73,7 @@ class Formulario{
 	}
 
 	render(){
-		return `<form class=""onsubmit="Formulario.instancias[${this.#id}].enviar(event)">`
+		return `<form class=""onsubmit="Formulario.instancias['${this.#id}'].enviar(event)">`
 			+this.campos.reduce((html,c)=>html+(new Campo(...c)).render(),'')
 			+`<input class="button is-primary mt-3" type=submit value="${this.#textoEnviar}">`
 			+'</form>';
