@@ -16,7 +16,7 @@ class Pregunta{
     #respuestas= []
     // TODO Feature: Hay 2 representaciones de pregunta. En el inicio, donde hay un listado, se ve la pregunta y la primera respuesta; y en la página propia se ve solo la pregunta y las respuestas se verían abajo con su propia representación.
 	constructor({
-        ID, titulo, cuerpo, fecha, post, respuestas, etiqueta
+        ID, titulo, cuerpo, fecha, post, respuestas, etiquetas
     }){
         if (titulo && cuerpo && fecha) {
             this.#titulo = titulo;
@@ -25,7 +25,7 @@ class Pregunta{
             this.#usuario = post.duenio;
             this.#respuestas = respuestas;
             this.#ID = ID;
-            this.#etiquetas = etiqueta;
+            this.#etiquetas = etiquetas;
             
         }
 	}
@@ -50,7 +50,7 @@ class Pregunta{
                 ${this.#etiquetas ? this.#etiquetas.map(e=> new Etiqueta(e).render()).join('') : ''}
                 </div>
                 <div class="cantRespuestas">${this.#respuestas.length > 0 ? this.#respuestas.length + ' Respuestas' : ''}</div>
-                ${ this.#respuestas.slice(0,3).map((r) => new Respuesta(r).render()).join("") }
+                ${ this.#respuestas.map((r) => new Respuesta(r).render()).join("") }
             </div>
 
             `;

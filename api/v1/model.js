@@ -516,12 +516,14 @@ const EtiquetasPregunta = sequelize.define('etiquetasPregunta',{
     }
 })
 
-Pregunta.belongsToMany(Etiqueta, { 
+Pregunta.belongsToMany(Etiqueta, {
+    as:'etiquetas',
     through: EtiquetasPregunta,
     constraints:false
 });
 
- Etiqueta.belongsToMany(Pregunta, { 
+ Etiqueta.belongsToMany(Pregunta, {
+    as:'preguntas',
     through: EtiquetasPregunta,
     constraints:false 
 });

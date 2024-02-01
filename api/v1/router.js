@@ -1,7 +1,7 @@
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 const router = express.Router();
-import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta, ReportesUsuario, Post, Respuesta, Etiqueta, SuscripcionesEtiqueta, Notificacion } from "./model.js";
+import { ReportePost, SuscripcionesPregunta, Voto,Usuario,Pregunta, ReportesUsuario, Post, Respuesta, Etiqueta, SuscripcionesEtiqueta, Notificacion, EtiquetasPregunta } from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar, moderarWithRetry} from "./ia.js";
 
@@ -202,7 +202,6 @@ router.get('/pregunta',(req,res)=>{
 })
 
 router.patch('/pregunta', function(req,res){
-	// TODO Feature: editar etiquetas.
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
@@ -233,6 +232,8 @@ router.patch('/pregunta', function(req,res){
 					pregunta.titulo=req.body.titulo;
 					//no se porque pero asi anda pregunta.save() no
 					pregunta.post.save();
+					//etiquetas vienen los id en array
+					pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new Etiqueta({ID})));
 					res.status(200).send("Pregunta actualizada exitosamente");
 				});
 				
@@ -345,7 +346,7 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 //pregunta
 
 router.post('/pregunta', function(req,res){
-	// TODO Feaure: etiquetas, y crear las notificaciones correspondientes.
+	// TODO Feaure: crear las notificaciones correspondientes.
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
@@ -365,16 +366,41 @@ router.post('/pregunta', function(req,res){
 			Pregunta.create({
 				ID: post.ID,
 				titulo: req.body.titulo
-			}).then(()=>{
+			}).then((pregunta)=>{
 				if(respuesta.apropiado < reportaPost){
 					//testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
 					ReportePost.create({
 						reportadoID: post.ID})
 				}
+				//etiquetas
+				//asumo que vienen en el body en un array con los id (a chequear)
+				pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new Etiqueta({ID})));
+				
+				//notificaciones
+				SuscripcionesEtiqueta.findAll({
+					attributes: ['suscriptoDNI'],
+					where: {
+					  etiquetaID: {
+						[Sequelize.Op.in]: req.body.etiquetasIDs
+					  },
+					  fecha_baja: null
+					},
+					distinct: true
+				  }).then(suscripciones=>{
+					suscripciones.forEach(suscripcion => {
+						console.log(suscripcion);
+						Notificacion.create({
+							postNotificadoID:post.ID,
+							notificadoDNI:suscripcion.suscriptoDNI
+						})
+					});
+				})
+				
 				//Sin las comillas se piensa que pusimos el status dentro del send
 				res.status(201).send(post.ID+"");
 			})
 			.catch(err=>{
+				console.log(err);
 				res.status(500).send(err);
 			})
 		})
@@ -420,6 +446,25 @@ router.post('/respuesta', function(req,res){
 								reportadoID: post.ID})
 						}
 						resp.save();
+
+						//Notificaciones
+
+						SuscripcionesPregunta.findAll({
+							where: {
+							  preguntaID: req.body.IDPregunta,
+							  fecha_baja: null
+							}
+						  }).then(suscripciones=>{
+							suscripciones.forEach(suscripcion => {
+								console.log(suscripcion);
+								Notificacion.create({
+									postNotificadoID:req.body.IDPregunta,
+									notificadoDNI:suscripcion.suscriptoDNI
+								})
+							});
+						})
+
+
 						//si adentro de send hay un int tira error porque piensa que es el status
 						res.status(201).send(post.ID+"");
 					})

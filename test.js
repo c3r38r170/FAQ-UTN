@@ -92,7 +92,8 @@ describe('Express API Tests', () => {
   it('post - pregunta200SinReporte', async () => {
     const response = await makeRequest('post', '/api/pregunta', {
       titulo: '¿Que días se rinde Análisis Matemático?',
-      cuerpo: 'Así me organizo mejor.'
+      cuerpo: 'Así me organizo mejor.',
+      etiquetasIDs:[3,4,5]
     });
 
     assert.strictEqual(response.status, 201);
@@ -103,6 +104,7 @@ describe('Express API Tests', () => {
     const response = await makeRequest('post', '/api/pregunta', {
       titulo: '¿Que días se rinde Análisis Matemático?',
       cuerpo: 'hijos de puta',
+      etiquetasIDs:[3,4,5]
     });
 
     assert.strictEqual(response.status, 400);
@@ -113,7 +115,8 @@ describe('Express API Tests', () => {
     const response = await makeRequest('patch', '/api/pregunta', {
       ID: 9,
       cuerpo: 'probando',
-      titulo: '¿que dia se rinde analisis?'
+      titulo: '¿que dia se rinde analisis?',
+      etiquetasIDs:[3,4,6]
     });
 
     assert.strictEqual(response.status, 200);
@@ -124,7 +127,8 @@ describe('Express API Tests', () => {
     const response = await makeRequest('patch', '/api/pregunta', {
       ID: 3,
       cuerpo: 'probando',
-      titulo: '¿que dia se rinde analisis?'
+      titulo: '¿que dia se rinde analisis?',
+      etiquetasIDs:[3,4,5]
     });
 
     assert.strictEqual(response.status, 403);
@@ -135,7 +139,8 @@ describe('Express API Tests', () => {
     const response = await makeRequest('patch', '/api/pregunta', {
       ID: 2,
       cuerpo: 'probando',
-      titulo: '¿que dia se rinde analisis?'
+      titulo: '¿que dia se rinde analisis?',
+      etiquetasIDs:[3,4,5]
     });
 
     assert.strictEqual(response.status, 404);
@@ -156,7 +161,8 @@ describe('Express API Tests', () => {
     const response = await makeRequest('patch', '/api/pregunta', {
       ID: '9',
       cuerpo: 'pelados puttos',
-      titulo: '¿que dia se rinde analisis?'
+      titulo: '¿que dia se rinde analisis?',
+      etiquetasIDs:[3,4,5]
     });
 
     assert.strictEqual(response.status, 400);
