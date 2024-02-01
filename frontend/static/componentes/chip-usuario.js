@@ -1,5 +1,0 @@
-class ChipUsuario{
-	
-}
-
-export {ChipUsuario};

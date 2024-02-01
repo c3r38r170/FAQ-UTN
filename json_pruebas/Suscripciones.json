@@ -1,0 +1,161 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "Suscripciones",
+    "dateExported": "2024-01-25T19:14:01.967Z",
+    "version": "1.1",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "7df55d26-cd29-44b1-ab07-37e864c8703f",
+            "colId": "9b251fef-015c-43a7-9875-a42f8a993dc0",
+            "containerId": "",
+            "name": "login200",
+            "url": "http://localhost:8080/api/sesion",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2024-01-25T18:05:25.426Z",
+            "modified": "2024-01-25T18:05:25.426Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"DNI\":\"41097334\",\n  \"contrasenia\":\"12345678\"\n}",
+                "form": []
+            },
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "200"
+                }
+            ]
+        },
+        {
+            "_id": "b61338bf-f837-4898-a99d-6dff6efcb57e",
+            "colId": "9b251fef-015c-43a7-9875-a42f8a993dc0",
+            "containerId": "",
+            "name": "suscripcionPregunta404",
+            "url": "http://localhost:8080/api/pregunta/999999999999/suscripcion",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2024-01-25T18:05:31.754Z",
+            "modified": "2024-01-25T18:06:19.042Z",
+            "headers": [],
+            "params": [],
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "404"
+                }
+            ]
+        },
+        {
+            "_id": "de9281eb-516d-474a-aafd-a95f737a6267",
+            "colId": "9b251fef-015c-43a7-9875-a42f8a993dc0",
+            "containerId": "",
+            "name": "suscripcionPregunta201",
+            "url": "http://localhost:8080/api/pregunta/9/suscripcion",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2024-01-25T18:05:37.418Z",
+            "modified": "2024-01-25T18:06:29.049Z",
+            "headers": [],
+            "params": [],
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "201"
+                }
+            ]
+        },
+        {
+            "_id": "22c7a307-d940-4cb3-a772-ef5d0f1a83cc",
+            "colId": "9b251fef-015c-43a7-9875-a42f8a993dc0",
+            "containerId": "",
+            "name": "suscripcionPregunta204",
+            "url": "http://localhost:8080/api/pregunta/9/suscripcion",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2024-01-25T18:05:41.370Z",
+            "modified": "2024-01-25T18:06:35.335Z",
+            "headers": [],
+            "params": [],
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "204"
+                }
+            ]
+        },
+        {
+            "_id": "0699fb1c-9cf7-4bf4-8f5f-40aa2e1856ca",
+            "colId": "9b251fef-015c-43a7-9875-a42f8a993dc0",
+            "containerId": "",
+            "name": "suscripcionEtiqueta404",
+            "url": "http://localhost:8080/api/etiqueta/1/suscripcion",
+            "method": "POST",
+            "sortNum": 50000,
+            "created": "2024-01-25T18:54:28.972Z",
+            "modified": "2024-01-25T18:54:28.972Z",
+            "headers": [],
+            "params": [],
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "404"
+                }
+            ]
+        },
+        {
+            "_id": "c88ae999-c1a3-4af9-99e1-16473a8ca7c7",
+            "colId": "9b251fef-015c-43a7-9875-a42f8a993dc0",
+            "containerId": "",
+            "name": "suscripcionEtiqueta201",
+            "url": "http://localhost:8080/api/etiqueta/2/suscripcion",
+            "method": "POST",
+            "sortNum": 60000,
+            "created": "2024-01-25T18:54:32.212Z",
+            "modified": "2024-01-25T18:54:32.212Z",
+            "headers": [],
+            "params": [],
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "201"
+                }
+            ]
+        },
+        {
+            "_id": "5db6bcd8-7156-42d9-adc8-4915140c73bb",
+            "colId": "9b251fef-015c-43a7-9875-a42f8a993dc0",
+            "containerId": "",
+            "name": "suscripcionEtiqueta204",
+            "url": "http://localhost:8080/api/etiqueta/2/suscripcion",
+            "method": "POST",
+            "sortNum": 70000,
+            "created": "2024-01-25T18:54:37.804Z",
+            "modified": "2024-01-25T18:54:37.804Z",
+            "headers": [],
+            "params": [],
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "204"
+                }
+            ]
+        }
+    ]
+}
