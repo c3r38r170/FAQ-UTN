@@ -17,7 +17,7 @@ class ChipValoracion{
                 </span>
             </button>
             <div id="valoraciones">${this.#valoracion}</div>
-            <button id="negativa" onclick="${this.votoPositivo()}">
+            <button id="negativa" onclick="${this.votoNegativo()}">
                 <span>
                     <i class="fa-solid fa-caret-down"></i>
                 </span>

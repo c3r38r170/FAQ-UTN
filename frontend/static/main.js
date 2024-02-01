@@ -1,1 +1,2 @@
-import {ChipUsuario} from './componentes/chip-usuario.js';
+import {ChipUsuario} from './componentes/chipusuario.js';
+// console.log((new ChipUsuario({nombre:'tyron'})).prototype);

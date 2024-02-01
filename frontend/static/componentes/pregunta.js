@@ -1,8 +1,7 @@
 import { ChipUsuario } from "./chipusuario.js";
 import { Etiqueta } from "./etiqueta.js";
 import { Respuesta } from "./respuesta.js";
-import { Boton } from "./boton.js"
-import { Usuario as UsuarioDAO } from "../../../api/v1/model.js"
+import { Boton } from "./boton.js";
 import { Fecha } from "./fecha.js"
 import { BotonReporte } from "./botonReporte.js";
 

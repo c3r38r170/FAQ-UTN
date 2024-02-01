@@ -1,7 +1,12 @@
 import * as express from "express";
 import {Sequelize} from 'sequelize';
 const router = express.Router();
-import { Pagina, DesplazamientoInfinito } from "../frontend/componentes.js";
+/* 
+*/
+import { Pagina, DesplazamientoInfinito, Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "../frontend/static/componentes/todos.js";
+import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
+
+/* import { Pagina, DesplazamientoInfinito } from "../frontend/componentes.js";
 import { Pregunta } from "../frontend/static/componentes/pregunta.js";
 import { ChipUsuario } from "../frontend/static/componentes/chipusuario.js";
 import { Busqueda  } from "../frontend/static/componentes/busqueda.js"
@@ -17,8 +22,12 @@ import { Modal } from "../frontend/static/componentes/modal.js";
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
-/*
+import { PaginaInicio, /* PaginaExplorar, */ } from '../frontend/static/pantallas/todas.js';
+
 router.get("/", (req, res) => {
+	// ! req.path es ''
+	// TODO Feature: query vs body
+	// TODO Refactor: agarrar el get de preguntas, y convertirlo en el metodo pagina.
 	if(req.query.consulta || req.query.etiquetas){
 		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
 		let queryString = req.url.substring(req.url.indexOf('?'));
@@ -27,45 +36,45 @@ router.get("/", (req, res) => {
 			consulta:req.query.consulta,
 			etiquetas:req.query.etiquetas
 		})
-		PreguntaDAO.pagina()
+		// PreguntaDAO.pagina()
 		.then(pre=>{
-				let pagina = new Pagina({
-					ruta: req.path,
+				let pagina=new Pagina({
+					// ruta: req.path,
 					titulo: "Inicio",
 					sesion: req.session.usuario,
+					partes:PaginaInicio
+					
 				});
-				pagina.partes.push(
-					new Busqueda('Hola')
-					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas'+queryString,p=>new Pregunta(p),pre)
-					// TODO Feature: , control de paginación
-					// TODO Feature: Desplazamiento infinito
-				)
+				pagina.partes[1]/* DesplazamientoIfinito */.entidadesIniciales=pre;
+
+				pagina=PaginaInicio(req.path,req.session.usuario,queryString);
+
 				res.send(pagina.render());
 			})
 	}else{ // * Inicio regular.
 		 PreguntaDAO.pagina()
 			.then(pre=>{ 
 				let pagina = new Pagina({
-					ruta: req.path,
+					// ruta: req.path,
 					titulo: "Inicio",
 					sesion: req.session.usuario,
 				});
 				pagina.partes.push(
 					new Busqueda('Hola')
-					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>new Pregunta(p))
+					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>(new Pregunta(p)).render(),pre)
 				)
 				res.send(pagina.render());
 			 })
 			// TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
 	}
 });
-*/
+
 
 
 
 //Ruta que muestra todas las preguntas y respuestas
 // Falta implementar la paginación
-router.get("/", async (req, res) =>  {
+/* router.get("/", async (req, res) =>  {
     try {
         const preguntas = await PreguntaDAO.findAll({
             include: [
@@ -126,28 +135,46 @@ router.get("/", async (req, res) =>  {
         console.error(error);
         res.status(500).send('Error interno del servidor');
     }
-});
+}); */
 
 
 /*
 router.get("/pregunta/:id?", (req, res) => {
 	if(req.params.id){
-		PreguntaDAO.findByPk(req.params.id,{plain: true}) // TODO Refactor: hace falta el plain?? ¿No es raw + nest? 
-			.then((p)=>{
-				if(!p){
+		PreguntaDAO.findByPk(req.params.id,{
+			include: [
+			  {
+				model: RespuestaDAO,
+				as: 'respuestas',
+				include: [
+				  {
+					model: PostDAO,
+					include:[{model:UsuarioDAO, as:'duenio'}]
+				  }
+				]
+			  },
+			  {
+				model: PostDAO,
+				include:[{model:UsuarioDAO, as: 'duenio'}] 
+			  }
+			]
+		  })
+			.then(pregunta=>{
+				if(!pregunta){
 					res.status(404).send('ID de pregunta inválida');
+					return;
 				}
-	
 				let pagina=new Pagina({
 					ruta:req.path
-					,titulo:p.titulo
+					,titulo:pregunta.titulo
 					,sesion:req.session.usuario
 					,partes:[
 						// TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
-						new Pregunta(p)
-						,...p.respuestas.map(r=>new Respuesta(r))
+						
+						new Pregunta(pregunta)
+						,...pregunta.respuesta.map(r=>new Respuesta(r))
 						// TODO Feature: si está logueado, campo de hacer una respuesta
-					]
+						]
 				});
 				res.send(pagina.render());
 			})
@@ -234,6 +261,7 @@ router.get("/perfil/:id?", (req, res) => {
 		/* tarjeta de usuario 
 		actividad*/
   let pagina = new Pagina({
+		// TODO Feature: Quizá haya que pasar 'perfil' nomás
     ruta: req.path,
     titulo: 'Perfil de '+usu.nombre,
     sesion: req.session.usuario,
