@@ -943,18 +943,33 @@ const SuscripcionesEtiqueta = sequelize.define('suscripcionesEtiqueta',{
 })
 
 // TODO Feature: Ver si no se puede hacer algo como un Many to Many. Tanto acá como en otros como el voto, el reporte...
-
+/*
 Usuario.hasMany(SuscripcionesEtiqueta,{
-    as:'suscriptoAEtiqueta',
+    as:'etiquetasSuscriptas',
     constraints:false,
     foreignKey:'suscriptoDNI'
 });
 
 Etiqueta.hasMany(SuscripcionesEtiqueta,{
-    as:'etiquetaSuscripta',
+    as:'suscriptos',
     constraints:false,
     foreignKey:'etiquetaID'
 })
+*/
+
+Usuario.belongsToMany(Etiqueta, { 
+    through: SuscripcionesEtiqueta,
+    constraints:false,
+    as: 'etiquetasSuscriptas',
+    foreignKey:'suscriptoDNI'
+});
+
+Etiqueta.belongsToMany(Usuario, { 
+    through: SuscripcionesEtiqueta,
+    constraints:false,
+    as:'suscriptos',
+    foreignKey:'etiquetaID'
+});
 
 const SuscripcionesPregunta = sequelize.define('suscripcionesPregunta',{
     ID: {
@@ -972,18 +987,32 @@ const SuscripcionesPregunta = sequelize.define('suscripcionesPregunta',{
 })
 
 // TODO Refactor: alias más lindos
-
+/*
 Usuario.hasMany(SuscripcionesPregunta,{
-    as:'suscriptoAPregunta',
+    as:'preguntasSuscriptas',
     constraints:false,
     foreignKey:'suscriptoDNI'
 });
 
 Pregunta.hasMany(SuscripcionesPregunta,{
-    as:'preguntaSuscripta',
+    as:'suscriptos',
     constraints:false,
     foreignKey:'preguntaID'
-})
+})*/
+
+Usuario.belongsToMany(Pregunta, { 
+    through: SuscripcionesPregunta,
+    constraints:false,
+    as: 'preguntasSuscriptas',
+    foreignKey:'suscriptoDNI'
+});
+
+Pregunta.belongsToMany(Usuario, { 
+    through: SuscripcionesPregunta,
+    constraints:false,
+    as:'suscriptos',
+    foreignKey:'preguntaID'
+});
 
 const Carrera = sequelize.define('carrera',{
     ID: {
