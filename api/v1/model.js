@@ -580,10 +580,24 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 				{
 					model:Respuesta
 					,as:'respuestas'
-					,include:/* [ */
-						Post
+					,include: [
+                        {
+                            model: Post,
+                            include: [
+                                {
+                                    model:Usuario
+                                    ,as:'duenio'
+                                    ,include:{
+                                        model:Perfil
+                                        ,attributes:['ID','nombre']
+                                    }
+                                    ,attributes:['DNI','nombre']
+                                }
+                            ]
+                        }
+                    ]
 						
-					/* ] */
+					
 					
 					// ,
 					/* {
@@ -750,7 +764,21 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 				{
 					model:Respuesta
 					,as:'respuestas'
-					,include:Post
+					,include:
+                    {
+                        model: Post,
+                        include: [
+                            {
+                                model:Usuario
+                                ,as:'duenio'
+                                ,include:{
+                                    model:Perfil
+                                    ,attributes:['ID','nombre']
+                                }
+                                ,attributes:['DNI','nombre']
+                            }
+                        ]
+                    }
 				}
 				,{model:SuscripcionesPregunta,as:'preguntaSuscripta'}
 			);
