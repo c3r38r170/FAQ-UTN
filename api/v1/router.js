@@ -290,7 +290,6 @@ router.patch('/respuesta', function(req,res){
 //Suscripción / desuscripción a pregunta
 
 router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
-	//Si no existe suscribe, si existe(sin fecha de baja) desuscribe
 	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
@@ -324,11 +323,55 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 					res.status(201).send("Suscripción creada");
 					return;
 				}else{
-					// TODO Feature: delete('/pregunta/:preguntaID/suscripcion'); quizá con el DNI al final
+					
+					res.status(401).send("Ya se encuentra suscripto a la pregunta");
+				}
+			})
+			.catch(err=>{
+				console.log(err);
+				res.status(500).send(err);
+			})  
+		}
+	})
+	.catch(err=>{
+		console.log(err);
+        res.status(500).send(err);
+    })  
+})
+
+router.delete('/pregunta/:preguntaID/suscripcion', function(req,res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+
+	let IDpregunta=req.params.preguntaID;
+
+	Pregunta.findByPk(IDpregunta, {include:Post}).then(pregunta =>{
+		if(!pregunta){
+			res.status(404).send("Pregunta no encontrada / disponible");
+			return;
+		}else{
+			// TODO Refactor: Esto no hace falta, se puede hacer pregunta.SuscripcionesPregunta o algo así
+			SuscripcionesPregunta.findAll({
+				where:{
+					preguntaID: IDpregunta,
+					suscriptoDNI: req.session.usuario.DNI,
+					fecha_baja:{
+						[Sequelize.Op.is]:null
+					}
+				}, 
+				nest:true,
+				plain:true
+			}).then(sus=>{
+				if(!sus){
+					res.status(401).send("No se encuentra suscripto a la pregunta");
+					return;
+				}else{
 					sus.fecha_baja= new Date().toISOString().split('T')[0];
 					sus.save();
 					//devuelve el 204 pero no el mensaje
-					res.status(204).send("Suscripción cancelada");
+					res.status(201).send("Suscripción cancelada");
 				}
 			})
 			.catch(err=>{
@@ -727,7 +770,6 @@ router.get('/etiqueta', function(req,res){
 })
 
 router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
-	//Si no existe suscribe, si existe(sin fecha de baja) desuscribe
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
@@ -760,11 +802,54 @@ router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 					res.status(201).send("Suscripción creada");
 					return;
 				}else{
-					// TODO Feature: router.delete
+					res.status(401).send("Ya se encuentra suscripto a la etiqueta.");
+				}
+			})
+			.catch(err=>{
+				res.status(500).send(err);
+			})  
+		}
+	})
+	.catch(err=>{
+		console.log(err);
+        res.status(500).send(err);
+    })  
+})
+
+
+router.delete('/etiqueta/:etiquetaID/suscripcion', function(req,res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+
+	let IDetiqueta=req.params.etiquetaID;
+
+	Etiqueta.findByPk(
+			IDetiqueta
+	).then(etiqueta =>{
+		if(!etiqueta){
+			res.status(404).send("Etiqueta no encontrada / disponible");
+			return;
+		}else{
+			SuscripcionesEtiqueta.findAll({
+				where:{
+					etiquetaID:IDetiqueta,
+					suscriptoDNI: req.session.usuario.DNI,
+					fecha_baja:{
+						[Sequelize.Op.is]:null
+					}
+				},
+				plain:true
+			}).then(sus=>{
+				if(!sus){
+					
+					res.status(401).send("No se encuentra suscripto a la etiqueta");
+					return;
+				}else{
 					sus.fecha_baja= new Date().toISOString().split('T')[0];
 					sus.save();
-					//manda el 204 pero no el mensaje
-					res.status(204).send("Suscripción cancelada");
+					res.status(201).send("Suscripción cancelada");
 				}
 			})
 			.catch(err=>{
