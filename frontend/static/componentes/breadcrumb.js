@@ -1,9 +1,9 @@
 class Breadcrumb{
     #ruta;
     #crumbs
-	constructor({
+	constructor(/* { */
         ruta
-    }){
+    /* } */){
 
         if (typeof ruta !== 'string') {
             throw new Error('El parámetro "ruta" debe ser una cadena (string).');

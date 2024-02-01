@@ -26,9 +26,9 @@ class Formulario{
 
 		// ! No funciona GET con FormData.
 		// TODO Refactor: Ver si funciona superFetch
-		superFetch(this.#endpoint,new FormData(e.target))
+		/* superFetch(this.#endpoint,new FormData(e.target))
 			.then(res=>res.json)
-			.then(this.#funcionRetorno);
+			.then(this.#funcionRetorno); */
 		/* let options={
 			credentials:'include'
 		}

@@ -1,6 +1,6 @@
 import { ChipUsuario } from "./chipusuario.js";
-import { ChipValoracion } from "./chipvaloracion.js"
-import { Fecha } from "./fecha.js"
+import { ChipValoracion } from "./chipvaloracion.js";
+import { Fecha } from "./fecha.js";
 import { BotonReporte } from "./botonReporte.js";
 
 class Respuesta {
