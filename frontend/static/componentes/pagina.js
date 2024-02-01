@@ -5,6 +5,7 @@ import { Breadcrumb } from "./breadcrumb.js";
 import { Navegacion } from "./navegacion.js";
 import { Notificacion } from "./notificacion.js";
 import { Formulario } from './formulario.js';
+import { ChipUsuario } from './todos.js'
 
 class Pagina {
 	// TODO Refactor: ¿No debería ser un string?
@@ -36,12 +37,15 @@ class Pagina {
         "asdfasdflasdkfhjakslLorem Ipsum is simply dummy text of the printing and typesetting industry",
     },
   ];
+  #encabezado;
 
   constructor({ ruta='index', titulo, sesion ,partes=[]}) {
     this.#ruta/* .ruta */ = ruta;
     this.#titulo = titulo;
 	this.#sesion = sesion;
 	this.partes = Array.isArray(partes) ? partes : [partes];
+	this.#encabezado = new Encabezado(this.#sesion);
+	
 
   // TODO Feature: Poner los 3 modales acá.
 	// Los de registro e inicio, podría chequear si sesion existe para agregarse o no
@@ -71,13 +75,13 @@ class Pagina {
 		<link rel="stylesheet" href="/main.css">
 
 		<script src="scripts/visibilizar-clases.js" type="module"></script>
-		<script src="scripts/${this.#ruta + ".js"}" type="module"></script>
+		<script src="scripts/${this.#ruta + ".js" }" type="module"></script>
 		<link rel="stylesheet" href="styles/${this.#ruta + ".css"}">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
 	</head>
 	<body>
-		${new Encabezado(this.#sesion).render()}
+		${this.#encabezado.render()}
 		<div id="contenedor-principal" class="columns">
 			<div  id="columna-1" class="column is-3">
 				${new Navegacion(this.#sesion).render()}
@@ -177,22 +181,22 @@ class Encabezado {
 	#modal;
   #posibleUsuario;
   constructor(sesion) {
-    if (sesion) {
-      this.#posibleUsuario = new ChipUsuario(sesion);
+    if (sesion && sesion.usuario) {
+      this.#posibleUsuario = new ChipUsuario(sesion.usuario);
     }else{ 
 		this.#modal = new Modal('Login','modal-login');
 		let form = new Formulario('formularioSesion', 'http://localhost:8080/api/sesion', [
 		['DNI', 'D.N.I.', { type: 'text' }],
 		['contrasenia', 'Contraseña', { type: 'password' }],
-		], this.procesarRespuesta);
+		], this.procesarRespuesta.bind(this),  {textoEnviar:'Ingresar',verbo: 'POST'});
 		this.#modal.contenido.push(form);
 	}
 
   }
 
   procesarRespuesta(respuesta) {
-	console.log('Respuesta del servidor:', respuesta);
-	// Aquí puedes agregar lógica adicional según lo que necesites hacer con la respuesta del servidor
+	console.log('Respuesta:', JSON.stringify(respuesta));
+	location.reload();
   }
   
 
@@ -208,10 +212,14 @@ class Encabezado {
 	<div id=encabezado-derecho>
 		${
 			// ACOMODAR EL TEMA DEL MODAL DE LOGIN
-      this.#posibleUsuario ||
-       new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render() }
-	 		${ this.#modal.render() }
-			${ new Boton({titulo:'Registrarse', classes: 'button is-info'}).render() }
+      	this.#posibleUsuario ? (
+			this.#posibleUsuario.render()
+			+ new Boton({titulo: 'Cerrar Sesión', classes: 'button is-link is-inverted is-small'}).render()
+			): (
+       	new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
+		+ this.#modal.render() 
+		+ new Boton({titulo:'Registrarse', classes: 'button is-info'}).render() 
+		)}
 	</div>
 </div>`;
   }

@@ -53,7 +53,7 @@ router.get("/", (req, res) => {
 	}else{ // * Inicio regular.
 		 PreguntaDAO.pagina()
 			.then(pre=>{ 
-				let pagina = new Pagina({
+			/* 	let pagina = new Pagina({
 					// ruta: req.path,
 					titulo: "Inicio",
 					sesion: req.session.usuario,
@@ -64,7 +64,8 @@ router.get("/", (req, res) => {
 				pagina.partes.push(
 					new Busqueda('Hola')
 					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>(new Pregunta(p,modal)).render(),pre)
-				)
+					) */
+				let pagina=PaginaInicio(req.path,req.session,'');
 				res.send(pagina.render());
 			 })
 			// TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))

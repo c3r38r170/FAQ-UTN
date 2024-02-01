@@ -55,6 +55,13 @@ $text-light: #636363;
 				border-radius: 10px;
 				font-weight: bold;
 			}
+			& .chip-usuario{
+				display: flex;
+				justify-content: start;
+				align-items: center;
+				gap: 0.8rem;
+				flex-direction: row-reverse;
+			}
 		}
 	}
 }

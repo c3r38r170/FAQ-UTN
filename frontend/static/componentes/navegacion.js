@@ -23,7 +23,7 @@ class Navegacion{
                 <ul class="navegacion">
                     <li>
                         
-                        <a id="link" href="http://localhost:8080/explorar">
+                        <a id="link" href="http://localhost:8080/">
                             <i class="fa-solid fa-magnifying-glass mr-1"></i>
                             Buscar
                         </a>
