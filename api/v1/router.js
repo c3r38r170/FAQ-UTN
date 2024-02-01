@@ -346,7 +346,6 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 //pregunta
 
 router.post('/pregunta', function(req,res){
-	// TODO Feaure: crear las notificaciones correspondientes.
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
@@ -388,7 +387,6 @@ router.post('/pregunta', function(req,res){
 					distinct: true
 				  }).then(suscripciones=>{
 					suscripciones.forEach(suscripcion => {
-						console.log(suscripcion);
 						Notificacion.create({
 							postNotificadoID:post.ID,
 							notificadoDNI:suscripcion.suscriptoDNI
@@ -414,7 +412,6 @@ router.post('/pregunta', function(req,res){
 //respuesta
 
 router.post('/respuesta', function(req,res){
-	// TODO Feature: crear las notificaciones correspondientes.
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
@@ -448,7 +445,7 @@ router.post('/respuesta', function(req,res){
 						resp.save();
 
 						//Notificaciones
-
+						//al suscripto al post le avisa que se respondió y le manda el id de la respuesta
 						SuscripcionesPregunta.findAll({
 							where: {
 							  preguntaID: req.body.IDPregunta,
@@ -458,7 +455,7 @@ router.post('/respuesta', function(req,res){
 							suscripciones.forEach(suscripcion => {
 								console.log(suscripcion);
 								Notificacion.create({
-									postNotificadoID:req.body.IDPregunta,
+									postNotificadoID:post.ID,
 									notificadoDNI:suscripcion.suscriptoDNI
 								})
 							});
@@ -526,6 +523,14 @@ const valorarPost=function(req,res) {
 					}else{
 						voto.valoracion=req.body.valoracion;
 						voto.save();
+						//Notificación
+
+						Notificacion.create({
+							postNotificadoID:post.ID,
+							notificadoDNI:suscripcion.suscriptoDNI
+						})
+						
+
 					}
 					res.status(201).send("Voto registrado.")
 				})
@@ -570,10 +575,8 @@ const eliminarVoto=function(req,res) {
 };
 
 
-router.post('/pregunta/:votadoID/valoracion', valorarPost)
 router.post('/respuesta/:votadoID/valoracion', valorarPost)
 
-router.delete('/pregunta/:votadoID/valoracion', eliminarVoto)
 router.delete('/respuesta/:votadoID/valoracion', eliminarVoto)
 
 //reporte post
@@ -779,6 +782,9 @@ router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 //notificaciones
 
 router.get('/notificaciones', function(req,res){
+	//ppregunta ajena es notificacion por etiqueta suscripta 
+	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
+	//respuesta propia es notificación por valoración
 	Notificacion.findAll({
 		order:[
 			['visto','ASC'],
