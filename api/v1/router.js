@@ -800,15 +800,29 @@ router.get('/notificaciones', function(req,res){
 		  {
 			model: Post,
 			include: [
-			  { model: Usuario, as: 'duenio' }, 
-			  { model: Respuesta, as: 'respuesta', required: false }, 
-			  { model: Pregunta, as: 'pregunta', required: false } 
+			  	{ model: Usuario, as: 'duenio' }, 
+			  	{ model: Respuesta, as: 'respuesta', 
+					include: [
+						{ model: Pregunta, as: 'pregunta' } // Include Pregunta in Respuesta
+					],
+					required: false 
+				},  
+			  	{ model: Pregunta, as: 'pregunta', required: false } 
 			]
 		  }
 		],
 		where: {
-		  'notificadodni': { [Sequelize.Op.ne]: Sequelize.col('post.duenio.dni') },
-		  notificadoDNI: req.session.usuario.DNI
+		  [Sequelize.Op.or]: [
+			{
+			  '$post.pregunta.ID$': { [Sequelize.Op.ne]: null },
+			  notificadoDNI: req.session.usuario.DNI
+			},
+			{
+			  '$post.pregunta.ID$': null, // Check if the post is not a question
+			  'notificadoDNI': { [Sequelize.Op.ne]: Sequelize.col('post.duenio.dni') },
+			  notificadoDNI: req.session.usuario.DNI
+			}
+		  ]
 		},
 		raw: true,
 		nest: true
