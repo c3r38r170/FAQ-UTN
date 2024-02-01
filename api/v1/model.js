@@ -219,7 +219,8 @@ Usuario.hasMany(Notificacion,{
 })
 
 Notificacion.belongsTo(Usuario,{
-    constraints:false
+    constraints:false,
+    foreignKey: 'notificadoDNI'
 })
 
 Post.hasMany(Notificacion, {
@@ -229,7 +230,8 @@ Post.hasMany(Notificacion, {
 })
 
 Notificacion.belongsTo(Post,{
-    constraints:false
+    constraints:false,
+    foreignKey: 'postNotificadoID'
 })
 
 const Voto = sequelize.define('voto', {
@@ -400,6 +402,12 @@ const Respuesta = sequelize.define('respuesta',{
 
 Respuesta.hasOne(Post,{
     constraints:false,
+    foreignKey:'ID'
+})
+
+Post.belongsTo(Respuesta,{
+    constraints:false,
+    as:'respuesta',
     foreignKey:'ID'
 })
 
@@ -808,6 +816,12 @@ Pregunta.hasOne(Post,{
     foreignKey:'ID'
 })
 
+Post.belongsTo(Pregunta,{
+    constraints:false,
+    as:'pregunta',
+    foreignKey:'ID'
+})
+
 Pregunta.hasMany(Respuesta,{
     as:'respuestas',
     constraints:false,
@@ -839,12 +853,14 @@ const EtiquetasPregunta = sequelize.define('etiquetasPregunta',{
     }
 })
 
-Pregunta.belongsToMany(Etiqueta, { 
+Pregunta.belongsToMany(Etiqueta, {
+    as:'etiquetas',
     through: EtiquetasPregunta,
     constraints:false
 });
 
- Etiqueta.belongsToMany(Pregunta, { 
+ Etiqueta.belongsToMany(Pregunta, {
+    as:'preguntas',
     through: EtiquetasPregunta,
     constraints:false 
 });

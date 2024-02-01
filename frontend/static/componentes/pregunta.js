@@ -15,7 +15,9 @@ class Pregunta{
     #respuestas= []
     #instanciaModal;
     // TODO Feature: Hay 2 representaciones de pregunta. En el inicio, donde hay un listado, se ve la pregunta y la primera respuesta; y en la página propia se ve solo la pregunta y las respuestas se verían abajo con su propia representación.
+
 	constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiqueta},instanciaModal){
+
         if (titulo && cuerpo && fecha) {
             this.#titulo = titulo;
             this.#cuerpo = cuerpo;
@@ -23,8 +25,10 @@ class Pregunta{
             this.#usuario = post.duenio;
             this.#respuestas = respuestas;
             this.#ID = ID;
+
             this.#etiquetas = etiqueta;
             this.#instanciaModal = instanciaModal;
+
             
         }
 	}
@@ -48,6 +52,7 @@ class Pregunta{
                 </div>
                 <div class="cantRespuestas">${this.#respuestas.length > 0 ? this.#respuestas.length + ' Respuestas' : ''}</div>
                 ${ this.#respuestas.map((r) => new Respuesta(r,this.#instanciaModal).render()).join("") }
+
             </div>
 
             `;

@@ -108,7 +108,8 @@ router.get("/", (req, res) => {
 					order: [['createdAt', 'DESC']]
                 },
 				{
-					model: EtiquetaDAO
+					model: EtiquetaDAO,
+					as:'etiquetas'
 				}
             ]
         });
@@ -361,7 +362,8 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 					order: [['updatedAt', 'DESC']]
                 },
 				{
-					model: EtiquetaDAO
+					model: EtiquetaDAO,
+					as: 'etiquetas'
 				}
             ]
         });
