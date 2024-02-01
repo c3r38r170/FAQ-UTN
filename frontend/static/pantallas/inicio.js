@@ -1,10 +1,9 @@
 import { Pagina, Modal, DesplazamientoInfinito, Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "../componentes/todos.js";
 // import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../../../api/v1/model.js';
 
-function crearPagina(ruta,sesion,queryString){
+function crearPagina(sesion,queryString=''){
 	let modal = new Modal('General','modal-general');
 	return new Pagina({
-		
 		titulo: "Inicio",
 		sesion,
 		partes:[
