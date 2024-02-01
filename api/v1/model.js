@@ -722,7 +722,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 			opciones.attributes=['ID','titulo'];
 		}else{
 			// * Datos propios
-			opciones.include[0]={
+			opciones.include[0]={ // ! include[0] es Post por default
 				model:Post
 				,include:[
 					{
