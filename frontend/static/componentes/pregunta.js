@@ -52,7 +52,6 @@ class Pregunta{
                 </div>
                 <div class="cantRespuestas">${this.#respuestas.length > 0 ? this.#respuestas.length + ' Respuestas' : ''}</div>
                 ${ this.#respuestas.map((r) => new Respuesta(r,this.#instanciaModal).render()).join("") }
-
             </div>
 
             `;

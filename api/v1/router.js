@@ -1,7 +1,6 @@
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 const router = express.Router();
-
 import {
 	Usuario
 	, Perfil

@@ -44,9 +44,10 @@ router.get("/", (req, res) => {
 				// 	partes:PaginaInicio
 					
 				// });
-				// pagina.partes[1]/* DesplazamientoIfinito */.entidadesIniciales=pre;
+				// pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
-				let pagina=PaginaInicio(req.path,req.session.usuario,queryString);
+				let pagina=PaginaInicio(req.session.usuario,queryString);
+				pagina.partes[2]/* ! DesplazamientoIfinito */.entidadesIniciales=pre;
 
 				res.send(pagina.render());
 			})
@@ -65,7 +66,10 @@ router.get("/", (req, res) => {
 					new Busqueda('Hola')
 					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>(new Pregunta(p,modal)).render(),pre)
 					) */
-				let pagina=PaginaInicio(req.path,req.session,'');
+
+				let pagina=PaginaInicio(req.session);
+				pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
+
 				res.send(pagina.render());
 			 })
 			// TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
