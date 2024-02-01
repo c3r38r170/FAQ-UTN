@@ -688,6 +688,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
                     ,as: 'etiquetas'
                     ,include:{
                         model: Etiqueta,
+                        as:'etiquetas',
                         where: {
                             ID:filtrar.etiquetas
                         }
