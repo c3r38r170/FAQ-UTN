@@ -13,7 +13,7 @@ import { MensajeInterfaz } from './mensajeInterfaz.js';
 import { Modal } from "./modal.js";
 import { Navegacion } from "./navegacion.js";
 import { Notificacion } from "./notificacion.js";
-import { Pagina } from './pagina.js';
+import { Pagina, Encabezado } from './pagina.js';
 import { Pregunta } from "./pregunta.js";
 import { Respuesta } from './respuesta.js';
 import { Tabla } from "./tabla.js";
@@ -26,6 +26,7 @@ export {
 	,Formulario
 	
 	,Pagina
+	,Encabezado
 	,Modal
 	,Navegacion
 	, Breadcrumb
