@@ -14,6 +14,7 @@ import {
 	, Etiqueta
 	, SuscripcionesEtiqueta
 	, Notificacion
+  , EtiquetasPregunta
 } from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar, moderarWithRetry} from "./ia.js";
@@ -225,7 +226,6 @@ router.get('/pregunta',(req,res)=>{
 })
 
 router.patch('/pregunta', function(req,res){
-	// TODO Feature: editar etiquetas.
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.")
 	}
@@ -256,6 +256,8 @@ router.patch('/pregunta', function(req,res){
 					pregunta.titulo=req.body.titulo;
 					//no se porque pero asi anda pregunta.save() no
 					pregunta.post.save();
+					//etiquetas vienen los id en array
+					pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new Etiqueta({ID})));
 					res.status(200).send("Pregunta actualizada exitosamente");
 				});
 				
@@ -312,7 +314,6 @@ router.patch('/respuesta', function(req,res){
 //Suscripción / desuscripción a pregunta
 
 router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
-	//Si no existe suscribe, si existe(sin fecha de baja) desuscribe
 	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
@@ -346,11 +347,55 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 					res.status(201).send("Suscripción creada");
 					return;
 				}else{
-					// TODO Feature: delete('/pregunta/:preguntaID/suscripcion'); quizá con el DNI al final
+					
+					res.status(401).send("Ya se encuentra suscripto a la pregunta");
+				}
+			})
+			.catch(err=>{
+				console.log(err);
+				res.status(500).send(err);
+			})  
+		}
+	})
+	.catch(err=>{
+		console.log(err);
+        res.status(500).send(err);
+    })  
+})
+
+router.delete('/pregunta/:preguntaID/suscripcion', function(req,res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+
+	let IDpregunta=req.params.preguntaID;
+
+	Pregunta.findByPk(IDpregunta, {include:Post}).then(pregunta =>{
+		if(!pregunta){
+			res.status(404).send("Pregunta no encontrada / disponible");
+			return;
+		}else{
+			// TODO Refactor: Esto no hace falta, se puede hacer pregunta.SuscripcionesPregunta o algo así
+			SuscripcionesPregunta.findAll({
+				where:{
+					preguntaID: IDpregunta,
+					suscriptoDNI: req.session.usuario.DNI,
+					fecha_baja:{
+						[Sequelize.Op.is]:null
+					}
+				}, 
+				nest:true,
+				plain:true
+			}).then(sus=>{
+				if(!sus){
+					res.status(401).send("No se encuentra suscripto a la pregunta");
+					return;
+				}else{
 					sus.fecha_baja= new Date().toISOString().split('T')[0];
 					sus.save();
 					//devuelve el 204 pero no el mensaje
-					res.status(204).send("Suscripción cancelada");
+					res.status(201).send("Suscripción cancelada");
 				}
 			})
 			.catch(err=>{
@@ -368,7 +413,6 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 //pregunta
 
 router.post('/pregunta', function(req,res){
-	// TODO Feaure: etiquetas, y crear las notificaciones correspondientes.
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
@@ -388,16 +432,44 @@ router.post('/pregunta', function(req,res){
 			Pregunta.create({
 				ID: post.ID,
 				titulo: req.body.titulo
-			}).then(()=>{
+			}).then((pregunta)=>{
 				if(respuesta.apropiado < reportaPost){
 					//testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
 					ReportePost.create({
 						reportadoID: post.ID})
 				}
+				//etiquetas
+				//asumo que vienen en el body en un array con los id (a chequear)
+				pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new Etiqueta({ID})));
+				
+				//Suscribe a su propia pregunta
+
+				pregunta.addSuscriptos(req.session.usuario.DNI);
+
+				//notificaciones
+				SuscripcionesEtiqueta.findAll({
+					attributes: ['suscriptoDNI'],
+					where: {
+					  etiquetaID: {
+						[Sequelize.Op.in]: req.body.etiquetasIDs
+					  },
+					  fecha_baja: null
+					},
+					distinct: true
+				  }).then(suscripciones=>{
+					suscripciones.forEach(suscripcion => {
+						Notificacion.create({
+							postNotificadoID:post.ID,
+							notificadoDNI:suscripcion.suscriptoDNI
+						})
+					});
+				})
+				
 				//Sin las comillas se piensa que pusimos el status dentro del send
 				res.status(201).send(post.ID+"");
 			})
 			.catch(err=>{
+				console.log(err);
 				res.status(500).send(err);
 			})
 		})
@@ -411,7 +483,6 @@ router.post('/pregunta', function(req,res){
 //respuesta
 
 router.post('/respuesta', function(req,res){
-	// TODO Feature: crear las notificaciones correspondientes.
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
@@ -425,7 +496,10 @@ router.post('/respuesta', function(req,res){
 		}
 	
 		// TODO Refactor: Quizá sea más facil usar yield para esta parte, o ir devolviendo las premisas. O ambas cosas.
-		Pregunta.findByPk(req.body.IDPregunta,{include:Post})
+		Pregunta.findByPk(req.body.IDPregunta,
+			{
+				include:Post
+			})
 		.then(pregunta=>{
 			if(!pregunta){
 				res.status(404).send("Pregunta no encontrada / disponible")
@@ -443,6 +517,25 @@ router.post('/respuesta', function(req,res){
 								reportadoID: post.ID})
 						}
 						resp.save();
+
+						//Notificaciones
+						//al suscripto al post le avisa que se respondió y le manda el id de la respuesta
+						SuscripcionesPregunta.findAll({
+							where: {
+							  preguntaID: req.body.IDPregunta,
+							  fecha_baja: null,
+							  suscriptoDNI: { [Sequelize.Op.ne]: req.session.usuario.DNI} 
+							}
+						  }).then(suscripciones=>{
+							suscripciones.forEach(suscripcion => {
+								Notificacion.create({
+									postNotificadoID:post.ID,
+									notificadoDNI:suscripcion.suscriptoDNI
+								})
+							});
+						})
+
+
 						//si adentro de send hay un int tira error porque piensa que es el status
 						res.status(201).send(post.ID+"");
 					})
@@ -504,6 +597,14 @@ const valorarPost=function(req,res) {
 					}else{
 						voto.valoracion=req.body.valoracion;
 						voto.save();
+						//Notificación
+
+						Notificacion.create({
+							postNotificadoID:post.ID,
+							notificadoDNI:suscripcion.suscriptoDNI
+						})
+						
+
 					}
 					res.status(201).send("Voto registrado.")
 				})
@@ -547,11 +648,13 @@ const eliminarVoto=function(req,res) {
 	})  
 };
 
-
 router.post('/pregunta/:votadoID/valoracion', valorarPost)
-router.post('/respuesta/:votadoID/valoracion', valorarPost)
 
 router.delete('/pregunta/:votadoID/valoracion', eliminarVoto)
+
+
+router.post('/respuesta/:votadoID/valoracion', valorarPost)
+
 router.delete('/respuesta/:votadoID/valoracion', eliminarVoto)
 
 //reporte post
@@ -702,7 +805,6 @@ router.get('/etiqueta', function(req,res){
 })
 
 router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
-	//Si no existe suscribe, si existe(sin fecha de baja) desuscribe
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
@@ -735,11 +837,54 @@ router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 					res.status(201).send("Suscripción creada");
 					return;
 				}else{
-					// TODO Feature: router.delete
+					res.status(401).send("Ya se encuentra suscripto a la etiqueta.");
+				}
+			})
+			.catch(err=>{
+				res.status(500).send(err);
+			})  
+		}
+	})
+	.catch(err=>{
+		console.log(err);
+        res.status(500).send(err);
+    })  
+})
+
+
+router.delete('/etiqueta/:etiquetaID/suscripcion', function(req,res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+
+	let IDetiqueta=req.params.etiquetaID;
+
+	Etiqueta.findByPk(
+			IDetiqueta
+	).then(etiqueta =>{
+		if(!etiqueta){
+			res.status(404).send("Etiqueta no encontrada / disponible");
+			return;
+		}else{
+			SuscripcionesEtiqueta.findAll({
+				where:{
+					etiquetaID:IDetiqueta,
+					suscriptoDNI: req.session.usuario.DNI,
+					fecha_baja:{
+						[Sequelize.Op.is]:null
+					}
+				},
+				plain:true
+			}).then(sus=>{
+				if(!sus){
+					
+					res.status(401).send("No se encuentra suscripto a la etiqueta");
+					return;
+				}else{
 					sus.fecha_baja= new Date().toISOString().split('T')[0];
 					sus.save();
-					//manda el 204 pero no el mensaje
-					res.status(204).send("Suscripción cancelada");
+					res.status(201).send("Suscripción cancelada");
 				}
 			})
 			.catch(err=>{
@@ -757,18 +902,48 @@ router.post('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 //notificaciones
 
 router.get('/notificaciones', function(req,res){
+	//ppregunta ajena es notificacion por etiqueta suscripta 
+	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
+	//respuesta o pregunta propia es notificación por valoración
+	if(!req.session.usuario){
+		res.status(403).send("No se posee sesión válida activa");
+		return;
+	}
 	Notificacion.findAll({
-		order:[
-			['visto','ASC'],
-			['createdAt', 'DESC']
-		]
-		,limit:PAGINACION.resultadosPorPagina
-		,offset:(+req.body.pagina)*PAGINACION.resultadosPorPagina,
-		raw:true,
-		nest:true
-	}).then(notificaciones=>{
+		attributes: ['ID', 'visto', 'createdAt'],
+		order: [
+		  ['visto', 'ASC'],
+		  ['createdAt', 'DESC']
+		],
+		limit: PAGINACION.resultadosPorPagina,
+		offset: (+req.body.pagina) * PAGINACION.resultadosPorPagina,
+		include: [
+		  {
+			model: Post,
+			attributes: ['ID', 'cuerpo'],
+			include: [
+			  { model: Usuario, as: 'duenio', attributes: ['DNI', 'nombre'] }, 
+			  { model: Respuesta, as: 'respuesta', 
+				include: [
+				  { model: Pregunta, as: 'pregunta', attributes: ['ID', 'titulo'] } // *Include Pregunta in Respuesta
+				],
+				required: false,
+				attributes: ['ID', 'preguntaID'] 
+			  },  
+			  { model: Pregunta, as: 'pregunta', required: false, attributes: ['ID', 'titulo'] } 
+			]
+		  }
+		],
+		where: {
+		  //'$post.pregunta.ID$': { [Sequelize.Op.ne]: null }, // *Check if the post is a question
+		  notificadoDNI: req.session.usuario.DNI // *Filter by notificadoDNI matching user's DNI
+		},
+		raw: true,
+		nest: true
+	  }).then(notificaciones=>{
 		res.status(200).send(notificaciones);
 	}).catch(err=>{
+		console.log(err);
 		res.status(500).send(err);
 	})
 })
