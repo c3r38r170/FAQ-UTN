@@ -580,10 +580,24 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 				{
 					model:Respuesta
 					,as:'respuestas'
-					,include:/* [ */
-						Post
+					,include: [
+                        {
+                            model: Post,
+                            include: [
+                                {
+                                    model:Usuario
+                                    ,as:'duenio'
+                                    ,include:{
+                                        model:Perfil
+                                        ,attributes:['ID','nombre']
+                                    }
+                                    ,attributes:['DNI','nombre']
+                                }
+                            ]
+                        }
+                    ]
 						
-					/* ] */
+					
 					
 					// ,
 					/* {
@@ -635,8 +649,11 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 					]
 					,limit:1 */
 				}
-				,Etiqueta
-				,{model:SuscripcionesPregunta,as:'preguntaSuscripta'}
+				,{
+                    model:Etiqueta,
+                    as: 'etiquetas'
+                }
+				
 			],
 			/* attributes:[
 				'ID'
@@ -682,6 +699,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 				// TODO Feature: Ver cómo traer las otras etiqeutas, además de las usadas en el filtro
 				opciones.include.push({
 					model: Etiqueta,
+                    as: 'etiquetas',
 					required: true,
 					where: {
 						ID:filtrar.etiquetas
@@ -746,12 +764,28 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 				{
 					model:Respuesta
 					,as:'respuestas'
-					,include:Post
+					,include:
+                    {
+                        model: Post,
+                        include: [
+                            {
+                                model:Usuario
+                                ,as:'duenio'
+                                ,include:{
+                                    model:Perfil
+                                    ,attributes:['ID','nombre']
+                                }
+                                ,attributes:['DNI','nombre']
+                            }
+                        ]
+                    }
 				}
-				,{model:SuscripcionesPregunta,as:'preguntaSuscripta'}
 			);
 			if(!filtraEtiquetas){
-				opciones.include.push(Etiqueta)
+				opciones.include.push({
+                    model:Etiqueta, 
+                    as: 'etiquetas'
+                })
 			}
 		}
 
@@ -908,18 +942,33 @@ const SuscripcionesEtiqueta = sequelize.define('suscripcionesEtiqueta',{
 })
 
 // TODO Feature: Ver si no se puede hacer algo como un Many to Many. Tanto acá como en otros como el voto, el reporte...
-
+/*
 Usuario.hasMany(SuscripcionesEtiqueta,{
-    as:'suscriptoAEtiqueta',
+    as:'etiquetasSuscriptas',
     constraints:false,
     foreignKey:'suscriptoDNI'
 });
 
 Etiqueta.hasMany(SuscripcionesEtiqueta,{
-    as:'etiquetaSuscripta',
+    as:'suscriptos',
     constraints:false,
     foreignKey:'etiquetaID'
 })
+*/
+
+Usuario.belongsToMany(Etiqueta, { 
+    through: SuscripcionesEtiqueta,
+    constraints:false,
+    as: 'etiquetasSuscriptas',
+    foreignKey:'suscriptoDNI'
+});
+
+Etiqueta.belongsToMany(Usuario, { 
+    through: SuscripcionesEtiqueta,
+    constraints:false,
+    as:'suscriptos',
+    foreignKey:'etiquetaID'
+});
 
 const SuscripcionesPregunta = sequelize.define('suscripcionesPregunta',{
     ID: {
@@ -937,18 +986,32 @@ const SuscripcionesPregunta = sequelize.define('suscripcionesPregunta',{
 })
 
 // TODO Refactor: alias más lindos
-
+/*
 Usuario.hasMany(SuscripcionesPregunta,{
-    as:'suscriptoAPregunta',
+    as:'preguntasSuscriptas',
     constraints:false,
     foreignKey:'suscriptoDNI'
 });
 
 Pregunta.hasMany(SuscripcionesPregunta,{
-    as:'preguntaSuscripta',
+    as:'suscriptos',
     constraints:false,
     foreignKey:'preguntaID'
-})
+})*/
+
+Usuario.belongsToMany(Pregunta, { 
+    through: SuscripcionesPregunta,
+    constraints:false,
+    as: 'preguntasSuscriptas',
+    foreignKey:'suscriptoDNI'
+});
+
+Pregunta.belongsToMany(Usuario, { 
+    through: SuscripcionesPregunta,
+    constraints:false,
+    as:'suscriptos',
+    foreignKey:'preguntaID'
+});
 
 const Carrera = sequelize.define('carrera',{
     ID: {

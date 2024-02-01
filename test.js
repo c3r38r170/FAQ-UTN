@@ -231,7 +231,7 @@ describe('Express API Tests', () => {
   // Test: Update Answer (Expecting 403)
   it('patch - respuesta403', async () => {
     const response = await makeRequest('patch', '/api/respuesta', {
-      ID: 28,
+      ID: 2,
       cuerpo: 'holaaaaaaaaaa',
     });
 
@@ -266,10 +266,10 @@ describe('Express API Tests', () => {
     assert.strictEqual(response.status, 404);
   });
 
-  it('post - Suscripcion Pregunta 204', async () => {
-    const response = await makeRequest('post', '/api/pregunta/9/suscripcion');
+  it('delete - Suscripcion Pregunta 201', async () => {
+    const response = await makeRequest('delete', '/api/pregunta/9/suscripcion');
 
-    assert.strictEqual(response.status, 204);
+    assert.strictEqual(response.status, 201);
   });
 
   it('post - Suscripcion Etiqueta 404', async () => {
@@ -279,10 +279,10 @@ describe('Express API Tests', () => {
   });
 
 
-  it('post - Suscripcion Etiqueta 204', async () => {
-    const response = await makeRequest('post', '/api/etiqueta/2/suscripcion');
+  it('delete - Suscripcion Etiqueta 201', async () => {
+    const response = await makeRequest('delete', '/api/etiqueta/2/suscripcion');
 
-    assert.strictEqual(response.status, 204);
+    assert.strictEqual(response.status, 201);
   });
 
   it('post - Login 404', async () => {

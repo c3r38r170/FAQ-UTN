@@ -14,7 +14,7 @@ import {
 	, Etiqueta
 	, SuscripcionesEtiqueta
 	, Notificacion
-	,EtiquetasPregunta
+  , EtiquetasPregunta
 } from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar, moderarWithRetry} from "./ia.js";
@@ -442,6 +442,10 @@ router.post('/pregunta', function(req,res){
 				//asumo que vienen en el body en un array con los id (a chequear)
 				pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new Etiqueta({ID})));
 				
+				//Suscribe a su propia pregunta
+
+				pregunta.addSuscriptos(req.session.usuario.DNI);
+
 				//notificaciones
 				SuscripcionesEtiqueta.findAll({
 					attributes: ['suscriptoDNI'],
@@ -492,7 +496,10 @@ router.post('/respuesta', function(req,res){
 		}
 	
 		// TODO Refactor: Quizá sea más facil usar yield para esta parte, o ir devolviendo las premisas. O ambas cosas.
-		Pregunta.findByPk(req.body.IDPregunta,{include:Post})
+		Pregunta.findByPk(req.body.IDPregunta,
+			{
+				include:Post
+			})
 		.then(pregunta=>{
 			if(!pregunta){
 				res.status(404).send("Pregunta no encontrada / disponible")
@@ -516,11 +523,11 @@ router.post('/respuesta', function(req,res){
 						SuscripcionesPregunta.findAll({
 							where: {
 							  preguntaID: req.body.IDPregunta,
-							  fecha_baja: null
+							  fecha_baja: null,
+							  suscriptoDNI: { [Sequelize.Op.ne]: req.session.usuario.DNI} 
 							}
 						  }).then(suscripciones=>{
 							suscripciones.forEach(suscripcion => {
-								console.log(suscripcion);
 								Notificacion.create({
 									postNotificadoID:post.ID,
 									notificadoDNI:suscripcion.suscriptoDNI
@@ -640,6 +647,10 @@ const eliminarVoto=function(req,res) {
 		res.status(500).send(err);
 	})  
 };
+
+router.post('/pregunta/:votadoID/valoracion', valorarPost)
+
+router.delete('/pregunta/:votadoID/valoracion', eliminarVoto)
 
 
 router.post('/respuesta/:votadoID/valoracion', valorarPost)
@@ -893,12 +904,13 @@ router.delete('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 router.get('/notificaciones', function(req,res){
 	//ppregunta ajena es notificacion por etiqueta suscripta 
 	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
-	//respuesta propia es notificación por valoración
+	//respuesta o pregunta propia es notificación por valoración
 	if(!req.session.usuario){
 		res.status(403).send("No se posee sesión válida activa");
 		return;
 	}
 	Notificacion.findAll({
+		attributes: ['ID', 'visto', 'createdAt'],
 		order: [
 		  ['visto', 'ASC'],
 		  ['createdAt', 'DESC']
@@ -908,30 +920,23 @@ router.get('/notificaciones', function(req,res){
 		include: [
 		  {
 			model: Post,
+			attributes: ['ID', 'cuerpo'],
 			include: [
-			  	{ model: Usuario, as: 'duenio' }, 
-			  	{ model: Respuesta, as: 'respuesta', 
-					include: [
-						{ model: Pregunta, as: 'pregunta' } // Include Pregunta in Respuesta
-					],
-					required: false 
-				},  
-			  	{ model: Pregunta, as: 'pregunta', required: false } 
+			  { model: Usuario, as: 'duenio', attributes: ['DNI', 'nombre'] }, 
+			  { model: Respuesta, as: 'respuesta', 
+				include: [
+				  { model: Pregunta, as: 'pregunta', attributes: ['ID', 'titulo'] } // *Include Pregunta in Respuesta
+				],
+				required: false,
+				attributes: ['ID', 'preguntaID'] 
+			  },  
+			  { model: Pregunta, as: 'pregunta', required: false, attributes: ['ID', 'titulo'] } 
 			]
 		  }
 		],
 		where: {
-		  [Sequelize.Op.or]: [
-			{
-			  '$post.pregunta.ID$': { [Sequelize.Op.ne]: null },
-			  notificadoDNI: req.session.usuario.DNI
-			},
-			{
-			  '$post.pregunta.ID$': null, // Check if the post is not a question
-			  'notificadoDNI': { [Sequelize.Op.ne]: Sequelize.col('post.duenio.dni') },
-			  notificadoDNI: req.session.usuario.DNI
-			}
-		  ]
+		  //'$post.pregunta.ID$': { [Sequelize.Op.ne]: null }, // *Check if the post is a question
+		  notificadoDNI: req.session.usuario.DNI // *Filter by notificadoDNI matching user's DNI
 		},
 		raw: true,
 		nest: true
