@@ -308,7 +308,7 @@ footer#footer ul li a:hover {
 }
 #chip-valoracion button span {
   font-size: 2.6rem;
-  color: #383838;
+  color: #636363;
 }
 #chip-valoracion button#positiva:hover {
   opacity: 0.75;

@@ -116,7 +116,7 @@ router.get("/", async (req, res) =>  {
 		
 		let modal = new Modal('General','modal-general');
 		pagina.partes.push(modal);
-		pagina.partes.push(new Busqueda())
+		pagina.partes.push(new Busqueda(req.session))
 		for(let i=0; i < preguntas.length;i++){
 			pagina.partes.push(new Pregunta(preguntas[i].dataValues,modal));
 		}

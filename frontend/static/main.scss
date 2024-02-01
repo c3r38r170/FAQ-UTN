@@ -100,6 +100,7 @@ div#columna-principal{
 
 }
 
+
 div#breadcrumbs{
 	padding: 0 2rem;
 	margin-bottom: 2rem;
@@ -337,7 +338,7 @@ footer#footer{
 		cursor: pointer;
 		span{
 			font-size: 2.6rem;
-			color: $text;
+			color: $text-light;
 		}
 	}
 	button#positiva{

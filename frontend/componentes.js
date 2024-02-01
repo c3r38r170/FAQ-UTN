@@ -169,6 +169,8 @@ class Pagina {
 				  });
 				});
 			  });
+			  
+			
 			</script>
 		</body>
 </html>`;
@@ -181,12 +183,12 @@ class Encabezado {
   constructor(sesion) {
     if (sesion) {
       this.#posibleUsuario = new ChipUsuario(sesion);
-    }else{
+    }else{ 
 		this.#modal = new Modal('Login','modal-login');
 		let form = new Formulario('formularioSesion', 'http://localhost:8080/api/sesion', [
-			['DNI', 'DNI', { type: 'text' }],
-			['contrasenia', 'Contraseña', { type: 'password' }],
-		  ], this.procesarRespuesta, { textoEnviar: 'Iniciar Sesión' });
+		['DNI', 'D.N.I.', { type: 'text' }],
+		['contrasenia', 'Contraseña', { type: 'password' }],
+		], this.procesarRespuesta);
 		this.#modal.contenido.push(form);
 	}
 

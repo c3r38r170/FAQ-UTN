@@ -89,7 +89,7 @@ class Campo{
 		if(this.#value)
 			html+=` value="${this.#value}"`;
 			
-		return html+'/></label';
+		return html+'/></label>';
 	}
 }
 
