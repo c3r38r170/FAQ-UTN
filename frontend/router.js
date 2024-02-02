@@ -1,51 +1,24 @@
 import * as express from "express";
 import {Sequelize} from 'sequelize';
 const router = express.Router();
-/* 
-*/
-import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "../frontend/static/componentes/todos.js";
-import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
 
-/* import { Pagina, DesplazamientoInfinito } from "../frontend/componentes.js";
-import { Pregunta } from "../frontend/static/componentes/pregunta.js";
-import { ChipUsuario } from "../frontend/static/componentes/chipusuario.js";
-import { Busqueda  } from "../frontend/static/componentes/busqueda.js"
-import { Respuesta } from "../frontend/static/componentes/respuesta.js";
-import { Tabla } from "../frontend/static/componentes/tabla.js";
+import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "./static/componentes/todos.js";
 import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
-import { MensajeInterfaz } from "../frontend/static/componentes/mensajeInterfaz.js";
-import { Titulo } from "../frontend/static/componentes/titulo.js"
-import { Desplegable } from "../frontend/static/componentes/desplegable.js";
-import { Modal } from "../frontend/static/componentes/modal.js";
-//import { Formulario } from "../frontend/static/componentes/formulario.js";
-*/
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
-import { PaginaInicio, /* PaginaExplorar, */ } from '../frontend/static/pantallas/todas.js';
+import { PaginaInicio, /* PaginaExplorar, */ } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
-	// TODO Feature: query vs body
-	// TODO Refactor: agarrar el get de preguntas, y convertirlo en el metodo pagina.
 	if(req.query.filtrar){
 		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
 		let queryString = req.url.substring(req.url.indexOf('?'));
-		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor + mejor para el SEO.
 		PreguntaDAO.pagina(req.query)
-		// PreguntaDAO.pagina()
 		.then(pre=>{
 			
-				//let pagina=new Pagina({
-					// ruta: req.path,
-				//	titulo: "Inicio",
-				//	sesion: req.session.usuario,
-				// 	partes:PaginaInicio
-					
-				// });
-				// pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
-
 				let pagina=PaginaInicio(req.session.usuario,queryString);
 				pagina.partes[2]/* ! DesplazamientoIfinito */.entidadesIniciales=pre;
 
@@ -54,19 +27,6 @@ router.get("/", (req, res) => {
 	}else{ // * Inicio regular.
 		 PreguntaDAO.pagina()
 			.then(pre=>{ 
-			/* 	let pagina = new Pagina({
-					// ruta: req.path,
-					titulo: "Inicio",
-					sesion: req.session.usuario,
-				});
-
-				let modal = new Modal('General','modal-general');
-				pagina.partes.push(modal);
-				pagina.partes.push(
-					new Busqueda('Hola')
-					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>(new Pregunta(p,modal)).render(),pre)
-					) */
-
 				let pagina=PaginaInicio(req.session);
 				pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
@@ -76,9 +36,7 @@ router.get("/", (req, res) => {
 	}
 });
 
-
-
-
+// TODO Refactor: Borrar si no se usa.
 //Ruta que muestra todas las preguntas y respuestas
 // Falta implementar la paginación
  router.get("/inicio", async (req, res) =>  {
