@@ -472,7 +472,6 @@ Fuente: https://stackoverflow.com/questions/18838433/sequelize-find-based-on-ass
 */
 
 Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
-    
 	/*
 		1) Inicio: Pregunta y primera respuesta, ordenada por más recientes
 			Esto es la funcion .pagina().
