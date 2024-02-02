@@ -4,7 +4,7 @@ const router = express.Router();
 /* 
 */
 import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "../frontend/static/componentes/todos.js";
-import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
+import { Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
 
 /* import { Pagina, DesplazamientoInfinito } from "../frontend/componentes.js";
 import { Pregunta } from "../frontend/static/componentes/pregunta.js";
@@ -79,74 +79,7 @@ router.get("/", (req, res) => {
 
 
 
-//Ruta que muestra todas las preguntas y respuestas
-// Falta implementar la paginación
- router.get("/inicio", async (req, res) =>  {
-    try {
-        const preguntas = await PreguntaDAO.findAll({
-            include: [
-                {
-                    model: PostDAO,
-                    as: 'post',
-					include: [
-						{
-							model: UsuarioDAO,
-							as: 'duenio'
-						}
-					]
-                },
-                {
-                    model: RespuestaDAO,
-                    as: 'respuestas',
-					include: [
-						{
-							model: PostDAO,
-							as: 'post',
-							include: [
-								{
-									model: UsuarioDAO,
-									as: 'duenio'
-								}
-							]
-						}
-					],
-					order: [['createdAt', 'DESC']]
-                },
-				{
-					model: EtiquetaDAO,
-					as:'etiquetas'
-				}
-            ]
-        });
 
-        if (!preguntas || preguntas.length === 0) {
-            res.status(404).send('No se encontraron preguntas');
-            return;
-        }
-
-        let pagina = new Pagina({
-            ruta: req.path,
-            titulo: 'Inicio',
-            sesion: req.session.usuario
-        });
-
-		
-		let modal = new Modal('General','modal-general');
-		pagina.partes.push(modal);
-		pagina.partes.push(new Busqueda(req.session))
-		for(let i=0; i < preguntas.length;i++){
-			pagina.partes.push(new Pregunta(preguntas[i].dataValues,modal));
-		}
-
-        res.send(pagina.render());
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error interno del servidor');
-    }
-}); 
-
-
-/*
 router.get("/pregunta/:id?", (req, res) => {
 	if(req.params.id){
 		PreguntaDAO.findByPk(req.params.id,{
@@ -204,6 +137,78 @@ router.get("/pregunta/:id?", (req, res) => {
 	}
 });
 
+/*
+// Ruta que muestra 1 pregunta con sus respuestas
+router.get("/pregunta/:id?", async (req, res) =>  {
+    try {
+        const p = await PreguntaDAO.findByPk(req.params.id, {
+            //raw: true,
+            //plain: true,
+            //nest: true,
+            include: [
+                {
+                    model: PostDAO,
+                    as: 'post',
+					include: [
+						{
+							model: UsuarioDAO,
+							as: 'duenio'
+						}
+					]
+                },
+                {
+                    model: RespuestaDAO,
+                    as: 'respuestas',
+					include: [
+						{
+							model: PostDAO,
+							as: 'post',
+							include: [
+								{
+									model: UsuarioDAO,
+									as: 'duenio'
+								}
+							]
+						}
+					],
+					order: [['updatedAt', 'DESC']]
+                },
+				{
+					model: EtiquetasPreguntaDAO,
+					as:'etiquetas',
+					include:EtiquetaDAO
+				}
+            ]
+        });
+
+        if (!p) {
+            res.status(404).send('ID de pregunta inválida');
+            return;
+        }
+
+        let pagina = new Pagina({
+            ruta: req.path,
+            titulo: 'Post',
+            sesion: req.session.usuario
+        });
+
+		let modal = new Modal('General','modal-general');
+		pagina.partes.push(modal);
+
+        pagina.partes.push(
+            // TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
+            new Pregunta(p, modal)
+			
+            //,...p.respuestas.map(r=>new Respuesta(r))
+        );
+
+        res.send(pagina.render());
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error interno del servidor');
+    }
+});
+// TODO UX: ¿Qué habría en /administración? ¿Algunas stats con links? (reportes nuevos, usuarios nuevos, qsy)  Estaría bueno.
 */
 
 router.get("/suscripciones",(req,res)=>{
@@ -331,77 +336,8 @@ router.get("/perfil/info", (req, res) => {
   res.send(pagina.render());
 });
 
-// Ruta que muestra 1 pregunta con sus respuestas
-router.get("/pregunta/:id?", async (req, res) =>  {
-    try {
-        const p = await PreguntaDAO.findByPk(req.params.id, {
-            //raw: true,
-            //plain: true,
-            //nest: true,
-            include: [
-                {
-                    model: PostDAO,
-                    as: 'post',
-					include: [
-						{
-							model: UsuarioDAO,
-							as: 'duenio'
-						}
-					]
-                },
-                {
-                    model: RespuestaDAO,
-                    as: 'respuestas',
-					include: [
-						{
-							model: PostDAO,
-							as: 'post',
-							include: [
-								{
-									model: UsuarioDAO,
-									as: 'duenio'
-								}
-							]
-						}
-					],
-					order: [['updatedAt', 'DESC']]
-                },
-				{
-					model: EtiquetasPreguntaDAO,
-					as:'etiquetas',
-					include:EtiquetaDAO
-				}
-            ]
-        });
 
-        if (!p) {
-            res.status(404).send('ID de pregunta inválida');
-            return;
-        }
 
-        let pagina = new Pagina({
-            ruta: req.path,
-            titulo: 'Post',
-            sesion: req.session.usuario
-        });
-
-		let modal = new Modal('General','modal-general');
-		pagina.partes.push(modal);
-
-        pagina.partes.push(
-            // TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
-            new Pregunta(p, modal)
-			
-            //,...p.respuestas.map(r=>new Respuesta(r))
-        );
-
-        res.send(pagina.render());
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error interno del servidor');
-    }
-});
-// TODO UX: ¿Qué habría en /administración? ¿Algunas stats con links? (reportes nuevos, usuarios nuevos, qsy)  Estaría bueno.
 
 router.get('/administracion/usuarios',(req,res)=>{
 	let usu=req.session.usuario;

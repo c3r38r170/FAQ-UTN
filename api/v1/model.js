@@ -13,7 +13,8 @@ const sequelize = new Sequelize(
         ssl: {
           rejectUnauthorized: true,
         },
-      }
+      },
+      logging: false,
      }
    );
    /* new Sequelize('faqutn', 'root', 'password', {

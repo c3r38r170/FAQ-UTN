@@ -55,6 +55,7 @@ class Pagina {
      if(sesion){
 			// Notificaciones(sesion)
 			this.globales.usuarioActual=sesion;
+			console.log(sesion.usuario);
 		} 
   }
   render() {

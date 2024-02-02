@@ -10,7 +10,7 @@ class Navegacion{
             this.#usuario = sesion.usuario;
         } else {
             // Manejar el caso en el que sesion o sesion.usuario sea undefined
-            console.error("La sesión o el usuario no están definidos.");
+
         }
         
     }
@@ -42,7 +42,7 @@ class Navegacion{
                     </li>
                     <li>
                         <a id="link" src="./buscar">
-                            <i class="fa-solid fa-user mr-1"></i>
+                            <i class="fa-regular fa-user mr-1"></i>
                             Perfil
                         </a>
                     </li>
