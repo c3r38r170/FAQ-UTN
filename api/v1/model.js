@@ -241,7 +241,7 @@ const Voto = sequelize.define('voto', {
         autoIncrement: true
     },
     valoracion:{
-        type:DataTypes.BOOLEAN
+        type:DataTypes.INTEGER
     }
 })
 
@@ -768,6 +768,11 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
                                     ,attributes:['ID','nombre']
                                 }
                                 ,attributes:['DNI','nombre']
+                            },
+                            {
+                                model:Voto,
+                                as: 'votos',
+                                //TODO Feature: encontrar manera de traer solo la suma
                             }
                         ]
                     }

@@ -610,7 +610,7 @@ const valorarPost=function(req,res) {
 
 						Notificacion.create({
 							postNotificadoID:post.ID,
-							notificadoDNI:suscripcion.suscriptoDNI
+							notificadoDNI:post.duenioDNI
 						})
 						
 
@@ -657,14 +657,10 @@ const eliminarVoto=function(req,res) {
 	})  
 };
 
-router.post('/pregunta/:votadoID/valoracion', valorarPost)
+router.post('/post/:votadoID/valoracion', valorarPost)
 
-router.delete('/pregunta/:votadoID/valoracion', eliminarVoto)
+router.delete('/post/:votadoID/valoracion', eliminarVoto)
 
-
-router.post('/respuesta/:votadoID/valoracion', valorarPost)
-
-router.delete('/respuesta/:votadoID/valoracion', eliminarVoto)
 
 //reporte post
 
@@ -699,8 +695,7 @@ const reportarPost=function(req, res){
     })  
 };
 
-router.post('/pregunta/:reportadoID/reporte', reportarPost);
-router.post('/respuesta/:reportadoID/reporte', reportarPost);
+router.post('/post/:reportadoID/reporte', reportarPost);
 
 // TODO Refactor: Moderación de preguntas y respuestas deberían estar repartidas en router.patch('/pregunta') (la unificación) y router.delete('/(pregunta|respuesta))') (eliminación). Para esto hace falta meter bien el tema de los permisos.
 
