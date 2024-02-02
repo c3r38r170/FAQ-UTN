@@ -17,6 +17,7 @@ class DesplazamientoInfinito{
 		// TODO Feature: fallar si no se proveen los parámetros obligatorios. Aplicar a todfas las clases.
 		this.#id=id;
 		this.#endpoint=endpoint+(endpoint.includes('?')?'&':'?');
+		
 		this.#generadorDeComponentes=transformarRespuestaEnComponente;
 		this.entidadesIniciales=primerasEntidades;
 
@@ -27,7 +28,7 @@ class DesplazamientoInfinito{
 		let imagenAlcahuete=e.target;
 		let contenedor=imagenAlcahuete.closest('.desplazamiento-infinito');
 		// TODO Feature: Ver si tiene o no "?", y entonces poner "?" o "&". Quizá hacerlo en el constructor y tener algo como un this.#parametroPagina.  Mejor solución (aplicar a tabla): poner en el constructor de manera inteligente uno u otro, guardar la url con el parametro página, y simplemente hacer +(this.#pagina...);
-		let url=this.#endpoint+`pagina=${this.pagina-1}`;
+		let url=this.#endpoint+(this.#endpoint.includes('?')?"&":"?")+`pagina=${this.pagina-1}`;
 		this.pagina++;
 
 		fetch(url,{

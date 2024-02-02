@@ -48,7 +48,7 @@ class Pregunta{
                 </a>
                 <div id="cuerpo">${this.#cuerpo}</div>
                 <div class="etiquetas">
-                ${this.#etiquetas ? this.#etiquetas.map(e=> new Etiqueta(e).render()).join('') : ''}
+                ${this.#etiquetas ? this.#etiquetas.map(e=>new Etiqueta(e.etiquetum).render()).join('') : ''}
                 </div>
                 <div class="cantRespuestas">${this.#respuestas.length > 0 ? this.#respuestas.length + ' Respuestas' : ''}</div>
                 ${ this.#respuestas.map((r) => new Respuesta(r,this.#instanciaModal).render()).join("") }

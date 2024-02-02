@@ -55,6 +55,7 @@ class Pagina {
      if(sesion){
 			// Notificaciones(sesion)
 			this.globales.usuarioActual=sesion;
+			console.log(sesion.usuario);
 		} 
   }
   render() {
@@ -180,15 +181,19 @@ class Pagina {
 class Encabezado {
 	#modal;
   #posibleUsuario;
+  #posibleForm
   constructor(sesion) {
     if (sesion && sesion.usuario) {
-      this.#posibleUsuario = new ChipUsuario(sesion.usuario);
+      	this.#posibleUsuario = new ChipUsuario(sesion.usuario);
+		this.#posibleForm = new Formulario('formularioCerrarSesion', 'http://localhost:8080/api/sesion', [],
+		this.procesarRespuesta.bind(this),  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE'},'is-link is-light is-small');
+
     }else{ 
-		this.#modal = new Modal('Login','modal-login');
+		this.#modal = new Modal('Ingresar','modal-login');
 		let form = new Formulario('formularioSesion', 'http://localhost:8080/api/sesion', [
 		['DNI', 'D.N.I.', { type: 'text' }],
 		['contrasenia', 'Contraseña', { type: 'password' }],
-		], this.procesarRespuesta.bind(this),  {textoEnviar:'Ingresar',verbo: 'POST'});
+		], this.procesarRespuesta.bind(this),  {textoEnviar:'Ingresar',verbo: 'POST'},'is-primary mt-3');
 		this.#modal.contenido.push(form);
 	}
 
@@ -214,7 +219,8 @@ class Encabezado {
 			// ACOMODAR EL TEMA DEL MODAL DE LOGIN
       	this.#posibleUsuario ? (
 			this.#posibleUsuario.render()
-			+ new Boton({titulo: 'Cerrar Sesión', classes: 'button is-link is-inverted is-small'}).render()
+			//+ new Boton({titulo: 'Cerrar Sesión', classes: 'button is-link is-inverted is-small'}).render()
+		    + this.#posibleForm.render()
 			): (
        	new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
 		+ this.#modal.render() 
