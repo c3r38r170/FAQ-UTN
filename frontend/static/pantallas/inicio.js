@@ -16,6 +16,7 @@ function crearPagina(sesion,queryString=''){
 				,'/api/pregunta'+queryString
 				,p=>(new Pregunta(p,modal)).render()
 			)
+			
 		]
 	});
 }

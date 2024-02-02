@@ -40,16 +40,6 @@ router.get("/", (req, res) => {
 		PreguntaDAO.pagina(filtros)
 		// PreguntaDAO.pagina()
 		.then(pre=>{
-			
-				//let pagina=new Pagina({
-					// ruta: req.path,
-				//	titulo: "Inicio",
-				//	sesion: req.session.usuario,
-				// 	partes:PaginaInicio
-					
-				// });
-				// pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
-
 				let pagina=PaginaInicio(req.session.usuario, queryString);
 				pagina.partes[2]/* ! DesplazamientoIfinito */.entidadesIniciales=pre;
 
@@ -58,19 +48,6 @@ router.get("/", (req, res) => {
 	}else{ // * Inicio regular.
 		 PreguntaDAO.pagina()
 			.then(pre=>{ 
-			/* 	let pagina = new Pagina({
-					// ruta: req.path,
-					titulo: "Inicio",
-					sesion: req.session.usuario,
-				});
-
-				let modal = new Modal('General','modal-general');
-				pagina.partes.push(modal);
-				pagina.partes.push(
-					new Busqueda('Hola')
-					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>(new Pregunta(p,modal)).render(),pre)
-					) */
-
 				let pagina=PaginaInicio(req.session);
 				pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
@@ -109,15 +86,17 @@ router.get("/pregunta/:id?", (req, res) => {
 					res.status(404).send('ID de pregunta inválida');
 					return;
 				}
+				let modal = new Modal('General','modal-general');
 				let pagina=new Pagina({
 					ruta:req.path
-					,titulo:pregunta.titulo
+					,titulo: 'Post'
 					,sesion:req.session.usuario
 					,partes:[
+						modal,
 						// TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
 						
-						new Pregunta(pregunta)
-						,...pregunta.respuesta.map(r=>new Respuesta(r))
+						new Pregunta(pregunta,modal)
+					//,...pregunta.respuesta.map(r=>new Respuesta(r))
 						// TODO Feature: si está logueado, campo de hacer una respuesta
 						]
 				});
