@@ -29,11 +29,15 @@ router.get("/", (req, res) => {
 	// ! req.path es ''
 	// TODO Feature: query vs body
 	// TODO Refactor: agarrar el get de preguntas, y convertirlo en el metodo pagina.
-	if(req.query.filtrar){
+	if(req.query.searchInput){
 		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
 		let queryString = req.url.substring(req.url.indexOf('?'));
+		let filtro=[];
+		filtro.texto=req.query.searchInput;
+		let filtros={filtrar:filtro};
+		
 		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-		PreguntaDAO.pagina(req.query)
+		PreguntaDAO.pagina(filtros)
 		// PreguntaDAO.pagina()
 		.then(pre=>{
 			
@@ -46,7 +50,7 @@ router.get("/", (req, res) => {
 				// });
 				// pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
-				let pagina=PaginaInicio(req.session.usuario,queryString);
+				let pagina=PaginaInicio(req.session.usuario, queryString);
 				pagina.partes[2]/* ! DesplazamientoIfinito */.entidadesIniciales=pre;
 
 				res.send(pagina.render());

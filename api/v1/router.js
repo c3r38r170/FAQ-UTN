@@ -192,8 +192,17 @@ router.get('/pregunta',(req,res)=>{
 	// TODO Feature: Aceptar etiquetas y filtro de texto. https://masteringjs.io/tutorials/express/query-parameters
 
 		// console.log(opciones);
-
-		Pregunta.pagina(req.query)
+		let filtros={pagina:null,filtrar:[]};
+		
+		if(req.query.pagina){
+			filtros.pagina=req.query.pagina;
+		}
+		if(req.query.searchInput)
+		{
+			filtros.filtrar.texto=req.query.searchInput;
+		}
+		console.log(filtros);
+		Pregunta.pagina(filtros)
 		// Pregunta.findAll(opciones)
 			.then(preguntas=>{
 				res.status(200).send(preguntas)
