@@ -67,6 +67,8 @@ class Pagina {
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>FAQ UTN - ${this.#titulo}</title>
 
+		<script src="scripts/visibilizar-clases.js" type="module" async></script>
+		
 		<script>${Object.entries(this.globales)
       .map(([k, v]) => `var ${k} = ${JSON.stringify(v)}`)
       .join(";")}</script>
@@ -75,9 +77,9 @@ class Pagina {
 		<script src="/main.js" type=module></script>
 		<link rel="stylesheet" href="/main.css">
 
-		<script src="scripts/visibilizar-clases.js" type="module"></script>
 		<script src="scripts/${this.#ruta + ".js" }" type="module"></script>
 		<link rel="stylesheet" href="styles/${this.#ruta + ".css"}">
+		
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
 	</head>

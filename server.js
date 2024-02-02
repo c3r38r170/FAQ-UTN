@@ -31,7 +31,13 @@ app.use(cors({
 	else res.status(401).send('Inicie sesión.');
 }) */
 
-import {router as rutas} from './rutas/todas.js';
+const rutas = express.Router();
+
+import {router as apiRouter} from './api/v1/router.js';
+import {router as frontendRouter} from './frontend/router.js';
+
+rutas.use('/api', apiRouter);
+rutas.use('/', frontendRouter);
 
 app.use(rutas);
 

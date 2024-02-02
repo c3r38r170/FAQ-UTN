@@ -6,24 +6,10 @@ const router = express.Router();
 import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "../frontend/static/componentes/todos.js";
 import { Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
 
-/* import { Pagina, DesplazamientoInfinito } from "../frontend/componentes.js";
-import { Pregunta } from "../frontend/static/componentes/pregunta.js";
-import { ChipUsuario } from "../frontend/static/componentes/chipusuario.js";
-import { Busqueda  } from "../frontend/static/componentes/busqueda.js"
-import { Respuesta } from "../frontend/static/componentes/respuesta.js";
-import { Tabla } from "../frontend/static/componentes/tabla.js";
-import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
-import { MensajeInterfaz } from "../frontend/static/componentes/mensajeInterfaz.js";
-import { Titulo } from "../frontend/static/componentes/titulo.js"
-import { Desplegable } from "../frontend/static/componentes/desplegable.js";
-import { Modal } from "../frontend/static/componentes/modal.js";
-//import { Formulario } from "../frontend/static/componentes/formulario.js";
-*/
-
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
-import { PaginaInicio, /* PaginaExplorar, */ } from '../frontend/static/pantallas/todas.js';
+import { PaginaInicio, /* PaginaExplorar, */ } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
 	// ! req.path es ''

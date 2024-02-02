@@ -10,7 +10,6 @@ function crearPagina(sesion,queryString=''){
 		partes:[
 			modal,
 			new Busqueda('Hola')
-			// ! Mandar los primeros resultados para el SEO.
 			,new DesplazamientoInfinito(
 				'inicio-preguntas'
 				,'/api/pregunta'+queryString
