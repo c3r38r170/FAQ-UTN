@@ -13,10 +13,6 @@ import { PaginaInicio, /* PaginaExplorar, */ } from './static/pantallas/todas.js
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
 	// TODO Feature: query vs body
 	if(req.query.searchInput){
 		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
@@ -46,67 +42,6 @@ router.get("/", (req, res) => {
 	}
 });
 
-
-router.get("/pregunta/:id?", (req, res) => {
-	if(req.params.id){
-		PreguntaDAO.findByPk(req.params.id,{
-			include: [
-			  {
-				model: RespuestaDAO,
-				as: 'respuestas',
-				include: [
-				  {
-					model: PostDAO,
-					include:[{model:UsuarioDAO, as:'duenio'}]
-				  }
-				]
-			  },
-			  {
-				model: PostDAO,
-				include:[{model:UsuarioDAO, as: 'duenio'}] 
-			  }
-			]
-		  })
-			.then(pregunta=>{
-				if(!pregunta){
-					res.status(404).send('ID de pregunta inválida');
-					return;
-				}
-				let modal = new Modal('General','modal-general');
-				let pagina=new Pagina({
-					ruta:req.path
-					,titulo: 'Post'
-					,sesion:req.session.usuario
-					,partes:[
-						modal,
-						// TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
-						
-						new Pregunta(pregunta,modal)
-					//,...pregunta.respuesta.map(r=>new Respuesta(r))
-						// TODO Feature: si está logueado, campo de hacer una respuesta
-						]
-				});
-				res.send(pagina.render());
-			})
-	}else{ // * Nueva pregunta.
-		let pagina=new Pagina({
-			ruta:req.path
-			,titulo:p.titulo
-			,sesion:req.session.usuario
-			,partes:[
-				// TODO Feature: Formulario de creación de preguntas 
-				// Campo de Título. Tiene que sugerir preguntar relacionadas. 
-				// Campo de etiquetas. Se deben obtener las etiquetas, mostrarlas, permitir elegirlas.
-				// Campo de cuerpo. Texto largo con un máximo y ya.
-				// Las sugerencias pueden ser un panel abajo, o abajo del título... que se vaya actualizando a medida que se escribe el cuerpo.
-				// Botón de crear pregunta. Se bloquea, si hay un error salta cartel (como por moderación), si no lleva a la página de la pregunta. Reemplaza, así volver para atrás va al inicio y no a la creación de preguntas.
-			]
-		});
-		res.send(pagina.render());
-	}
-});
-
-/*
 
 // Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) =>  {
@@ -159,7 +94,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 
         let pagina = new Pagina({
             ruta: req.path,
-            titulo: /* 'Post' */p.titulo, 
+            titulo: p.titulo, 
             sesion: req.session
         });
 
