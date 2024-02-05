@@ -3,27 +3,13 @@ import {Sequelize} from 'sequelize';
 const router = express.Router();
 /* 
 */
-import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "../frontend/static/componentes/todos.js";
+import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "./static/componentes/todos.js";
 import { Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
-
-/* import { Pagina, DesplazamientoInfinito } from "../frontend/componentes.js";
-import { Pregunta } from "../frontend/static/componentes/pregunta.js";
-import { ChipUsuario } from "../frontend/static/componentes/chipusuario.js";
-import { Busqueda  } from "../frontend/static/componentes/busqueda.js"
-import { Respuesta } from "../frontend/static/componentes/respuesta.js";
-import { Tabla } from "../frontend/static/componentes/tabla.js";
-import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
-import { MensajeInterfaz } from "../frontend/static/componentes/mensajeInterfaz.js";
-import { Titulo } from "../frontend/static/componentes/titulo.js"
-import { Desplegable } from "../frontend/static/componentes/desplegable.js";
-import { Modal } from "../frontend/static/componentes/modal.js";
-//import { Formulario } from "../frontend/static/componentes/formulario.js";
-*/
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
-import { PaginaInicio, /* PaginaExplorar, */ } from '../frontend/static/pantallas/todas.js';
+import { PaginaInicio, /* PaginaExplorar, */ } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
@@ -38,39 +24,15 @@ router.get("/", (req, res) => {
 		
 		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
 		PreguntaDAO.pagina(filtros)
-		// PreguntaDAO.pagina()
-		.then(pre=>{
-			
-				//let pagina=new Pagina({
-					// ruta: req.path,
-				//	titulo: "Inicio",
-				//	sesion: req.session.usuario,
-				// 	partes:PaginaInicio
-					
-				// });
-				// pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
+			.then(pre=>{
+					let pagina=PaginaInicio(req.session.usuario, queryString);
+					pagina.partes[2]/* ! DesplazamientoIfinito */.entidadesIniciales=pre;
 
-				let pagina=PaginaInicio(req.session.usuario, queryString);
-				pagina.partes[2]/* ! DesplazamientoIfinito */.entidadesIniciales=pre;
-
-				res.send(pagina.render());
-			})
+					res.send(pagina.render());
+				});
 	}else{ // * Inicio regular.
 		 PreguntaDAO.pagina()
 			.then(pre=>{ 
-			/* 	let pagina = new Pagina({
-					// ruta: req.path,
-					titulo: "Inicio",
-					sesion: req.session.usuario,
-				});
-
-				let modal = new Modal('General','modal-general');
-				pagina.partes.push(modal);
-				pagina.partes.push(
-					new Busqueda('Hola')
-					,new DesplazamientoInfinito('inicio-preguntas','/api/v1/preguntas',p=>(new Pregunta(p,modal)).render(),pre)
-					) */
-
 				let pagina=PaginaInicio(req.session);
 				pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
@@ -79,10 +41,6 @@ router.get("/", (req, res) => {
 			// TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
 	}
 });
-
-
-
-
 
 router.get("/pregunta/:id?", (req, res) => {
 	if(req.params.id){
@@ -141,7 +99,7 @@ router.get("/pregunta/:id?", (req, res) => {
 	}
 });
 
-/*
+
 // Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) =>  {
     try {
@@ -153,12 +111,12 @@ router.get("/pregunta/:id?", async (req, res) =>  {
                 {
                     model: PostDAO,
                     as: 'post',
-					include: [
-						{
-							model: UsuarioDAO,
-							as: 'duenio'
-						}
-					]
+										include: [
+											{
+												model: UsuarioDAO,
+												as: 'duenio'
+											}
+										]
                 },
                 {
                     model: RespuestaDAO,
@@ -202,8 +160,10 @@ router.get("/pregunta/:id?", async (req, res) =>  {
         pagina.partes.push(
             // TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
             new Pregunta(p, modal)
-			
+						// TODO Feature: Considerar traer directamente todas las respuestas, en vez de paginarlas.
+					// DesplazamientoInfinito de respuestas; sin fin de mensaje
             //,...p.respuestas.map(r=>new Respuesta(r))
+						// Formulario de respuesta
         );
 
         res.send(pagina.render());
@@ -213,7 +173,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
     }
 });
 // TODO UX: ¿Qué habría en /administración? ¿Algunas stats con links? (reportes nuevos, usuarios nuevos, qsy)  Estaría bueno.
-*/
+
 
 router.get("/suscripciones",(req,res)=>{
 	

@@ -31,6 +31,7 @@ class Pregunta{
 
             
         }
+        // TODO Feature: fallar en el else
 	}
 
 	render(){      

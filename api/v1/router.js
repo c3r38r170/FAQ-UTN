@@ -370,6 +370,7 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 		console.log(err);
         res.status(500).send(err);
     })  
+		// TODO Refactor: ahorrar el callback hell, acá y en todos lados.
 })
 
 router.delete('/pregunta/:preguntaID/suscripcion', function(req,res){
@@ -910,7 +911,7 @@ router.delete('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 
 //notificaciones
 
-router.get('/notificaciones', function(req,res){
+router.get('/notificacion', function(req,res){
 	//ppregunta ajena es notificacion por etiqueta suscripta 
 	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
 	//respuesta o pregunta propia es notificación por valoración
@@ -955,6 +956,42 @@ router.get('/notificaciones', function(req,res){
 		console.log(err);
 		res.status(500).send(err);
 	})
+});
+
+router.patch('/notificacion',function(req,res){
+	if(!req.session.usuario){
+		res.status(402).send();
+		return;
+	}
+
+	let notificacionID=req.body.ID;
+	
+	if(!notificacionID){
+		res.status(400).send();
+		return;
+	}
+
+	Notificacion.findByPk(notificacionID)
+		.then(notificacion=>{
+			if(!notificacion){
+				res.status(404).send();
+				return;
+			}
+
+			if(notificacion.notificadoDNI!=req.session.usuario.DNI){
+				res.status(403).send();
+				return;
+			}
+
+			notificacion.visto=true;
+			return notificacion.save();
+		})
+		.then(()=>{
+			res.status(200).send();
+		})
+		.catch(err=>{
+			res.status(500).send(err);
+		})
 })
 
 /* router.get('/',(req,res)=>{

@@ -472,6 +472,7 @@ Fuente: https://stackoverflow.com/questions/18838433/sequelize-find-based-on-ass
 */
 
 Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
+    // TODO Feature: NO traer la primera respuesta. Por otro lado, sí traer la _cantidad_ de respuestas. https://stackoverflow.com/questions/56149251/node-js-sequelize-virtual-column-pulling-value-from-other-model
 	/*
 		1) Inicio: Pregunta y primera respuesta, ordenada por más recientes
 			Esto es la funcion .pagina().
