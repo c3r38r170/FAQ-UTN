@@ -64,7 +64,7 @@ class DesplazamientoInfinito{
 		}else{
 			// TODO UX: Un loading GIF que no de asco. Y que pegue con el resto.
 			html+=`<div class="loading">`
-			html+=`<img loading="lazy" src="/loading.gif" onload="if(DesplazamientoInfinito)DesplazamientoInfinito.instancias['${this.#id}'].navegar(event);else setTimeout(()=>this.src='/loading.gif?'+Math.random(),1000)">`;
+			html+=`<img loading="lazy" src="/loading.gif" onload="if(window.DesplazamientoInfinito)DesplazamientoInfinito.instancias['${this.#id}'].navegar(event);else setTimeout(()=>this.src='/loading.gif?'+Math.random(),1000)">`;
 			html+=`</div>`
 		}
 

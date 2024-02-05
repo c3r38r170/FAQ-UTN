@@ -92,6 +92,7 @@ class Pagina {
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
+				<!-- TODO UX: Hacer Titulo -->
 				<div id="titulo-principal" class="title is-5">${this.#titulo}</div>
 				${this.partes.map((p) => p.render()).join("")}
 				

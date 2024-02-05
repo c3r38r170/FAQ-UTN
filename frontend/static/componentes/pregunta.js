@@ -19,7 +19,8 @@ class Pregunta{
 
 	constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas},instanciaModal, usuarioActual){
 
-        if (titulo && cuerpo && fecha) {
+        // TODO Feature: Pensar condiciones de fallo de creación. Considerar que puede venir sin cuerpo (formato corto) o sin título (/pregunta, quitado "artificialmente")
+        // if (titulo && cuerpo && fecha) {
             this.#titulo = titulo;
             this.#cuerpo = cuerpo;
             this.#fecha = new Fecha(fecha)
@@ -32,11 +33,11 @@ class Pregunta{
             this.#usuarioActual=usuarioActual;
 
             
-        }
+        // }
         // TODO Feature: fallar en el else
 	}
 
-	render(){      
+	render(){
         return`
             <div class="pregunta">
                 <div class="encabezado">
