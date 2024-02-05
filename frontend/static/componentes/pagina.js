@@ -7,6 +7,7 @@ import { Notificacion } from "./notificacion.js";
 import { Formulario } from './formulario.js';
 import { ChipUsuario } from './todos.js'
 
+// TODO Refactor: Cambiar a Pantalla. Colisiona con el concepto de página de los modelos.
 class Pagina {
 	// TODO Refactor: ¿No debería ser un string?
   #ruta=''/*  = {

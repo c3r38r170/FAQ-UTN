@@ -9,6 +9,7 @@ class Breadcrumb{
             throw new Error('El parámetro "ruta" debe ser una cadena (string).');
         }
 		this.#ruta = ruta;
+        //TODO Feature: / es index en Pagina, pero acá debería estar solo.
         this.#crumbs = this.generarBreadcrumb();
     }
 
