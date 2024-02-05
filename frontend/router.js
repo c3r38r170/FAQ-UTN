@@ -3,7 +3,7 @@ import {Sequelize} from 'sequelize';
 const router = express.Router();
 /* 
 */
-import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "../frontend/static/componentes/todos.js";
+import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "./static/componentes/todos.js";
 import { Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
@@ -13,8 +13,11 @@ import { PaginaInicio, /* PaginaExplorar, */ } from './static/pantallas/todas.js
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 	// TODO Feature: query vs body
-	// TODO Refactor: agarrar el get de preguntas, y convertirlo en el metodo pagina.
 	if(req.query.searchInput){
 		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
 		let queryString = req.url.substring(req.url.indexOf('?'));
@@ -24,13 +27,13 @@ router.get("/", (req, res) => {
 		
 		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
 		PreguntaDAO.pagina(filtros)
-		// PreguntaDAO.pagina()
-		.then(pre=>{
-				let pagina=PaginaInicio(req.session.usuario, queryString);
-				pagina.partes[2]/* ! DesplazamientoIfinito */.entidadesIniciales=pre;
 
-				res.send(pagina.render());
-			})
+			.then(pre=>{
+					let pagina=PaginaInicio(req.session, queryString);
+					pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
+
+					res.send(pagina.render());
+				});
 	}else{ // * Inicio regular.
 		 PreguntaDAO.pagina()
 			.then(pre=>{ 
@@ -42,9 +45,6 @@ router.get("/", (req, res) => {
 			// TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
 	}
 });
-
-
-
 
 
 router.get("/pregunta/:id?", (req, res) => {
@@ -107,9 +107,11 @@ router.get("/pregunta/:id?", (req, res) => {
 });
 
 /*
+
 // Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) =>  {
     try {
+			if(req.params.id){
         const p = await PreguntaDAO.findByPk(req.params.id, {
             //raw: true,
             //plain: true,
@@ -118,12 +120,12 @@ router.get("/pregunta/:id?", async (req, res) =>  {
                 {
                     model: PostDAO,
                     as: 'post',
-					include: [
-						{
-							model: UsuarioDAO,
-							as: 'duenio'
-						}
-					]
+										include: [
+											{
+												model: UsuarioDAO,
+												as: 'duenio'
+											}
+										]
                 },
                 {
                     model: RespuestaDAO,
@@ -157,9 +159,11 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 
         let pagina = new Pagina({
             ruta: req.path,
-            titulo: 'Post',
-            sesion: req.session.usuario
+            titulo: /* 'Post' */p.titulo, 
+            sesion: req.session
         });
+
+				p.titulo='';
 
 		let modal = new Modal('General','modal-general');
 		pagina.partes.push(modal);
@@ -167,18 +171,36 @@ router.get("/pregunta/:id?", async (req, res) =>  {
         pagina.partes.push(
             // TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
             new Pregunta(p, modal)
-			
+						// TODO Feature: Considerar traer directamente todas las respuestas, en vez de paginarlas.
+					// DesplazamientoInfinito de respuestas; sin fin de mensaje
             //,...p.respuestas.map(r=>new Respuesta(r))
+						// Formulario de respuesta
         );
 
         res.send(pagina.render());
+			}else{ // * Nueva pregunta.
+				let pagina=new Pagina({
+					ruta:req.path
+					,titulo:p.titulo
+					,sesion:req.session
+					,partes:[
+						// TODO Feature: Formulario de creación de preguntas 
+						// Campo de Título. Tiene que sugerir preguntar relacionadas. 
+						// Campo de etiquetas. Se deben obtener las etiquetas, mostrarlas, permitir elegirlas.
+						// Campo de cuerpo. Texto largo con un máximo y ya.
+						// Las sugerencias pueden ser un panel abajo, o abajo del título... que se vaya actualizando a medida que se escribe el cuerpo.
+						// Botón de crear pregunta. Se bloquea, si hay un error salta cartel (como por moderación), si no lleva a la página de la pregunta. Reemplaza, así volver para atrás va al inicio y no a la creación de preguntas.
+					]
+				});
+				res.send(pagina.render());
+			}
     } catch (error) {
         console.error(error);
         res.status(500).send('Error interno del servidor');
     }
 });
 // TODO UX: ¿Qué habría en /administración? ¿Algunas stats con links? (reportes nuevos, usuarios nuevos, qsy)  Estaría bueno.
-*/
+
 
 router.get("/suscripciones",(req,res)=>{
 	
@@ -201,7 +223,7 @@ router.get("/suscripciones",(req,res)=>{
 			let pagina=new Pagina({
 				ruta:req.path
 				,titulo:p.titulo
-				,sesion:req.session.usuario
+				,sesion:req.session
 				// TODO Feature: endpoint de preguntas por suscripción
 				,partes:new DesplazamientoInfinito(
 					'suscripciones-desplinf',
@@ -246,11 +268,11 @@ router.get("/perfil/:id?", (req, res) => {
 		// TODO Feature: Quizá haya que pasar 'perfil' nomás
     ruta: req.path,
     titulo: 'Perfil de '+usu.nombre,
-    sesion: req.session.usuario,
+    sesion: req.session,
 		partes:[
 			new DesplazamientoInfinito(
 				'perfil-desplinf'
-				,`/api/v1/usuario/${usu.DNI}/posts`
+				,`/api/usuario/${usu.DNI}/posts`
 				,p=>{
 					return p.pregunta?
 						new Pregunta(p.pregunta)
@@ -292,7 +314,7 @@ router.get("/perfil/info", (req, res) => {
   let pagina = new Pagina({
     ruta: req.path,
     titulo: 'Perfil de '+usu.nombreCompleto+' - Información',
-    sesion: usu /* req.session.usuario */,
+    sesion: req.session,
 		partes:[
 			// Título('Información básica' (,nivel?(h2,h3...)) )
 			// CampoImagen(usu.id) // Editable
@@ -346,7 +368,7 @@ router.get('/administracion/usuarios',(req,res)=>{
   let pagina = new Pagina({
     ruta: req.path,
     titulo: 'Administración - Usuarios Reportados',
-    sesion: usu /* req.session.usuario */,
+    sesion: req.session,
 		partes:[
 			// Título('Usuarios Reportados' (,nivel?(h2,h3...)) )
 			// Filtro de usuarios, busca por DNI. legajo y nombre.
@@ -386,14 +408,14 @@ router.get('/perfil/preguntas',(req, res) => {
   let pagina = new Pagina({
     ruta: req.path,
     titulo: 'Perfil de '+usu.nombreCompleto+' - Preguntas',
-    sesion: usu /* req.session.usuario */,
+    sesion: req.session,
 		partes:[
 			// Título('Tus preguntas' (,nivel?(h2,h3...)) )
 			// ChipUsuario() // Solo imagen y nombre; (O) Jhon Dow
 			
 			new DesplazamientoInfinito(
 				'perfil-desplinf'
-				,`/api/v1/usuario/${usu.DNI}/preguntas`
+				,`/api/usuario/${usu.DNI}/preguntas`
 				,p=>new Pregunta(p.pregunta) // Sin chip de usuario, con botones de editar y borrar, con cantidad de respuestas...
 			)
 		]
@@ -416,13 +438,13 @@ router.get('/perfil/respuestas',(req, res) => {
   let pagina = new Pagina({
     ruta: req.path,
     titulo: 'Perfil de '+usu.nombreCompleto+' - Respuestas',
-    sesion: usu /* req.session.usuario */,
+    sesion: req.session,
 		partes:[
 			// Título('Tus Respuestas' (,nivel?(h2,h3...)) )
 			// ChipUsuario() // Solo imagen y nombre; (O) Jhon Dow
 			new DesplazamientoInfinito(
 				'perfil-desplinf'
-				,`/api/v1/usuario/${usu.DNI}/respuestas`
+				,`/api/usuario/${usu.DNI}/respuestas`
 				,p=>new Respuesta(p.respuesta) // Sin chip de usuario, con botones de editar y borrar, con cantidad de respuestas...
 			)
 			// TODO UX: Ver la pregunta (titulo nomás). Que la respuesta sea un link a la pregunta.
@@ -460,7 +482,7 @@ router.get("/explorar", (req, res) => {
 	let pagina = new Pagina({
 	  ruta: req.path,
 	  titulo: "Explorar",
-	  sesion: req.session.usuario,
+	  sesion: req.session,
 	});
 	pagina.partes.push(new Busqueda())
 	res.send(pagina.render());
@@ -474,7 +496,7 @@ router.get("/explorar", (req, res) => {
 		let pagina = new Pagina({
             ruta: req.path,
             titulo: 'Prueba de Formulario',
-            sesion: req.session.usuario
+            sesion: req.session
         });
 
 		
