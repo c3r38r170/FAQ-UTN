@@ -906,6 +906,7 @@ router.delete('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 
 //notificaciones
 
+// TODO Refactor: Minimizar datos que envia este endpoint.
 router.get('/notificacion', function(req,res){
 	//ppregunta ajena es notificacion por etiqueta suscripta 
 	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
@@ -921,11 +922,12 @@ router.get('/notificacion', function(req,res){
 		  ['createdAt', 'DESC']
 		],
 		limit: PAGINACION.resultadosPorPagina,
-		offset: (+req.body.pagina) * PAGINACION.resultadosPorPagina,
+		offset: (+req.query.pagina) * PAGINACION.resultadosPorPagina,
 		include: [
 		  {
 			model: Post,
 			attributes: ['ID', 'cuerpo'],
+			required:true,
 			include: [
 			  { model: Usuario, as: 'duenio', attributes: ['DNI', 'nombre'] }, 
 			  { model: Respuesta, as: 'respuesta', 
@@ -950,7 +952,7 @@ router.get('/notificacion', function(req,res){
 	}).catch(err=>{
 		console.log(err);
 		res.status(500).send(err);
-	})
+	});
 });
 
 router.patch('/notificacion',function(req,res){

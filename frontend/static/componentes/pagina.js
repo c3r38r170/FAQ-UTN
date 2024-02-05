@@ -1,12 +1,13 @@
-// TODO Feature: Tirar errores en los constructores con parámetros necesarios 
+// TODO Refactor: Chupar todo de todos.js
 import { Modal } from "./modal.js";
 import { Boton } from "./boton.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { Navegacion } from "./navegacion.js";
 import { Notificacion } from "./notificacion.js";
 import { Formulario } from './formulario.js';
-import { ChipUsuario } from './todos.js'
+import { ChipUsuario,DesplazamientoInfinito,Titulo } from './todos.js'
 
+// TODO Feature: Tirar errores en los constructores con parámetros necesarios 
 // TODO Refactor: Cambiar a Pantalla. Colisiona con el concepto de página de los modelos.
 class Pagina {
 	// TODO Refactor: ¿No debería ser un string?
@@ -18,29 +19,20 @@ class Pagina {
   };
   #sesion;
   partes = [];
+	columnaNotificaciones=[];
 	// * Globales para el JS del frontend
   globales = {};
 	/* ! Notificaciones:{
-		usuario:Usuario
 		post:Pregunta|Respuesta
+			post.duenio: Usuario
+			post.ID: integer
 		// Dependiendo del tipo de post, y de quien es, el texto de la notificación. Ejemplos: "Nueva respuesta en tu pregunta {titulo}", "Nueva pregunta sobre {etiqueta suscrita". "Nueva respuesta en la pregunta {pregunta suscrita}". Preferentemente podrían tener una pequeña preview sobre el contenido del post.
 		visto:boolean
 	} */
-  #notificaciones = [
-    { notificacion: "mesas de examen" },
-    {
-      notificacion:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry",
-    },
-    { notificacion: "XXXXXXX ha valorado tu respuesta" },
-    {
-      notificacion:
-        "asdfasdflasdkfhjakslLorem Ipsum is simply dummy text of the printing and typesetting industry",
-    },
-  ];
   #encabezado;
 
-  constructor({ ruta='index', titulo, sesion ,partes=[]}) {
+	// TODO Refactor: Usar usuarioActual (o usuarioDeSesion) (sesion.usuario) en vez de sesion.
+  constructor({ ruta='index', titulo, sesion,partes=[]}) {
     this.#ruta/* .ruta */ = ruta;
     this.#titulo = titulo;
 	this.#sesion = sesion;
@@ -53,12 +45,17 @@ class Pagina {
 	// El de reportar (tanto post y usuario) dejarlos, total no molestan y después se llamarán desde los scripts estáticos
 
     // Navegacion(sesion,ruta)
-     if(sesion){
-			// Notificaciones(sesion)
-			this.globales.usuarioActual=sesion;
-			console.log(sesion.usuario);
+     if(sesion.usuario){
+			this.columnaNotificaciones=[
+				// TODO UX: Iconito de notificaciones. Ver los bocetos de las pantallas.
+				new Titulo(5,'Notificaciones')
+				,new DesplazamientoInfinito('notificaciones-di','/api/notificacion',n=>(new Notificacion(n)).render())
+			];
+			this.globales.usuarioActual=sesion.usuario;
 		} 
   }
+
+	// * Pagina.render solo se va a llamar desde el backend.
   render() {
 		// TODO Feature: Meta properties. https://es.stackoverflow.com/questions/66388/poner-una-imagen-de-preview-y-t%C3%ADtulo-en-mi-p%C3%A1gina-para-que-se-visualice-en-face
     return `<!DOCTYPE html>
@@ -98,8 +95,8 @@ class Pagina {
 				
 			</div>
 			<div id="columna-3" class="column is-4">
-				<div id="notificacion-titulo">Notificaciones</div>
-				${this.#notificaciones.map((n) => new Notificacion(n).render()).join("")}
+				<!--<div id="notificacion-titulo">Notificaciones</div>-->
+				${this.columnaNotificaciones.reduce((acc,parte)=>acc+parte.render(),'')}
 			</div>
 		</div>
 	

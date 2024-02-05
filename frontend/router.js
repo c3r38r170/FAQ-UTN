@@ -13,8 +13,8 @@ import { PaginaInicio, /* PaginaExplorar, */ } from './static/pantallas/todas.js
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
+
 	// TODO Feature: query vs body
-	// TODO Refactor: agarrar el get de preguntas, y convertirlo en el metodo pagina.
 	if(req.query.searchInput){
 		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
 		let queryString = req.url.substring(req.url.indexOf('?'));
@@ -26,7 +26,7 @@ router.get("/", (req, res) => {
 		PreguntaDAO.pagina(filtros)
 			.then(pre=>{
 					let pagina=PaginaInicio(req.session, queryString);
-					pagina.partes[2]/* ! DesplazamientoIfinito */.entidadesIniciales=pre;
+					pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
 					res.send(pagina.render());
 				});
@@ -206,7 +206,7 @@ router.get("/perfil/:id?", (req, res) => {
 		partes:[
 			new DesplazamientoInfinito(
 				'perfil-desplinf'
-				,`/api/v1/usuario/${usu.DNI}/posts`
+				,`/api/usuario/${usu.DNI}/posts`
 				,p=>{
 					return p.pregunta?
 						new Pregunta(p.pregunta)
@@ -349,7 +349,7 @@ router.get('/perfil/preguntas',(req, res) => {
 			
 			new DesplazamientoInfinito(
 				'perfil-desplinf'
-				,`/api/v1/usuario/${usu.DNI}/preguntas`
+				,`/api/usuario/${usu.DNI}/preguntas`
 				,p=>new Pregunta(p.pregunta) // Sin chip de usuario, con botones de editar y borrar, con cantidad de respuestas...
 			)
 		]
@@ -378,7 +378,7 @@ router.get('/perfil/respuestas',(req, res) => {
 			// ChipUsuario() // Solo imagen y nombre; (O) Jhon Dow
 			new DesplazamientoInfinito(
 				'perfil-desplinf'
-				,`/api/v1/usuario/${usu.DNI}/respuestas`
+				,`/api/usuario/${usu.DNI}/respuestas`
 				,p=>new Respuesta(p.respuesta) // Sin chip de usuario, con botones de editar y borrar, con cantidad de respuestas...
 			)
 			// TODO UX: Ver la pregunta (titulo nomás). Que la respuesta sea un link a la pregunta.

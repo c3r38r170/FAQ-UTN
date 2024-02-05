@@ -19,6 +19,7 @@ class DesplazamientoInfinito{
 		this.#endpoint=endpoint+(endpoint.includes('?')?'&':'?');
 		
 		this.#generadorDeComponentes=transformarRespuestaEnComponente;
+		// * Las primeras entidades solo se usan desde el servidor y sirven para servir contenido generado y así mejorar el SEO de la página. Si solamente se generara el contenido dinámico desde el frontend, no podría ser analizado.
 		this.entidadesIniciales=primerasEntidades;
 
 		DesplazamientoInfinito.instancias[id]=this;
@@ -54,7 +55,7 @@ class DesplazamientoInfinito{
 			// TODO Feature: catch; y finally?
 	}
 
-	#generarUltimoComponente(cantidadDeEntidadesEnIteracion=this.entidadesIniciales.length){
+	#generarUltimoComponente(cantidadDeEntidadesEnIteracion){
 		let html='';
 
 		// TODO Refactor: Poner algún componente de paginación en el frontend, que en su defecto obtenga la info del backend. Ver que no destruya ninguna renderización... quizá llevar la configuración del frontend AL backend? Suena a lo más oportuno, por mas que sea antiintuitivo...
@@ -64,7 +65,7 @@ class DesplazamientoInfinito{
 		}else{
 			// TODO UX: Un loading GIF que no de asco. Y que pegue con el resto.
 			html+=`<div class="loading">`
-			html+=`<img loading="lazy" src="/loading.gif" onload="if(window.DesplazamientoInfinito)DesplazamientoInfinito.instancias['${this.#id}'].navegar(event);else setTimeout(()=>this.src='/loading.gif?'+Math.random(),1000)">`;
+			html+=`<img loading="lazy" src="/loading.gif" onload="if(window.DesplazamientoInfinito?.instancias?.['${this.#id}'])DesplazamientoInfinito.instancias['${this.#id}'].navegar(event);else setTimeout(()=>this.src='/loading.gif?'+Math.random(),1000)">`;
 			html+=`</div>`
 		}
 
@@ -73,7 +74,7 @@ class DesplazamientoInfinito{
 
 	render(){
 		// TODO UX: CSS de esto
-		return `<div id=${this.#id} class="desplazamiento-infinito">`+this.entidadesIniciales.map(this.#generadorDeComponentes).join('')+this.#generarUltimoComponente()+`</div>`;
+		return `<div id=${this.#id} class="desplazamiento-infinito">`+this.entidadesIniciales.reduce((acc,ent)=>acc+this.#generadorDeComponentes(ent),'')+this.#generarUltimoComponente(this.entidadesIniciales.length || -1 /* ! Si no ponemos -1, y no usamos entidadesIniciales, llega un cartel y nunca carga. */)+`</div>`;
 	}
 }
 
