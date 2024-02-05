@@ -907,6 +907,7 @@ router.delete('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 //notificaciones
 
 // TODO Refactor: Minimizar datos que envia este endpoint.
+// TODO Feature: Hacer que se devuelvan una sola notificacion por pregunta (sí, pregunta)
 router.get('/notificacion', function(req,res){
 	//ppregunta ajena es notificacion por etiqueta suscripta 
 	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta

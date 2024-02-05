@@ -44,7 +44,6 @@ class Pagina {
 	// Los de registro e inicio, podría chequear si sesion existe para agregarse o no
 	// El de reportar (tanto post y usuario) dejarlos, total no molestan y después se llamarán desde los scripts estáticos
 
-    // Navegacion(sesion,ruta)
      if(sesion.usuario){
 			this.columnaNotificaciones=[
 				// TODO UX: Iconito de notificaciones. Ver los bocetos de las pantallas.
