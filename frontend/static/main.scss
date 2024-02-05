@@ -327,7 +327,7 @@ footer#footer{
 }
 
 
-#chip-valoracion{
+.chip-valoracion{
 	display: flex;
     flex-direction: column;
     gap: 0rem;
@@ -359,7 +359,7 @@ footer#footer{
 			opacity: 0.75;
 		}
 	}
-	div#valoraciones{
+	div.valoraciones{
 		line-height: 1;
 		//margin: 0.5rem;
 		font-weight: 700;

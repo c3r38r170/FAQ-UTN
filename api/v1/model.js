@@ -242,7 +242,7 @@ const Voto = sequelize.define('voto', {
         autoIncrement: true
     },
     valoracion:{
-        type:DataTypes.BOOLEAN
+        type:DataTypes.INTEGER
     }
 })
 
@@ -675,8 +675,8 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 
 			if(filtrar.texto){
 				opciones.where=Sequelize.or(
-					Sequelize.literal('match(post.cuerpo) against ("'+filtrar.texto+'")'),
-					Sequelize.literal('match(titulo) against ("'+filtrar.texto+'")')	
+					Sequelize.literal('match(post.cuerpo) against ("'+filtrar.texto+'*"  IN BOOLEAN MODE)'),
+					Sequelize.literal('match(titulo) against ("'+filtrar.texto+'*"  IN BOOLEAN MODE)')	
 				);
                 filtrarTexto=true
 			}
@@ -701,6 +701,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 		}
 
         if(filtrarTexto){
+            opciones.order=[Sequelize.literal('(match(post.cuerpo) against ("'+filtrar.texto+'*"  IN BOOLEAN MODE)+ match(titulo) against ("'+filtrar.texto+'*"  IN BOOLEAN MODE)) desc, fecha desc')]
             // TODO Feature: Ordenar por match
         }else opciones.order=[[Post,'fecha','DESC']];
 
@@ -769,6 +770,11 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
                                     ,attributes:['ID','nombre']
                                 }
                                 ,attributes:['DNI','nombre']
+                            },
+                            {
+                                model:Voto,
+                                as: 'votos',
+                                //TODO Feature: encontrar manera de traer solo la suma
                             }
                         ]
                     }

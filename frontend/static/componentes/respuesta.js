@@ -6,25 +6,34 @@ import { BotonReporte } from "./botonReporte.js";
 class Respuesta {
   #ID;
   #valoracion = {
-    valoracion: '40',
-    estado: false
+    ID: this.#ID,
+    votos: [],
+    usuarioActual:null
   }
   #cuerpo;
   #fecha;
   #usuario;
   etiquetas = [];
   #instanciaModal;
-  constructor({ ID, cuerpo, fecha, post },instanciaModal) {
+  #chipValoracion;
+  constructor({ ID, cuerpo, fecha, post},instanciaModal,usuarioActual) {
     this.#ID = ID;
+    this.#valoracion.ID = ID;
+    this.#valoracion.usuarioActual=usuarioActual;
     this.#cuerpo = cuerpo;
     this.#fecha = new Fecha(fecha);
     this.#usuario = post.duenio;
     this.#instanciaModal = instanciaModal;
+    this.#chipValoracion = new ChipValoracion(this.#valoracion);
+
   }
+
+
+
   render() {
     return `
         <div id="respuesta">
-              ${new ChipValoracion(this.#valoracion).render()}
+              ${this.#chipValoracion.render()}
               <div class="cuerpo">
                 <div id="contenedor-reporte">
                   ${ new BotonReporte(this.#ID, this.#instanciaModal).render()}

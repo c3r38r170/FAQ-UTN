@@ -297,7 +297,7 @@ footer#footer ul li a:hover {
   color: #3e8ed0 !important;
 }
 
-#chip-valoracion {
+.chip-valoracion {
   display: flex;
   flex-direction: column;
   gap: 0rem;
@@ -306,24 +306,24 @@ footer#footer ul li a:hover {
   text-align: center;
   width: 10%;
 }
-#chip-valoracion button {
+.chip-valoracion button {
   padding: 0;
   border: none;
   background-color: white;
   transition: all 60ms ease-in-out;
   cursor: pointer;
 }
-#chip-valoracion button span {
+.chip-valoracion button span {
   font-size: 2.6rem;
   color: #636363;
 }
-#chip-valoracion button#positiva:hover {
+.chip-valoracion button#positiva:hover {
   opacity: 0.75;
 }
-#chip-valoracion button#negativa:hover {
+.chip-valoracion button#negativa:hover {
   opacity: 0.75;
 }
-#chip-valoracion div#valoraciones {
+.chip-valoracion div#valoraciones {
   line-height: 1;
   font-weight: 700;
   font-size: 1.2rem;
