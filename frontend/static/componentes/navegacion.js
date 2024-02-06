@@ -41,7 +41,7 @@ class Navegacion{
                         </a>
                     </li>
                     <li>
-                        <a id="link" src="./buscar">
+                        <a id="link" href="http://localhost:8080/perfil">
                             <i class="fa-regular fa-user mr-1"></i>
                             Perfil
                         </a>

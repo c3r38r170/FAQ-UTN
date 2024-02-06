@@ -197,6 +197,30 @@ div.notificacion div.noti-container .fecha {
   border-radius: 100%;
 }
 
+.chip-usuario-perfil {
+  gap: 2rem;
+  padding: 0.5rem 3rem 2rem;
+  display: flex;
+  justify-content: start;
+  flex-wrap: wrap;
+  border-bottom: 1px solid lightgray;
+}
+.chip-usuario-perfil .img-usuario {
+  width: 200px;
+  height: 200px;
+}
+.chip-usuario-perfil .contenido-perfil {
+  font-weight: 600;
+}
+.chip-usuario-perfil .tipo-usuario {
+  background-color: #485fc7;
+  display: inline-block;
+  color: white;
+  border-radius: 16px;
+  padding: 4px 1.5rem;
+  margin-top: 10px;
+}
+
 .pregunta {
   position: relative;
   display: block;
@@ -211,9 +235,10 @@ div.notificacion div.noti-container .fecha {
 }
 .pregunta .encabezado {
   display: flex;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
   margin-bottom: 1.3rem;
+  flex-wrap: wrap;
 }
 .pregunta .fecha {
   margin-left: 0.5rem;
@@ -246,6 +271,12 @@ div.notificacion div.noti-container .fecha {
   color: #636363;
 }
 
+@media screen and (max-width: 800px) {
+  .pregunta .encabezado {
+    justify-content: start;
+    flex-wrap: wrap;
+  }
+}
 .etiquetas {
   display: flex;
   justify-content: start;
@@ -256,7 +287,7 @@ div.notificacion div.noti-container .fecha {
   margin-left: 1rem;
   margin-right: 1.2rem;
   color: gray;
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-weight: 300;
   display: inline-block;
 }
@@ -289,17 +320,13 @@ footer#footer {
   background-color: #383838;
   color: #636363;
 }
+footer#footer #footer-content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
 footer#footer div img {
-  margin: auto;
   width: 80px;
-}
-footer#footer ul li a {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: white !important;
-}
-footer#footer ul li a:hover {
-  color: #485fc7 !important;
 }
 
 .chip-valoracion {
@@ -378,7 +405,7 @@ div.respuesta .cuerpo .usuario .chip-usuario img {
   width: 24px;
 }
 
-#reporte {
+.reporte {
   background-color: white;
   border: none;
   padding: 0;
@@ -387,12 +414,12 @@ div.respuesta .cuerpo .usuario .chip-usuario img {
   margin-left: auto;
   margin-right: 1rem;
 }
-#reporte span {
+.reporte span {
   font-size: 1.5rem;
   color: gray;
 }
-#reporte span:hover {
-  color: #d1be69;
+.reporte span:hover {
+  color: #485fc7;
   cursor: pointer;
 }
 

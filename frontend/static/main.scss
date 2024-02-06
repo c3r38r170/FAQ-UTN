@@ -225,6 +225,32 @@ div.notificacion{
 	}
 }
 
+.chip-usuario-perfil{
+	gap: 2rem;
+    padding: 0.5rem 3rem 2rem;
+    display: flex;
+    justify-content: start;
+    flex-wrap: wrap;
+	border-bottom: 1px solid lightgray;
+
+	.img-usuario{
+		width: 200px;
+		height: 200px;
+	}
+
+	.contenido-perfil{
+		font-weight: 600;
+	}
+	.tipo-usuario{
+		background-color: $paleta-1;
+		display: inline-block;
+		color: white;
+		border-radius: 16px;
+		padding: 4px 1.5rem;
+		margin-top: 10px;
+	}
+}
+
 .pregunta{
 	
 	position: relative;
@@ -240,9 +266,11 @@ div.notificacion{
 	  }
 	.encabezado{
 		display: flex;
-		justify-content: center;
+		justify-content: start;
 		align-items: center;
 		margin-bottom: 1.3rem;
+		flex-wrap: wrap;
+
 	}
 	.fecha{
 		margin-left: 0.5rem;
@@ -279,6 +307,16 @@ div.notificacion{
 	
 }
 
+
+@media screen and (max-width: 800px) {
+	.pregunta .encabezado {
+		justify-content: start;
+		flex-wrap: wrap;
+	}
+
+  }
+
+
 .etiquetas{
 	display: flex;
 	justify-content: start;
@@ -288,7 +326,7 @@ div.notificacion{
 		margin-left: 1rem;
 		margin-right: 1.2rem;
 		color: gray;
-		font-size: 0.8rem;
+		font-size: 1rem;
 		font-weight: 300;
 		display: inline-block;
 		&:hover{
@@ -323,21 +361,15 @@ footer#footer{
 	justify-content: space-around;
 	background-color: $text;
 	color: $text-light;
-	div img{
-		margin: auto;
-		width: 80px;
+
+	#footer-content-container{
+		display: flex;
+		flex-direction: column;
+		gap: 0.8rem;
 	}
-	ul{
-		li{
-			a{
-				font-size: 0.9rem;
-				font-weight: 500;
-				color: white!important;
-				&:hover{
-					color: $text-hover!important;
-				}
-			}
-		}
+	
+	div img{
+		width: 80px;
 	}
 }
 
@@ -429,7 +461,7 @@ footer#footer{
   }
 
 
-  #reporte{
+  .reporte{
 	background-color: white;
 	border: none;
 	padding: 0;
@@ -441,7 +473,7 @@ footer#footer{
 		font-size: 1.5rem;
 		color: gray;
 		&:hover{
-			color: #d1be69;
+			color: $paleta-1;
 			cursor: pointer;
 		}
 

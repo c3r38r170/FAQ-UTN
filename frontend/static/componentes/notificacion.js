@@ -43,7 +43,7 @@ class Notificacion{
 		return`
 		<div class="notificacion ${this.visto==0? 'noti-no-vista': ''}">
 			<div class="img-container">
-				<img class="img" class="img" src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"/>
+				<img class="img" class="img" src="./user.webp"/>
 			</div>
 			<div class="noti-container">
 			${this.#texto}<a class="notificacion" src="">${this.#tituloPregunta}</a>

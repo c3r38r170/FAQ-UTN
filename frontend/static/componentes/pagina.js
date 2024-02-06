@@ -104,17 +104,11 @@ class Pagina {
 	
 			
 		<footer id="footer">
-			<div>
-				<img src="/logo.jpg">
-			</div>
-			<div>
-				${new Navegacion().render()}
-			</div>
-			<div>
-			Este es 3
-			</div>
-			<div>
-			Site design - F.A.Q. UTN 2024
+			<div id="footer-content-container">
+				<img src="/logo-negativo.png">
+				<div>
+					FAQ UTN 2024
+				</div>
 			</div>
 		</footer>
 		<script>
@@ -210,7 +204,7 @@ class Encabezado {
   render() {
     return `<div id="encabezado">
 	<div id=encabezado-izquierdo>
-		<img src="/logo.jpg">
+		<img src="/logo.png">
 		<h1>FAQ UTN</h1>
 		<a href="/">Inicio</a>
 		<a href="/quienes-somos/">Quiénes Somos</a>
@@ -223,7 +217,7 @@ class Encabezado {
 			//+ new Boton({titulo: 'Cerrar Sesión', classes: 'button is-link is-inverted is-small'}).render()
 		    + this.#posibleForm.render()
 			): (
-       	new Boton({titulo:'Ingresar', classes: 'button is-linik is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
+       	new Boton({titulo:'Ingresar', classes: 'button is-link is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
 		+ this.#modal.render() 
 		+ new Boton({titulo:'Registrarse', classes: 'button is-link'}).render() 
 		)}

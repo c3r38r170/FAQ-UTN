@@ -173,52 +173,80 @@ router.get("/suscripciones",(req,res)=>{
 		})
 })
 
-router.get("/perfil/:id?", (req, res) => {
+
+router.get("/perfil/:id?", async (req, res) => {
 	// TODO Feature: Ordenar posts por fecha
 	/* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
 	// TODO Refactor: DNI
-	let id=req.params.id /* || req.session.usuario.DNI*/ ;
-	let logueadoId /*=req.session.usuario.DNI;*/
-	// let titulo="Perfil de ";
-	let usu;
-
-	if(id && (!logueadoId || id != logueadoId)){
-		// TODO Refactor: ver si yield anda como "sincronizador"
-		usu=UsuarioDAO.findByPk(id/* ,{
-			include:{
-				// TODO Feature: Ver si no choca explota. Y si .posts choca con los eliminados
-				all:true
-				,nested:true
+	try {
+		let usu;
+		if(req.params.id && req.session.usuario && (req.params.id == req.session.usuario.DNI)){
+			//PERFIL PROPIO DE USUARIO LOGUEADO
+			usu = req.session.usuario;
+			if (!usu) {
+				res.status(404).send('Error con el perfil propio');
+				return;
 			}
-		} */);
+	
+		}else if(req.params.id && req.session.usuario && (req.params.id != req.session.usuario.DNI)){
 
-	}else{
-		// TODO Feature: Obtener los posts paginados por ID del usuario, la sesion no guarda las asociaciones
-		usu=req.session.usuario;
-	}
-		// TODO Feature: Componente "Tarjeta de Usuario", o hacer una versión del Chip de Usuario con esteroides? Ya no sería chip... Pero llevan básicamente la misma info. Y además daría la opción de reportar o banear dependiedno si el usuario está logueado y tiene permisos
-		/* tarjeta de usuario 
-		actividad*/
-  let pagina = new Pagina({
-		// TODO Feature: Quizá haya que pasar 'perfil' nomás
-    ruta: req.path,
-    titulo: 'Perfil de '+usu.nombre,
-    sesion: req.session,
-		partes:[
+			// LOGUEADO BUSCANDO OTRO USUARIO
+			usu = await UsuarioDAO.findByPk(req.params.id);
+			if (!usu) {
+				res.status(404).send('Error con el perfil del otro usuario');
+				return;
+			}
+
+		}else if(req.params.id && !req.session.usuario){
+
+			//  NO LOGUEADO BUSCANDO OTRO USUARIO
+			usu = await UsuarioDAO.findByPk(req.params.id);
+			if (!usu) {
+				res.status(404).send('Error al acceder a un perfil');
+				return;
+			}
+
+
+		}else if(req.session.usuario && !req.params.id){
+
+			usu= req.session.usuario;
+			if (!usu) {
+				res.status(404).send('Estas logueado?');
+				return;
+			}
+
+		}else{
+			res.status(404).send('Error interno en else if ');
+			return;
+		}
+		let pagina = new Pagina({
+            ruta: req.path,
+            titulo: ((req.session.usuario && req.params.id && req.session.usuario.DNI == req.params.id)||(req.session.usuario && !req.params.id))? 'Mi Perfil' : 'Perfil de '+usu.nombre, 
+            sesion: req.session
+        });
+		let modal = new Modal('General','modal-general');
+		pagina.partes.push(modal);
+        pagina.partes.push(
+			new ChipUsuario(usu,true),
 			new DesplazamientoInfinito(
 				'perfil-desplinf'
 				,`/api/usuario/${usu.DNI}/posts`
 				,p=>{
 					return p.pregunta?
-						new Pregunta(p.pregunta)
-						:new Respuesta(p.respuesta)
+						new Pregunta(p.pregunta, modal) : ''
 				}
 				// ,usu.posts
-			)
-		]
-  });
-  res.send(pagina.render());
+		));
+		res.send(pagina.render());
+	}catch(error){
+        console.error(error);
+        res.status(500).send('Error interno del servidor');
+	}
+
 });
+
+
+
 
 router.get("/perfil/info", (req, res) => {
 	/* TODO Feature: Hacer que /perfil lleve a /perfil/id/info ??  Pensarlo. */
