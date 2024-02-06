@@ -14,7 +14,7 @@ class Pagina {
   #ruta=''/*  = {
 	ruta: ""
   } */;
-  #titulo = {
+  titulo = {
 	titulo: ""
   };
   #sesion;
@@ -34,7 +34,7 @@ class Pagina {
 	// TODO Refactor: Usar usuarioActual (o usuarioDeSesion) (sesion.usuario) en vez de sesion.
   constructor({ ruta='/index', titulo, sesion,partes=[]}) {
     this.#ruta/* .ruta */ = ruta;
-    this.#titulo = titulo;
+    this.titulo = titulo;
 	this.#sesion = sesion;
 	this.partes = Array.isArray(partes) ? partes : [partes];
 	this.#encabezado = new Encabezado(this.#sesion);
@@ -65,7 +65,7 @@ class Pagina {
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>FAQ UTN - ${this.#titulo}</title>
+		<title>FAQ UTN - ${this.titulo}</title>
 
 		<script src="/scripts/visibilizar-clases.js" type="module" async></script>
 		
@@ -92,7 +92,7 @@ class Pagina {
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
 				<!-- TODO UX: Hacer Titulo -->
-				<div id="titulo-principal" class="title is-5">${this.#titulo}</div>
+				<div id="titulo-principal" class="title is-5">${this.titulo}</div>
 				${this.partes.map((p) => p.render()).join("")}
 				
 			</div>

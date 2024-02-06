@@ -11,6 +11,7 @@ function crearPagina(ruta,sesion){
 				{name:'titulo',textoEtiqueta:'Título'}
 				// TODO UX: Detalles? ¿O Cuerpo? ¿O algo...? Ver algún ejemplo.
 				,{name:'cuerpo',textoEtiqueta:'Detalles'}
+				,{name:'etiquetas',textoEtiqueta:'Etiquetas'}
 			],preguntaID=>{
 				// window.location.replace('/pregunta/'+preguntaID);
 			})

@@ -20,6 +20,7 @@ class Respuesta {
     this.#ID = ID;
     this.#valoracion.ID = ID;
     this.#valoracion.usuarioActual=usuarioActual;
+    this.#valoracion.votos=post.votos;
     this.#cuerpo = cuerpo;
     this.#fecha = new Fecha(fecha);
     this.#usuario = post.duenio;
