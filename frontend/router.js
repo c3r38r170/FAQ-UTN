@@ -9,7 +9,7 @@ import { Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPregunta
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
-import { PaginaInicio, PaginaNuevaPregunta /* PaginaExplorar, */ } from './static/pantallas/todas.js';
+import { PaginaInicio, PantallaNuevaPregunta /* PaginaExplorar, */ } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
@@ -113,7 +113,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 
         res.send(pagina.render());
 			}else{ // * Nueva pregunta.
-				let pagina=PaginaNuevaPregunta(req.path,req.session);
+				let pagina=PantallaNuevaPregunta(req.path,req.session);
 				res.send(pagina.render());
 			}
     } catch (error) {

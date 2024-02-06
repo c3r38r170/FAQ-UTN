@@ -12,7 +12,7 @@ class Formulario{
 	verbo=[];
 	#clasesBotonEnviar='';
 
-	constructor(id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='is-link is-light is-small'}={},){
+	constructor(id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='button is-primary mt-3'}={},){
 		this.#id=id;
 		this.#endpoint=endpoint;
 		this.campos=campos;
@@ -75,7 +75,7 @@ class Formulario{
 	}
 
 	render(){
-		return `<form class="" onsubmit="Formulario.instancias['${this.#id}'].enviar(event)">`
+		return `<form id=${this.#id} class="" onsubmit="Formulario.instancias['${this.#id}'].enviar(event)">`
 			+ this.campos.reduce((html,c)=>html+(new Campo(c)).render(),'') 
 			// TODO Refactor: new Boton ??
 			+`<input class="button ${this.#clasesBotonEnviar}" type=submit value="${this.#textoEnviar}">`
@@ -99,7 +99,7 @@ class Campo{
 		this.#required=required;
 		this.#value=value;
 		this.#type=type;
-		this.#clases = clasesBoton;
+		this.#clases = clasesBoton||"";
 		this.#extra = extra;
 	}
 	render(){
