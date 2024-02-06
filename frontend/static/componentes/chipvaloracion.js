@@ -32,7 +32,7 @@ class ChipValoracion{
         console.log(valoracion, valor);
         
         
-        const url= `http://localhost:8080/api/post/${id}/valoracion`;
+        const url= `/api/post/${id}/valoracion`;
         if(estado!=valor){ //si el voto ya esta puesto hace delete
         fetch(url, {
             method: 'POST',
@@ -69,6 +69,7 @@ class ChipValoracion{
 
 
 	render(){
+        // TODO Refactor: no puede haber ids iguales (id="negativa" e id="positiva")
 		return`
         <div id="chip-valoracion-${this.#id}" data-id='${this.#id}' data-valoracion='${this.#valoracion}' data-estado='${this.#estado}' class="chip-valoracion">
             <button id="positiva" value='1' onclick="ChipValoracion.votar(event)">

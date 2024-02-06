@@ -1,6 +1,4 @@
-import { Pagina, Modal, DesplazamientoInfinito, Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "../componentes/todos.js";
-// import { EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../../../api/v1/model.js';
-
+import { Pagina, Modal, DesplazamientoInfinito, Pregunta , Busqueda } from "../componentes/todos.js";
 
 function crearPagina(usuario,queryString=''){
 	let modal = new Modal('General','modal-general');

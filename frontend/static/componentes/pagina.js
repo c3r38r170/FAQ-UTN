@@ -185,12 +185,12 @@ class Encabezado {
   constructor(sesion) {
     if (sesion && sesion.usuario) {
       	this.#posibleUsuario = new ChipUsuario(sesion.usuario);
-		this.#posibleForm = new Formulario('formularioCerrarSesion', 'http://localhost:8080/api/sesion', [],
+		this.#posibleForm = new Formulario('formularioCerrarSesion', '/api/sesion', [],
 		this.procesarRespuesta.bind(this),  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE'},'is-link is-light is-small');
 
     }else{ 
 		this.#modal = new Modal('Ingresar','modal-login');
-		let form = new Formulario('formularioSesion', 'http://localhost:8080/api/sesion', [
+		let form = new Formulario('formularioSesion', '/api/sesion', [
 		['DNI', 'D.N.I.', { type: 'text' }],
 		['contrasenia', 'Contraseña', { type: 'password' }],
 		], this.procesarRespuesta.bind(this),  {textoEnviar:'Ingresar',verbo: 'POST'},'is-primary mt-3');

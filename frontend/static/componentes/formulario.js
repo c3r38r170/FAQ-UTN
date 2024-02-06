@@ -77,6 +77,7 @@ class Formulario{
 	render(){
 		return `<form class=""onsubmit="Formulario.instancias['${this.#id}'].enviar(event)">`
 			+ this.campos.reduce((html,c)=>html+(new Campo(...c)).render(),'') 
+			// TODO Refactor: new Boton ??
 			+`<input class="button ${this.#clasesBotonEnviar}" type=submit value="${this.#textoEnviar}">`
 			+'</form>';
 	}

@@ -36,7 +36,7 @@ class Breadcrumb{
 
         /*
         this.#crumbs.forEach((crumb, index) => {
-            html += `<span id="breadcrumb"><i class="fa-solid fa-angle-right fa-sm"></i><a href="http://localhost:8080/${crumb.nombre}"> ${crumb.nombre}</a></span>`;
+            html += `<span id="breadcrumb"><i class="fa-solid fa-angle-right fa-sm"></i><a href="/${crumb.nombre}"> ${crumb.nombre}</a></span>`;
             
         });
         */

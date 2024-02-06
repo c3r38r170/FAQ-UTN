@@ -42,7 +42,6 @@ router.post('/sesion', function(req, res) {
 			}
 		})
 		.then(coinciden=>{
-			console.log(coinciden);
 			if(coinciden){
 				req.session.usuario=usuario;
 				res.status(200).send();
@@ -191,7 +190,6 @@ router.get('/pregunta',(req,res)=>{
 
 	// TODO Feature: Aceptar etiquetas y filtro de texto. https://masteringjs.io/tutorials/express/query-parameters
 
-		// console.log(opciones);
 		let filtros={pagina:null,filtrar:[]};
 		
 		if(req.query.pagina){

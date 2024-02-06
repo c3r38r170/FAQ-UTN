@@ -7,13 +7,13 @@ class Navegacion{
     constructor(usuarioIdentificado){
         if(!usuarioIdentificado){
             // Visitante
-            this.#enlaces=[new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'http://localhost:8080/explorar')];
+            this.#enlaces=[new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'/explorar')];
         } else {
             // Si hay usuario, ver si es moderador o no
 
             this.#enlaces=[
-                new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'http://localhost:8080/'),
-                new EnlaceNavegacion('Preguntar',{tipo:'solid',nombre:'plus'}),
+                new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'/'),
+                new EnlaceNavegacion('Preguntar',{tipo:'solid',nombre:'plus'},'/pregunta'),
                 new EnlaceNavegacion('Suscripciones',{tipo:'solid',nombre:'arrow-right'}),
                 new EnlaceNavegacion('Perfil',{tipo:'regular',nombre:'user'})
             ];
