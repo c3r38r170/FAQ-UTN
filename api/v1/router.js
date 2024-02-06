@@ -201,7 +201,7 @@ router.get('/pregunta',(req,res)=>{
 		{
 			filtros.filtrar.texto=req.query.searchInput;
 		}
-		console.log(filtros);
+		// console.log(filtros);
 		Pregunta.pagina(filtros)
 		// Pregunta.findAll(opciones)
 			.then(preguntas=>{
