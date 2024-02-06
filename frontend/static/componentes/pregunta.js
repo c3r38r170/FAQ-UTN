@@ -42,7 +42,7 @@ class Pregunta{
             <div class="pregunta">
                 <div class="encabezado">
                     ${new ChipUsuario(this.#usuario).render()}
-                    <div class="pl-0 py-0">
+                    <div class="ml-2 pl-0 py-0">
                         ${this.#fecha.render()}
                     </div>
                     ${ new BotonReporte(this.#ID, this.#instanciaModal).render() }

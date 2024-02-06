@@ -158,12 +158,19 @@ div #navegacion-container{
 	margin-bottom: 1rem;
 }
 div.notificacion{
-	display: flex;
-	justify-content: start;
-	align-items: center;
-	padding: 0.5rem 0;
-	margin-bottom: 0.5rem;
-	div#img-container{
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    padding: 0.5rem 15px;
+    margin-bottom: 0.5rem;
+	border-radius: 10px;
+    // border-bottom: 1px solid lightgray;
+
+
+	&.noti-no-vista{
+		background-color: lightyellow;
+	}
+	div.img-container{
 		min-width: 60px;
 		text-align: center;
 		img{
@@ -173,7 +180,8 @@ div.notificacion{
 		margin-right: 0.8rem;
 		}
 	}
-	div#noti-container{
+	div.noti-container{
+		font-weight: 700;
 		display: inline-block;
 		padding-right:20px;
 		a{
@@ -181,11 +189,13 @@ div.notificacion{
             overflow: hidden;
             /* Permite el desbordamiento a la siguiente línea */
             white-space: normal;
+			font-weight: 100;
 		}
-		#fecha{
+		.fecha{
 			margin-top: 0.2rem;
 			color: gray;
 			font-size: 0.85rem;
+			font-weight: 100;
 		}
 	}
 }

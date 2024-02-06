@@ -48,7 +48,7 @@ class Pagina {
      if(sesion.usuario){
 			this.columnaNotificaciones=[
 				// TODO UX: Iconito de notificaciones. Ver los bocetos de las pantallas.
-				new Titulo(5,'Notificaciones')
+				new Titulo(5,'<i class="fa-regular fa-bell mr-2"></i> Notificaciones')
 				,new DesplazamientoInfinito('notificaciones-di','/api/notificacion',n=>(new Notificacion(n)).render())
 			];
 			this.globales.usuarioActual=sesion.usuario;
