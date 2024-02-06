@@ -202,8 +202,8 @@ class Encabezado {
 			'formularioSesion'
 			, '/api/sesion'
 			, [
-				['DNI', 'D.N.I.', { type: 'text' }],
-				['contrasenia', 'Contraseña', { type: 'password' }]
+				{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
+				{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
 			]
 			, this.procesarRespuesta.bind(this)
 			,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-primary mt-3'}
