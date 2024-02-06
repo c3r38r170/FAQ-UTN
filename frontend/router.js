@@ -3,13 +3,13 @@ import {Sequelize} from 'sequelize';
 const router = express.Router();
 /* 
 */
-import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo } from "./static/componentes/todos.js";
+import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo, Formulario } from "./static/componentes/todos.js";
 import { Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
-import { PaginaInicio, /* PaginaExplorar, */ } from './static/pantallas/todas.js';
+import { PaginaInicio, PaginaNuevaPregunta /* PaginaExplorar, */ } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
@@ -113,19 +113,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 
         res.send(pagina.render());
 			}else{ // * Nueva pregunta.
-				let pagina=new Pagina({
-					ruta:req.path
-					,titulo:p.titulo
-					,sesion:req.session
-					,partes:[
-						// TODO Feature: Formulario de creación de preguntas 
-						// Campo de Título. Tiene que sugerir preguntar relacionadas. 
-						// Campo de etiquetas. Se deben obtener las etiquetas, mostrarlas, permitir elegirlas.
-						// Campo de cuerpo. Texto largo con un máximo y ya.
-						// Las sugerencias pueden ser un panel abajo, o abajo del título... que se vaya actualizando a medida que se escribe el cuerpo.
-						// Botón de crear pregunta. Se bloquea, si hay un error salta cartel (como por moderación), si no lleva a la página de la pregunta. Reemplaza, así volver para atrás va al inicio y no a la creación de preguntas.
-					]
-				});
+				let pagina=PaginaNuevaPregunta(req.path,req.session);
 				res.send(pagina.render());
 			}
     } catch (error) {

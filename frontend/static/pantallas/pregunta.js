@@ -1,0 +1,5 @@
+function PaginaPregunta(){
+
+}
+
+export {PaginaPregunta};

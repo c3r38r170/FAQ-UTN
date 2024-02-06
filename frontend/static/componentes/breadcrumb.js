@@ -4,6 +4,7 @@ class Breadcrumb{
 	constructor(/* { */
         ruta
     /* } */){
+        // ! Ojo que ruta arranca con /
 
         if (typeof ruta !== 'string') {
             throw new Error('El parámetro "ruta" debe ser una cadena (string).');

@@ -32,7 +32,7 @@ class Pagina {
   #encabezado;
 
 	// TODO Refactor: Usar usuarioActual (o usuarioDeSesion) (sesion.usuario) en vez de sesion.
-  constructor({ ruta='index', titulo, sesion,partes=[]}) {
+  constructor({ ruta='/index', titulo, sesion,partes=[]}) {
     this.#ruta/* .ruta */ = ruta;
     this.#titulo = titulo;
 	this.#sesion = sesion;
@@ -56,6 +56,9 @@ class Pagina {
 
 	// * Pagina.render solo se va a llamar desde el backend.
   render() {
+		// * Quita los identificadores de las rutas, y los reemplaza por "viendo"
+		let rutaRecursos='/' + this.#ruta.split('/').map(parte=>(+parte)?'viendo':parte).join('-').substring(1);
+
 		// TODO Feature: Meta properties. https://es.stackoverflow.com/questions/66388/poner-una-imagen-de-preview-y-t%C3%ADtulo-en-mi-p%C3%A1gina-para-que-se-visualice-en-face
     return `<!DOCTYPE html>
 	<html lang="en">
@@ -64,7 +67,7 @@ class Pagina {
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>FAQ UTN - ${this.#titulo}</title>
 
-		<script src="scripts/visibilizar-clases.js" type="module" async></script>
+		<script src="/scripts/visibilizar-clases.js" type="module" async></script>
 		
 		<script>${Object.entries(this.globales)
       .map(([k, v]) => `var ${k} = ${JSON.stringify(v)}`)
@@ -74,8 +77,8 @@ class Pagina {
 		<script src="/main.js" type=module></script>
 		<link rel="stylesheet" href="/main.css">
 
-		<script src="scripts/${this.#ruta + ".js" }" type="module"></script>
-		<link rel="stylesheet" href="styles/${this.#ruta + ".css"}">
+		<script src="/scripts${rutaRecursos + ".js" }" type="module"></script>
+		<link rel="stylesheet" href="/styles${rutaRecursos + ".css"}">
 		
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
@@ -185,15 +188,26 @@ class Encabezado {
   constructor(sesion) {
     if (sesion && sesion.usuario) {
       	this.#posibleUsuario = new ChipUsuario(sesion.usuario);
-		this.#posibleForm = new Formulario('formularioCerrarSesion', '/api/sesion', [],
-		this.procesarRespuesta.bind(this),  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE'},'is-link is-light is-small');
+		this.#posibleForm = new Formulario(
+			'formularioCerrarSesion'
+			, '/api/sesion'
+			, []
+			,this.procesarRespuesta.bind(this)
+			,  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE',clasesBoton:'is-link is-light is-small'}
+		);
 
     }else{ 
 		this.#modal = new Modal('Ingresar','modal-login');
-		let form = new Formulario('formularioSesion', '/api/sesion', [
-		['DNI', 'D.N.I.', { type: 'text' }],
-		['contrasenia', 'Contraseña', { type: 'password' }],
-		], this.procesarRespuesta.bind(this),  {textoEnviar:'Ingresar',verbo: 'POST'},'is-primary mt-3');
+		let form = new Formulario(
+			'formularioSesion'
+			, '/api/sesion'
+			, [
+				['DNI', 'D.N.I.', { type: 'text' }],
+				['contrasenia', 'Contraseña', { type: 'password' }]
+			]
+			, this.procesarRespuesta.bind(this)
+			,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-primary mt-3'}
+		);
 		this.#modal.contenido.push(form);
 	}
 
