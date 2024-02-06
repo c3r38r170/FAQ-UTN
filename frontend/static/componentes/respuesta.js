@@ -32,10 +32,10 @@ class Respuesta {
 
   render() {
     return `
-        <div id="respuesta">
+        <div class="respuesta">
               ${this.#chipValoracion.render()}
               <div class="cuerpo">
-                <div id="contenedor-reporte">
+                <div class="contenedor-reporte">
                   ${ new BotonReporte(this.#ID, this.#instanciaModal).render()}
                 </div>
                 ${this.#cuerpo}

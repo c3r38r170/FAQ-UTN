@@ -471,6 +471,8 @@ User.findAll({ include: { all: true }});
 Fuente: https://stackoverflow.com/questions/18838433/sequelize-find-based-on-association
 */
 
+
+
 Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
     // TODO Feature: NO traer la primera respuesta. Por otro lado, sí traer la _cantidad_ de respuestas. https://stackoverflow.com/questions/56149251/node-js-sequelize-virtual-column-pulling-value-from-other-model
 	/*
@@ -563,78 +565,78 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 						}
 					]
 				},
-				{
-					model:Respuesta
-					,as:'respuestas'
-					,include: [
-                        {
-                            model: Post,
-                            include: [
-                                {
-                                    model:Usuario
-                                    ,as:'duenio'
-                                    ,include:{
-                                        model:Perfil
-                                        ,attributes:['ID','nombre']
-                                    }
-                                    ,attributes:['DNI','nombre']
-                                }
-                            ]
-                        }
-                    ]
+				// {
+				// 	model:Respuesta
+				// 	,as:'respuestas'
+				// 	,include: [
+                //         {
+                //             model: Post,
+                //             include: [
+                //                 {
+                //                     model:Usuario
+                //                     ,as:'duenio'
+                //                     ,include:{
+                //                         model:Perfil
+                //                         ,attributes:['ID','nombre']
+                //                     }
+                //                     ,attributes:['DNI','nombre']
+                //                 }
+                //             ]
+                //         }
+                //     ]
 						
 					
 					
-					// ,
-					/* {
-						model:Post
-						,include:[
-							 */
-							/* {
-								model:Voto
-								// ,as:'votado'
-								,include:{model:Usuario,as:'votante'}
-								// TODO Feature: Intentar agrupar votos, y ofrecer una medida resumen para ordenar. Quitar el resto afuera (antes intentar limit)
-							}
-							,{
-								model:Usuario,
-								as:'duenio'
-							} */
-						/* ]
-					} */
-					/* ,attributes:{
-						include:[
-							[
-								Sequelize.literal(`(SELECT SUM(IF(valoracion=1,1,-1)) FROM votos AS v WHERE v.votadoID = post.ID)`),
-								'puntuacion'
-							]
-						]
-					} */
-					/* ,order: [
-							[Sequelize.literal('puntuacion'), 'DESC']
-							// ,['fecha', 'DESC']
-					] */
-					// ,limit:1
-					/* ,attributes:[
-						'ID'
-						// ,Sequelize.fn('sum',Sequelize.col('post.votos.valoracion'))
-						// ,Sequelize.literal
-						,'post.ID'
-						,'post.cuerpo'
-					] */
-					/* ,attributes:[
-						'ID'
-						,'post.cuerpo'
-						,[
-							Sequelize.fn('sum',Sequelize.col('post.voto.valoracion'))
-							,'valoracionTotal'
-						]
-					]
-					,order:[
-						['valoracionTotal','DESC']
-					]
-					,limit:1 */
-				}
+				// 	// ,
+				// 	/* {
+				// 		model:Post
+				// 		,include:[
+				// 			 */
+				// 			/* {
+				// 				model:Voto
+				// 				// ,as:'votado'
+				// 				,include:{model:Usuario,as:'votante'}
+				// 				// TODO Feature: Intentar agrupar votos, y ofrecer una medida resumen para ordenar. Quitar el resto afuera (antes intentar limit)
+				// 			}
+				// 			,{
+				// 				model:Usuario,
+				// 				as:'duenio'
+				// 			} */
+				// 		/* ]
+				// 	} */
+				// 	/* ,attributes:{
+				// 		include:[
+				// 			[
+				// 				Sequelize.literal(`(SELECT SUM(IF(valoracion=1,1,-1)) FROM votos AS v WHERE v.votadoID = post.ID)`),
+				// 				'puntuacion'
+				// 			]
+				// 		]
+				// 	} */
+				// 	/* ,order: [
+				// 			[Sequelize.literal('puntuacion'), 'DESC']
+				// 			// ,['fecha', 'DESC']
+				// 	] */
+				// 	// ,limit:1
+				// 	/* ,attributes:[
+				// 		'ID'
+				// 		// ,Sequelize.fn('sum',Sequelize.col('post.votos.valoracion'))
+				// 		// ,Sequelize.literal
+				// 		,'post.ID'
+				// 		,'post.cuerpo'
+				// 	] */
+				// 	/* ,attributes:[
+				// 		'ID'
+				// 		,'post.cuerpo'
+				// 		,[
+				// 			Sequelize.fn('sum',Sequelize.col('post.voto.valoracion'))
+				// 			,'valoracionTotal'
+				// 		]
+				// 	]
+				// 	,order:[
+				// 		['valoracionTotal','DESC']
+				// 	]
+				// 	,limit:1 */
+				// }
 				,{
                     model:Etiqueta,
                     as: 'etiquetas'
@@ -668,8 +670,19 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 			offset:(+pagina)*PAGINACION.resultadosPorPagina,
 			subQuery:false
 		};
+        opciones.attributes = {
+            include: [
+                [
+                    sequelize.literal('(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)'),
+                    'respuestasCount'
+                ]
+            ]
+        };
+    
+
 		let filtraEtiquetas=false
             ,filtrarTexto=false;
+
 
 		if(filtrar){
 
@@ -751,35 +764,36 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 					}
 				]
 			};
+
 			// * Respuesta más interesante
-			opciones.include.push(
-				// TODO Feature: Ordenar respuesta y tener una sola. Resolver primero en el caso de preguntas por usuario y después traer acá (es más cómodo trabajar allá)
-				{
-					model:Respuesta
-					,as:'respuestas'
-                    ,separate:true
-					,include:
-                    {
-                        model: Post,
-                        include: [
-                            {
-                                model:Usuario
-                                ,as:'duenio'
-                                ,include:{
-                                    model:Perfil
-                                    ,attributes:['ID','nombre']
-                                }
-                                ,attributes:['DNI','nombre']
-                            },
-                            {
-                                model:Voto,
-                                as: 'votos',
-                                //TODO Feature: encontrar manera de traer solo la suma
-                            }
-                        ]
-                    }
-				}
-			);
+			// opciones.include.push(
+			// 	// TODO Feature: Ordenar respuesta y tener una sola. Resolver primero en el caso de preguntas por usuario y después traer acá (es más cómodo trabajar allá)
+			// 	{
+			// 		model:Respuesta
+			// 		,as:'respuestas'
+            //         ,separate:true
+			// 		,include:
+            //         {
+            //             model: Post,
+            //             include: [
+            //                 {
+            //                     model:Usuario
+            //                     ,as:'duenio'
+            //                     ,include:{
+            //                         model:Perfil
+            //                         ,attributes:['ID','nombre']
+            //                     }
+            //                     ,attributes:['DNI','nombre']
+            //                 },
+            //                 {
+            //                     model:Voto,
+            //                     as: 'votos',
+            //                     //TODO Feature: encontrar manera de traer solo la suma
+            //                 }
+            //             ]
+            //         }
+			// 	}
+			// );
 			if(!filtraEtiquetas){
 				opciones.include.push({
                     model:EtiquetasPregunta
@@ -803,6 +817,9 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
         return Pregunta.findAll(opciones);
     }
 }
+
+
+
 
 Pregunta.hasOne(Post,{
     constraints:false,

@@ -1,9 +1,13 @@
 // TODO Refactor: usar imports para separar en archivos si se vuelve innavegable. Ponerlos en una carpetita y cambiar
 
 $p-central: 3rem;
-$text-hover: #3e8ed0;
+$text-hover: #485fc7;;
 $text: #383838;
 $text-light: #636363;
+$paleta-1: #485fc7;
+$paleta-2: #b3bdec;
+$paleta-3: #d1d7f5;
+$paleta-4: #f3f6ff;
 
 *{
 	font-family: sans-serif;
@@ -15,7 +19,7 @@ $text-light: #636363;
 		height: 80px;
 		display: flex;
 		justify-content: space-between;
-		border-bottom: solid 2px lightgray;
+		border-bottom: solid 1px lightgray;
 		padding: 0 2rem;
 		font-weight: bold;
 	
@@ -50,10 +54,7 @@ $text-light: #636363;
 			display: flex;
 	
 			button{
-				/* padding: .5rem 1rem;
-				border: solid 2px;
-				border-radius: 10px;
-				font-weight: bold; */
+
 			}
 			& .chip-usuario{
 				display: flex;
@@ -99,8 +100,8 @@ div#contenedor-principal{
 }
 
 div#columna-principal{
-	border-left: 2px solid lightgray;
-	border-right: 2px solid lightgray;
+	border-left: 1px solid lightgray;
+	border-right: 1px solid lightgray;
 	padding-top: 1.5rem;
 	padding-left: 0;
 	padding-right: 0;
@@ -168,7 +169,7 @@ div.notificacion{
 
 
 	&.noti-no-vista{
-		background-color: lightyellow;
+		background-color: $paleta-4;
 	}
 	div.img-container{
 		min-width: 60px;
@@ -231,7 +232,7 @@ div.notificacion{
 	margin-left: auto;
 	margin-right: auto;
 	padding: 2rem $p-central 1rem $p-central;
-	border-top: 2px solid lightgray;
+	border-top: 1px solid lightgray;
 	
 	&:first-child{
 		border-top: none;
@@ -243,14 +244,14 @@ div.notificacion{
 		align-items: center;
 		margin-bottom: 1.3rem;
 	}
-	#fecha{
+	.fecha{
 		margin-left: 0.5rem;
 		color: $text;
 		font-size: 0.9rem;
 		font-weight: 300;
 		display: inline-block;
 	}
-	#titulo{
+	.titulo{
 		margin-left: 0.2rem;
 		color: $text;
 		font-size: 1.1rem;
@@ -261,7 +262,7 @@ div.notificacion{
 			opacity: 0.75;
 		}
 	}
-	#cuerpo{
+	.cuerpo{
 		margin-left: 0.2rem;
 		color: $text;
 		font-size: 1.2rem;
@@ -302,11 +303,15 @@ div.buscador{
     display: flex;
     flex-direction: column;
     gap: 0rem;
-    border-bottom: 2px solid lightgray;
+    border-bottom: 1px solid lightgray;
 	.titulo{
 		font-size: 1.2rem;
 		font-weight: 600;
 		margin-bottom: 1rem;
+	}
+	&  input{
+		border-radius: 20px;
+    	padding-left: 2rem;
 	}
 }
 
@@ -378,7 +383,7 @@ footer#footer{
 
 }
 
-  div#respuesta{
+  div.respuesta{
 	margin-left: auto;
 	margin: 1.5rem auto;
 	padding-left: 1rem;
@@ -390,13 +395,13 @@ footer#footer{
 	&:last-child{
 		border-bottom: none;
 	}
-	#contenedor-reporte{
+	.contenedor-reporte{
 		display: block;
 		text-align: right;
 		margin-bottom: 15px;
 
 	}
-	#fecha{
+	.fecha{
 		margin-left: 0.5rem;
 		color: $text;
 		font-size: 0.9rem;
@@ -459,6 +464,8 @@ footer#footer{
   .modal{
 	.modal-content{
 		.box{
+			padding: 3rem;
+			border-radius: 20px;
 			h2{
 				font-size: 1.2rem;
 				font-weight: 700;

@@ -100,7 +100,7 @@ class Campo{
 		this.#clases = clases
 	}
 	render(){
-		let html=`<label class="label">${this.#etiqueta}</label><input class="input ${this.#clases}" name="${this.#name}"`;
+		let html=`<label class="label mt-4">${this.#etiqueta}</label><input class="input is-rounded ${this.#clases}" name="${this.#name}"`;
 		
 		if(this.#type)
 			html+=` type="${this.#type}"`;

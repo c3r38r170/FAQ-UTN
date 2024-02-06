@@ -187,14 +187,14 @@ class Encabezado {
     if (sesion && sesion.usuario) {
       	this.#posibleUsuario = new ChipUsuario(sesion.usuario);
 		this.#posibleForm = new Formulario('formularioCerrarSesion', 'http://localhost:8080/api/sesion', [],
-		this.procesarRespuesta.bind(this),  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE'},'is-link is-light is-small');
+		this.procesarRespuesta.bind(this),  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE'},'is-link is-outlined is-rounded is-small');
 
     }else{ 
 		this.#modal = new Modal('Ingresar','modal-login');
 		let form = new Formulario('formularioSesion', 'http://localhost:8080/api/sesion', [
 		['DNI', 'D.N.I.', { type: 'text' }],
 		['contrasenia', 'Contraseña', { type: 'password' }],
-		], this.procesarRespuesta.bind(this),  {textoEnviar:'Ingresar',verbo: 'POST'},'is-primary mt-3');
+		], this.procesarRespuesta.bind(this),  {textoEnviar:'Ingresar',verbo: 'POST'},'is-link mt-3 is-rounded');
 		this.#modal.contenido.push(form);
 	}
 
@@ -223,9 +223,9 @@ class Encabezado {
 			//+ new Boton({titulo: 'Cerrar Sesión', classes: 'button is-link is-inverted is-small'}).render()
 		    + this.#posibleForm.render()
 			): (
-       	new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
+       	new Boton({titulo:'Ingresar', classes: 'button is-linik is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
 		+ this.#modal.render() 
-		+ new Boton({titulo:'Registrarse', classes: 'button is-info'}).render() 
+		+ new Boton({titulo:'Registrarse', classes: 'button is-link'}).render() 
 		)}
 	</div>
 </div>`;

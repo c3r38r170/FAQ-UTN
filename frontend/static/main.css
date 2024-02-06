@@ -9,7 +9,7 @@
   height: 80px;
   display: flex;
   justify-content: space-between;
-  border-bottom: solid 2px lightgray;
+  border-bottom: solid 1px lightgray;
   padding: 0 2rem;
   font-weight: bold;
 }
@@ -27,7 +27,7 @@
   color: #383838 !important;
 }
 * #encabezado #encabezado-izquierdo a:hover {
-  color: #3e8ed0 !important;
+  color: #485fc7 !important;
 }
 * #encabezado #encabezado-izquierdo * {
   margin: auto;
@@ -39,12 +39,6 @@
   margin: auto 0;
   gap: 1rem;
   display: flex;
-}
-* #encabezado #encabezado-derecho button {
-  /* padding: .5rem 1rem;
-  border: solid 2px;
-  border-radius: 10px;
-  font-weight: bold; */
 }
 * #encabezado #encabezado-derecho .chip-usuario {
   display: flex;
@@ -89,8 +83,8 @@ div#contenedor-principal {
 }
 
 div#columna-principal {
-  border-left: 2px solid lightgray;
-  border-right: 2px solid lightgray;
+  border-left: 1px solid lightgray;
+  border-right: 1px solid lightgray;
   padding-top: 1.5rem;
   padding-left: 0;
   padding-right: 0;
@@ -111,7 +105,7 @@ div#breadcrumbs span a {
   color: #636363 !important;
 }
 div#breadcrumbs span a:hover {
-  color: #3e8ed0 !important;
+  color: #485fc7 !important;
 }
 
 div#titulo-principal.title {
@@ -132,7 +126,7 @@ div #navegacion-container ul.navegacion li a#link {
   color: #383838;
 }
 div #navegacion-container ul.navegacion li a#link:hover {
-  color: #3e8ed0;
+  color: #485fc7;
 }
 
 #notificacion-titulo {
@@ -150,7 +144,7 @@ div.notificacion {
   border-radius: 10px;
 }
 div.notificacion.noti-no-vista {
-  background-color: lightyellow;
+  background-color: #f3f6ff;
 }
 div.notificacion div.img-container {
   min-width: 60px;
@@ -209,7 +203,7 @@ div.notificacion div.noti-container .fecha {
   margin-left: auto;
   margin-right: auto;
   padding: 2rem 3rem 1rem 3rem;
-  border-top: 2px solid lightgray;
+  border-top: 1px solid lightgray;
 }
 .pregunta:first-child {
   border-top: none;
@@ -221,14 +215,14 @@ div.notificacion div.noti-container .fecha {
   align-items: center;
   margin-bottom: 1.3rem;
 }
-.pregunta #fecha {
+.pregunta .fecha {
   margin-left: 0.5rem;
   color: #383838;
   font-size: 0.9rem;
   font-weight: 300;
   display: inline-block;
 }
-.pregunta #titulo {
+.pregunta .titulo {
   margin-left: 0.2rem;
   color: #383838;
   font-size: 1.1rem;
@@ -236,10 +230,10 @@ div.notificacion div.noti-container .fecha {
   font-weight: 700;
   display: block;
 }
-.pregunta #titulo:hover {
+.pregunta .titulo:hover {
   opacity: 0.75;
 }
-.pregunta #cuerpo {
+.pregunta .cuerpo {
   margin-left: 0.2rem;
   color: #383838;
   font-size: 1.2rem;
@@ -267,7 +261,7 @@ div.notificacion div.noti-container .fecha {
   display: inline-block;
 }
 .etiquetas .etiqueta:hover {
-  color: #3e8ed0;
+  color: #485fc7;
 }
 
 div.buscador {
@@ -275,12 +269,16 @@ div.buscador {
   display: flex;
   flex-direction: column;
   gap: 0rem;
-  border-bottom: 2px solid lightgray;
+  border-bottom: 1px solid lightgray;
 }
 div.buscador .titulo {
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 1rem;
+}
+div.buscador input {
+  border-radius: 20px;
+  padding-left: 2rem;
 }
 
 footer#footer {
@@ -301,7 +299,7 @@ footer#footer ul li a {
   color: white !important;
 }
 footer#footer ul li a:hover {
-  color: #3e8ed0 !important;
+  color: #485fc7 !important;
 }
 
 .chip-valoracion {
@@ -336,7 +334,7 @@ footer#footer ul li a:hover {
   font-size: 1.2rem;
 }
 
-div#respuesta {
+div.respuesta {
   margin-left: auto;
   margin: 1.5rem auto;
   padding-left: 1rem;
@@ -346,28 +344,28 @@ div#respuesta {
   justify-content: right;
   gap: 1.5rem;
 }
-div#respuesta:last-child {
+div.respuesta:last-child {
   border-bottom: none;
 }
-div#respuesta #contenedor-reporte {
+div.respuesta .contenedor-reporte {
   display: block;
   text-align: right;
   margin-bottom: 15px;
 }
-div#respuesta #fecha {
+div.respuesta .fecha {
   margin-left: 0.5rem;
   color: #383838;
   font-size: 0.9rem;
   font-weight: 300;
   display: inline-block;
 }
-div#respuesta .valoracion {
+div.respuesta .valoracion {
   min-width: 60px;
 }
-div#respuesta .cuerpo {
+div.respuesta .cuerpo {
   min-width: 85%;
 }
-div#respuesta .cuerpo .usuario {
+div.respuesta .cuerpo .usuario {
   margin-top: 1.5rem;
   display: flex;
   justify-content: end;
@@ -376,7 +374,7 @@ div#respuesta .cuerpo .usuario {
   flex-wrap: wrap;
   margin-right: 1.5rem;
 }
-div#respuesta .cuerpo .usuario .chip-usuario img {
+div.respuesta .cuerpo .usuario .chip-usuario img {
   width: 24px;
 }
 
@@ -410,6 +408,10 @@ button.mi-boton {
   margin: 20px auto;
 }
 
+.modal .modal-content .box {
+  padding: 3rem;
+  border-radius: 20px;
+}
 .modal .modal-content .box h2 {
   font-size: 1.2rem;
   font-weight: 700;
