@@ -6,15 +6,22 @@ function crearPagina(ruta,sesion){
 		,titulo:'Nueva Pregunta'
 		,sesion:sesion
 		,partes:[
-			new Formulario('nueva-pregunta','/api/pregunta',[
-				/* {name,textoEtiqueta,type,required=true,value,extra,clasesBoton} */
-				{name:'titulo',textoEtiqueta:'Título'}
-				// TODO UX: Detalles? ¿O Cuerpo? ¿O algo...? Ver algún ejemplo.
-				,{name:'cuerpo',textoEtiqueta:'Detalles'}
-				,{name:'etiquetas',textoEtiqueta:'Etiquetas'}
-			],preguntaID=>{
-				// window.location.replace('/pregunta/'+preguntaID);
-			})
+			new Formulario(
+				'nueva-pregunta'
+				,'/api/pregunta'
+				,[
+					/* {name,textoEtiqueta,type,required=true,value,extra,clasesBoton} */
+					{name:'titulo',textoEtiqueta:'Título'}
+					// TODO UX: Detalles? ¿O Cuerpo? ¿O algo...? Ver algún ejemplo.
+					,{name:'cuerpo',textoEtiqueta:'Detalles',type:'textarea'}
+				]
+				,preguntaID=>{
+					window.location.replace('/pregunta/'+preguntaID);
+				}
+				,{
+					textoEnviar:'Crear Pregunta', clasesBoton:'is-link is-rounded mt-3'
+				}
+			)
 			// TODO Feature: Formulario de creación de preguntas 
 			// Campo de Título. Tiene que sugerir preguntar relacionadas. 
 			// Campo de etiquetas. Se deben obtener las etiquetas, mostrarlas, permitir elegirlas.
@@ -26,4 +33,4 @@ function crearPagina(ruta,sesion){
 	return pagina;
 }
 
-export {crearPagina as PaginaNuevaPregunta};
+export {crearPagina as PantallaNuevaPregunta};

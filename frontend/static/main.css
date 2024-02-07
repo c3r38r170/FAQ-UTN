@@ -180,10 +180,14 @@ div.notificacion div.noti-container .fecha {
   justify-content: start;
   align-items: center;
 }
-.chip-usuario .nombre-usuario {
+.chip-usuario .nombre-usuario, .chip-usuario a.nombre-usuario {
   font-size: 1rem;
   font-weight: 600;
   display: inline-block;
+  color: #383838;
+}
+.chip-usuario .nombre-usuario:hover, .chip-usuario a.nombre-usuario:hover {
+  color: #485fc7;
 }
 .chip-usuario .tipo-usuario {
   margin-left: 0.4rem;
@@ -256,7 +260,7 @@ div.notificacion div.noti-container .fecha {
   display: block;
 }
 .pregunta .titulo:hover {
-  opacity: 0.75;
+  color: #485fc7;
 }
 .pregunta .cuerpo {
   margin-left: 0.2rem;
@@ -268,7 +272,7 @@ div.notificacion div.noti-container .fecha {
 .pregunta .cantRespuestas {
   margin-top: 1rem;
   font-size: 1rem;
-  color: #636363;
+  color: #485fc7;
 }
 
 @media screen and (max-width: 800px) {
@@ -349,10 +353,17 @@ footer#footer div img {
   font-size: 2.6rem;
   color: #636363;
 }
-.chip-valoracion button#positiva:hover {
-  opacity: 0.75;
+.chip-valoracion button span i {
+  height: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
+  justify-content: center;
 }
-.chip-valoracion button#negativa:hover {
+.chip-valoracion button.positiva:hover span {
+  color: #485fc7;
+}
+.chip-valoracion button.negativa:hover {
   opacity: 0.75;
 }
 .chip-valoracion div.valoraciones {

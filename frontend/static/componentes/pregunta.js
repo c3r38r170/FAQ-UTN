@@ -49,10 +49,8 @@ class Pregunta{
                     </div>
                     ${ new BotonReporte(this.#ID, this.#instanciaModal).render() }
                 </div>
-
                 <a href="/pregunta/${this.#ID}">
-                    <div id="titulo">${this.#titulo}</div>
-
+                    <div class="titulo">${this.#titulo}</div>
                 </a>
                 <div class="cuerpo">${this.#cuerpo}</div>
                 <div class="etiquetas">

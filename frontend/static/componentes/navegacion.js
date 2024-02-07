@@ -15,7 +15,7 @@ class Navegacion{
                 new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'/'),
                 new EnlaceNavegacion('Preguntar',{tipo:'solid',nombre:'plus'},'/pregunta'),
                 new EnlaceNavegacion('Suscripciones',{tipo:'solid',nombre:'arrow-right'}),
-                new EnlaceNavegacion('Perfil',{tipo:'regular',nombre:'user'})
+                new EnlaceNavegacion('Perfil',{tipo:'regular',nombre:'user'},'/perfil')
             ];
         }
         
@@ -24,33 +24,7 @@ class Navegacion{
 	render(){
         return `<div id="navegacion-container">
                 <ul class="navegacion">
-
-                    <li>
-                        
-                        <a id="link" href="http://localhost:8080/">
-                            <i class="fa-solid fa-magnifying-glass mr-1"></i>
-                            Buscar
-                        </a>
-                    </li>
-                    <li>
-                        <a id="link" src="./buscar">
-                            <i class="fa-solid fa-plus mr-1"></i>
-                            Preguntar
-                        </a>
-                    </li>
-                    <li>
-                        <a id="link" src="./buscar">
-                            <i class="fa-solid fa-arrow-right mr-1"></i>
-                            Suscripciones
-                        </a>
-                    </li>
-                    <li>
-                        <a id="link" href="http://localhost:8080/perfil">
-                            <i class="fa-regular fa-user mr-1"></i>
-                            Perfil
-                        </a>
-                    </li>
-                    
+                    ${this.#enlaces.reduce((s,en)=>s+en.render(),'')}
                 </ul>
             </div>`;
 	}

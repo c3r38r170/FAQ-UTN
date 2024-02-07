@@ -38,7 +38,7 @@ class ChipUsuario{
             return`
             <div class="chip-usuario is-vcentered">
                 <img class="mr-3 img-usuario" src="../user.webp" ></img>
-                <div class="nombre-usuario">${this.#nombreusuario}</div>
+                <a class="nombre-usuario" href="/perfil/${this.#DNI}">${this.#nombreusuario}</a>
                 <div class="tipo-usuario">Usuario</div>
             </div>
             `;

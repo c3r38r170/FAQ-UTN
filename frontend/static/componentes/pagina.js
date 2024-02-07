@@ -106,8 +106,8 @@ class Pagina {
 	
 			
 		<footer id="footer">
-
 			<div id="footer-content-container">
+			<!-- TODO Feature: Enlaces como en el encabezado. (ver bocetos) -->
 				<img src="/logo-negativo.png">
 				<div>
 					FAQ UTN 2024
@@ -183,17 +183,26 @@ class Encabezado {
   constructor(sesion) {
     if (sesion && sesion.usuario) {
       	this.#posibleUsuario = new ChipUsuario(sesion.usuario);
-
-		this.#posibleForm = new Formulario('formularioCerrarSesion', 'http://localhost:8080/api/sesion', [],
-		this.procesarRespuesta.bind(this),  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE'},'is-link is-outlined is-rounded is-small');
+		this.#posibleForm = new Formulario(
+			'formularioCerrarSesion'
+			, '/api/sesion'
+			, []
+			,this.procesarRespuesta.bind(this)
+			,  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE',clasesBoton:'is-link is-light is-small'}
+		);
 
     }else{ 
 		this.#modal = new Modal('Ingresar','modal-login');
-		let form = new Formulario('formularioSesion', 'http://localhost:8080/api/sesion', [
-		['DNI', 'D.N.I.', { type: 'text' }],
-		['contrasenia', 'Contraseña', { type: 'password' }],
-		], this.procesarRespuesta.bind(this),  {textoEnviar:'Ingresar',verbo: 'POST'},'is-link mt-3 is-rounded');
-
+		let form = new Formulario(
+			'formularioSesion'
+			, '/api/sesion'
+			, [
+				{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
+				{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
+			]
+			, this.procesarRespuesta.bind(this)
+			,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-link is-rounded mt-3'}
+		);
 		this.#modal.contenido.push(form);
 	}
 
