@@ -9,7 +9,7 @@ import { Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPregunta
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
-import { PaginaInicio, PantallaNuevaPregunta /* PaginaExplorar, */ } from './static/pantallas/todas.js';
+import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta /* PaginaExplorar, */ } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
@@ -92,25 +92,11 @@ router.get("/pregunta/:id?", async (req, res) =>  {
             return;
         }
 
-        let pagina = new Pagina({
-            ruta: req.path,
-            titulo: p.titulo, 
-            sesion: req.session
-        });
 
-				p.titulo='';
-
-		let modal = new Modal('General','modal-general');
-		pagina.partes.push(modal);
-
-        pagina.partes.push(
-            // TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
-            new Pregunta(p, modal)
-						// TODO Feature: Considerar traer directamente todas las respuestas, en vez de paginarlas.
-					// DesplazamientoInfinito de respuestas; sin fin de mensaje
-            //,...p.respuestas.map(r=>new Respuesta(r))
-						// Formulario de respuesta
-        );
+       let pagina = PaginaPregunta(req.path, req.session)
+	   pagina.titulo=p.titulo;
+	   p.titulo="";
+		pagina.partes.unshift(new Pregunta(p, pagina.partes[0]))
 
         res.send(pagina.render());
 			}else{ // * Nueva pregunta.
