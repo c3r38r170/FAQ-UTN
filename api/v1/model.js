@@ -896,12 +896,12 @@ const Categoria = sequelize.define('categoria',{
 })
 
 Categoria.hasMany(Etiqueta,{
-    as:'categoria',
     constraints:false,
     foreignKey:'categoriaID'
 });
 
 Etiqueta.belongsTo(Categoria,{
+    as:'categoria',
     constraints:false
 });
 
