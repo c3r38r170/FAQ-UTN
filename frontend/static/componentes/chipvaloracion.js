@@ -71,13 +71,13 @@ class ChipValoracion{
 	render(){
 		return`
         <div id="chip-valoracion-${this.#id}" data-id='${this.#id}' data-valoracion='${this.#valoracion}' data-estado='${this.#estado}' class="chip-valoracion">
-            <button id="positiva" value='1' onclick="ChipValoracion.votar(event)">
+            <button class="positiva" value='1' onclick="ChipValoracion.votar(event)">
                 <span>
                     <i class="fa-solid fa-caret-up"></i>
                 </span>
             </button>
             <div id="chip-valoracion-${this.#id}-numero" class="valoraciones" >${this.#valoracion}</div>
-            <button id="negativa" value ='-1' onclick="ChipValoracion.votar(event)">
+            <button class="negativa" value ='-1' onclick="ChipValoracion.votar(event)">
                 <span>
                     <i class="fa-solid fa-caret-down"></i>
                 </span>

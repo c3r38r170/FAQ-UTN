@@ -393,15 +393,23 @@ footer#footer{
 		span{
 			font-size: 2.6rem;
 			color: $text-light;
+			i{
+				height: 30px;
+				display: flex;
+				flex-direction: column;
+				gap: 0rem;
+				justify-content: center;
+			}
 		}
 	}
-	button#positiva{
+	button.positiva{
 		&:hover{
-			//background-color: $text-hover;
-			opacity: 0.75;
+			span{
+				color: $paleta-1;
+			}
 		}
 	}
-	button#negativa{
+	button.negativa{
 		&:hover{
 			opacity: 0.75;
 		}
