@@ -33,7 +33,6 @@ class Pregunta{
             this.#etiquetas = etiquetas;
             this.#instanciaModal = instanciaModal;
             this.#usuarioActual=usuarioActual;
-
             
         // }
         // TODO Feature: fallar en el else
