@@ -49,7 +49,7 @@ class Pregunta{
                     </div>
                     ${ new BotonReporte(this.#ID, this.#instanciaModal).render() }
                 </div>
-                <a href="http://localhost:8080/pregunta/${this.#ID}">
+                <a href="/pregunta/${this.#ID}">
                     <div class="titulo">${this.#titulo}</div>
                 </a>
                 <div class="cuerpo">${this.#cuerpo}</div>

@@ -207,10 +207,14 @@ div.notificacion{
 	display: flex;
 	justify-content: start;
 	align-items: center;
-	.nombre-usuario{
+	.nombre-usuario, a.nombre-usuario{
 		font-size: 1rem;
 		font-weight: 600;
 		display: inline-block;
+		color: $text;
+		&:hover{
+			color: $paleta-1;
+		}
 	}
 	.tipo-usuario{
 		margin-left: 0.4rem;
@@ -219,6 +223,7 @@ div.notificacion{
 		font-weight: 300;
 		display: inline-block;
 	}
+	
 	.img-usuario{
 		width: 32px;
 		border-radius: 100%;
@@ -287,7 +292,7 @@ div.notificacion{
 		font-weight: 700;
 		display:block;
 		&:hover{
-			opacity: 0.75;
+			color: $paleta-1;
 		}
 	}
 	.cuerpo{
@@ -301,7 +306,7 @@ div.notificacion{
 	.cantRespuestas{
 		margin-top: 1rem;
 		font-size: 1rem;
-		color: $text-light;
+		color: $paleta-1;
 	}
 	
 	
