@@ -14,7 +14,7 @@ class Pagina {
   #ruta=''/*  = {
 	ruta: ""
   } */;
-  #titulo = {
+  titulo = {
 	titulo: ""
   };
   #sesion;
@@ -32,9 +32,9 @@ class Pagina {
   #encabezado;
 
 	// TODO Refactor: Usar usuarioActual (o usuarioDeSesion) (sesion.usuario) en vez de sesion.
-  constructor({ ruta='index', titulo, sesion,partes=[]}) {
+  constructor({ ruta='/index', titulo, sesion,partes=[]}) {
     this.#ruta/* .ruta */ = ruta;
-    this.#titulo = titulo;
+    this.titulo = titulo;
 	this.#sesion = sesion;
 	this.partes = Array.isArray(partes) ? partes : [partes];
 	this.#encabezado = new Encabezado(this.#sesion);
@@ -44,7 +44,6 @@ class Pagina {
 	// Los de registro e inicio, podría chequear si sesion existe para agregarse o no
 	// El de reportar (tanto post y usuario) dejarlos, total no molestan y después se llamarán desde los scripts estáticos
 
-    // Navegacion(sesion,ruta)
      if(sesion.usuario){
 			this.columnaNotificaciones=[
 				// TODO UX: Iconito de notificaciones. Ver los bocetos de las pantallas.
@@ -57,15 +56,18 @@ class Pagina {
 
 	// * Pagina.render solo se va a llamar desde el backend.
   render() {
+		// * Quita los identificadores de las rutas, y los reemplaza por "viendo"
+		let rutaRecursos='/' + this.#ruta.split('/').map(parte=>(+parte)?'viendo':parte).join('-').substring(1);
+
 		// TODO Feature: Meta properties. https://es.stackoverflow.com/questions/66388/poner-una-imagen-de-preview-y-t%C3%ADtulo-en-mi-p%C3%A1gina-para-que-se-visualice-en-face
     return `<!DOCTYPE html>
 	<html lang="en">
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>FAQ UTN - ${this.#titulo}</title>
+		<title>FAQ UTN - ${this.titulo}</title>
 
-		<script src="scripts/visibilizar-clases.js" type="module" async></script>
+		<script src="/scripts/visibilizar-clases.js" type="module" async></script>
 		
 		<script>${Object.entries(this.globales)
       .map(([k, v]) => `var ${k} = ${JSON.stringify(v)}`)
@@ -75,8 +77,8 @@ class Pagina {
 		<script src="/main.js" type=module></script>
 		<link rel="stylesheet" href="/main.css">
 
-		<script src="scripts/${this.#ruta + ".js" }" type="module"></script>
-		<link rel="stylesheet" href="styles/${this.#ruta + ".css"}">
+		<script src="/scripts${rutaRecursos + ".js" }" type="module"></script>
+		<link rel="stylesheet" href="/styles${rutaRecursos + ".css"}">
 		
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
@@ -85,12 +87,12 @@ class Pagina {
 		${this.#encabezado.render()}
 		<div id="contenedor-principal" class="columns">
 			<div  id="columna-1" class="column is-3">
-				${new Navegacion(this.#sesion).render()}
+				${new Navegacion(this.#sesion?.usuario).render()}
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
 				<!-- TODO UX: Hacer Titulo -->
-				<div id="titulo-principal" class="title is-5">${this.#titulo}</div>
+				<div id="titulo-principal" class="title is-5">${this.titulo}</div>
 				${this.partes.map((p) => p.render()).join("")}
 				
 			</div>
@@ -104,6 +106,7 @@ class Pagina {
 	
 			
 		<footer id="footer">
+
 			<div id="footer-content-container">
 				<img src="/logo-negativo.png">
 				<div>
@@ -180,6 +183,7 @@ class Encabezado {
   constructor(sesion) {
     if (sesion && sesion.usuario) {
       	this.#posibleUsuario = new ChipUsuario(sesion.usuario);
+
 		this.#posibleForm = new Formulario('formularioCerrarSesion', 'http://localhost:8080/api/sesion', [],
 		this.procesarRespuesta.bind(this),  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE'},'is-link is-outlined is-rounded is-small');
 
@@ -189,6 +193,7 @@ class Encabezado {
 		['DNI', 'D.N.I.', { type: 'text' }],
 		['contrasenia', 'Contraseña', { type: 'password' }],
 		], this.procesarRespuesta.bind(this),  {textoEnviar:'Ingresar',verbo: 'POST'},'is-link mt-3 is-rounded');
+
 		this.#modal.contenido.push(form);
 	}
 

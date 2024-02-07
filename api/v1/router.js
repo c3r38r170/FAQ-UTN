@@ -42,7 +42,6 @@ router.post('/sesion', function(req, res) {
 			}
 		})
 		.then(coinciden=>{
-			console.log(coinciden);
 			if(coinciden){
 				req.session.usuario=usuario;
 				res.status(200).send();
@@ -191,7 +190,6 @@ router.get('/pregunta',(req,res)=>{
 
 	// TODO Feature: Aceptar etiquetas y filtro de texto. https://masteringjs.io/tutorials/express/query-parameters
 
-		// console.log(opciones);
 		let filtros={pagina:null,filtrar:[]};
 		
 		if(req.query.pagina){
@@ -201,7 +199,7 @@ router.get('/pregunta',(req,res)=>{
 		{
 			filtros.filtrar.texto=req.query.searchInput;
 		}
-		console.log(filtros);
+		// console.log(filtros);
 		Pregunta.pagina(filtros)
 		// Pregunta.findAll(opciones)
 			.then(preguntas=>{
@@ -279,45 +277,72 @@ router.patch('/pregunta', function(req,res){
     })  
 })
 
-router.patch('/respuesta', function(req,res){
+router.post('/pregunta', function(req,res){
 	if(!req.session.usuario){
-		res.status(401).send("Usuario no tiene sesión válida activa.")
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
 	}
-	Respuesta.findByPk(req.body.ID,	{
-		include:Post
-	}).then(respuesta=>{
-		if(!respuesta){
-			res.status(404).send("Respuesta no encontrada");
+
+	//A veces crashea la ia
+	moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10).then(respuesta=>{
+		if(respuesta.apropiado < rechazaPost){
+			//esto anda
+			res.status(400).send("Texto rechazo por moderación automática");
 			return;
-		}else{
-			if(respuesta.post.duenioDNI!=req.session.usuario.DNI){
-				res.status(403).send("No puede editar una respuesta ajena.");
-				return;
-			}else{
-				//filtro IA
-				moderarWithRetry(req.body.cuerpo,10).then(resp=>{
-					if(resp.apropiado < rechazaPost){
-						res.status(400).send("Texto rechazo por moderación automática");
-						return;
-					}else if(resp.apropiado<reportaPost){
-						//Crear reporte
-						//TODO Feature: definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front
-						ReportePost.create({
-							reportadoID: respuesta.ID
-						});
-					}
-					//pasa el filtro
-					respuesta.cuerpo=req.body.cuerpo;
-					respuesta.save();
-					res.status(200).send("Respuesta actualizada exitosamente");
+		}
+		Post.create({
+			cuerpo: req.body.cuerpo,
+			duenioDNI: req.session.usuario.DNI
+		}).then(post=>{
+			Pregunta.create({
+				ID: post.ID,
+				titulo: req.body.titulo
+			}).then((pregunta)=>{
+				if(respuesta.apropiado < reportaPost){
+					//testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
+					ReportePost.create({
+						reportadoID: post.ID})
+				}
+				//etiquetas
+				//asumo que vienen en el body en un array con los id (a chequear)
+				pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new Etiqueta({ID})));
+				
+				//Suscribe a su propia pregunta
+
+				pregunta.addSuscriptos(req.session.usuario.DNI);
+
+				//notificaciones
+				SuscripcionesEtiqueta.findAll({
+					attributes: ['suscriptoDNI'],
+					where: {
+					  etiquetaID: {
+						[Sequelize.Op.in]: req.body.etiquetasIDs
+					  },
+					  fecha_baja: null
+					},
+					distinct: true
+				  }).then(suscripciones=>{
+					suscripciones.forEach(suscripcion => {
+						Notificacion.create({
+							postNotificadoID:post.ID,
+							notificadoDNI:suscripcion.suscriptoDNI
+						})
+					});
 				})
 				
-			}
-		}
+				// ! Sin las comillas se piensa que pusimos el status dentro del send
+				res.status(201).send(post.ID+"");
+			})
+			.catch(err=>{
+				console.log(err);
+				res.status(500).send(err);
+			})
+		})
 	})
-    .catch(err=>{
-        res.status(500).send(err);
-    })  
+	.catch(err=>{
+		console.log(err);
+		res.status(500).send(err);
+	})
 })
 
 //Suscripción / desuscripción a pregunta
@@ -420,76 +445,6 @@ router.delete('/pregunta/:preguntaID/suscripcion', function(req,res){
     })  
 })
 
-//pregunta
-
-router.post('/pregunta', function(req,res){
-	if(!req.session.usuario){
-		res.status(401).send("Usuario no tiene sesión válida activa");
-		return;
-	}
-
-	//A veces crashea la ia
-	moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10).then(respuesta=>{
-		if(respuesta.apropiado < rechazaPost){
-			//esto anda
-			res.status(400).send("Texto rechazo por moderación automática");
-			return;
-		}
-		Post.create({
-			cuerpo: req.body.cuerpo,
-			duenioDNI: req.session.usuario.DNI
-		}).then(post=>{
-			Pregunta.create({
-				ID: post.ID,
-				titulo: req.body.titulo
-			}).then((pregunta)=>{
-				if(respuesta.apropiado < reportaPost){
-					//testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
-					ReportePost.create({
-						reportadoID: post.ID})
-				}
-				//etiquetas
-				//asumo que vienen en el body en un array con los id (a chequear)
-				pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new Etiqueta({ID})));
-				
-				//Suscribe a su propia pregunta
-
-				pregunta.addSuscriptos(req.session.usuario.DNI);
-
-				//notificaciones
-				SuscripcionesEtiqueta.findAll({
-					attributes: ['suscriptoDNI'],
-					where: {
-					  etiquetaID: {
-						[Sequelize.Op.in]: req.body.etiquetasIDs
-					  },
-					  fecha_baja: null
-					},
-					distinct: true
-				  }).then(suscripciones=>{
-					suscripciones.forEach(suscripcion => {
-						Notificacion.create({
-							postNotificadoID:post.ID,
-							notificadoDNI:suscripcion.suscriptoDNI
-						})
-					});
-				})
-				
-				//Sin las comillas se piensa que pusimos el status dentro del send
-				res.status(201).send(post.ID+"");
-			})
-			.catch(err=>{
-				console.log(err);
-				res.status(500).send(err);
-			})
-		})
-	})
-	.catch(err=>{
-		console.log(err);
-		res.status(500).send(err);
-	})
-})
-
 //respuesta
 
 router.post('/respuesta', function(req,res){
@@ -564,6 +519,47 @@ router.post('/respuesta', function(req,res){
 	.catch(err=>{
 		res.status(500).send(err);
 	})
+})
+
+router.patch('/respuesta', function(req,res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa.")
+	}
+	Respuesta.findByPk(req.body.ID,	{
+		include:Post
+	}).then(respuesta=>{
+		if(!respuesta){
+			res.status(404).send("Respuesta no encontrada");
+			return;
+		}else{
+			if(respuesta.post.duenioDNI!=req.session.usuario.DNI){
+				res.status(403).send("No puede editar una respuesta ajena.");
+				return;
+			}else{
+				//filtro IA
+				moderarWithRetry(req.body.cuerpo,10).then(resp=>{
+					if(resp.apropiado < rechazaPost){
+						res.status(400).send("Texto rechazo por moderación automática");
+						return;
+					}else if(resp.apropiado<reportaPost){
+						//Crear reporte
+						//TODO Feature: definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front
+						ReportePost.create({
+							reportadoID: respuesta.ID
+						});
+					}
+					//pasa el filtro
+					respuesta.cuerpo=req.body.cuerpo;
+					respuesta.save();
+					res.status(200).send("Respuesta actualizada exitosamente");
+				})
+				
+			}
+		}
+	})
+    .catch(err=>{
+        res.status(500).send(err);
+    })  
 })
 
 // valoracion
@@ -907,6 +903,7 @@ router.delete('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 //notificaciones
 
 // TODO Refactor: Minimizar datos que envia este endpoint.
+// TODO Feature: Hacer que se devuelvan una sola notificacion por pregunta (sí, pregunta)
 router.get('/notificacion', function(req,res){
 	//ppregunta ajena es notificacion por etiqueta suscripta 
 	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta

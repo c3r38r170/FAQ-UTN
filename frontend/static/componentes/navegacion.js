@@ -3,24 +3,28 @@ class Navegacion{
     //TODO REFACTOR
     // Comprobar sesion --> sino mostrar sólo búsqueda
     // Enviar objeto para mapear y renderizar el menú
-	#usuario = null;
-    constructor(sesion){
-        
-        if (sesion && sesion.usuario) {
-            this.#usuario = sesion.usuario;
+	#enlaces = [];
+    constructor(usuarioIdentificado){
+        if(!usuarioIdentificado){
+            // Visitante
+            this.#enlaces=[new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'/explorar')];
         } else {
-            // Manejar el caso en el que sesion o sesion.usuario sea undefined
+            // Si hay usuario, ver si es moderador o no
 
+            this.#enlaces=[
+                new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'/'),
+                new EnlaceNavegacion('Preguntar',{tipo:'solid',nombre:'plus'},'/pregunta'),
+                new EnlaceNavegacion('Suscripciones',{tipo:'solid',nombre:'arrow-right'}),
+                new EnlaceNavegacion('Perfil',{tipo:'regular',nombre:'user'})
+            ];
         }
         
     }
 
 	render(){
-
-        if(this.#usuario){
-            return`
-            <div id="navegacion-container">
+        return `<div id="navegacion-container">
                 <ul class="navegacion">
+
                     <li>
                         
                         <a id="link" href="http://localhost:8080/">
@@ -47,27 +51,34 @@ class Navegacion{
                         </a>
                     </li>
                     
-                    
                 </ul>
-            </div>
-            
-            `;
-        }else{
-            return `
-            <div id="navegacion-container">
-            <ul class="navegacion">
-                <li>
-                    
-                    <a id="link" href="http://localhost:8080/explorar">
-                        <i class="fa-solid fa-magnifying-glass mr-1"></i>
-                        Buscar
-                    </a>
-                </li>
-            </ul>
-            </div>
-            `
-        }
+            </div>`;
 	}
+}
+
+class EnlaceNavegacion{
+    #texto='';
+    #enlace='';
+    #icono={
+        tipo:'' // solid, regular, etc...
+        ,nombre:''
+    }
+
+    constructor(texto,icono,enlace=''){
+        this.#texto=texto;
+        this.#icono=icono;
+        this.#enlace=enlace;
+    }
+
+    render(){
+        return `<li>
+                    
+        <a id="link" href="${this.#enlace}">
+            <i class="fa-${this.#icono.tipo} fa-${this.#icono.nombre} mr-1"></i>
+            ${this.#texto}
+        </a>
+    </li>`
+    }
 }
 
 export {Navegacion};

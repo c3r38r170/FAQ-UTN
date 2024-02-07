@@ -4,6 +4,7 @@ class Breadcrumb{
 	constructor(/* { */
         ruta
     /* } */){
+        // ! Ojo que ruta arranca con /
 
         if (typeof ruta !== 'string') {
             throw new Error('El parámetro "ruta" debe ser una cadena (string).');
@@ -36,7 +37,7 @@ class Breadcrumb{
 
         /*
         this.#crumbs.forEach((crumb, index) => {
-            html += `<span id="breadcrumb"><i class="fa-solid fa-angle-right fa-sm"></i><a href="http://localhost:8080/${crumb.nombre}"> ${crumb.nombre}</a></span>`;
+            html += `<span id="breadcrumb"><i class="fa-solid fa-angle-right fa-sm"></i><a href="/${crumb.nombre}"> ${crumb.nombre}</a></span>`;
             
         });
         */

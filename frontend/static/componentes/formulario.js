@@ -10,9 +10,9 @@ class Formulario{
 	#funcionRetorno=null;
 	campos=[];
 	verbo=[];
-	#clasesBotonEnviar;
+	#clasesBotonEnviar='';
 
-	constructor(id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST'}={},clasesBotonEnviar){
+	constructor(id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='is-link is-light is-small'}={},){
 		this.#id=id;
 		this.#endpoint=endpoint;
 		this.campos=campos;
@@ -75,8 +75,9 @@ class Formulario{
 	}
 
 	render(){
-		return `<form class=""onsubmit="Formulario.instancias['${this.#id}'].enviar(event)">`
-			+ this.campos.reduce((html,c)=>html+(new Campo(...c)).render(),'') 
+		return `<form class="" onsubmit="Formulario.instancias['${this.#id}'].enviar(event)">`
+			+ this.campos.reduce((html,c)=>html+(new Campo(c)).render(),'') 
+			// TODO Refactor: new Boton ??
 			+`<input class="button ${this.#clasesBotonEnviar}" type=submit value="${this.#textoEnviar}">`
 			+'</form>';
 	}
@@ -84,32 +85,53 @@ class Formulario{
 
 class Campo{
 	#name='';
-	#etiqueta='';
+	#textoEtiqueta='';
 	#type;
 	#required=true;
 	#value;
 	#clases;
+	#extra = null;
 
-	constructor(name,etiqueta,{type,required=true,value},
-		clases){
+	constructor({name,textoEtiqueta,type,required=true,value,extra,clasesBoton}){
+		// TODO Feature: Tirar error si no estan los necesarios.
 		this.#name=name;
-		this.#etiqueta=etiqueta;
+		this.#textoEtiqueta=textoEtiqueta;
 		this.#required=required;
 		this.#value=value;
 		this.#type=type;
-		this.#clases = clases
+		this.#clases = clasesBoton;
+		this.#extra = extra;
 	}
 	render(){
-		let html=`<label class="label mt-4">${this.#etiqueta}</label><input class="input is-rounded ${this.#clases}" name="${this.#name}"`;
+
+		let html=`<label class="label">${this.#textoEtiqueta}</label><input class="input ${this.#clases}" name="${this.#name}"`
+			,endTag='/>';
+
 		
-		if(this.#type)
-			html+=` type="${this.#type}"`;
+		if(this.#type){
+			switch(this.#type){
+			case 'textarea':
+				html=html.replace('input','textarea');
+				endTag='></textarea>';
+				break;
+			case 'select':
+				html=html.replace('input','select');
+				endTag=`>${this.#extra}</select>`;
+				break;
+			case 'number':
+				// * min, max, step...
+				html+=' '+this.#extra;
+			// ! no break;
+			default:
+				html+=` type="${this.#type}"`;
+			}
+		}
 		if(this.#required)
 			html+=` required`;
 		if(this.#value)
 			html+=` value="${this.#value}"`;
 			
-		return html+'/></label>';
+		return html+endTag+'</label>';
 	}
 }
 

@@ -6,17 +6,21 @@ class ChipValoracion{
     #valoracion;
     #estado;
     #id //id del post
-    #usuarioActual;
+    #sesion;
 	constructor({
         ID,
         votos,
-        usuarioActual
+        sesion
     }){
         this.#id = ID;
         ChipValoracion.instancias[this.#id]=this;
-        this.#usuarioActual=usuarioActual;  
+        this.#sesion=sesion;
         this.#valoracion=votos.reduce((suma, voto)=>suma+=voto.valoracion,0);
-        this.#estado=(votos.find(voto=>voto.votanteDNI==this.#usuarioActual.DNI))?.valoracion||0;
+        if(this.#sesion.usuario===undefined){
+            this.#estado=0;
+        }else{
+            this.#estado=(votos.find(voto=>voto.votanteDNI==this.#sesion.usuario.DNI))?.valoracion||0;
+        }
 
 	}
 
@@ -25,7 +29,6 @@ class ChipValoracion{
         let botonApretado = e.target.closest("button");
         let divChipvaloracion = botonApretado.closest(".chip-valoracion");
         let id = divChipvaloracion.dataset.id;
-        
         let estado = +divChipvaloracion.dataset.estado;
         let valoracion = +divChipvaloracion.dataset.valoracion;
         let valor =+botonApretado.value;
@@ -71,13 +74,13 @@ class ChipValoracion{
 	render(){
 		return`
         <div id="chip-valoracion-${this.#id}" data-id='${this.#id}' data-valoracion='${this.#valoracion}' data-estado='${this.#estado}' class="chip-valoracion">
-            <button id="positiva" value='1' onclick="ChipValoracion.votar(event)">
+            <button id="positiva" value='1' onclick="ChipValoracion.votar(event)" ${this.#sesion.usuario=== undefined?"disabled":''}>
                 <span>
                     <i class="fa-solid fa-caret-up"></i>
                 </span>
             </button>
             <div id="chip-valoracion-${this.#id}-numero" class="valoraciones" >${this.#valoracion}</div>
-            <button id="negativa" value ='-1' onclick="ChipValoracion.votar(event)">
+            <button id="negativa" value ='-1' onclick="ChipValoracion.votar(event)" ${this.#sesion.usuario=== undefined?"disabled":''}>
                 <span>
                     <i class="fa-solid fa-caret-down"></i>
                 </span>
