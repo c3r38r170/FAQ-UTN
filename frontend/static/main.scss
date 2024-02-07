@@ -1,9 +1,13 @@
 // TODO Refactor: usar imports para separar en archivos si se vuelve innavegable. Ponerlos en una carpetita y cambiar
 
 $p-central: 3rem;
-$text-hover: #3e8ed0;
+$text-hover: #485fc7;;
 $text: #383838;
 $text-light: #636363;
+$paleta-1: #485fc7;
+$paleta-2: #b3bdec;
+$paleta-3: #d1d7f5;
+$paleta-4: #f3f6ff;
 
 *{
 	font-family: sans-serif;
@@ -15,7 +19,7 @@ $text-light: #636363;
 		height: 80px;
 		display: flex;
 		justify-content: space-between;
-		border-bottom: solid 2px lightgray;
+		border-bottom: solid 1px lightgray;
 		padding: 0 2rem;
 		font-weight: bold;
 	
@@ -50,10 +54,7 @@ $text-light: #636363;
 			display: flex;
 	
 			button{
-				/* padding: .5rem 1rem;
-				border: solid 2px;
-				border-radius: 10px;
-				font-weight: bold; */
+
 			}
 			& .chip-usuario{
 				display: flex;
@@ -99,8 +100,8 @@ div#contenedor-principal{
 }
 
 div#columna-principal{
-	border-left: 2px solid lightgray;
-	border-right: 2px solid lightgray;
+	border-left: 1px solid lightgray;
+	border-right: 1px solid lightgray;
 	padding-top: 1.5rem;
 	padding-left: 0;
 	padding-right: 0;
@@ -158,12 +159,19 @@ div #navegacion-container{
 	margin-bottom: 1rem;
 }
 div.notificacion{
-	display: flex;
-	justify-content: start;
-	align-items: center;
-	padding: 0.5rem 0;
-	margin-bottom: 0.5rem;
-	div#img-container{
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    padding: 0.5rem 15px;
+    margin-bottom: 0.5rem;
+	border-radius: 10px;
+    // border-bottom: 1px solid lightgray;
+
+
+	&.noti-no-vista{
+		background-color: $paleta-4;
+	}
+	div.img-container{
 		min-width: 60px;
 		text-align: center;
 		img{
@@ -173,7 +181,8 @@ div.notificacion{
 		margin-right: 0.8rem;
 		}
 	}
-	div#noti-container{
+	div.noti-container{
+		font-weight: 700;
 		display: inline-block;
 		padding-right:20px;
 		a{
@@ -181,11 +190,13 @@ div.notificacion{
             overflow: hidden;
             /* Permite el desbordamiento a la siguiente línea */
             white-space: normal;
+			font-weight: 100;
 		}
-		#fecha{
+		.fecha{
 			margin-top: 0.2rem;
 			color: gray;
 			font-size: 0.85rem;
+			font-weight: 100;
 		}
 	}
 }
@@ -214,6 +225,32 @@ div.notificacion{
 	}
 }
 
+.chip-usuario-perfil{
+	gap: 2rem;
+    padding: 0.5rem 3rem 2rem;
+    display: flex;
+    justify-content: start;
+    flex-wrap: wrap;
+	border-bottom: 1px solid lightgray;
+
+	.img-usuario{
+		width: 200px;
+		height: 200px;
+	}
+
+	.contenido-perfil{
+		font-weight: 600;
+	}
+	.tipo-usuario{
+		background-color: $paleta-1;
+		display: inline-block;
+		color: white;
+		border-radius: 16px;
+		padding: 4px 1.5rem;
+		margin-top: 10px;
+	}
+}
+
 .pregunta{
 	
 	position: relative;
@@ -221,7 +258,7 @@ div.notificacion{
 	margin-left: auto;
 	margin-right: auto;
 	padding: 2rem $p-central 1rem $p-central;
-	border-top: 2px solid lightgray;
+	border-top: 1px solid lightgray;
 	
 	&:first-child{
 		border-top: none;
@@ -229,18 +266,20 @@ div.notificacion{
 	  }
 	.encabezado{
 		display: flex;
-		justify-content: center;
+		justify-content: start;
 		align-items: center;
 		margin-bottom: 1.3rem;
+		flex-wrap: wrap;
+
 	}
-	#fecha{
+	.fecha{
 		margin-left: 0.5rem;
 		color: $text;
 		font-size: 0.9rem;
 		font-weight: 300;
 		display: inline-block;
 	}
-	#titulo{
+	.titulo{
 		margin-left: 0.2rem;
 		color: $text;
 		font-size: 1.1rem;
@@ -251,7 +290,7 @@ div.notificacion{
 			opacity: 0.75;
 		}
 	}
-	#cuerpo{
+	.cuerpo{
 		margin-left: 0.2rem;
 		color: $text;
 		font-size: 1.2rem;
@@ -268,6 +307,16 @@ div.notificacion{
 	
 }
 
+
+@media screen and (max-width: 800px) {
+	.pregunta .encabezado {
+		justify-content: start;
+		flex-wrap: wrap;
+	}
+
+  }
+
+
 .etiquetas{
 	display: flex;
 	justify-content: start;
@@ -277,7 +326,7 @@ div.notificacion{
 		margin-left: 1rem;
 		margin-right: 1.2rem;
 		color: gray;
-		font-size: 0.8rem;
+		font-size: 1rem;
 		font-weight: 300;
 		display: inline-block;
 		&:hover{
@@ -292,11 +341,15 @@ div.buscador{
     display: flex;
     flex-direction: column;
     gap: 0rem;
-    border-bottom: 2px solid lightgray;
+    border-bottom: 1px solid lightgray;
 	.titulo{
 		font-size: 1.2rem;
 		font-weight: 600;
 		margin-bottom: 1rem;
+	}
+	&  input{
+		border-radius: 20px;
+    	padding-left: 2rem;
 	}
 }
 
@@ -308,21 +361,15 @@ footer#footer{
 	justify-content: space-around;
 	background-color: $text;
 	color: $text-light;
-	div img{
-		margin: auto;
-		width: 80px;
+
+	#footer-content-container{
+		display: flex;
+		flex-direction: column;
+		gap: 0.8rem;
 	}
-	ul{
-		li{
-			a{
-				font-size: 0.9rem;
-				font-weight: 500;
-				color: white!important;
-				&:hover{
-					color: $text-hover!important;
-				}
-			}
-		}
+	
+	div img{
+		width: 80px;
 	}
 }
 
@@ -368,7 +415,7 @@ footer#footer{
 
 }
 
-  div#respuesta{
+  div.respuesta{
 	margin-left: auto;
 	margin: 1.5rem auto;
 	padding-left: 1rem;
@@ -380,13 +427,13 @@ footer#footer{
 	&:last-child{
 		border-bottom: none;
 	}
-	#contenedor-reporte{
+	.contenedor-reporte{
 		display: block;
 		text-align: right;
 		margin-bottom: 15px;
 
 	}
-	#fecha{
+	.fecha{
 		margin-left: 0.5rem;
 		color: $text;
 		font-size: 0.9rem;
@@ -414,7 +461,7 @@ footer#footer{
   }
 
 
-  #reporte{
+  .reporte{
 	background-color: white;
 	border: none;
 	padding: 0;
@@ -426,7 +473,7 @@ footer#footer{
 		font-size: 1.5rem;
 		color: gray;
 		&:hover{
-			color: #d1be69;
+			color: $paleta-1;
 			cursor: pointer;
 		}
 
@@ -449,6 +496,8 @@ footer#footer{
   .modal{
 	.modal-content{
 		.box{
+			padding: 3rem;
+			border-radius: 20px;
 			h2{
 				font-size: 1.2rem;
 				font-weight: 700;

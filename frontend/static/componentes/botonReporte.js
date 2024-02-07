@@ -11,7 +11,7 @@ class BotonReporte{
 
     render(){
         return`
-        <button id="reporte" class="js-modal-trigger" data-target="${this.#modal.ID}" onclick="${this.reportar()}">
+        <button class="reporte js-modal-trigger" data-target="${this.#modal.ID}" onclick="${this.reportar()}">
             <span>
                 <i class="fa-sm fa-solid fa-circle-exclamation">
                 </i>

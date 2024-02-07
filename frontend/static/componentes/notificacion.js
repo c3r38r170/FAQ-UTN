@@ -3,16 +3,16 @@ import {Fecha} from './fecha.js';
 class Notificacion{
 	#texto;
     #tituloPregunta;
-		visto;
-		#tipo;
-		#fecha;
-		//ppregunta ajena es notificacion por etiqueta suscripta 
-		//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
-		//respuesta o pregunta propia es notificación por valoración
+	visto;
+	#tipo;
+	#fecha;
+	//ppregunta ajena es notificacion por etiqueta suscripta 
+	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
+	//respuesta o pregunta propia es notificación por valoración
 	constructor({
         visto
-				,post
-				,createdAt
+		,post
+		,createdAt
     },usuarioActualDNI){
 			this.visto=visto;
 		this.#tituloPregunta = post.cuerpo;
@@ -41,11 +41,11 @@ class Notificacion{
 		// TODO UX: Estilos, visto no visto, al enlace, etc. (.notificacion)
 		// TODO Feature: Implementar registro de visto. onclick
 		return`
-		<div class="notificacion">
-			<div id="img-container">
-				<img id="img" class="img" src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"/>
+		<div class="notificacion ${this.visto==0? 'noti-no-vista': ''}">
+			<div class="img-container">
+				<img class="img" class="img" src="./user.webp"/>
 			</div>
-			<div id="noti-container">
+			<div class="noti-container">
 			${this.#texto}<a class="notificacion" src="">${this.#tituloPregunta}</a>
 			${this.#fecha.render()}
 			</div>

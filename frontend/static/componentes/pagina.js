@@ -47,7 +47,7 @@ class Pagina {
      if(sesion.usuario){
 			this.columnaNotificaciones=[
 				// TODO UX: Iconito de notificaciones. Ver los bocetos de las pantallas.
-				new Titulo(5,'Notificaciones')
+				new Titulo(5,'<i class="fa-regular fa-bell mr-2"></i> Notificaciones')
 				,new DesplazamientoInfinito('notificaciones-di','/api/notificacion',n=>(new Notificacion(n)).render())
 			];
 			this.globales.usuarioActual=sesion.usuario;
@@ -106,17 +106,12 @@ class Pagina {
 	
 			
 		<footer id="footer">
-			<div>
-				<img src="/logo.jpg">
-			</div>
-			<div>
-				<!-- TODO Feature: Enlaces como en el encabezado. (ver bocetos) -->
-			</div>
-			<div>
-			Este es 3
-			</div>
-			<div>
-			Site design - F.A.Q. UTN 2024
+
+			<div id="footer-content-container">
+				<img src="/logo-negativo.png">
+				<div>
+					FAQ UTN 2024
+				</div>
 			</div>
 		</footer>
 		<script>
@@ -188,26 +183,17 @@ class Encabezado {
   constructor(sesion) {
     if (sesion && sesion.usuario) {
       	this.#posibleUsuario = new ChipUsuario(sesion.usuario);
-		this.#posibleForm = new Formulario(
-			'formularioCerrarSesion'
-			, '/api/sesion'
-			, []
-			,this.procesarRespuesta.bind(this)
-			,  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE',clasesBoton:'is-link is-light is-small'}
-		);
+
+		this.#posibleForm = new Formulario('formularioCerrarSesion', 'http://localhost:8080/api/sesion', [],
+		this.procesarRespuesta.bind(this),  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE'},'is-link is-outlined is-rounded is-small');
 
     }else{ 
 		this.#modal = new Modal('Ingresar','modal-login');
-		let form = new Formulario(
-			'formularioSesion'
-			, '/api/sesion'
-			, [
-				['DNI', 'D.N.I.', { type: 'text' }],
-				['contrasenia', 'Contraseña', { type: 'password' }]
-			]
-			, this.procesarRespuesta.bind(this)
-			,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-primary mt-3'}
-		);
+		let form = new Formulario('formularioSesion', 'http://localhost:8080/api/sesion', [
+		['DNI', 'D.N.I.', { type: 'text' }],
+		['contrasenia', 'Contraseña', { type: 'password' }],
+		], this.procesarRespuesta.bind(this),  {textoEnviar:'Ingresar',verbo: 'POST'},'is-link mt-3 is-rounded');
+
 		this.#modal.contenido.push(form);
 	}
 
@@ -223,7 +209,7 @@ class Encabezado {
   render() {
     return `<div id="encabezado">
 	<div id=encabezado-izquierdo>
-		<img src="/logo.jpg">
+		<img src="/logo.png">
 		<h1>FAQ UTN</h1>
 		<a href="/">Inicio</a>
 		<a href="/quienes-somos/">Quiénes Somos</a>
@@ -236,9 +222,9 @@ class Encabezado {
 			//+ new Boton({titulo: 'Cerrar Sesión', classes: 'button is-link is-inverted is-small'}).render()
 		    + this.#posibleForm.render()
 			): (
-       	new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
+       	new Boton({titulo:'Ingresar', classes: 'button is-link is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
 		+ this.#modal.render() 
-		+ new Boton({titulo:'Registrarse', classes: 'button is-info'}).render() 
+		+ new Boton({titulo:'Registrarse', classes: 'button is-link'}).render() 
 		)}
 	</div>
 </div>`;

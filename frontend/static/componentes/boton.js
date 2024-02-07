@@ -21,7 +21,7 @@ class Boton{
 
     render(){
         return `
-        <button class="${this.#classes}" data-target="${this.#dataTarget}" onclick="${this.#onClick}" type="${this.#type}">
+        <button class="${this.#classes} is-rounded" data-target="${this.#dataTarget}" onclick="${this.#onClick}" type="${this.#type}">
           ${
             this.#titulo
           }

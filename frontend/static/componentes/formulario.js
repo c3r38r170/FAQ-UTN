@@ -103,8 +103,10 @@ class Campo{
 		this.#extra = extra;
 	}
 	render(){
+
 		let html=`<label class="label">${this.#textoEtiqueta}</label><input class="input ${this.#clases}" name="${this.#name}"`
 			,endTag='/>';
+
 		
 		if(this.#type){
 			switch(this.#type){

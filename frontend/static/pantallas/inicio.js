@@ -13,6 +13,7 @@ function crearPagina(usuario,queryString=''){
 				,'/api/pregunta'+queryString
 				,p=>(new Pregunta(p,modal, usuario)).render()
 			)
+			
 		]
 	});
 }
