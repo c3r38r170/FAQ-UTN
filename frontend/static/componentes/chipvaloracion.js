@@ -16,7 +16,7 @@ class ChipValoracion{
         ChipValoracion.instancias[this.#id]=this;
         this.#sesion=sesion;
         this.#valoracion=votos.reduce((suma, voto)=>suma+=voto.valoracion,0);
-        if(this.#sesion.usuario===undefined){
+        if(this.#sesion===undefined){
             this.#estado=0;
         }else{
             this.#estado=(votos.find(voto=>voto.votanteDNI==this.#sesion.usuario.DNI))?.valoracion||0;
@@ -74,13 +74,13 @@ class ChipValoracion{
 	render(){
 		return`
         <div id="chip-valoracion-${this.#id}" data-id='${this.#id}' data-valoracion='${this.#valoracion}' data-estado='${this.#estado}' class="chip-valoracion">
-            <button class="positiva" value='1' onclick="ChipValoracion.votar(event)" ${this.#sesion.usuario=== undefined?"disabled":''}>
+            <button class="positiva" value='1' onclick="ChipValoracion.votar(event)" ${this.#sesion=== undefined?"disabled":''}>
                 <span>
                     <i class="fa-solid fa-caret-up"></i>
                 </span>
             </button>
             <div id="chip-valoracion-${this.#id}-numero" class="valoraciones" >${this.#valoracion}</div>
-            <button class="negativa" value ='-1' onclick="ChipValoracion.votar(event)" ${this.#sesion.usuario=== undefined?"disabled":''}>
+            <button class="negativa" value ='-1' onclick="ChipValoracion.votar(event)" ${this.#sesion=== undefined?"disabled":''}>
                 <span>
                     <i class="fa-solid fa-caret-down"></i>
                 </span>
