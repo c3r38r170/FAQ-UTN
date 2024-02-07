@@ -214,6 +214,7 @@ class Encabezado {
   }
 
   procesarRespuesta(respuesta) {
+		// TODO Feature: Mostrar errores.
 	console.log('Respuesta:', JSON.stringify(respuesta));
 	location.reload();
   }

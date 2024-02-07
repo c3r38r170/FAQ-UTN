@@ -14,7 +14,8 @@ import {
 	, Etiqueta
 	, SuscripcionesEtiqueta
 	, Notificacion
-  , EtiquetasPregunta
+  , EtiquetasPregunta,
+	Categoria
 } from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar, moderarWithRetry} from "./ia.js";
@@ -795,9 +796,24 @@ router.post('moderacion_respuesta', function(req,res){
 
 router.get('/etiqueta', function(req,res){
 	//* sin paginación porque no deberían ser tantas
+
+	// TODO Refactor: Ver si el estandar de REST permite enviar colecciones separadas en casos como este, donde la redundancia es aproximadamente el 50% de la carga. O si hay que hacer endpoint de categorias...
+	/* Promise.all(
+		Etiqueta.findAll({
+			raw:true,
+			nest:true
+		})
+		,Categoria.findAll({
+			raw:true,
+			nest:true
+		})
+	)
+	.then((etiquetas,categorias)=>{
+		res.status(200).send({etiquetas,categorias}); */
 	Etiqueta.findAll({
 		raw:true,
-		nest:true
+		nest:true,
+		include:[{model:Categoria,as:'categoria'}]
 	}).then(etiquetas=>{
 		res.status(200).send(etiquetas);
 	}).catch(err=>{
