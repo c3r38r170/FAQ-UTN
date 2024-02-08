@@ -430,13 +430,32 @@ router.get("/usuario/:id?", async (req, res) =>  {
 // ToDo Feature 
 // Se puede implementar que se muestren preguntas recientes... etc
 router.get("/explorar", (req, res) => {
-	let pagina = new Pagina({
-	  ruta: req.path,
-	  titulo: "Explorar",
-	  sesion: req.session,
-	});
-	pagina.partes.push(new Busqueda())
-	res.send(pagina.render());
+	if(req.query.searchInput){
+		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
+		let queryString = req.url.substring(req.url.indexOf('?'));
+		let filtro=[];
+		filtro.texto=req.query.searchInput;
+		let filtros={filtrar:filtro};
+		
+		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+		PreguntaDAO.pagina(filtros)
+
+			.then(pre=>{
+					let pagina=PaginaInicio(req.session, queryString);
+					pagina.titulo="Explorar"
+					pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
+
+					res.send(pagina.render());
+				});
+	}else{
+		let pagina = new Pagina({
+		ruta: req.path,
+		titulo: "Explorar",
+		sesion: req.session,
+		});
+		pagina.partes.push(new Busqueda())
+		res.send(pagina.render());
+}
   });
   
 
