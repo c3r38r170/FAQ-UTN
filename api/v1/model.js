@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
           rejectUnauthorized: true,
         },
       },
-      logging: false,
+      logging: true,
      }
    );
    /* new Sequelize('faqutn', 'root', 'password', {
@@ -800,40 +800,70 @@ Post.pagina=({pagina=0, DNI}={})=>{
 }
 
 Respuesta.pagina=({pagina=0, DNI}={})=>{
-    return Post.findAll({
-		include: [
-            { model: Usuario, as: 'duenio'}, 
-            { model: Respuesta, as: 'respuesta', 
-              include: [
-                { 
-                  model: Pregunta, 
-                  as: 'pregunta', 
-                  attributes: ['ID', 'titulo'],
-                  include:[
-                      {
-                          model:EtiquetasPregunta
-                          ,required: true
-                          ,as: 'etiquetas'
-                          ,include:{
-                              model: Etiqueta
-                          }
-                          ,separate:true
-                      }
-                  ]
-              } // *Include Pregunta in Respuesta
-              ],
-              required: true,
-              attributes: ['ID', 'preguntaID'] 
-            }
-      ],
-        where: {
-            '$post.duenioDNI$': +DNI
+    return Pregunta.findAll({
+        // TODO Feature: try subQUery:false again and separate: true
+        include: [
+            {
+                model: Post,
+                include: [
+                    {
+                        model: Usuario,
+                        as: 'duenio',
+                        include: {
+                            model: Perfil,
+                            attributes: ['ID', 'nombre']
+                        },
+                        attributes: ['DNI', 'nombre']
+                    },
+                    
+                ],
+                attributes:['cuerpo', 'duenioDNI']
+            },
+            {
+                model:Respuesta,
+                as :'respuestas',
+                required:true,
+                include:{
+                    model: Post,
+                    include: [
+                        {
+                            model: Usuario,
+                            as: 'duenio',
+                            include: {
+                                model: Perfil,
+                                attributes: ['ID', 'nombre']
+                            },
+                            attributes: ['DNI', 'nombre']
+                        }
+                    ],
+                    attributes:['cuerpo', 'duenioDNI']
+                }
+            },
+            {
+                model:EtiquetasPregunta
+                ,required: true
+                ,as: 'etiquetas'
+                ,include:{
+                    model: Etiqueta
+                }
+                ,separate:true
+            },
+            
+        ],//TODO Refactor: aplicar dry
+        attributes:
+            {
+                include:
+                [[
+                    sequelize.literal('(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)'),
+                    'respuestasCount'
+                ]]
         },
-        order:[['fecha','DESC']],
-        limit:PAGINACION.resultadosPorPagina,
-        offset:(+pagina)*PAGINACION.resultadosPorPagina,
-	})
-
+        where:{
+            '$respuestas.post.duenio.DNI$':DNI
+        },
+        order:[[Post, 'fecha','DESC']],
+        // ,raw:true,nest:true
+    })
 }
 
 
