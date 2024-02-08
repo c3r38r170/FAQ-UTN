@@ -11,6 +11,7 @@ import { Voto as VotoDAO, Notificacion as NotificacionDAO, EtiquetasPregunta as 
 
 import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta /* PaginaExplorar, */ } from './static/pantallas/todas.js';
 import { PaginaPerfil } from "./static/pantallas/perfil.js";
+import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
@@ -177,6 +178,10 @@ router.get("/perfil/:id?", async (req, res) => {
 				res.status(404).send('Error con el perfil propio');
 				return;
 			}
+
+			let pagina= PaginaPerfilPropioInfo(req.path, req.session);
+			res.send(pagina.render());
+			return;
 	
 		}else if(req.params.id && req.session.usuario && (req.params.id != req.session.usuario.DNI)){
 
@@ -187,6 +192,17 @@ router.get("/perfil/:id?", async (req, res) => {
 				return;
 			}
 
+			let filtro={duenioID:null};
+		filtro.duenioID =usu.DNI;
+		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+		PreguntaDAO.pagina(filtro)
+			.then(pre=>{
+				let pagina = PaginaPerfil(req.path,req.session, usu)
+				pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
+
+				res.send(pagina.render());
+				});
+
 		}else if(req.params.id && !req.session.usuario){
 
 			//  NO LOGUEADO BUSCANDO OTRO USUARIO
@@ -196,36 +212,7 @@ router.get("/perfil/:id?", async (req, res) => {
 				return;
 			}
 
-
-		}else if(req.session.usuario && !req.params.id){
-
-			usu= req.session.usuario;
-			if (!usu) {
-				res.status(404).send('Estas logueado?');
-				return;
-			}
-
-		}else{
-			res.status(404).send('Error interno en else if ');
-			return;
-		}
-		/*let pagina = new Pagina({
-            ruta: req.path,
-            titulo: ((req.session.usuario && req.params.id && req.session.usuario.DNI == req.params.id)||(req.session.usuario && !req.params.id))? 'Mi Perfil' : 'Perfil de '+usu.nombre, 
-            sesion: req.session
-        });
-		let modal = new Modal('General','modal-general');
-		pagina.partes.push(modal);
-        pagina.partes.push(
-			new ChipUsuario(usu,true),
-			);*/
-		
-			
-			// ,usu.posts
-	
-			//cargamos primeros posts
-		
-		let filtro={duenioID:null};
+			let filtro={duenioID:null};
 		filtro.duenioID =usu.DNI;
 		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
 		PreguntaDAO.pagina(filtro)
@@ -237,7 +224,21 @@ router.get("/perfil/:id?", async (req, res) => {
 				});
 
 
-		//res.send(pagina.render());
+		}else if(req.session.usuario && !req.params.id){
+
+			usu= req.session.usuario;
+			if (!usu) {
+				res.status(404).send('Estas logueado?');
+				return;
+			}
+			let pagina= PaginaPerfilPropioInfo(req.path, req.session);
+			res.send(pagina.render());
+			return;
+
+		}else{
+			res.status(404).send('No se encuentra autorizado para ver esta pagina');
+			return;
+		}
 	}catch(error){
         console.error(error);
         res.status(500).send('Error interno del servidor');

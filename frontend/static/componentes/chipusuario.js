@@ -20,6 +20,7 @@ class ChipUsuario{
         this.#esPerfil = esPerfil;
 	}
 	render(){
+        //TODO Feature Tipo de Usuario
 
         if(this.#esPerfil){
             return`

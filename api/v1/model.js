@@ -568,8 +568,18 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
                         model: Etiqueta
                     }
                     ,separate:true
-                }
-            ],
+                },
+                
+            ],//TODO Refactor: aplicar dry
+            attributes:
+                {
+                    include:
+                    [[
+                        sequelize.literal('(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)'),
+                        'respuestasCount'
+                    ]]
+        }   
+            ,
             where: {
                 '$post.duenio.DNI$': +duenioID
             },
