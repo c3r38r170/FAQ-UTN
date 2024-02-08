@@ -46,71 +46,74 @@ router.get("/", (req, res) => {
 // Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) =>  {
     try {
-			if(req.params.id){
-        const p = await PreguntaDAO.findByPk(req.params.id, {
-            //raw: true,
-            //plain: true,
-            //nest: true,
-            include: [
-                {
-                    model: PostDAO,
-                    as: 'post',
-										include: [
-											{
-												model: UsuarioDAO,
-												as: 'duenio'
-											}
-										]
-                },
-                {
-                    model: RespuestaDAO,
-                    as: 'respuestas',
-					include: [
-						{
-							model: PostDAO,
-							as: 'post',
-							include: [
-								{
-									model: UsuarioDAO,
-									as: 'duenio'
-								},
-								{
-									model: VotoDAO,
-									as: 'votos'
-								}
-							]
-						}
-					],
-					order: [['updatedAt', 'DESC']]
-                },
-				{
-					model: EtiquetasPreguntaDAO,
-					as:'etiquetas',
-					include:EtiquetaDAO
-				},
-				{
-					model:SuscripcionesPreguntaDAO
-					,where:{
-						suscriptoDNI:req.session.usuario.DNI
+			if (req.params.id) {
+				const include = [
+					{
+						model: PostDAO,
+						as: 'post',
+						include: [
+							{
+								model: UsuarioDAO,
+								as: 'duenio'
+							}
+						]
+					},
+					{
+						model: RespuestaDAO,
+						as: 'respuestas',
+						include: [
+							{
+								model: PostDAO,
+								as: 'post',
+								include: [
+									{
+										model: UsuarioDAO,
+										as: 'duenio'
+									},
+									{
+										model: VotoDAO,
+										as: 'votos'
+									}
+								]
+							}
+						],
+						order: [['updatedAt', 'DESC']]
+					},
+					{
+						model: EtiquetasPreguntaDAO,
+						as: 'etiquetas',
+						include: EtiquetaDAO
 					}
-					,as: 'suscriptos'
-				}]
-        });
-
-        if (!p) {
-            res.status(404).send('ID de pregunta inválida');
-            return;
-        }
-
+				];
 		
-		let idPregunta=p.ID;
-       let pagina = PaginaPregunta(req.path, req.session, idPregunta)
-	   pagina.titulo=p.titulo;
-	   p.titulo="";
-		pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session))
+				// Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido
+				if (req.session.usuario && req.session.usuario.DNI) {
+					include.push({
+						model: SuscripcionesPreguntaDAO,
+						where: {
+							suscriptoDNI: req.session.usuario.DNI
+						},
+						as: 'suscriptos'
+					});
+				}
+		
+				const p = await PreguntaDAO.findByPk(req.params.id, { include });
 
-        res.send(pagina.render());
-			}else{ // * Nueva pregunta.
+				if (!p) {
+					res.status(404).send('ID de pregunta inválida');
+					return;
+				}
+
+				
+				let idPregunta=p.ID;
+				let pagina = PaginaPregunta(req.path, req.session, idPregunta)
+				pagina.titulo=p.titulo;
+				p.titulo="";
+				pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session))
+
+				res.send(pagina.render());
+			}
+			else{ // * Nueva pregunta.
 				let pagina=PantallaNuevaPregunta(req.path,req.session);
 				res.send(pagina.render());
 			}
@@ -177,6 +180,71 @@ router.get("/suscripciones",(req,res)=>{
 			res.send(pagina.render());
 		})
 })
+
+
+
+router.get("/etiqueta/:id/preguntas",async (req,res)=>{
+	
+try {
+	const e = await EtiquetaDAO.findByPk(req.params.id);
+	
+	if (!e) {
+		res.status(404).send('ID de etiqueta inválida');
+		return;
+	}
+	
+	let modal = new Modal('General','modal-general');
+	PreguntaDAO.findAll({
+		// TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
+		// TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta 
+		include:[
+			{
+				model: PostDAO,
+				as: 'post',
+									include: [
+										{
+											model: UsuarioDAO,
+											as: 'duenio'
+										}
+									]
+			},
+			{
+				model: EtiquetasPreguntaDAO
+				,as:'etiquetas'
+				,where:{
+					etiquetumID:req.params.id
+				},
+				include:EtiquetaDAO
+			}]
+	})
+	.then((preguntas)=>{
+		let pagina=new Pagina({
+			ruta:req.path
+			,titulo: 'Etiqueta #'+e.descripcion
+			,sesion:req.session
+			// TODO Feature: endpoint de preguntas por suscripción
+			,partes:[
+				modal,
+				new DesplazamientoInfinito(
+				'suscripciones-desplinf',
+				'/preguntas?suscritas',
+				// TODO Feature: Indicar que acá es con la primera respuesta. Quizá buscar con el DAO con o sin Respuestas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
+				p=>new Pregunta(p,modal,req.session).render(),
+				preguntas
+				)
+				]
+		});
+		
+		res.send(pagina.render());
+	})
+} catch (error) {
+	console.error(error);
+	res.status(500).send('Error interno del servidor');
+}
+});
+
+
+
 
 
 router.get("/perfil/:id?", async (req, res) => {

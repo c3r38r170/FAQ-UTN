@@ -1,14 +1,16 @@
 class Etiqueta{
     #descripcion;
+	#ID;
 	constructor({
-        descripcion
+        ID, descripcion
     }){
 		this.#descripcion = descripcion;
+		this.#ID = ID;
 	}
 	// ToDo Refactor: FALTA RUTA PARA VER ETIQUETAS 
 	render(){
 		return`
-        <a class="etiqueta" href="">${this.#descripcion}</a>
+        <a class="etiqueta" href="/etiqueta/${this.#ID}/preguntas">${this.#descripcion}</a>
         `;
 	}
 }
