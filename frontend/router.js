@@ -208,7 +208,7 @@ router.get("/perfil/:id?", async (req, res) => {
 			res.status(404).send('Error interno en else if ');
 			return;
 		}
-		let pagina = new Pagina({
+		/*let pagina = new Pagina({
             ruta: req.path,
             titulo: ((req.session.usuario && req.params.id && req.session.usuario.DNI == req.params.id)||(req.session.usuario && !req.params.id))? 'Mi Perfil' : 'Perfil de '+usu.nombre, 
             sesion: req.session
@@ -217,14 +217,39 @@ router.get("/perfil/:id?", async (req, res) => {
 		pagina.partes.push(modal);
         pagina.partes.push(
 			new ChipUsuario(usu,true),
-			new DesplazamientoInfinito(
-				'perfil-desplinf'
-				,`/api/usuario/${usu.DNI}/posts`
-				,p=>(new Pregunta(p.pregunta, modal, req.session)).render()
-				
-				// ,usu.posts
-		));
-		res.send(pagina.render());
+			);*/
+		
+			
+			// ,usu.posts
+	
+
+			//cargamos primeros posts
+
+		let filtro={duenioID:null};
+		filtro.duenioID =usu.DNI;
+		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+		PreguntaDAO.pagina(filtro)
+			.then(pre=>{
+				let modal = new Modal('General','modal-general');
+				let pagina= new Pagina({
+					titulo: ((req.session.usuario && req.params.id && req.session.usuario.DNI == req.params.id)||(req.session.usuario && !req.params.id))? 'Mi Perfil' : 'Perfil de '+usu.nombre,
+					sesion:req.session,
+					partes:[
+						modal,
+						new ChipUsuario(usu, true)
+						,new DesplazamientoInfinito(
+							'perfil-desplinf'
+					,`/api/usuario/${usu.DNI}/posts`
+					,p=>(new Pregunta(p, modal, req.session)).render()
+						)
+					]
+				});
+				pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
+				res.send(pagina.render());
+				});
+
+
+		//res.send(pagina.render());
 	}catch(error){
         console.error(error);
         res.status(500).send('Error interno del servidor');
