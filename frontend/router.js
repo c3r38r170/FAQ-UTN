@@ -76,7 +76,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 								},
 								{
 									model: VotoDAO,
-									as: 'votos'
+									as: 'votos',
 								}
 							]
 						}
@@ -96,6 +96,16 @@ router.get("/pregunta/:id?", async (req, res) =>  {
             return;
         }
 
+		//Ordenar respuestas por votos positivos
+		function calculateSumValoracion(respuesta) {
+			return respuesta.post.votos.reduce((total, voto) => total + voto.valoracion, 0);
+		}
+
+		p.respuestas.map(respuesta=>{respuesta.dataValues.sumValoracion = calculateSumValoracion(respuesta)});
+		console.log(p.respuestas[2].dataValues.sumValoracion)
+		p.dataValues.respuestas.sort((a, b)=>{
+			return b.dataValues.sumValoracion -a.dataValues.sumValoracion
+		});
 		
 		let idPregunta=p.ID;
        let pagina = PaginaPregunta(req.path, req.session, idPregunta)
