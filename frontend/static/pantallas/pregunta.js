@@ -3,6 +3,7 @@ import { Pagina } from "../componentes/pagina.js";
 import { Formulario } from "../componentes/formulario.js";
 
 function PaginaPregunta(ruta, sesion, idPregunta){
+    
     let pagina = new Pagina({
         ruta: ruta,
         titulo: '',
