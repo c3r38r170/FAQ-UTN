@@ -573,8 +573,10 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
             where: {
                 '$post.duenio.DNI$': +duenioID
             },
+            order:[[Post,'fecha','DESC']],
             limit:PAGINACION.resultadosPorPagina,
             offset:(+pagina)*PAGINACION.resultadosPorPagina,
+
             // ,raw:true,nest:true
         })
 	}else{
@@ -733,6 +735,96 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 }
 
 
+Post.pagina=({pagina=0, DNI}={})=>{
+    return Post.findAll({
+		include: [
+			  { model: Usuario, as: 'duenio'}, 
+			  { model: Respuesta, as: 'respuesta', 
+			  include: [
+				{ 
+				  model: Pregunta, 
+				  as: 'pregunta', 
+				  attributes: ['ID', 'titulo'],
+				  include:[
+					  {
+						  model:EtiquetasPregunta
+						  ,required: true
+						  ,as: 'etiquetas'
+						  ,include:{
+							  model: Etiqueta
+						  }
+						  ,separate:true
+					  }
+				  ]
+			  } // *Include Pregunta in Respuesta
+			  ],
+				required: false,
+				attributes: ['ID', 'preguntaID'] 
+			  },  
+			  { 
+				model: Pregunta, 
+				as: 'pregunta', 
+				required: false, 
+				attributes: ['ID', 'titulo'] ,
+				include:[
+					{
+						model:EtiquetasPregunta
+						,required: true
+						,as: 'etiquetas'
+						,include:{
+							model: Etiqueta
+						}
+						,separate:true
+					}
+				]
+			} 
+		],
+        where: {
+            '$post.duenioDNI$': +DNI
+        },
+        order:[['fecha','DESC']],
+        limit:PAGINACION.resultadosPorPagina,
+        offset:(+pagina)*PAGINACION.resultadosPorPagina,
+	})
+
+}
+
+Respuesta.pagina=({pagina=0, DNI}={})=>{
+    return Post.findAll({
+		include: [
+            { model: Usuario, as: 'duenio'}, 
+            { model: Respuesta, as: 'respuesta', 
+              include: [
+                { 
+                  model: Pregunta, 
+                  as: 'pregunta', 
+                  attributes: ['ID', 'titulo'],
+                  include:[
+                      {
+                          model:EtiquetasPregunta
+                          ,required: true
+                          ,as: 'etiquetas'
+                          ,include:{
+                              model: Etiqueta
+                          }
+                          ,separate:true
+                      }
+                  ]
+              } // *Include Pregunta in Respuesta
+              ],
+              required: true,
+              attributes: ['ID', 'preguntaID'] 
+            }
+      ],
+        where: {
+            '$post.duenioDNI$': +DNI
+        },
+        order:[['fecha','DESC']],
+        limit:PAGINACION.resultadosPorPagina,
+        offset:(+pagina)*PAGINACION.resultadosPorPagina,
+	})
+
+}
 
 
 Pregunta.hasOne(Post,{

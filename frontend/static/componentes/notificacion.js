@@ -107,7 +107,7 @@ class Notificacion{
 		return`
 		<div class="notificacion ${this.visto==0? 'noti-no-vista': ''}" id='chip-notificacion-${this.#ID}' data-id='${this.#ID}' data-idPregunta='${this.#idPregunta}'>
 			<div class="img-container">
-				<img class="img" class="img" src="./user.webp"/>
+				<img class="img" class="img" src="/user.webp"/>
 			</div>
 			<div class="noti-container">
 			${this.#texto}<a class="notificacion" onclick="Notificacion.verNotificacion()">${this.#tituloPregunta}</a>
