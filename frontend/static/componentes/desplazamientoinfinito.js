@@ -17,6 +17,7 @@ class DesplazamientoInfinito{
 		// TODO Feature: fallar si no se proveen los parámetros obligatorios. Aplicar a todfas las clases.
 		this.#id=id;
 		this.#endpoint=endpoint+(endpoint.includes('?')?'&':'?');
+		console.log(this.#endpoint)
 		
 		this.#generadorDeComponentes=transformarRespuestaEnComponente;
 		// * Las primeras entidades solo se usan desde el servidor y sirven para servir contenido generado y así mejorar el SEO de la página. Si solamente se generara el contenido dinámico desde el frontend, no podría ser analizado.

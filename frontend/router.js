@@ -171,6 +171,7 @@ router.get("/perfil/:id?", async (req, res) => {
 		if(req.params.id && req.session.usuario && (req.params.id == req.session.usuario.DNI)){
 			//PERFIL PROPIO DE USUARIO LOGUEADO
 			usu = req.session.usuario;
+			
 			if (!usu) {
 				res.status(404).send('Error con el perfil propio');
 				return;
@@ -219,10 +220,8 @@ router.get("/perfil/:id?", async (req, res) => {
 			new DesplazamientoInfinito(
 				'perfil-desplinf'
 				,`/api/usuario/${usu.DNI}/posts`
-				,p=>{
-					return p.pregunta?
-						new Pregunta(p.pregunta, modal) : ''
-				}
+				,p=>(new Pregunta(p.pregunta, modal, req.session)).render()
+				
 				// ,usu.posts
 		));
 		res.send(pagina.render());

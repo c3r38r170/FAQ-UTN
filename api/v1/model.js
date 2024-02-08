@@ -545,124 +545,36 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 	if(duenioID){
 		return Pregunta.findAll({
 			// TODO Feature: try subQUery:false again and separate: true
-			include:[
-				{
-					model:Post
-					,include:[
-						{
-							model:Voto
-							// ,as:'votado'
-							,include:{model:Usuario,as:'votante'}
-						}
-						,{
-							model:Usuario
-							,as:'duenio'
-							,include:{
-								model:Perfil
-								,attributes:['ID','nombre']
-							}
-							,attributes:['DNI','nombre']
-						}
-					]
-				},
-				// {
-				// 	model:Respuesta
-				// 	,as:'respuestas'
-				// 	,include: [
-                //         {
-                //             model: Post,
-                //             include: [
-                //                 {
-                //                     model:Usuario
-                //                     ,as:'duenio'
-                //                     ,include:{
-                //                         model:Perfil
-                //                         ,attributes:['ID','nombre']
-                //                     }
-                //                     ,attributes:['DNI','nombre']
-                //                 }
-                //             ]
-                //         }
-                //     ]
-						
-					
-					
-				// 	// ,
-				// 	/* {
-				// 		model:Post
-				// 		,include:[
-				// 			 */
-				// 			/* {
-				// 				model:Voto
-				// 				// ,as:'votado'
-				// 				,include:{model:Usuario,as:'votante'}
-				// 				// TODO Feature: Intentar agrupar votos, y ofrecer una medida resumen para ordenar. Quitar el resto afuera (antes intentar limit)
-				// 			}
-				// 			,{
-				// 				model:Usuario,
-				// 				as:'duenio'
-				// 			} */
-				// 		/* ]
-				// 	} */
-				// 	/* ,attributes:{
-				// 		include:[
-				// 			[
-				// 				Sequelize.literal(`(SELECT SUM(IF(valoracion=1,1,-1)) FROM votos AS v WHERE v.votadoID = post.ID)`),
-				// 				'puntuacion'
-				// 			]
-				// 		]
-				// 	} */
-				// 	/* ,order: [
-				// 			[Sequelize.literal('puntuacion'), 'DESC']
-				// 			// ,['fecha', 'DESC']
-				// 	] */
-				// 	// ,limit:1
-				// 	/* ,attributes:[
-				// 		'ID'
-				// 		// ,Sequelize.fn('sum',Sequelize.col('post.votos.valoracion'))
-				// 		// ,Sequelize.literal
-				// 		,'post.ID'
-				// 		,'post.cuerpo'
-				// 	] */
-				// 	/* ,attributes:[
-				// 		'ID'
-				// 		,'post.cuerpo'
-				// 		,[
-				// 			Sequelize.fn('sum',Sequelize.col('post.voto.valoracion'))
-				// 			,'valoracionTotal'
-				// 		]
-				// 	]
-				// 	,order:[
-				// 		['valoracionTotal','DESC']
-				// 	]
-				// 	,limit:1 */
-				// }
-				,{
-                    model:Etiqueta,
-                    as: 'etiquetas'
+			include: [
+                {
+                    model: Post,
+                    include: [
+                        {
+                            model: Usuario,
+                            as: 'duenio',
+                            include: {
+                                model: Perfil,
+                                attributes: ['ID', 'nombre']
+                            },
+                            attributes: ['DNI', 'nombre']
+                        }
+                    ]
+                },
+                {
+                    model:EtiquetasPregunta
+                    ,required: true
+                    ,as: 'etiquetas'
+                    ,include:{
+                        model: Etiqueta
+                    }
+                    ,separate:true
                 }
-				
-			],
-			/* attributes:[
-				'ID'
-				,'titulo'
-				,'fecha'
-				,'cuerpo'
-				,'post.duenio.DNI'
-			], */
-			/* attributes:{
-				include:[
-					[
-						Sequelize.literal(`(SELECT SUM(IF(valoracion=1,1,-1)) as respuestas, v.votadoID FROM votos AS v WHERE v.votadoID = respuestas.post.ID)`),
-						'respuestas.puntuacion'
-					]
-				]
-			}, */
-			where:{
-				'$post.duenio.DNI$':+duenioID
-			}
-			// ,raw:true,nest:true
-		})
+            ],
+            where: {
+                '$post.duenio.DNI$': +duenioID
+            }
+            // ,raw:true,nest:true
+        })
 	}else{
 		let opciones={
 			include:[Post],

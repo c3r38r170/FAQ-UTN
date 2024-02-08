@@ -89,6 +89,25 @@ router.get('/usuario', function(req,res){
     })  
 })
 
+router.get('/usuario/:DNI/posts', function(req, res){
+	console.log("AAAAAAAAAAAAAA")
+	let filtros={pagina:null,duenioID:null};
+		filtros.duenioID=req.params.DNI
+		// console.log(filtros);
+		Pregunta.pagina(filtros)
+		// Pregunta.findAll(opciones)
+			.then(preguntas=>{
+				res.status(200).send(preguntas)
+			})
+			.catch(err=>{
+				console.log(err)
+			});
+	// }
+	return;
+	
+
+})
+
 router.post('/usuario', (req,res)=>{
 	Usuario.findAll({
 		where:{DNI:req.body.DNI}
