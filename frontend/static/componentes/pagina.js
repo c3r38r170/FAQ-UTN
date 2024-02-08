@@ -93,7 +93,7 @@ class Pagina {
 				${new Breadcrumb(this.#ruta).render()}
 				<!-- TODO UX: Hacer Titulo -->
 				<div id="titulo-principal" class="title is-5">${this.titulo}</div>
-				${this.partes.map((p) => p.render()).join("")}
+				${ this.partes? this.partes.map((p) => p.render()).join("") : ''}
 				
 			</div>
 			<div id="columna-3" class="column is-4">
@@ -158,17 +158,6 @@ class Pagina {
 			});
 			});
 
-			// Cierra los cartelitos notificaciones
-			document.addEventListener('DOMContentLoaded', () => {
-				(document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
-				  const $notification = $delete.parentNode;
-			  
-				  $delete.addEventListener('click', () => {
-					$notification.parentNode.removeChild($notification);
-				  });
-				});
-			  });
-			  
 			  // Coloca aquí el código del MutationObserver
 			  function cerrarNotificacion($delete) {
 				  const $notification = $delete.parentNode;

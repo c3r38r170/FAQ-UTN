@@ -16,9 +16,10 @@ class Pregunta{
     #instanciaModal;
     #usuarioActual;
     #respuestasCount;
+    #suscripto;
     // TODO Feature: Hay 2 representaciones de pregunta. En el inicio, donde hay un listado, se ve la pregunta y la primera respuesta; y en la página propia se ve solo la pregunta y las respuestas se verían abajo con su propia representación.
 
-	constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount},instanciaModal, usuarioActual){
+	constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, suscriptos},instanciaModal, usuarioActual){
 
         // TODO Feature: Pensar condiciones de fallo de creación. Considerar que puede venir sin cuerpo (formato corto) o sin título (/pregunta, quitado "artificialmente")
         // if (titulo && cuerpo && fecha) {
@@ -33,6 +34,9 @@ class Pregunta{
             this.#etiquetas = etiquetas;
             this.#instanciaModal = instanciaModal;
             this.#usuarioActual=usuarioActual;
+            if(suscriptos){
+                this.#suscripto = true;
+            }
             
         // }
         // TODO Feature: fallar en el else
@@ -45,6 +49,7 @@ class Pregunta{
                     ${new ChipUsuario(this.#usuario).render()}
                     <div class="pl-0 py-0">
                         ${this.#fecha.render()}
+                        ${this.#suscripto? "<div class='ml-2 tag is-link'>Suscripto</div>": ''}
                     </div>
                     ${ new BotonReporte(this.#ID, this.#instanciaModal).render() }
                 </div>

@@ -471,4 +471,10 @@ button.mi-boton {
 }
 .loading img {
   width: 50px;
+}
+
+#nueva-respuesta {
+  padding: 3rem 3rem;
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
 }/*# sourceMappingURL=main.css.map */

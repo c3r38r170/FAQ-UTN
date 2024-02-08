@@ -4,7 +4,7 @@ const router = express.Router();
 /* 
 */
 import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo, Formulario } from "./static/componentes/todos.js";
-import { Voto as VotoDAO, Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
+import { Voto as VotoDAO, Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta as SuscripcionesPreguntaDAO, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
@@ -87,8 +87,14 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 					model: EtiquetasPreguntaDAO,
 					as:'etiquetas',
 					include:EtiquetaDAO
-				}
-            ]
+				},
+				{
+					model:SuscripcionesPreguntaDAO
+					,where:{
+						suscriptoDNI:req.session.usuario.DNI
+					}
+					,as: 'suscriptos'
+				}]
         });
 
         if (!p) {
@@ -122,30 +128,50 @@ router.get("/suscripciones",(req,res)=>{
 		res.status(401).send();
 		return;
 	}
-	
+	let modal = new Modal('General','modal-general');
 	PreguntaDAO.findAll({
 		// TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
 		// TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta 
-		include:{
-			model:SuscripcionesPregunta
+		include:[
+			{
+				model: PostDAO,
+				as: 'post',
+									include: [
+										{
+											model: UsuarioDAO,
+											as: 'duenio'
+										}
+									]
+			},
+			{
+				model: EtiquetasPreguntaDAO,
+				as:'etiquetas',
+				include:EtiquetaDAO
+			},
+			{
+			model:SuscripcionesPreguntaDAO
 			,where:{
-				suscriptoAPregunta:req.session.usuario.DNI
+				suscriptoDNI:req.session.usuario.DNI
 			}
-		}
+			,as: 'suscriptos'
+			}]
 	})
 		.then((preguntas)=>{
 			let pagina=new Pagina({
 				ruta:req.path
-				,titulo:p.titulo
+				,titulo: 'Suscripciones'
 				,sesion:req.session
 				// TODO Feature: endpoint de preguntas por suscripción
-				,partes:new DesplazamientoInfinito(
+				,partes:[
+					modal,
+					new DesplazamientoInfinito(
 					'suscripciones-desplinf',
 					'/preguntas?suscritas',
 					// TODO Feature: Indicar que acá es con la primera respuesta. Quizá buscar con el DAO con o sin Respuestas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
-					p=>new Pregunta(p),
+					p=>new Pregunta(p,modal,req.session).render(),
 					preguntas
-				)
+					)
+					]
 			});
 			
 			res.send(pagina.render());
