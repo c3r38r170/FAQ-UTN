@@ -264,7 +264,7 @@ router.patch('/pregunta', function(req,res){
 					//no se porque pero asi anda pregunta.save() no
 					pregunta.post.save();
 					//etiquetas vienen los id en array
-					pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new Etiqueta({ID})));
+					pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})));
 					res.status(200).send("Pregunta actualizada exitosamente");
 				});
 				
@@ -305,7 +305,8 @@ router.post('/pregunta', function(req,res){
 				}
 				//etiquetas
 				//asumo que vienen en el body en un array con los id (a chequear)
-				pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new Etiqueta({ID})));
+				
+				pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})));
 				
 				//Suscribe a su propia pregunta
 
@@ -492,6 +493,7 @@ router.post('/respuesta', function(req,res){
 							  suscriptoDNI: { [Sequelize.Op.ne]: req.session.usuario.DNI} 
 							}
 						  }).then(suscripciones=>{
+							console.log(suscripciones);
 							suscripciones.forEach(suscripcion => {
 								Notificacion.create({
 									postNotificadoID:post.ID,
@@ -576,7 +578,7 @@ const valorarPost=function(req,res) {
 
 	// TODO Refactor: ver si es posible traer solo un si existe
 	let IDvotado=req.params.votadoID;
-
+	
 	Post.findByPk(IDvotado).then(post=>{
 			if(!post){
 				res.status(404).send("Post no encontrado / disponible.");
@@ -589,6 +591,7 @@ const valorarPost=function(req,res) {
 					nest:true,
 					plain:true
 				}).then(voto=>{
+					console.log(voto)
 					if(!voto){
 						// si no exite el voto lo crea con lo que mandó
 						if(req.body.valoracion=="null"){
@@ -599,16 +602,17 @@ const valorarPost=function(req,res) {
 								votadoID:IDvotado,
 								votanteDNI:req.session.usuario.DNI
 							}).then(v=>v.save());
+							Notificacion.create({
+								postNotificadoID:post.ID,
+								notificadoDNI:post.duenioDNI
+							})
 					}
 					}else{
 						voto.valoracion=req.body.valoracion;
 						voto.save();
 						//Notificación
 
-						Notificacion.create({
-							postNotificadoID:post.ID,
-							notificadoDNI:post.duenioDNI
-						})
+						
 						
 
 					}
@@ -669,7 +673,7 @@ const reportarPost=function(req, res){
 	}
 
 	let reportadoID=req.params.reportadoID;
-
+	console.log(reportadoID)
 	Post.findByPk(reportadoID
 	).then(pregunta=>{
 		if(!pregunta){

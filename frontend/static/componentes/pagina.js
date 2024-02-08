@@ -43,12 +43,12 @@ class Pagina {
   // TODO Feature: Poner los 3 modales acá.
 	// Los de registro e inicio, podría chequear si sesion existe para agregarse o no
 	// El de reportar (tanto post y usuario) dejarlos, total no molestan y después se llamarán desde los scripts estáticos
-
+	
      if(sesion.usuario){
 			this.columnaNotificaciones=[
 				// TODO UX: Iconito de notificaciones. Ver los bocetos de las pantallas.
 				new Titulo(5,'<i class="fa-regular fa-bell mr-2"></i> Notificaciones')
-				,new DesplazamientoInfinito('notificaciones-di','/api/notificacion',n=>(new Notificacion(n)).render())
+				,new DesplazamientoInfinito('notificaciones-di','/api/notificacion',n=>(new Notificacion(n, sesion.usuario.DNI)).render())
 			];
 			this.globales.usuarioActual=sesion.usuario;
 		} 

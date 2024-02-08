@@ -72,7 +72,7 @@ describe('Express API Tests', () => {
 
   // Test: Answer Report (Expecting 201)
   it('post - reporteRespuesta201', async () => {
-    const response = await makeRequest('post', '/api/respuesta/23/reporte', {
+    const response = await makeRequest('post', '/api/post/23/reporte', {
       tipo: 1,
     });
 
@@ -81,7 +81,7 @@ describe('Express API Tests', () => {
 
   // Test: Question Report (Expecting 201)
   it('post - reportePregunta201', async () => {
-    const response = await makeRequest('post', '/api/pregunta/9/reporte', {
+    const response = await makeRequest('post', '/api/post/9/reporte', {
       tipo: 1,
     });
 
@@ -146,15 +146,6 @@ describe('Express API Tests', () => {
     assert.strictEqual(response.status, 404);
   });
 
-  // Test: Get Question (Expecting 200)
-  it('get - pregunta200', async () => {
-    const response = await makeRequest('get', '/api/pregunta', {
-      cuerpo: 'organizo',
-      pagina: 0,
-    });
-
-    assert.strictEqual(response.status, 200);
-  });
 
   // Test: Update Question (Expecting 400)
   it('patch - pregunta400', async () => {

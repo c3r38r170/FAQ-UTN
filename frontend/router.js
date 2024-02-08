@@ -96,8 +96,9 @@ router.get("/pregunta/:id?", async (req, res) =>  {
             return;
         }
 
-
-       let pagina = PaginaPregunta(req.path, req.session)
+		
+		let idPregunta=p.ID;
+       let pagina = PaginaPregunta(req.path, req.session, idPregunta)
 	   pagina.titulo=p.titulo;
 	   p.titulo="";
 		pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session))

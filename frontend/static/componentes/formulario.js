@@ -20,7 +20,6 @@ class Formulario{
 		this.#textoEnviar=textoEnviar;
 		this.#funcionRetorno=funcionRetorno;
 		this.#clasesBotonEnviar=clasesBotonEnviar;
-
 		Formulario.instancias[id]=this;
 	}
 
@@ -115,6 +114,10 @@ class Campo{
 			case 'select':
 				html=html.replace('input','select');
 				endTag=`>${this.#extra}</select>`;
+				break;
+			case 'hidden':
+				html=html.replace('<label class="label">'+this.#textoEtiqueta+'</label>','');
+				html+=` type="${this.#type}"`;
 				break;
 			case 'number':
 				// * min, max, step...

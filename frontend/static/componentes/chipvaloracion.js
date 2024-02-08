@@ -32,7 +32,6 @@ class ChipValoracion{
         let estado = +divChipvaloracion.dataset.estado;
         let valoracion = +divChipvaloracion.dataset.valoracion;
         let valor =+botonApretado.value;
-        console.log(valoracion, valor);
         
         
         const url= `http://localhost:8080/api/post/${id}/valoracion`;

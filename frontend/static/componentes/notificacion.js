@@ -9,6 +9,17 @@ class Notificacion{
 	//ppregunta ajena es notificacion por etiqueta suscripta 
 	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
 	//respuesta o pregunta propia es notificación por valoración
+
+	/*
+	notificacion
+	post
+		usuario
+		respuesta
+			pregunta
+		pregunta
+
+	*/
+
 	constructor({
         visto
 		,post
@@ -17,7 +28,25 @@ class Notificacion{
 			this.visto=visto;
 		this.#tituloPregunta = post.cuerpo;
 		this.#fecha=new Fecha(createdAt);
-
+		console.log(usuarioActualDNI)
+		if(post.pregunta.ID!=null){
+			if(post.duenio.DNI==usuarioActualDNI){
+				this.#texto = 'Recibiste un nuevo voto:'
+				this.#tituloPregunta = post.pregunta.titulo
+			}else{
+				this.#texto= 'Nueva pregunta que te puede interesar'
+				this.#tituloPregunta = post.pregunta.titulo
+			}
+		}else{
+			if(post.duenio.DNI==usuarioActualDNI){
+				this.#texto = 'Recibiste un nuevo voto:'
+				this.#tituloPregunta = post.respuesta.pregunta.titulo
+			}else{
+				this.#texto = 'Nuevas respuestas en la pregunta '
+				this.#tituloPregunta = post.respuesta.pregunta.titulo
+			}
+		}
+			/*
 		// TODO Refactor: Preguntar una sola vez.
 		
 		if(post.pregunta.ID){ // * Es una notificación de una pregunta
@@ -35,7 +64,7 @@ class Notificacion{
 			}else{ // * Es una notificación de una respuesta
 				this.#texto='Nuevas respuestas en la pregunta ';
 			}
-		}
+		}*/
 	}
 	render(){
 		// TODO UX: Estilos, visto no visto, al enlace, etc. (.notificacion)
