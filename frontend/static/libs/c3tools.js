@@ -80,14 +80,13 @@ function whatIs(variable){
 }
 
 //DOM querying
-
-/** @const {Window} */
-//const W=window;
-/** @const {Document} */
-//const D=document;
-/** @const {HTMLBodyElement} */
-// * Modules load before DOMContentLoaded is fired.
-//const B=D.body;
+var W=null,D=null,B=null;
+if (typeof window !== 'undefined'){
+	W=window;
+	D=document;
+	// * Modules load before DOMContentLoaded is fired.
+	B=D.body;
+}
 
 // TODO cambiar a Math.Infinity y 1
 const ALL=true;

@@ -1,4 +1,4 @@
-import { SqS, gEt } from "../superFetch.js";
+import { SqS, gEt } from "../libs/c3tools.js";
 
 class ChipValoracion{
 

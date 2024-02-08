@@ -1,4 +1,4 @@
-import { superFetch } from '../superFetch.js'
+import { superFetch } from '../libs/c3tools.js'
 //import {superFetch} from 'https://unpkg.com/@c3r38r170/c3tools@1.1.0/c3tools.m.js';
 
 class Formulario{
@@ -103,7 +103,7 @@ class Campo{
 		this.#extra = extra;
 	}
 	render(){
-		let html=`<label class="label">${this.#textoEtiqueta}</label><input class="input ${this.#clases}" name="${this.#name}"`
+		let html=`<label class="label">${this.#textoEtiqueta}<input class="input ${this.#clases}" name="${this.#name}"`
 			,endTag='/>';
 		
 		if(this.#type){

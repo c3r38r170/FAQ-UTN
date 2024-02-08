@@ -810,11 +810,13 @@ router.get('/etiqueta', function(req,res){
 	)
 	.then((etiquetas,categorias)=>{
 		res.status(200).send({etiquetas,categorias}); */
+		// console.log('aaaaa');
 	Etiqueta.findAll({
 		raw:true,
 		nest:true,
 		include:[{model:Categoria,as:'categoria'}]
 	}).then(etiquetas=>{
+		// console.log('bbbbb',etiquetas);
 		res.status(200).send(etiquetas);
 	}).catch(err=>{
 		res.status(500).send(err);
