@@ -169,7 +169,39 @@ class Pagina {
 				});
 			  });
 			  
-			
+			  // Coloca aquí el código del MutationObserver
+			  function cerrarNotificacion($delete) {
+				  const $notification = $delete.parentNode;
+				  $notification.parentNode.removeChild($notification);
+			  }
+	  
+			  function callback(mutationsList, observer) {
+				  for(const mutation of mutationsList) {
+					  if (mutation.type === 'childList') {
+						  mutation.addedNodes.forEach(node => {
+							  if (node.classList && node.classList.contains('notification')) {
+								  const $delete = node.querySelector('.delete');
+								  if ($delete) {
+									  $delete.addEventListener('click', () => {
+										  cerrarNotificacion($delete);
+									  });
+								  }
+							  }
+						  });
+					  }
+				  }
+			  }
+	  
+			  const observer = new MutationObserver(callback);
+			  observer.observe(document.body, { childList: true, subtree: true });
+	  
+			  document.addEventListener('DOMContentLoaded', () => {
+				  document.querySelectorAll('.notification .delete').forEach($delete => {
+					  $delete.addEventListener('click', () => {
+						  cerrarNotificacion($delete);
+					  });
+				  });
+			  });
 			</script>
 		</body>
 </html>`;
@@ -180,7 +212,9 @@ class Encabezado {
 	#modal;
   #posibleUsuario;
   #posibleForm
+  #sesion;
   constructor(sesion) {
+	this.#sesion = sesion;
     if (sesion && sesion.usuario) {
       	this.#posibleUsuario = new ChipUsuario(sesion.usuario);
 		this.#posibleForm = new Formulario(
@@ -208,8 +242,7 @@ class Encabezado {
 
   }
 
-  procesarRespuesta(respuesta) {
-	console.log('Respuesta:', JSON.stringify(respuesta));
+procesarRespuesta() {
 	location.reload();
   }
   

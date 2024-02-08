@@ -326,6 +326,7 @@ div.notificacion{
 	display: flex;
 	justify-content: start;
 	margin-top: 0.8rem;
+	flex-wrap: wrap;
 	.etiqueta{
 		line-height: 2.4;
 		margin-left: 1rem;
@@ -334,6 +335,7 @@ div.notificacion{
 		font-size: 1rem;
 		font-weight: 300;
 		display: inline-block;
+		text-transform: capitalize;
 		&:hover{
 			color: $text-hover;
 		}
@@ -419,6 +421,14 @@ footer#footer{
 			opacity: 0.75;
 		}
 	}
+
+	button:disabled, button.positiva:disabled, button.negativa:disabled{
+		span{
+			color: $text-light;
+		}
+		opacity: 0.3;
+		cursor: not-allowed;
+	  }
 	div.valoraciones{
 		line-height: 1;
 		//margin: 0.5rem;

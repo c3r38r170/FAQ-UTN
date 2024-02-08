@@ -285,6 +285,7 @@ div.notificacion div.noti-container .fecha {
   display: flex;
   justify-content: start;
   margin-top: 0.8rem;
+  flex-wrap: wrap;
 }
 .etiquetas .etiqueta {
   line-height: 2.4;
@@ -294,6 +295,7 @@ div.notificacion div.noti-container .fecha {
   font-size: 1rem;
   font-weight: 300;
   display: inline-block;
+  text-transform: capitalize;
 }
 .etiquetas .etiqueta:hover {
   color: #485fc7;
@@ -365,6 +367,13 @@ footer#footer div img {
 }
 .chip-valoracion button.negativa:hover {
   opacity: 0.75;
+}
+.chip-valoracion button:disabled, .chip-valoracion button.positiva:disabled, .chip-valoracion button.negativa:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.chip-valoracion button:disabled span, .chip-valoracion button.positiva:disabled span, .chip-valoracion button.negativa:disabled span {
+  color: #636363;
 }
 .chip-valoracion div.valoraciones {
   line-height: 1;
