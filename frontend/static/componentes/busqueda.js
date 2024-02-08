@@ -1,12 +1,14 @@
 import { Etiqueta } from './etiqueta.js'
 
 class Busqueda{
-    #etiquetas= [
-        {descripcion: 'mesas de examen'},
-        {descripcion: 'excepcion'},
-        {descripcion: 'apuntes'},
-		{descripcion: 'tp'}
-    ]
+    #etiquetas = [];
+
+    constructor(etiquetas){
+
+        if(etiquetas){
+            this.#etiquetas = etiquetas;
+        }
+	}
 
 
     manejoBusqueda(event) {
@@ -24,7 +26,7 @@ class Busqueda{
                 <input class="input" type="text" name="searchInput" placeholder="Buscar..." />
             </form>
             <div class="etiquetas">
-                ${this.#etiquetas.map(e => new Etiqueta(e).render()).join('')}
+                ${this.#etiquetas.lenght > 0 ? this.#etiquetas.map(e => new Etiqueta(e).render()).join('') : ''}
             </div>  
         </div>
         `;

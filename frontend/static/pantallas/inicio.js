@@ -2,12 +2,13 @@ import { Pagina, Modal, DesplazamientoInfinito, Pregunta , Busqueda } from "../c
 
 function crearPagina(usuario,queryString=''){
 	let modal = new Modal('General','modal-general');
+
 	return new Pagina({
 		titulo: "Inicio",
 		sesion:usuario,
 		partes:[
 			modal,
-			new Busqueda('Hola')
+			new Busqueda()
 			,new DesplazamientoInfinito(
 				'inicio-preguntas'
 				,'/api/pregunta'+queryString

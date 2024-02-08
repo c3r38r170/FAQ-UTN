@@ -86,16 +86,16 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 					}
 				];
 		
-				// Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido
-				if (req.session.usuario && req.session.usuario.DNI) {
-					include.push({
-						model: SuscripcionesPreguntaDAO,
-						where: {
-							suscriptoDNI: req.session.usuario.DNI
-						},
-						as: 'suscriptos'
-					});
-				}
+				// // Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido
+				// if (req.session.usuario && req.session.usuario.DNI) {
+				// 	include.push({
+				// 		model: SuscripcionesPreguntaDAO,
+				// 		where: {
+				// 			suscriptoDNI: req.session.usuario.DNI
+				// 		},
+				// 		as: 'suscriptos'
+				// 	});
+				// }
 		
 				const p = await PreguntaDAO.findByPk(req.params.id, { include });
 
