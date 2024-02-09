@@ -123,8 +123,8 @@ router.get('/usuario/:DNI/respuestas', function(req, res){
 		if(req.query.pagina){
 			filtros.pagina=req.query.pagina;
 		}
-
-	Respuesta.pagina(filtros).then(respuestas=>res.send(respuestas))
+		res.status(200).send([])
+	//Respuesta.pagina(filtros).then(respuestas=>res.send(respuestas))
 })
 
 router.post('/usuario', (req,res)=>{

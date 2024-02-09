@@ -4,7 +4,7 @@ import { Pregunta } from "../componentes/pregunta.js";
 import { Pagina } from "../componentes/pagina.js";
 
 function crearPagina(ruta, sesion){
-    let titulo = 'Tus Preguntas';
+    let titulo = 'Tus Respuestas';
     let modal = new Modal('General','modal-general');
     return new Pagina({
         ruta:ruta,

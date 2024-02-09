@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
           rejectUnauthorized: true,
         },
       },
-      logging: true,
+      logging: false,
      }
    );
    /* new Sequelize('faqutn', 'root', 'password', {
@@ -812,13 +812,10 @@ Respuesta.pagina=({pagina=0, DNI}={})=>{
                         as: 'duenio',
                         include: {
                             model: Perfil,
-                            attributes: ['ID', 'nombre']
                         },
-                        attributes: ['DNI', 'nombre']
                     },
                     
                 ],
-                attributes:['cuerpo', 'duenioDNI']
             },
             {
                 model:Respuesta,
@@ -832,12 +829,14 @@ Respuesta.pagina=({pagina=0, DNI}={})=>{
                             as: 'duenio',
                             include: {
                                 model: Perfil,
-                                attributes: ['ID', 'nombre']
                             },
-                            attributes: ['DNI', 'nombre']
+                        },
+                        {
+                            model:Voto
+                            ,separate:true
+                            ,include:{model:Usuario,as:'votante'}
                         }
                     ],
-                    attributes:['cuerpo', 'duenioDNI']
                 }
             },
             {
