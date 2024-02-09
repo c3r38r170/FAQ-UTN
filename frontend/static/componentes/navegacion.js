@@ -14,8 +14,8 @@ class Navegacion{
             this.#enlaces=[
                 new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'/'),
                 new EnlaceNavegacion('Preguntar',{tipo:'solid',nombre:'plus'},'/pregunta'),
-                new EnlaceNavegacion('Suscripciones',{tipo:'solid',nombre:'arrow-right'}),
-                new EnlaceNavegacion('Perfil',{tipo:'regular',nombre:'user'})
+                new EnlaceNavegacion('Suscripciones',{tipo:'solid',nombre:'arrow-right'}, '/suscripciones'),
+                new EnlaceNavegacion('Perfil',{tipo:'regular',nombre:'user'},'/perfil')
             ];
         }
         

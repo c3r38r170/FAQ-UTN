@@ -14,7 +14,7 @@ class Pagina {
   #ruta=''/*  = {
 	ruta: ""
   } */;
-  #titulo = {
+  titulo = {
 	titulo: ""
   };
   #sesion;
@@ -34,7 +34,7 @@ class Pagina {
 	// TODO Refactor: Usar usuarioActual (o usuarioDeSesion) (sesion.usuario) en vez de sesion.
   constructor({ ruta='/index', titulo, sesion,partes=[]}) {
     this.#ruta/* .ruta */ = ruta;
-    this.#titulo = titulo;
+    this.titulo = titulo;
 	this.#sesion = sesion;
 	this.partes = Array.isArray(partes) ? partes : [partes];
 	this.#encabezado = new Encabezado(this.#sesion);
@@ -43,12 +43,12 @@ class Pagina {
   // TODO Feature: Poner los 3 modales acá.
 	// Los de registro e inicio, podría chequear si sesion existe para agregarse o no
 	// El de reportar (tanto post y usuario) dejarlos, total no molestan y después se llamarán desde los scripts estáticos
-
+	
      if(sesion.usuario){
 			this.columnaNotificaciones=[
 				// TODO UX: Iconito de notificaciones. Ver los bocetos de las pantallas.
-				new Titulo(5,'Notificaciones')
-				,new DesplazamientoInfinito('notificaciones-di','/api/notificacion',n=>(new Notificacion(n)).render())
+				new Titulo(5,'<i class="fa-regular fa-bell mr-2"></i> Notificaciones')
+				,new DesplazamientoInfinito('notificaciones-di','/api/notificacion',n=>(new Notificacion(n.ID,n, sesion.usuario.DNI)).render())
 			];
 			this.globales.usuarioActual=sesion.usuario;
 		} 
@@ -65,7 +65,7 @@ class Pagina {
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>FAQ UTN - ${this.#titulo}</title>
+		<title>FAQ UTN - ${this.titulo}</title>
 
 		<script src="/scripts/visibilizar-clases.js" type="module" async></script>
 		
@@ -92,8 +92,8 @@ class Pagina {
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
 				<!-- TODO UX: Hacer Titulo -->
-				<div id="titulo-principal" class="title is-5">${this.#titulo}</div>
-				${this.partes.map((p) => p.render()).join("")}
+				<div id="titulo-principal" class="title is-5">${this.titulo}</div>
+				${ this.partes? this.partes.map((p) => p.render()).join("") : ''}
 				
 			</div>
 			<div id="columna-3" class="column is-4">
@@ -106,17 +106,12 @@ class Pagina {
 	
 			
 		<footer id="footer">
-			<div>
-				<img src="/logo.jpg">
-			</div>
-			<div>
-				<!-- TODO Feature: Enlaces como en el encabezado. (ver bocetos) -->
-			</div>
-			<div>
-			Este es 3
-			</div>
-			<div>
-			Site design - F.A.Q. UTN 2024
+			<div id="footer-content-container">
+			<!-- TODO Feature: Enlaces como en el encabezado. (ver bocetos) -->
+				<img src="/logo-negativo.png">
+				<div>
+					FAQ UTN 2024
+				</div>
 			</div>
 		</footer>
 		<script>
@@ -163,18 +158,39 @@ class Pagina {
 			});
 			});
 
-			// Cierra los cartelitos notificaciones
-			document.addEventListener('DOMContentLoaded', () => {
-				(document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
+			  // Coloca aquí el código del MutationObserver
+			  function cerrarNotificacion($delete) {
 				  const $notification = $delete.parentNode;
-			  
-				  $delete.addEventListener('click', () => {
-					$notification.parentNode.removeChild($notification);
+				  $notification.parentNode.removeChild($notification);
+			  }
+	  
+			  function callback(mutationsList, observer) {
+				  for(const mutation of mutationsList) {
+					  if (mutation.type === 'childList') {
+						  mutation.addedNodes.forEach(node => {
+							  if (node.classList && node.classList.contains('notification')) {
+								  const $delete = node.querySelector('.delete');
+								  if ($delete) {
+									  $delete.addEventListener('click', () => {
+										  cerrarNotificacion($delete);
+									  });
+								  }
+							  }
+						  });
+					  }
+				  }
+			  }
+	  
+			  const observer = new MutationObserver(callback);
+			  observer.observe(document.body, { childList: true, subtree: true });
+	  
+			  document.addEventListener('DOMContentLoaded', () => {
+				  document.querySelectorAll('.notification .delete').forEach($delete => {
+					  $delete.addEventListener('click', () => {
+						  cerrarNotificacion($delete);
+					  });
 				  });
-				});
 			  });
-			  
-			
 			</script>
 		</body>
 </html>`;
@@ -185,7 +201,9 @@ class Encabezado {
 	#modal;
   #posibleUsuario;
   #posibleForm
+  #sesion;
   constructor(sesion) {
+	this.#sesion = sesion;
     if (sesion && sesion.usuario) {
       	this.#posibleUsuario = new ChipUsuario(sesion.usuario);
 		this.#posibleForm = new Formulario(
@@ -206,7 +224,7 @@ class Encabezado {
 				{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
 			]
 			, this.procesarRespuesta.bind(this)
-			,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-primary mt-3'}
+			,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-link is-rounded mt-3'}
 		);
 		this.#modal.contenido.push(form);
 	}
@@ -224,7 +242,7 @@ class Encabezado {
   render() {
     return `<div id="encabezado">
 	<div id=encabezado-izquierdo>
-		<img src="/logo.jpg">
+		<img src="/logo.png">
 		<h1>FAQ UTN</h1>
 		<a href="/">Inicio</a>
 		<a href="/quienes-somos/">Quiénes Somos</a>
@@ -237,9 +255,9 @@ class Encabezado {
 			//+ new Boton({titulo: 'Cerrar Sesión', classes: 'button is-link is-inverted is-small'}).render()
 		    + this.#posibleForm.render()
 			): (
-       	new Boton({titulo:'Ingresar', classes: 'button is-info is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
+       	new Boton({titulo:'Ingresar', classes: 'button is-link is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
 		+ this.#modal.render() 
-		+ new Boton({titulo:'Registrarse', classes: 'button is-info'}).render() 
+		+ new Boton({titulo:'Registrarse', classes: 'button is-link'}).render() 
 		)}
 	</div>
 </div>`;

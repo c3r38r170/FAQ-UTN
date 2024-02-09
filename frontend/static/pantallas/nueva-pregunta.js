@@ -19,7 +19,7 @@ function crearPagina(ruta,sesion){
 					window.location.replace('/pregunta/'+preguntaID);
 				}
 				,{
-					textoEnviar:'Crear Pregunta'
+					textoEnviar:'Crear Pregunta', clasesBoton:'is-link is-rounded mt-3'
 				}
 			)
 			// TODO Feature: Formulario de creación de preguntas 

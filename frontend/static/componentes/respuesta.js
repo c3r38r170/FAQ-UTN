@@ -20,6 +20,7 @@ class Respuesta {
     this.#ID = ID;
     this.#valoracion.ID = ID;
     this.#valoracion.usuarioActual=usuarioActual;
+    this.#valoracion.votos=post.votos;
     this.#cuerpo = cuerpo;
     this.#fecha = new Fecha(fecha);
     this.#usuario = post.duenio;
@@ -32,10 +33,10 @@ class Respuesta {
 
   render() {
     return `
-        <div id="respuesta">
+        <div class="respuesta">
               ${this.#chipValoracion.render()}
               <div class="cuerpo">
-                <div id="contenedor-reporte">
+                <div class="contenedor-reporte">
                   ${ new BotonReporte(this.#ID, this.#instanciaModal).render()}
                 </div>
                 ${this.#cuerpo}

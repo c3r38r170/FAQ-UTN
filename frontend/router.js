@@ -4,16 +4,15 @@ const router = express.Router();
 /* 
 */
 import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo, Formulario } from "./static/componentes/todos.js";
-import { Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
+import { Voto as VotoDAO, Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta as SuscripcionesPreguntaDAO, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO} from '../api/v1/model.js';
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
-import { PaginaInicio, PantallaNuevaPregunta /* PaginaExplorar, */ } from './static/pantallas/todas.js';
+import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta /* PaginaExplorar, */ } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
-
 	// TODO Feature: query vs body
 	if(req.query.searchInput){
 		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
@@ -24,6 +23,7 @@ router.get("/", (req, res) => {
 		
 		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
 		PreguntaDAO.pagina(filtros)
+
 			.then(pre=>{
 					let pagina=PaginaInicio(req.session, queryString);
 					pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
@@ -42,77 +42,78 @@ router.get("/", (req, res) => {
 	}
 });
 
+
 // Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) =>  {
     try {
-			if(req.params.id){
-        const p = await PreguntaDAO.findByPk(req.params.id, {
-            //raw: true,
-            //plain: true,
-            //nest: true,
-            include: [
-                {
-                    model: PostDAO,
-                    as: 'post',
-										include: [
-											{
-												model: UsuarioDAO,
-												as: 'duenio'
-											}
-										]
-                },
-                {
-                    model: RespuestaDAO,
-                    as: 'respuestas',
-					include: [
-						{
-							model: PostDAO,
-							as: 'post',
-							include: [
-								{
-									model: UsuarioDAO,
-									as: 'duenio'
-								}
-							]
-						}
-					],
-					order: [['updatedAt', 'DESC']]
-                },
-				{
-					model: EtiquetasPreguntaDAO,
-					as:'etiquetas',
-					include:EtiquetaDAO
+			if (req.params.id) {
+				const include = [
+					{
+						model: PostDAO,
+						as: 'post',
+						include: [
+							{
+								model: UsuarioDAO,
+								as: 'duenio'
+							}
+						]
+					},
+					{
+						model: RespuestaDAO,
+						as: 'respuestas',
+						include: [
+							{
+								model: PostDAO,
+								as: 'post',
+								include: [
+									{
+										model: UsuarioDAO,
+										as: 'duenio'
+									},
+									{
+										model: VotoDAO,
+										as: 'votos'
+									}
+								]
+							}
+						],
+						order: [['updatedAt', 'DESC']]
+					},
+					{
+						model: EtiquetasPreguntaDAO,
+						as: 'etiquetas',
+						include: EtiquetaDAO
+					}
+				];
+		
+				// // Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido
+				// if (req.session.usuario && req.session.usuario.DNI) {
+				// 	include.push({
+				// 		model: SuscripcionesPreguntaDAO,
+				// 		where: {
+				// 			suscriptoDNI: req.session.usuario.DNI
+				// 		},
+				// 		as: 'suscriptos'
+				// 	});
+				// }
+		
+				const p = await PreguntaDAO.findByPk(req.params.id, { include });
+
+				if (!p) {
+					res.status(404).send('ID de pregunta inválida');
+					return;
 				}
-            ]
-        });
 
-        if (!p) {
-            res.status(404).send('ID de pregunta inválida');
-            return;
-        }
+				
+				let idPregunta=p.ID;
+				let pagina = PaginaPregunta(req.path, req.session, idPregunta)
+				pagina.titulo=p.titulo;
+				p.titulo="";
+				pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session))
 
-        let pagina = new Pagina({
-            ruta: req.path,
-            titulo: /* 'Post' */p.titulo, 
-            sesion: req.session
-        });
-
-				p.titulo='';
-
-		let modal = new Modal('General','modal-general');
-		pagina.partes.push(modal);
-
-        pagina.partes.push(
-            // TODO Feature: Diferenciar de la implementación en / así allá aparece la primera respuesta y acá no.
-            new Pregunta(p, modal)
-						// TODO Feature: Considerar traer directamente todas las respuestas, en vez de paginarlas.
-					// DesplazamientoInfinito de respuestas; sin fin de mensaje
-            //,...p.respuestas.map(r=>new Respuesta(r))
-						// Formulario de respuesta
-        );
-
-        res.send(pagina.render());
-			}else{ // * Nueva pregunta.
+				res.send(pagina.render());
+			}
+			else{ // * Nueva pregunta.
 				let pagina=PantallaNuevaPregunta(req.path,req.session);
 				res.send(pagina.render());
 			}
@@ -130,82 +131,195 @@ router.get("/suscripciones",(req,res)=>{
 		res.status(401).send();
 		return;
 	}
-	
+	let modal = new Modal('General','modal-general');
 	PreguntaDAO.findAll({
 		// TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
 		// TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta 
-		include:{
-			model:SuscripcionesPregunta
+		include:[
+			{
+				model: PostDAO,
+				as: 'post',
+									include: [
+										{
+											model: UsuarioDAO,
+											as: 'duenio'
+										}
+									]
+			},
+			{
+				model: EtiquetasPreguntaDAO,
+				as:'etiquetas',
+				include:EtiquetaDAO
+			},
+			{
+			model:SuscripcionesPreguntaDAO
 			,where:{
-				suscriptoAPregunta:req.session.usuario.DNI
+				suscriptoDNI:req.session.usuario.DNI
 			}
-		}
+			,as: 'suscriptos'
+			}]
 	})
 		.then((preguntas)=>{
 			let pagina=new Pagina({
 				ruta:req.path
-				,titulo:p.titulo
+				,titulo: 'Suscripciones'
 				,sesion:req.session
 				// TODO Feature: endpoint de preguntas por suscripción
-				,partes:new DesplazamientoInfinito(
+				,partes:[
+					modal,
+					new DesplazamientoInfinito(
 					'suscripciones-desplinf',
 					'/preguntas?suscritas',
 					// TODO Feature: Indicar que acá es con la primera respuesta. Quizá buscar con el DAO con o sin Respuestas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
-					p=>new Pregunta(p),
+					p=>new Pregunta(p,modal,req.session).render(),
 					preguntas
-				)
+					)
+					]
 			});
 			
 			res.send(pagina.render());
 		})
 })
 
-router.get("/perfil/:id?", (req, res) => {
+
+
+router.get("/etiqueta/:id/preguntas",async (req,res)=>{
+	
+try {
+	const e = await EtiquetaDAO.findByPk(req.params.id);
+	
+	if (!e) {
+		res.status(404).send('ID de etiqueta inválida');
+		return;
+	}
+	
+	let modal = new Modal('General','modal-general');
+	PreguntaDAO.findAll({
+		// TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
+		// TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta 
+		include:[
+			{
+				model: PostDAO,
+				as: 'post',
+									include: [
+										{
+											model: UsuarioDAO,
+											as: 'duenio'
+										}
+									]
+			},
+			{
+				model: EtiquetasPreguntaDAO
+				,as:'etiquetas'
+				,where:{
+					etiquetumID:req.params.id
+				},
+				include:EtiquetaDAO
+			}]
+	})
+	.then((preguntas)=>{
+		let pagina=new Pagina({
+			ruta:req.path
+			,titulo: 'Etiqueta #'+e.descripcion
+			,sesion:req.session
+			// TODO Feature: endpoint de preguntas por suscripción
+			,partes:[
+				modal,
+				new DesplazamientoInfinito(
+				'suscripciones-desplinf',
+				'/preguntas?suscritas',
+				// TODO Feature: Indicar que acá es con la primera respuesta. Quizá buscar con el DAO con o sin Respuestas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
+				p=>new Pregunta(p,modal,req.session).render(),
+				preguntas
+				)
+				]
+		});
+		
+		res.send(pagina.render());
+	})
+} catch (error) {
+	console.error(error);
+	res.status(500).send('Error interno del servidor');
+}
+});
+
+
+
+
+
+router.get("/perfil/:id?", async (req, res) => {
 	// TODO Feature: Ordenar posts por fecha
 	/* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
 	// TODO Refactor: DNI
-	let id=req.params.id /* || req.session.usuario.DNI*/ ;
-	let logueadoId /*=req.session.usuario.DNI;*/
-	// let titulo="Perfil de ";
-	let usu;
-
-	if(id && (!logueadoId || id != logueadoId)){
-		// TODO Refactor: ver si yield anda como "sincronizador"
-		usu=UsuarioDAO.findByPk(id/* ,{
-			include:{
-				// TODO Feature: Ver si no choca explota. Y si .posts choca con los eliminados
-				all:true
-				,nested:true
+	try {
+		let usu;
+		if(req.params.id && req.session.usuario && (req.params.id == req.session.usuario.DNI)){
+			//PERFIL PROPIO DE USUARIO LOGUEADO
+			usu = req.session.usuario;
+			if (!usu) {
+				res.status(404).send('Error con el perfil propio');
+				return;
 			}
-		} */);
+	
+		}else if(req.params.id && req.session.usuario && (req.params.id != req.session.usuario.DNI)){
 
-	}else{
-		// TODO Feature: Obtener los posts paginados por ID del usuario, la sesion no guarda las asociaciones
-		usu=req.session.usuario;
-	}
-		// TODO Feature: Componente "Tarjeta de Usuario", o hacer una versión del Chip de Usuario con esteroides? Ya no sería chip... Pero llevan básicamente la misma info. Y además daría la opción de reportar o banear dependiedno si el usuario está logueado y tiene permisos
-		/* tarjeta de usuario 
-		actividad*/
-  let pagina = new Pagina({
-		// TODO Feature: Quizá haya que pasar 'perfil' nomás
-    ruta: req.path,
-    titulo: 'Perfil de '+usu.nombre,
-    sesion: req.session,
-		partes:[
+			// LOGUEADO BUSCANDO OTRO USUARIO
+			usu = await UsuarioDAO.findByPk(req.params.id);
+			if (!usu) {
+				res.status(404).send('Error con el perfil del otro usuario');
+				return;
+			}
+
+		}else if(req.params.id && !req.session.usuario){
+
+			//  NO LOGUEADO BUSCANDO OTRO USUARIO
+			usu = await UsuarioDAO.findByPk(req.params.id);
+			if (!usu) {
+				res.status(404).send('Error al acceder a un perfil');
+				return;
+			}
+
+
+		}else if(req.session.usuario && !req.params.id){
+
+			usu= req.session.usuario;
+			if (!usu) {
+				res.status(404).send('Estas logueado?');
+				return;
+			}
+
+		}else{
+			res.status(404).send('Error interno en else if ');
+			return;
+		}
+		let pagina = new Pagina({
+            ruta: req.path,
+            titulo: ((req.session.usuario && req.params.id && req.session.usuario.DNI == req.params.id)||(req.session.usuario && !req.params.id))? 'Mi Perfil' : 'Perfil de '+usu.nombre, 
+            sesion: req.session
+        });
+		let modal = new Modal('General','modal-general');
+		pagina.partes.push(modal);
+        pagina.partes.push(
+			new ChipUsuario(usu,true),
 			new DesplazamientoInfinito(
 				'perfil-desplinf'
 				,`/api/usuario/${usu.DNI}/posts`
 				,p=>{
 					return p.pregunta?
-						new Pregunta(p.pregunta)
-						:new Respuesta(p.respuesta)
+						new Pregunta(p.pregunta, modal) : ''
 				}
 				// ,usu.posts
-			)
-		]
-  });
-  res.send(pagina.render());
+		));
+		res.send(pagina.render());
+	}catch(error){
+        console.error(error);
+        res.status(500).send('Error interno del servidor');
+	}
+
 });
+
+
+
 
 router.get("/perfil/info", (req, res) => {
 	/* TODO Feature: Hacer que /perfil lleve a /perfil/id/info ??  Pensarlo. */

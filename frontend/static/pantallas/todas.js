@@ -1,5 +1,5 @@
 import { PaginaInicio } from './inicio.js';
 import { PantallaNuevaPregunta } from './nueva-pregunta.js';
-// import { PantallaPregunta } from './pregunta.js';
+import { PaginaPregunta } from './pregunta.js';
 
-export {PaginaInicio,PantallaNuevaPregunta};
+export {PaginaInicio,PantallaNuevaPregunta, PaginaPregunta};

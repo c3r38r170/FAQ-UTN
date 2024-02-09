@@ -10,7 +10,7 @@ class Fecha{
 
     render(){
         return`
-        <div id="fecha">${this.#fechaformateada}</div>
+        <div class="fecha">${this.#fechaformateada}</div>
         `
     }
 
