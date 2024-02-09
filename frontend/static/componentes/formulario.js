@@ -116,7 +116,8 @@ class Campo{
 				endTag=`>${this.#extra}</select>`;
 				break;
 			case 'hidden':
-				html=html.replace('<label class="label">'+this.#textoEtiqueta+'</label>','');
+				// TODO Refactor: DRY, usar find, indexOf, o algo así.
+				html=html.replace('<label class="label">'+this.#textoEtiqueta,'');
 				html+=` type="${this.#type}"`;
 				break;
 			case 'number':
