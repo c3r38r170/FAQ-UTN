@@ -33,7 +33,6 @@ class Notificacion{
 			Notificacion.instancias[this.#ID]=this;
 		this.#tituloPregunta = post.cuerpo;
 		this.#fecha=new Fecha(createdAt);
-		console.log(usuarioActualDNI)
 		if(post.pregunta.ID!=null){
 			if(post.duenio.DNI==usuarioActualDNI){
 				this.#texto = 'Recibiste un nuevo voto:'
@@ -78,12 +77,13 @@ class Notificacion{
 		}*/
 	}
 
-	static verNotificacion(){
+	static verNotificacion(e){
 		e.preventDefault();
 	let aApretado = e.target.closest("a");
-	let divChipNotificacion = aApretado.closest(".chip-notificacion");
+	let divChipNotificacion = aApretado.closest(".notificacion");
 	let id = divChipNotificacion.dataset.id;
 	let idPregunta = divChipNotificacion.dataset.idPregunta;
+	console.log(id, idPregunta);
 	
 	
 	const url= `http://localhost:8080/api/notificacion`;
@@ -110,7 +110,7 @@ class Notificacion{
 				<img class="img" class="img" src="/user.webp"/>
 			</div>
 			<div class="noti-container">
-			${this.#texto}<a class="notificacion" onclick="Notificacion.verNotificacion()">${this.#tituloPregunta}</a>
+			${this.#texto}<a class="notificacion" onclick="Notificacion.verNotificacion(event)">${this.#tituloPregunta}</a>
 			${this.#fecha.render()}
 			</div>
 		</div>

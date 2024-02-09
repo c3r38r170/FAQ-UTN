@@ -2,6 +2,8 @@ import {Sequelize, DataTypes} from 'sequelize';
 
 import * as bcrypt from "bcrypt";
 
+
+
 const sequelize = new Sequelize(
     'faqutn',
     'vj6h6slqojgkqj8l6upf',
@@ -21,7 +23,9 @@ const sequelize = new Sequelize(
     host: 'localhost',
     dialect: 'mariadb'
   }); */
-   
+
+  
+
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');
 }).catch((error) => {

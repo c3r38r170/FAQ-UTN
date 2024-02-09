@@ -23,7 +23,6 @@ class DesplazamientoInfinito{
 		this.entidadesIniciales=primerasEntidades;
 
 		DesplazamientoInfinito.instancias[this.#id]=this;
-		console.log(this.#id)
 	}
 
 	navegar(e){

@@ -301,7 +301,6 @@ router.post('/pregunta', function(req,res){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-
 	//A veces crashea la ia
 	moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10).then(respuesta=>{
 		if(respuesta.apropiado < rechazaPost){
