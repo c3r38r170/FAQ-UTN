@@ -36,7 +36,7 @@ router.get("/", (req, res) => {
 				});
 	}else{ // * Inicio regular.
 		 PreguntaDAO.pagina()
-			.then(pre=>{ 
+			.then(pre=>{
 				let pagina=PaginaInicio(req.session);
 				pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
@@ -106,6 +106,36 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 					res.status(404).send('ID de pregunta inválida');
 					return;
 				}
+
+				if(req.session.usuario){
+					NotificacionDAO.findAll({
+						include:[
+							{
+								model:PostDAO
+								,include:{
+									model:RespuestaDAO
+									,as:'respuesta'
+								}
+							}
+						],
+						where:{
+							notificadoDNI: req.session.usuario.DNI
+							,visto:false
+							,[Sequelize.Op.or]:{
+								postNotificadoID:req.params.id
+								,'$post.respuesta.preguntaID$':req.params.id
+							}
+						}
+					})
+						.then(notificaciones=>{
+							for(let not of notificaciones){
+								not.visto=true;
+								not.save();
+							}
+						})
+				}
+
+				// ! No se puede traer votos Y un resumen, por eso lo calculamos acá. Los votos los traemos solo para ver si el usuario actual votó.
 
 				//Ordenar respuestas por valoracion
 				function calculateSumValoracion(respuesta) {
