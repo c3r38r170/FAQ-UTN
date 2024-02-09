@@ -22,7 +22,8 @@ class DesplazamientoInfinito{
 		// * Las primeras entidades solo se usan desde el servidor y sirven para servir contenido generado y así mejorar el SEO de la página. Si solamente se generara el contenido dinámico desde el frontend, no podría ser analizado.
 		this.entidadesIniciales=primerasEntidades;
 
-		DesplazamientoInfinito.instancias[id]=this;
+		DesplazamientoInfinito.instancias[this.#id]=this;
+		console.log(this.#id)
 	}
 
 	navegar(e){

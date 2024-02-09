@@ -10,6 +10,9 @@ import { Voto as VotoDAO, Notificacion as NotificacionDAO, EtiquetasPregunta as 
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
 import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta /* PaginaExplorar, */ } from './static/pantallas/todas.js';
+import { PaginaPerfil } from "./static/pantallas/perfil.js";
+import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
+import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
@@ -85,7 +88,6 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 						include: EtiquetaDAO
 					}
 				];
-		
 				// // Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido
 				// if (req.session.usuario && req.session.usuario.DNI) {
 				// 	include.push({
@@ -104,6 +106,15 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 					return;
 				}
 
+				//Ordenar respuestas por valoracion
+				function calculateSumValoracion(respuesta) {
+					return respuesta.post.votos.reduce((total, voto) => total + voto.valoracion, 0);
+				}
+
+				p.respuestas.map(respuesta=>{respuesta.dataValues.sumValoracion = calculateSumValoracion(respuesta)});
+				p.dataValues.respuestas.sort((a, b)=>{
+					return b.dataValues.sumValoracion -a.dataValues.sumValoracion
+				});
 				
 				let idPregunta=p.ID;
 				let pagina = PaginaPregunta(req.path, req.session, idPregunta)
@@ -182,185 +193,86 @@ router.get("/suscripciones",(req,res)=>{
 })
 
 
-
 router.get("/etiqueta/:id/preguntas",async (req,res)=>{
-	
-try {
-	const e = await EtiquetaDAO.findByPk(req.params.id);
-	
-	if (!e) {
-		res.status(404).send('ID de etiqueta inválida');
-		return;
-	}
-	
-	let modal = new Modal('General','modal-general');
-	PreguntaDAO.findAll({
-		// TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
-		// TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta 
-		include:[
-			{
-				model: PostDAO,
-				as: 'post',
-									include: [
-										{
-											model: UsuarioDAO,
-											as: 'duenio'
-										}
-									]
-			},
-			{
-				model: EtiquetasPreguntaDAO
-				,as:'etiquetas'
-				,where:{
-					etiquetumID:req.params.id
-				},
-				include:EtiquetaDAO
-			}]
-	})
-	.then((preguntas)=>{
-		let pagina=new Pagina({
-			ruta:req.path
-			,titulo: 'Etiqueta #'+e.descripcion
-			,sesion:req.session
-			// TODO Feature: endpoint de preguntas por suscripción
-			,partes:[
-				modal,
-				new DesplazamientoInfinito(
-				'suscripciones-desplinf',
-				'/preguntas?suscritas',
-				// TODO Feature: Indicar que acá es con la primera respuesta. Quizá buscar con el DAO con o sin Respuestas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
-				p=>new Pregunta(p,modal,req.session).render(),
-				preguntas
-				)
-				]
-		});
-		
-		res.send(pagina.render());
-	})
-} catch (error) {
-	console.error(error);
-	res.status(500).send('Error interno del servidor');
-}
-});
-
-
-
-
-
-router.get("/perfil/:id?", async (req, res) => {
-	// TODO Feature: Ordenar posts por fecha
-	/* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
-	// TODO Refactor: DNI
 	try {
-		let usu;
-		if(req.params.id && req.session.usuario && (req.params.id == req.session.usuario.DNI)){
-			//PERFIL PROPIO DE USUARIO LOGUEADO
-			usu = req.session.usuario;
-			if (!usu) {
-				res.status(404).send('Error con el perfil propio');
-				return;
-			}
-	
-		}else if(req.params.id && req.session.usuario && (req.params.id != req.session.usuario.DNI)){
-
-			// LOGUEADO BUSCANDO OTRO USUARIO
-			usu = await UsuarioDAO.findByPk(req.params.id);
-			if (!usu) {
-				res.status(404).send('Error con el perfil del otro usuario');
-				return;
-			}
-
-		}else if(req.params.id && !req.session.usuario){
-
-			//  NO LOGUEADO BUSCANDO OTRO USUARIO
-			usu = await UsuarioDAO.findByPk(req.params.id);
-			if (!usu) {
-				res.status(404).send('Error al acceder a un perfil');
-				return;
-			}
-
-
-		}else if(req.session.usuario && !req.params.id){
-
-			usu= req.session.usuario;
-			if (!usu) {
-				res.status(404).send('Estas logueado?');
-				return;
-			}
-
-		}else{
-			res.status(404).send('Error interno en else if ');
+		const e = await EtiquetaDAO.findByPk(req.params.id);
+		
+		if (!e) {
+			res.status(404).send('ID de etiqueta inválida');
 			return;
 		}
-		let pagina = new Pagina({
-            ruta: req.path,
-            titulo: ((req.session.usuario && req.params.id && req.session.usuario.DNI == req.params.id)||(req.session.usuario && !req.params.id))? 'Mi Perfil' : 'Perfil de '+usu.nombre, 
-            sesion: req.session
-        });
+		
 		let modal = new Modal('General','modal-general');
-		pagina.partes.push(modal);
-        pagina.partes.push(
-			new ChipUsuario(usu,true),
-			new DesplazamientoInfinito(
-				'perfil-desplinf'
-				,`/api/usuario/${usu.DNI}/posts`
-				,p=>{
-					return p.pregunta?
-						new Pregunta(p.pregunta, modal) : ''
-				}
-				// ,usu.posts
-		));
-		res.send(pagina.render());
-	}catch(error){
-        console.error(error);
-        res.status(500).send('Error interno del servidor');
+		PreguntaDAO.findAll({
+			// TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
+			// TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta 
+			include:[
+				{
+					model: PostDAO,
+					as: 'post',
+										include: [
+											{
+												model: UsuarioDAO,
+												as: 'duenio'
+											}
+										]
+				},
+				{
+					model: EtiquetasPreguntaDAO
+					,as:'etiquetas'
+					,where:{
+						etiquetumID:req.params.id
+					},
+					include:EtiquetaDAO
+				}]
+		})
+		.then((preguntas)=>{
+			let pagina=new Pagina({
+				ruta:req.path
+				,titulo: 'Etiqueta #'+e.descripcion
+				,sesion:req.session
+				// TODO Feature: endpoint de preguntas por suscripción
+				,partes:[
+					modal,
+					new DesplazamientoInfinito(
+					'suscripciones-desplinf',
+					'/preguntas?suscritas',
+					// TODO Feature: Indicar que acá es con la primera respuesta. Quizá buscar con el DAO con o sin Respuestas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
+					p=>new Pregunta(p,modal,req.session).render(),
+					preguntas
+					)
+					]
+			});
+			
+			res.send(pagina.render());
+		})
+	} catch (error) {
+		console.error(error);
+		res.status(500).send('Error interno del servidor');
 	}
-
 });
+
 
 
 
 
 router.get("/perfil/info", (req, res) => {
-	/* TODO Feature: Hacer que /perfil lleve a /perfil/id/info ??  Pensarlo. */
-	// ! El usuario no puede cambiar rol, legajo, ni nombre (este no estoy tan seguro), pero sí imagen (CU 5.4) y contraseña
-	// * No permitir entrar al de alguien más, si ya toda la info está en /perfil/:id
-/* 
-	let id=req.params.id;
-	let logueadoId=req.session.usuario.ID;
-	let titulo="Perfil de ";
-	let usu;
-	let imagenEditable=false;
+	try {
+			
+		if (!req.session.usuario) {
+			res.status(404).send('No está autorizado');
+			return;
+		}
 
-	if(id && (!logueadoId || id != logueadoId)){
-		usu= UsuarioDAO.findById(id,{
-			include:{
-				// TODO Feature: Ver si no choca explota. Y si .posts choca con los eliminados
-				all:true
-				,nested:true
-			}
-		});
-	}else{
-		imagenEditable=true;
-		usu=req.session.usuario;
+		let pagina= PaginaPerfilPropioInfo(req.path, req.session);
+		res.send(pagina.render());
+		return;
+	
+	}catch(error){
+        console.error(error);
+        res.status(500).send('Error interno del servidor');
 	}
- */
-	let usu=req.session.usuario;
 
-  let pagina = new Pagina({
-    ruta: req.path,
-    titulo: 'Perfil de '+usu.nombreCompleto+' - Información',
-    sesion: req.session,
-		partes:[
-			// Título('Información básica' (,nivel?(h2,h3...)) )
-			// CampoImagen(usu.id) // Editable
-			// Campo('Nombre completo',usu.nombre)
-			// Campo('Legajo',usu.legajo)
-			// Campo('Rol',usu.rol.nombre)
-			// Campo('Contraseña'); // Editable
-		]
-  });
-  res.send(pagina.render());
 });
 
 
@@ -432,31 +344,26 @@ router.get('/administracion/usuarios',(req,res)=>{
 })
 
 router.get('/perfil/preguntas',(req, res) => {
-	let usu=req.session.usuario;
-	// TODO Feature: Transformar esto en el endpoint correspondiente
-	/* let preguntas=yield PreguntaDAO.findAll({
-		include:[{
-			model:PostDAO,include:{model:UsuarioDAO,as:'duenioPostID'}
-	}]
-		,where:{'duenioPostID':usu.ID}
-	}); */
-
-  let pagina = new Pagina({
-    ruta: req.path,
-    titulo: 'Perfil de '+usu.nombreCompleto+' - Preguntas',
-    sesion: req.session,
-		partes:[
-			// Título('Tus preguntas' (,nivel?(h2,h3...)) )
-			// ChipUsuario() // Solo imagen y nombre; (O) Jhon Dow
+	try {
 			
-			new DesplazamientoInfinito(
-				'perfil-desplinf'
-				,`/api/usuario/${usu.DNI}/preguntas`
-				,p=>new Pregunta(p.pregunta) // Sin chip de usuario, con botones de editar y borrar, con cantidad de respuestas...
-			)
-		]
-  });
-  res.send(pagina.render());
+		if (!req.session.usuario) {
+			res.status(404).send('No está autorizado');
+			return;
+		}
+		let filtro={duenioID:null};
+		filtro.duenioID =req.session.usuario.DNI;
+		PreguntaDAO.pagina(filtro)
+			.then(pre=>{
+				let pagina = PaginaPerfilPropioPreguntas(req.path,req.session);
+				pagina.partes[1]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
+
+				res.send(pagina.render());
+				});
+	
+	}catch(error){
+        console.error(error);
+        res.status(500).send('Error interno del servidor');
+	}
 })
 
 // TODO Refactor: Ver si se puede unificar el algoritmo de prefil/preguntas y perfil/respuestas
@@ -490,6 +397,88 @@ router.get('/perfil/respuestas',(req, res) => {
 })
 
 
+router.get("/perfil/:id?", async (req, res) => {
+	// TODO Feature: Ordenar posts por fecha
+	/* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
+	// TODO Refactor: DNI
+	try {
+		let usu;
+		if(req.params.id && req.session.usuario && (req.params.id == req.session.usuario.DNI)){
+			//PERFIL PROPIO DE USUARIO LOGUEADO
+			usu = req.session.usuario;
+			
+			if (!usu) {
+				res.status(404).send('Error con el perfil propio');
+				return;
+			}
+
+			let pagina= PaginaPerfilPropioInfo(req.path, req.session);
+			res.send(pagina.render());
+			return;
+	
+		}else if(req.params.id && req.session.usuario && (req.params.id != req.session.usuario.DNI)){
+
+			// LOGUEADO BUSCANDO OTRO USUARIO
+			usu = await UsuarioDAO.findByPk(req.params.id);
+			if (!usu) {
+				res.status(404).send('Error con el perfil del otro usuario');
+				return;
+			}
+
+			let filtro={duenioID:null};
+		filtro.duenioID =usu.DNI;
+		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+		PreguntaDAO.pagina(filtro)
+			.then(pre=>{
+				let pagina = PaginaPerfil(req.path,req.session, usu)
+				pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
+
+				res.send(pagina.render());
+				});
+
+		}else if(req.params.id && !req.session.usuario){
+
+			//  NO LOGUEADO BUSCANDO OTRO USUARIO
+			usu = await UsuarioDAO.findByPk(req.params.id);
+			if (!usu) {
+				res.status(404).send('Error al acceder a un perfil');
+				return;
+			}
+
+			let filtro={duenioID:null};
+		filtro.duenioID =usu.DNI;
+		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+		PreguntaDAO.pagina(filtro)
+			.then(pre=>{
+				let pagina = PaginaPerfil(req.path,req.session, usu)
+				pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
+
+				res.send(pagina.render());
+				});
+
+
+		}else if(req.session.usuario && !req.params.id){
+
+			usu= req.session.usuario;
+			if (!usu) {
+				res.status(404).send('Estas logueado?');
+				return;
+			}
+			let pagina= PaginaPerfilPropioInfo(req.path, req.session);
+			res.send(pagina.render());
+			return;
+
+		}else{
+			res.status(404).send('No se encuentra autorizado para ver esta pagina');
+			return;
+		}
+	}catch(error){
+        console.error(error);
+        res.status(500).send('Error interno del servidor');
+	}
+
+});
+
 router.get("/usuario/:id?", async (req, res) =>  {
 	UsuarioDAO.findByPk(req.params.id,
 		{raw:true,
@@ -515,13 +504,32 @@ router.get("/usuario/:id?", async (req, res) =>  {
 // ToDo Feature 
 // Se puede implementar que se muestren preguntas recientes... etc
 router.get("/explorar", (req, res) => {
-	let pagina = new Pagina({
-	  ruta: req.path,
-	  titulo: "Explorar",
-	  sesion: req.session,
-	});
-	pagina.partes.push(new Busqueda())
-	res.send(pagina.render());
+	if(req.query.searchInput){
+		// TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
+		let queryString = req.url.substring(req.url.indexOf('?'));
+		let filtro=[];
+		filtro.texto=req.query.searchInput;
+		let filtros={filtrar:filtro};
+		
+		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+		PreguntaDAO.pagina(filtros)
+
+			.then(pre=>{
+					let pagina=PaginaInicio(req.session, queryString);
+					pagina.titulo="Explorar"
+					pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
+
+					res.send(pagina.render());
+				});
+	}else{
+		let pagina = new Pagina({
+		ruta: req.path,
+		titulo: "Explorar",
+		sesion: req.session,
+		});
+		pagina.partes.push(new Busqueda())
+		res.send(pagina.render());
+}
   });
   
 

@@ -12,7 +12,7 @@ class Navegacion{
             // Si hay usuario, ver si es moderador o no
 
             this.#enlaces=[
-                new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'/'),
+                new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'/explorar'),
                 new EnlaceNavegacion('Preguntar',{tipo:'solid',nombre:'plus'},'/pregunta'),
                 new EnlaceNavegacion('Suscripciones',{tipo:'solid',nombre:'arrow-right'}, '/suscripciones'),
                 new EnlaceNavegacion('Perfil',{tipo:'regular',nombre:'user'},'/perfil')

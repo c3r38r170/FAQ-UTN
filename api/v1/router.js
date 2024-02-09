@@ -90,6 +90,43 @@ router.get('/usuario', function(req,res){
     })  
 })
 
+router.get('/usuario/:DNI/preguntas', function(req, res){
+	let filtros={pagina:null,duenioID:null};
+		filtros.duenioID=req.params.DNI
+		filtros.pagina=req.query.pagina
+		// console.log(filtros);
+		Pregunta.pagina(filtros)
+		// Pregunta.findAll(opciones)
+			.then(preguntas=>{
+				res.status(200).send(preguntas)
+			})
+			.catch(err=>{
+				console.log(err)
+			});
+	// }
+	return;
+})
+
+router.get('/usuario/:DNI/posts', function(req, res){
+	let filtros={pagina:null,DNI:req.params.DNI};
+		
+		if(req.query.pagina){
+			filtros.pagina=req.query.pagina;
+		}
+
+	Post.pagina(filtros).then(posts=>res.send(posts))
+})
+
+router.get('/usuario/:DNI/respuestas', function(req, res){
+	let filtros={pagina:null,DNI:req.params.DNI};
+		
+		if(req.query.pagina){
+			filtros.pagina=req.query.pagina;
+		}
+
+	Respuesta.pagina(filtros).then(respuestas=>res.send(respuestas))
+})
+
 router.post('/usuario', (req,res)=>{
 	Usuario.findAll({
 		where:{DNI:req.body.DNI}

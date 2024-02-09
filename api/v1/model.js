@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
           rejectUnauthorized: true,
         },
       },
-      logging: false,
+      logging: true,
      }
    );
    /* new Sequelize('faqutn', 'root', 'password', {
@@ -545,125 +545,51 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 	if(duenioID){
 		return Pregunta.findAll({
 			// TODO Feature: try subQUery:false again and separate: true
-			include:[
-				{
-					model:Post
-					,include:[
-						{
-							model:Voto
-							// ,as:'votado'
-							,include:{model:Usuario,as:'votante'}
-						}
-						,{
-							model:Usuario
-							,as:'duenio'
-							,include:{
-								model:Perfil
-								,attributes:['ID','nombre']
-							}
-							,attributes:['DNI','nombre']
-						}
-					]
-				},
-				// {
-				// 	model:Respuesta
-				// 	,as:'respuestas'
-				// 	,include: [
-                //         {
-                //             model: Post,
-                //             include: [
-                //                 {
-                //                     model:Usuario
-                //                     ,as:'duenio'
-                //                     ,include:{
-                //                         model:Perfil
-                //                         ,attributes:['ID','nombre']
-                //                     }
-                //                     ,attributes:['DNI','nombre']
-                //                 }
-                //             ]
-                //         }
-                //     ]
-						
-					
-					
-				// 	// ,
-				// 	/* {
-				// 		model:Post
-				// 		,include:[
-				// 			 */
-				// 			/* {
-				// 				model:Voto
-				// 				// ,as:'votado'
-				// 				,include:{model:Usuario,as:'votante'}
-				// 				// TODO Feature: Intentar agrupar votos, y ofrecer una medida resumen para ordenar. Quitar el resto afuera (antes intentar limit)
-				// 			}
-				// 			,{
-				// 				model:Usuario,
-				// 				as:'duenio'
-				// 			} */
-				// 		/* ]
-				// 	} */
-				// 	/* ,attributes:{
-				// 		include:[
-				// 			[
-				// 				Sequelize.literal(`(SELECT SUM(IF(valoracion=1,1,-1)) FROM votos AS v WHERE v.votadoID = post.ID)`),
-				// 				'puntuacion'
-				// 			]
-				// 		]
-				// 	} */
-				// 	/* ,order: [
-				// 			[Sequelize.literal('puntuacion'), 'DESC']
-				// 			// ,['fecha', 'DESC']
-				// 	] */
-				// 	// ,limit:1
-				// 	/* ,attributes:[
-				// 		'ID'
-				// 		// ,Sequelize.fn('sum',Sequelize.col('post.votos.valoracion'))
-				// 		// ,Sequelize.literal
-				// 		,'post.ID'
-				// 		,'post.cuerpo'
-				// 	] */
-				// 	/* ,attributes:[
-				// 		'ID'
-				// 		,'post.cuerpo'
-				// 		,[
-				// 			Sequelize.fn('sum',Sequelize.col('post.voto.valoracion'))
-				// 			,'valoracionTotal'
-				// 		]
-				// 	]
-				// 	,order:[
-				// 		['valoracionTotal','DESC']
-				// 	]
-				// 	,limit:1 */
-				// }
-				,{
-                    model:Etiqueta,
-                    as: 'etiquetas'
+			include: [
+                {
+                    model: Post,
+                    include: [
+                        {
+                            // TODO Feature: Votos no??
+                            model: Usuario,
+                            as: 'duenio',
+                            include: {
+                                model: Perfil,
+                                attributes: ['ID', 'nombre']
+                            },
+                            attributes: ['DNI', 'nombre']
+                        }
+                    ]
+                },
+                {
+                    model:EtiquetasPregunta
+                    ,required: true
+                    ,as: 'etiquetas'
+                    ,include:{
+                        model: Etiqueta
+                    }
+                    ,separate:true
                 },
                 
-				
-			],
-			/* attributes:[
-				'ID'
-				,'titulo'
-				,'fecha'
-				,'cuerpo'
-				,'post.duenio.DNI'
-			], */
-			/* attributes:{
-				include:[
-					[
-						Sequelize.literal(`(SELECT SUM(IF(valoracion=1,1,-1)) as respuestas, v.votadoID FROM votos AS v WHERE v.votadoID = respuestas.post.ID)`),
-						'respuestas.puntuacion'
-					]
-				]
-			}, */
-			where:{
-				'$post.duenio.DNI$':+duenioID
-			}
-			// ,raw:true,nest:true
-		})
+            ],//TODO Refactor: aplicar dry
+            attributes:
+                {
+                    include:
+                    [[
+                        sequelize.literal('(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)'),
+                        'respuestasCount'
+                    ]]
+        }   
+            ,
+            where: {
+                '$post.duenio.DNI$': +duenioID
+            },
+            order:[[Post,'fecha','DESC']],
+            limit:PAGINACION.resultadosPorPagina,
+            offset:(+pagina)*PAGINACION.resultadosPorPagina,
+
+            // ,raw:true,nest:true
+        })
 	}else{
 		let opciones={
 			include:[Post],
@@ -820,6 +746,126 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 }
 
 
+Post.pagina=({pagina=0, DNI}={})=>{
+    return Post.findAll({
+		include: [
+			  { model: Usuario, as: 'duenio'}, 
+			  { model: Respuesta, as: 'respuesta', 
+			  include: [
+				{ 
+				  model: Pregunta, 
+				  as: 'pregunta', 
+				  attributes: ['ID', 'titulo'],
+				  include:[
+					  {
+						  model:EtiquetasPregunta
+						  ,required: true
+						  ,as: 'etiquetas'
+						  ,include:{
+							  model: Etiqueta
+						  }
+						  ,separate:true
+					  }
+				  ]
+			  } // *Include Pregunta in Respuesta
+			  ],
+				required: false,
+				attributes: ['ID', 'preguntaID'] 
+			  },  
+			  { 
+				model: Pregunta, 
+				as: 'pregunta', 
+				required: false, 
+				attributes: ['ID', 'titulo'] ,
+				include:[
+					{
+						model:EtiquetasPregunta
+						,required: true
+						,as: 'etiquetas'
+						,include:{
+							model: Etiqueta
+						}
+						,separate:true
+					}
+				]
+			} 
+		],
+        where: {
+            '$post.duenioDNI$': +DNI
+        },
+        order:[['fecha','DESC']],
+        limit:PAGINACION.resultadosPorPagina,
+        offset:(+pagina)*PAGINACION.resultadosPorPagina,
+	})
+
+}
+
+Respuesta.pagina=({pagina=0, DNI}={})=>{
+    return Pregunta.findAll({
+        // TODO Feature: try subQUery:false again and separate: true
+        include: [
+            {
+                model: Post,
+                include: [
+                    {
+                        model: Usuario,
+                        as: 'duenio',
+                        include: {
+                            model: Perfil,
+                            attributes: ['ID', 'nombre']
+                        },
+                        attributes: ['DNI', 'nombre']
+                    },
+                    
+                ],
+                attributes:['cuerpo', 'duenioDNI']
+            },
+            {
+                model:Respuesta,
+                as :'respuestas',
+                required:true,
+                include:{
+                    model: Post,
+                    include: [
+                        {
+                            model: Usuario,
+                            as: 'duenio',
+                            include: {
+                                model: Perfil,
+                                attributes: ['ID', 'nombre']
+                            },
+                            attributes: ['DNI', 'nombre']
+                        }
+                    ],
+                    attributes:['cuerpo', 'duenioDNI']
+                }
+            },
+            {
+                model:EtiquetasPregunta
+                ,required: true
+                ,as: 'etiquetas'
+                ,include:{
+                    model: Etiqueta
+                }
+                ,separate:true
+            },
+            
+        ],//TODO Refactor: aplicar dry
+        attributes:
+            {
+                include:
+                [[
+                    sequelize.literal('(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)'),
+                    'respuestasCount'
+                ]]
+        },
+        where:{
+            '$respuestas.post.duenio.DNI$':DNI
+        },
+        order:[[Post, 'fecha','DESC']],
+        // ,raw:true,nest:true
+    })
+}
 
 
 Pregunta.hasOne(Post,{
