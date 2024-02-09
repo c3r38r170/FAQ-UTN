@@ -1,3 +1,3 @@
 import { PaginaPregunta} from '../pantallas/pregunta.js';
 
-let pagina=PaginaPregunta();
+let pagina=PaginaPregunta(location.pathname,{usuario:window.usuarioActual},window.preguntaID);

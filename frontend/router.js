@@ -116,11 +116,13 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 					return b.dataValues.sumValoracion -a.dataValues.sumValoracion
 				});
 				
-				let idPregunta=p.ID;
-				let pagina = PaginaPregunta(req.path, req.session, idPregunta)
+				let preguntaID=p.ID;
+				let pagina = PaginaPregunta(req.path, req.session, preguntaID)
 				pagina.titulo=p.titulo;
 				p.titulo="";
 				pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session))
+
+				pagina.globales.preguntaID=preguntaID;
 
 				res.send(pagina.render());
 			}
@@ -400,7 +402,8 @@ router.get('/perfil/respuestas',(req, res) => {
 router.get("/perfil/:id?", async (req, res) => {
 	// TODO Feature: Ordenar posts por fecha
 	/* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
-	// TODO Refactor: DNI
+	// TODO Refactor: ver si es posible simplificar casos.
+	// TODO Refactor: DNI en vez de id
 	try {
 		let usu;
 		if(req.params.id && req.session.usuario && (req.params.id == req.session.usuario.DNI)){
