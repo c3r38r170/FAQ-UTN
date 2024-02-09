@@ -224,12 +224,14 @@ router.patch('/usuario', function(req, res){
 
 // TODO Refactor: Ver si consultas GET aceptan body, o hay que poner las cosas en la URL (chequear proyecto de TTADS)
 router.get('/pregunta',(req,res)=>{
+	// TODO Refactor: Mandar este comentario a Pregunta.pagina
 	// ! Siempre pedir el Post, por más que no se consulten los datos.
 
 	// TODO Feature: Aceptar etiquetas y filtro de texto. https://masteringjs.io/tutorials/express/query-parameters
 
 		let filtros={pagina:null,filtrar:[]};
 		
+		// TODO Refactor: pagina es obligatorio; y si no está, sería 0. `pagina:req.query.pagina||0`
 		if(req.query.pagina){
 			filtros.pagina=req.query.pagina;
 		}
@@ -237,37 +239,14 @@ router.get('/pregunta',(req,res)=>{
 		{
 			filtros.filtrar.texto=req.query.searchInput;
 		}
-		// console.log(filtros);
-		Pregunta.pagina(filtros)
-		// Pregunta.findAll(opciones)
-			.then(preguntas=>{
-				res.status(200).send(preguntas)
-			})
-			.catch(err=>{
-				console.log(err)
-			});
-	// }
-	return;
 
-	// TODO Feature: ver si anda lo de match, y lo del or  quizá haya que poner tabla.columna en vez de solo las columnas
-	//hice union atada con alambre, ver cuan lento es
-	//al ser distintas tablas no puedo hacer un unico indice con las dos columnas
-	Pregunta.findAll({
-		where:	Sequelize.or(
-				Sequelize.literal('match(cuerpo) against ("'+req.query.filtro+'")'),
-				Sequelize.literal('match(titulo) against ("'+req.query.filtro+'")')	
-				)
-		,
-		order:[
-			[Post,'fecha','DESC']
-		]
-		,limit:PAGINACION.resultadosPorPagina,
-		offset:(+req.query.pagina)*PAGINACION.resultadosPorPagina,
-		include:Post
-	})
+		Pregunta.pagina(filtros)
 		.then(preguntas=>{
-			res.status(200).send(preguntas);
+			res.status(200).send(preguntas)
 		})
+		.catch(err=>{
+			console.log(err)
+		});
 })
 
 router.patch('/pregunta', function(req,res){
@@ -682,7 +661,7 @@ const eliminarVoto=function(req,res) {
 					plain:true
 				}).then(voto=>{
 					if(!voto){
-						res.status.status(403).send("No existe la valoración")
+						res.status(403).send("No existe la valoración")
 					}
 					else{
 						voto.destroy();

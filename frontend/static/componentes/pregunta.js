@@ -43,6 +43,7 @@ class Pregunta{
 	}
 
 	render(){
+        // TODO Feature: Permitir texto enriquecido. Tanto acá como en respuestas. Empecemos detectando y convirtiendo links, podemos seguir con ** para negrita y **** para subrayado... eventualmente meteríamos un motor de markdown.
         return`
             <div class="pregunta">
                 <div class="encabezado">

@@ -61,10 +61,10 @@ class DesplazamientoInfinito{
 
 		// TODO Refactor: Poner algún componente de paginación en el frontend, que en su defecto obtenga la info del backend. Ver que no destruya ninguna renderización... quizá llevar la configuración del frontend AL backend? Suena a lo más oportuno, por mas que sea antiintuitivo...
 		if(cantidadDeEntidadesEnIteracion==0){
-			// TODO UX: Mensaje de que no hay más entidades, de que se llegó al fin del desplazamiento. Componente mensaje PFU-130
+			// TODO UX: No permitir cerrar este mensaje.
 			html+=(new MensajeInterfaz('3','Llegaste al final.')).render();
 		}else{
-			// TODO UX: Un loading GIF que no de asco. Y que pegue con el resto.
+			// TODO UX: Un loading GIF que no de asco. Y que pegue con el resto. @nico borrá esto si te parece ok el que hay con los ajustes que tiene.
 			html+=`<div class="loading">`
 			html+=`<img loading="lazy" src="/loading.gif" onload="if(window.DesplazamientoInfinito?.instancias?.['${this.#id}'])DesplazamientoInfinito.instancias['${this.#id}'].navegar(event);else setTimeout(()=>this.src='/loading.gif?'+Math.random(),1000)">`;
 			html+=`</div>`
