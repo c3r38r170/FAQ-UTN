@@ -858,6 +858,7 @@ Respuesta.pagina=({pagina=0, DNI}={})=>{
                     'respuestasCount'
                 ]]
         },
+        separate:true,
         where:{
             '$respuestas.post.duenio.DNI$':DNI
         },
