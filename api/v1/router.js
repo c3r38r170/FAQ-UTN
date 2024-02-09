@@ -278,10 +278,10 @@ router.patch('/pregunta', function(req,res){
 					//si pasa el filtro
 					pregunta.post.cuerpo=req.body.cuerpo;
 					pregunta.titulo=req.body.titulo;
-					//no se porque pero asi anda pregunta.save() no
-					pregunta.post.save();
 					//etiquetas vienen los id en array
 					pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})));
+					//no se porque pero asi anda pregunta.save() no
+					pregunta.post.save();
 					res.status(200).send("Pregunta actualizada exitosamente");
 				});
 				
@@ -293,6 +293,8 @@ router.patch('/pregunta', function(req,res){
         res.status(500).send(err);
     })  
 })
+
+// TODO Feature: Se pierden los enters al registrar el cuerpo.
 
 router.post('/pregunta', function(req,res){
 	if(!req.session.usuario){
@@ -315,41 +317,55 @@ router.post('/pregunta', function(req,res){
 				ID: post.ID,
 				titulo: req.body.titulo
 			}).then((pregunta)=>{
+				let esperarA=[];
+
 				if(respuesta.apropiado < reportaPost){
-					//testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
-					ReportePost.create({
-						reportadoID: post.ID})
+					// TODO Feature testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
+					esperarA.push(ReportePost.create({
+						reportadoID: post.ID}));
 				}
+
+				// TODO Feature: Ninguno de estas 2 anda. Ni setEtiquetas ni addSuscriptos.
+
 				//etiquetas
 				//asumo que vienen en el body en un array con los id (a chequear)
 				
-				pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})));
+				esperarA.push(
+					pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})))
+				);
 				
 				//Suscribe a su propia pregunta
 
-				pregunta.addSuscriptos(req.session.usuario.DNI);
+				esperarA.push(
+					pregunta.addSuscriptos(req.session.usuario.DNI)
+				);
 
 				//notificaciones
-				SuscripcionesEtiqueta.findAll({
-					attributes: ['suscriptoDNI'],
-					where: {
-					  etiquetaID: {
-						[Sequelize.Op.in]: req.body.etiquetasIDs
-					  },
-					  fecha_baja: null
-					},
-					distinct: true
-				  }).then(suscripciones=>{
-					suscripciones.forEach(suscripcion => {
-						Notificacion.create({
-							postNotificadoID:post.ID,
-							notificadoDNI:suscripcion.suscriptoDNI
-						})
-					});
-				})
+				esperarA.push(
+					SuscripcionesEtiqueta.findAll({
+						attributes: ['suscriptoDNI'],
+						where: {
+							etiquetaID: {
+							[Sequelize.Op.in]: req.body.etiquetasIDs
+							},
+							fecha_baja: null
+						},
+						distinct: true
+						}).then(suscripciones=>{
+						suscripciones.forEach(suscripcion => {
+							Notificacion.create({
+								postNotificadoID:post.ID,
+								notificadoDNI:suscripcion.suscriptoDNI
+							})
+						});
+					})
+				);
 				
-				// ! Sin las comillas se piensa que pusimos el status dentro del send
-				res.status(201).send(post.ID+"");
+				Promise.all(esperarA)
+					.then(() => {
+						// ! Sin las comillas se piensa que pusimos el status dentro del send
+						res.status(201).send(post.ID+"");
+					})
 			})
 			.catch(err=>{
 				console.log(err);
@@ -1026,6 +1042,7 @@ router.patch('/notificacion',function(req,res){
 		})
 })
 
+// TODO Feature
 /* router.get('/',(req,res)=>{
 	// retornar estado de la api, disponible o no
 }) */

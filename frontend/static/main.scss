@@ -538,9 +538,13 @@ footer#footer{
 	}
   }
 
-
+// TODO Refactor: Considerar mandar a pregunta-viendo.css
 #nueva-respuesta{
 	padding: 3rem 3rem;
     border-top: 1px solid lightgray;
     border-bottom: 1px solid lightgray;
+}
+
+textarea{
+	resize: vertical;
 }

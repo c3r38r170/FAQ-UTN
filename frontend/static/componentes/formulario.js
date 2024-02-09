@@ -25,10 +25,7 @@ class Formulario{
 
 	enviar(e){
 		e.preventDefault();
-		console.log(e.target);
 		// ! No funciona GET con FormData.
-		// TODO Refactor: Ver si funciona superFetch
-
 
 		// Crear un objeto FormData para facilitar la obtención de datos del formulario
 		const formData = new FormData(e.target);
@@ -37,39 +34,21 @@ class Formulario{
 		const datos = {};
 	
 		// Iterar sobre las entradas de FormData y asignarlas al objeto de datos
-		formData.forEach((valor, clave) => {
-			datos[clave] = valor;
-		});
-
+		formData.forEach((value, key) => {
+			// Reflect.has in favor of: object.hasOwnProperty(key)
+			if(!Reflect.has(datos, key)){
+					datos[key] = value;
+					return;
+			}
+			if(!Array.isArray(datos[key])){
+					datos[key] = [datos[key]];    
+			}
+			datos[key].push(value);
+	});
 
 		 superFetch(this.#endpoint,datos,{ method: this.verbo})
-			.then(res=>res.json)
-			.then(this.#funcionRetorno); 
-		/* let options={
-			credentials:'include'
-		}
-
-		let data=new
-		
-		if(this.verbo=='GET'){
-			if(data)
-				url+=[...JSONAsURLEncodedStringIterator(data)].reduce((acc,el)=>acc+=el.join('=')+'&','?');
-		}else{
-			options.this.verbo=this.verbo;
-			if(whatIs(data)==Types.OBJECT){
-				if(data instanceof FormData){
-					options.body=data;
-				}else{
-					options.headers['Content-Type']='application/json';
-					options.body=JSON.stringify(data);
-				}
-			}else if(data)
-				options.body=data;
-		}
-
-		fetch(this.#endpoint,{
-			body:new FormData(e.target)
-		}) */
+			.then(res=>res.text())
+			.then(this.#funcionRetorno);
 		
 	}
 

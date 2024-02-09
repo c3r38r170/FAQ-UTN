@@ -27,7 +27,7 @@ fetch('/api/etiqueta')
 		botonCrear.before(contenedorDeEtiquetas);
 		console.log(botonCrear,botonCrear.previousElementSibling); */
 
-		// TODO Feature: Hacer que ande.
+		// TODO Feature: Obligar a poner una por lo menos.
 		botonCrear.before(createElement([
 			'DIV',{
 				id:'nueva-pregunta-etiquetas',
@@ -36,6 +36,7 @@ fetch('/api/etiqueta')
 					children:[
 						['SPAN',{innerText:categoria.descripcion}]
 						,['SELECT',{
+							name:'etiquetasIDs',
 							multiple:true,
 							children:categoria.etiquetas.map(({ID,descripcion})=>['OPTION',{innerText:descripcion,value:ID}])
 						}]

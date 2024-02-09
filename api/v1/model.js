@@ -161,7 +161,7 @@ const Post = sequelize.define('post',{
         autoIncrement: true
     },
     cuerpo:{
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false
     },
     fecha:{
@@ -921,7 +921,7 @@ Etiqueta.hasMany(EtiquetasPregunta,{
     ,foreignKey:'etiquetumID'
 });
  */
-EtiquetasPregunta.belongsTo(Etiqueta);
+EtiquetasPregunta.belongsTo(Etiqueta,{constraints:false});
 
 /* 
 Etiqueta.hasMany(EtiquetasPregunta,{
@@ -1136,6 +1136,6 @@ Pregunta.create({
 })*/
 
 
-//sequelize.sync({alter:true});
+// sequelize.sync({alter:true});
 
 export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
