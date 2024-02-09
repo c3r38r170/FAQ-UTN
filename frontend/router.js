@@ -13,6 +13,7 @@ import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta /* PaginaExplorar, 
 import { PaginaPerfil } from "./static/pantallas/perfil.js";
 import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
 import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
+import { PaginaPerfilPropioRespuestas } from "./static/pantallas/perfil-propio-respuestas.js";
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
@@ -282,32 +283,26 @@ router.get('/perfil/preguntas',(req, res) => {
 
 // TODO Refactor: Ver si se puede unificar el algoritmo de prefil/preguntas y perfil/respuestas
 router.get('/perfil/respuestas',(req, res) => {
-	let usu=req.session.usuario;
+	try {
+			
+		if (!req.session.usuario) {
+			res.status(404).send('No está autorizado');
+			return;
+		}
+		let filtro={DNI:null};
+		filtro.DNI =req.session.usuario.DNI;
+		RespuestaDAO.pagina(filtro)
+			.then(pre=>{
+				let pagina = PaginaPerfilPropioRespuestas(req.path,req.session);
+				pagina.partes[1]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
-	// TODO Feature: Transformar esto en el endpoint correspondiente
-	// TODO Feature: vER SI anda esto. Tanto acá como en Preguntas
-	/* let respuestas=yield RespuestaDAO.findAll({
-		include:[PostDAO,{model:UsuarioDAO,as:'duenioPostID'}]
-		,where:{'duenioPostID':usu.ID}
-	});
- */
-
-  let pagina = new Pagina({
-    ruta: req.path,
-    titulo: 'Perfil de '+usu.nombreCompleto+' - Respuestas',
-    sesion: req.session,
-		partes:[
-			// Título('Tus Respuestas' (,nivel?(h2,h3...)) )
-			// ChipUsuario() // Solo imagen y nombre; (O) Jhon Dow
-			new DesplazamientoInfinito(
-				'perfil-desplinf'
-				,`/api/usuario/${usu.DNI}/respuestas`
-				,p=>new Respuesta(p.respuesta) // Sin chip de usuario, con botones de editar y borrar, con cantidad de respuestas...
-			)
-			// TODO UX: Ver la pregunta (titulo nomás). Que la respuesta sea un link a la pregunta.
-		]
-  });
-  res.send(pagina.render());
+				res.send(pagina.render());
+				});
+	
+	}catch(error){
+        console.error(error);
+        res.status(500).send('Error interno del servidor');
+	}
 })
 
 
