@@ -598,6 +598,7 @@ router.patch('/respuesta', function(req,res){
 })
 
 // valoracion
+// TODO Feature: No permitir autovotarse.
 
 const valorarPost=function(req,res) {
 	//res tendría idpregunta 

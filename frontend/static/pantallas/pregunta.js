@@ -21,7 +21,7 @@ function PaginaPregunta(ruta, sesion, idPregunta){
         ,'/api/respuesta'
         ,[
             {name:'cuerpo',textoEtiqueta:'Tu respuesta:',type:'textarea'},
-            {name:'idPregunta', textoEtiqueta:'idPregunta', type:'hidden', value:idPregunta}
+            {name:'IDPregunta', textoEtiqueta:'idPregunta', type:'hidden', value:idPregunta}
         ]
         ,respuestaID=>{
             // TODO Feature: ¿o solo agregar la respuesta??
