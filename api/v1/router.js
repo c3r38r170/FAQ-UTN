@@ -294,14 +294,12 @@ router.patch('/pregunta', function(req,res){
     })  
 })
 
-// TODO Feature: Se pierden los enters al registrar el cuerpo.
 
 router.post('/pregunta', function(req,res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-
 	//A veces crashea la ia
 	moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10).then(respuesta=>{
 		if(respuesta.apropiado < rechazaPost){
@@ -329,15 +327,29 @@ router.post('/pregunta', function(req,res){
 
 				//etiquetas
 				//asumo que vienen en el body en un array con los id (a chequear)
-				
-				esperarA.push(
-					pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})))
-				);
-				
+				if(req.body.etiquetasIDs){
+					esperarA.push(
+						//pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})))
+						//por ahora
+						req.body.etiquetasIDs.forEach(id=>{
+							EtiquetasPregunta.create({
+								'preguntumID':post.ID,
+								'etiquetumID':id
+							})
+						})
+
+						
+					);
+				}
 				//Suscribe a su propia pregunta
 
 				esperarA.push(
-					pregunta.addSuscriptos(req.session.usuario.DNI)
+					//pregunta.addSuscriptos(req.session.usuario.DNI)
+					//por ahora
+					SuscripcionesPregunta.create({
+						preguntaID: post.ID,
+						suscriptoDNI: req.session.usuario.DNI
+					})
 				);
 
 				//notificaciones

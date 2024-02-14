@@ -33,7 +33,6 @@ class Pregunta{
             this.#respuestas = respuestas;
             this.#respuestasCount = respuestasCount;
             this.#ID = ID;
-
             this.#etiquetas = etiquetas;
             this.#instanciaModal = instanciaModal;
             this.#usuarioActual=usuarioActual;
@@ -61,7 +60,7 @@ class Pregunta{
                 <a href="/pregunta/${this.#ID}">
                     <div class="titulo">${this.#titulo}</div>
                 </a>
-                <div class="cuerpo">${this.#cuerpo}</div>
+                <div class="cuerpo">${this.#cuerpo.replace(/\n/g, '<br>')}</div>
                 <div class="etiquetas">
                 ${this.#etiquetas ? this.#etiquetas.map(e=>new Etiqueta(e.etiquetum).render()).join('') : ''}
                 </div>

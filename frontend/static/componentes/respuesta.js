@@ -39,7 +39,7 @@ class Respuesta {
                 <div class="contenedor-reporte">
                   ${ new BotonReporte(this.#ID, this.#instanciaModal).render()}
                 </div>
-                ${this.#cuerpo}
+                ${this.#cuerpo.replace(/\n/g, '<br>')}
                 <div class="usuario">
                     ${new ChipUsuario(this.#usuario).render()}
                     ${this.#fecha.render()}
