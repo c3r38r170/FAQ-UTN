@@ -2,10 +2,9 @@ import { SqS, gEt } from "../libs/c3tools.js";
 
 class ChipValoracion{
 
-    static instancias={};
     #valoracion;
     #estado;
-    #id //id del post
+    #id; //id del post
     #sesion;
 	constructor({
         ID,
@@ -13,7 +12,6 @@ class ChipValoracion{
         usuarioActual
     }){
         this.#id = ID;
-        ChipValoracion.instancias[this.#id]=this;
         this.#sesion=usuarioActual;
         this.#valoracion=votos.reduce((suma, voto)=>suma+=voto.valoracion,0);
         if(this.#sesion.usuario===undefined){

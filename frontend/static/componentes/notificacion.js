@@ -1,7 +1,6 @@
 import {Fecha} from './fecha.js';
 
 class Notificacion{
-	static instancias ={};
 	#texto;
     #tituloPregunta;
 	visto;
@@ -30,7 +29,6 @@ class Notificacion{
     },usuarioActualDNI){
 			this.visto=visto;
 			this.#ID=id;
-			Notificacion.instancias[this.#ID]=this;
 		this.#tituloPregunta = post.cuerpo;
 		this.#fecha=new Fecha(createdAt);
 		console.log(usuarioActualDNI)

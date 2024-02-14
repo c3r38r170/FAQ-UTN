@@ -10,6 +10,9 @@ import { ChipUsuario,DesplazamientoInfinito,Titulo } from './todos.js'
 // TODO Feature: Tirar errores en los constructores con parámetros necesarios 
 // TODO Refactor: Cambiar a Pantalla. Colisiona con el concepto de página de los modelos.
 class Pagina {
+	/* Idealmente, quizá la página podría serializarse, incluirse en las globales, y deserializarse en el frontend. Un ejemplo de algo que nos permitiría esto sería https://github.com/erossignon/serialijse (aunque no parece soportar las propiedades privadas)
+	De esta manera nos ahorramos la carpeta pantallas, y el archivo de visibilizar-clases. */
+
 	// TODO Refactor: ¿No debería ser un string?
   #ruta=''/*  = {
 	ruta: ""
