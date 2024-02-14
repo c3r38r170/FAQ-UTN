@@ -354,25 +354,26 @@ router.post('/pregunta', function(req,res){
 				);
 
 				//notificaciones
-				esperarA.push(
-					SuscripcionesEtiqueta.findAll({
-						attributes: ['suscriptoDNI'],
-						where: {
-							etiquetaID: {
-							[Sequelize.Op.in]: req.body.etiquetasIDs
+				if(req.body.etiquetasIDs)
+					esperarA.push(
+						SuscripcionesEtiqueta.findAll({
+							attributes: ['suscriptoDNI'],
+							where: {
+								etiquetaID: {
+								[Sequelize.Op.in]: req.body.etiquetasIDs
+								},
+								fecha_baja: null
 							},
-							fecha_baja: null
-						},
-						distinct: true
-						}).then(suscripciones=>{
-						suscripciones.forEach(suscripcion => {
-							Notificacion.create({
-								postNotificadoID:post.ID,
-								notificadoDNI:suscripcion.suscriptoDNI
-							})
-						});
-					})
-				);
+							distinct: true
+							}).then(suscripciones=>{
+							suscripciones.forEach(suscripcion => {
+								Notificacion.create({
+									postNotificadoID:post.ID,
+									notificadoDNI:suscripcion.suscriptoDNI
+								})
+							});
+						})
+					);
 				
 				Promise.all(esperarA)
 					.then(() => {
