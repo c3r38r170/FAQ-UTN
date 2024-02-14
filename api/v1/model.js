@@ -336,6 +336,10 @@ const Perfil = sequelize.define('perfil',{
     nombre:{
         type:DataTypes.STRING,
         allowNull:false
+    },
+    color:{ //RGB?
+        type:DataTypes.STRING,
+        allowNull:false
     }
 })
 
@@ -361,23 +365,24 @@ const Permiso = sequelize.define('permiso',{
     }
 })
 
-const PerfilesPermiso = sequelize.define('perfilesPermiso', {
-    ID: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    }
+
+Permiso.hasOne(Perfil, {
+    constraints:false
+});
+
+
+Permiso.upsert({
+    ID: 1,
+    descripcion: "Solo tiene permisos básicos"
 })
-
-Perfil.belongsToMany(Permiso, {
-    through: PerfilesPermiso,
-    constraints:false
-});
-
-Permiso.belongsToMany(Perfil, { 
-    through: PerfilesPermiso ,
-    constraints:false
-});
+Permiso.upsert({
+    ID: 2,
+    descripcion: "Puede moderar"
+})
+Permiso.upsert({
+    ID: 3,
+    descripcion: "Puede administrar listas"
+})
 
 const Respuesta = sequelize.define('respuesta',{
     ID: {
@@ -1145,6 +1150,6 @@ Pregunta.create({
 })*/
 
 
-// sequelize.sync({alter:true});
+sequelize.sync({alter:true});
 
-export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
+export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
