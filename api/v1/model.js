@@ -591,7 +591,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
         }   
             ,
             where: {
-                '$post.duenio.DNI$': +duenioID
+                '$post.duenio.DNI$': duenioID
             },
             order:[[Post,'fecha','DESC']],
             limit:PAGINACION.resultadosPorPagina,

@@ -57,7 +57,7 @@ class Pagina {
 	// * Pagina.render solo se va a llamar desde el backend.
   render() {
 		// * Quita los identificadores de las rutas, y los reemplaza por "viendo"
-		let rutaRecursos='/' + this.#ruta.split('/').map(parte=>(+parte)?'viendo':parte).join('-').substring(1);
+		let rutaRecursos='/' + this.#ruta.split('/').map(parte=>(/[0-9]/.test(parte))?'viendo':parte).join('-').substring(1);
 
 		// TODO Feature: Meta properties. https://es.stackoverflow.com/questions/66388/poner-una-imagen-de-preview-y-t%C3%ADtulo-en-mi-p%C3%A1gina-para-que-se-visualice-en-face
     return `<!DOCTYPE html>

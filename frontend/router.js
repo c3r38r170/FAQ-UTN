@@ -414,7 +414,7 @@ router.get("/perfil/:id?", async (req, res) => {
 			res.send(pagina.render());
 			return;
 	
-		}else if(req.params.id && req.session.usuario && (req.params.id != req.session.usuario.DNI)){
+		}else if(req.params.id){
 
 			// LOGUEADO BUSCANDO OTRO USUARIO
 			usu = await UsuarioDAO.findByPk(req.params.id);

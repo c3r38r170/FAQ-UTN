@@ -617,6 +617,7 @@ const valorarPost=function(req,res) {
 	//res tendría idpregunta 
 	//la valoracion(true es positiva, false negativa) 
 	//el usuario viene con la sesión
+	//TODO: Refactor en vez de borrar el voto ponerle un campo, asi creamos la noti solo si el voto es nuevo, no si te vuelve loco poniendo y sacando
 
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.");
