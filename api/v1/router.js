@@ -109,7 +109,6 @@ router.get('/usuario/:DNI/preguntas', function(req, res){
 
 router.get('/usuario/:DNI/posts', function(req, res){
 	let filtros={pagina:null,DNI:req.params.DNI};
-		
 		if(req.query.pagina){
 			filtros.pagina=req.query.pagina;
 		}
@@ -119,11 +118,13 @@ router.get('/usuario/:DNI/posts', function(req, res){
 
 router.get('/usuario/:DNI/respuestas', function(req, res){
 	let filtros={pagina:null,DNI:req.params.DNI};
-		
+	let pagina = 0;
 		if(req.query.pagina){
 			filtros.pagina=req.query.pagina;
+			pagina = req.query.pagina;
 		}
-		res.status(200).send([])
+
+		Respuesta.pagina(filtros).then(posts=>res.send(posts.slice((+pagina)*PAGINACION.resultadosPorPagina,(1+pagina)*PAGINACION.resultadosPorPagina )))
 	//Respuesta.pagina(filtros).then(respuestas=>res.send(respuestas))
 })
 
@@ -643,15 +644,17 @@ const valorarPost=function(req,res) {
 						if(req.body.valoracion=="null"){
 							res.status(403).send("No existe la valoracion")
 						}else{
-							Voto.create({
-								valoracion: req.body.valoracion,
-								votadoID:IDvotado,
-								votanteDNI:req.session.usuario.DNI
-							}).then(v=>v.save());
-							Notificacion.create({
-								postNotificadoID:post.ID,
-								notificadoDNI:post.duenioDNI
-							})
+							if(req.body.valoracion){
+								Voto.create({
+									valoracion: req.body.valoracion,
+									votadoID:IDvotado,
+									votanteDNI:req.session.usuario.DNI
+								}).then(v=>v.save());
+								Notificacion.create({
+									postNotificadoID:post.ID,
+									notificadoDNI:post.duenioDNI
+								})
+						}
 					}
 					}else{
 						voto.valoracion=req.body.valoracion;

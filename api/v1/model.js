@@ -871,7 +871,7 @@ Respuesta.pagina=({pagina=0, DNI}={})=>{
         where:{
             '$respuestas.post.duenio.DNI$':DNI
         },
-        order:[[Post, 'fecha','DESC']],
+        order:[[Post, 'fecha','DESC']]
         // ,raw:true,nest:true
     })
 }
