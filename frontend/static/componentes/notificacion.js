@@ -83,7 +83,6 @@ class Notificacion{
 	let divChipNotificacion = aApretado.closest(".notificacion");
 	let id = divChipNotificacion.dataset.id;
 	let idPregunta = divChipNotificacion.dataset.idPregunta;
-	console.log(id, idPregunta);
 	
 	
 	const url= `http://localhost:8080/api/notificacion`;

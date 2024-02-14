@@ -443,6 +443,11 @@ const Pregunta = sequelize.define('pregunta',{
         set(value){
             this.post.setDataValue('cuerpo', value);
         }
+    },respuestasCount:{
+        type:DataTypes.VIRTUAL,
+        get(){
+            return this.dataValues?.respuestasCount;
+        },
     }
 },{
     indexes:[
@@ -599,8 +604,8 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 			include:[Post],
 			limit:PAGINACION.resultadosPorPagina,
 			offset:(+pagina)*PAGINACION.resultadosPorPagina,
-			subQuery:false
-		};
+			subQuery:false,	
+        };
         opciones.attributes = {
             include: [
                 [

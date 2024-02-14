@@ -80,7 +80,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 									}
 								]
 							}
-						],
+						], 
 						order: [['updatedAt', 'DESC']]
 					},
 					{
@@ -100,7 +100,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 				// 	});
 				// }
 		
-				const p = await PreguntaDAO.findByPk(req.params.id, { include });
+				const p = await PreguntaDAO.findByPk(req.params.id, { include});
 
 				if (!p) {
 					res.status(404).send('ID de pregunta inválida');
