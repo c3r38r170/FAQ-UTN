@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
           rejectUnauthorized: true,
         },
       },
-      logging: false,
+    //   logging: false,
      }
    );
    /* new Sequelize('faqutn', 'root', 'password', {

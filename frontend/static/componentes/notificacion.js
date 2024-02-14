@@ -24,33 +24,31 @@ class Notificacion{
 
 	constructor(id,{
 	    visto
-		,post
-		,createdAt
+			,createdAt
+			,cantidad
+			,propia
+			,titulo
+			,respuestaPreguntaID
+			,preguntaID
     },usuarioActualDNI){
 			this.visto=visto;
 			this.#ID=id;
-		this.#tituloPregunta = post.cuerpo;
+		this.#tituloPregunta = titulo;
 		this.#fecha=new Fecha(createdAt);
-		console.log(usuarioActualDNI)
-		if(post.pregunta.ID!=null){
-			if(post.duenio.DNI==usuarioActualDNI){
-				this.#texto = 'Recibiste un nuevo voto:'
-				this.#tituloPregunta = post.pregunta.titulo
-				this.#idPregunta =post.pregunta.ID
+		// console.log(usuarioActualDNI)
+		if(preguntaID){
+			this.#idPregunta =preguntaID
+			if(propia){
+				this.#texto = 'Nuevos votos positivos en tu pregunta:'
 			}else{
 				this.#texto= 'Nueva pregunta que te puede interesar:'
-				this.#tituloPregunta = post.pregunta.titulo
-				this.#idPregunta =post.pregunta.ID
 			}
 		}else{
-			if(post.duenio.DNI==usuarioActualDNI){
-				this.#texto = 'Recibiste un nuevo voto:'
-				this.#tituloPregunta = post.respuesta.pregunta.titulo
-				this.#idPregunta=post.respuesta.pregunta.ID
+			this.#idPregunta=respuestaPreguntaID
+			if(propia){
+				this.#texto = 'Fuiste votado respondiendo a:'
 			}else{
 				this.#texto = 'Nuevas respuestas en la pregunta'
-				this.#tituloPregunta = post.respuesta.pregunta.titulo
-				this.#idPregunta=post.respuesta.pregunta.ID
 			}
 		}
 

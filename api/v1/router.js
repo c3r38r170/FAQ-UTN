@@ -526,7 +526,7 @@ router.post('/respuesta', function(req,res){
 							  suscriptoDNI: { [Sequelize.Op.ne]: req.session.usuario.DNI} 
 							}
 						  }).then(suscripciones=>{
-							console.log(suscripciones);
+							console.log('Suscripciones:',suscripciones);
 							suscripciones.forEach(suscripcion => {
 								Notificacion.create({
 									postNotificadoID:post.ID,
@@ -835,6 +835,7 @@ router.get('/etiqueta', function(req,res){
 	//* sin paginación porque no deberían ser tantas
 
 	// TODO Refactor: Ver si el estandar de REST permite enviar colecciones separadas en casos como este, donde la redundancia es aproximadamente el 50% de la carga. O si hay que hacer endpoint de categorias...
+	// TODO Refactor: Quizá directamente pedir categorias ¯\_(ツ)_/¯
 	/* Promise.all(
 		Etiqueta.findAll({
 			raw:true,
@@ -960,9 +961,23 @@ router.delete('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 // TODO Refactor: Minimizar datos que envia este endpoint.
 // TODO Feature: Hacer que se devuelvan una sola notificacion por pregunta (sí, pregunta)
 router.get('/notificacion', function(req,res){
-	//ppregunta ajena es notificacion por etiqueta suscripta 
+	// pregunta
+	// 	propia
+	// 		valoraciones, cantidad n
+	// 	ajena
+	// 		nueva pregunta, siempre es 1, suscripcion a etiqueta
+	// respuesta
+	// 	propia
+	// 		Valoracion, cantidad n
+	// 	ajena
+	// 		nuevas respuestas, cantidad n, Suscripcion a pregunta
+
+	//ppregunta ajena es notificacion por etiqueta suscripta
+		// preguntaID not null es "nueva pregunta a etiqueta"
 	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
 	//respuesta o pregunta propia es notificación por valoración
+		// nuevos votos en tu pregunta...
+		// nuevos votos en tu respuesta a ...
 	if(!req.session.usuario){
 		res.status(403).send("No se posee sesión válida activa");
 		return;
@@ -978,18 +993,18 @@ router.get('/notificacion', function(req,res){
 		include: [
 		  {
 			model: Post,
-			attributes: ['ID', 'cuerpo'],
+			attributes: [/* 'ID', 'cuerpo' */],
 			required:true,
 			include: [
-			  { model: Usuario, as: 'duenio', attributes: ['DNI', 'nombre'] }, 
+			  { model: Usuario, as: 'duenio', attributes: [/* 'DNI', 'nombre' */] }, 
 			  { model: Respuesta, as: 'respuesta', 
 				include: [
-				  { model: Pregunta, as: 'pregunta', attributes: ['ID', 'titulo'] } // *Include Pregunta in Respuesta
+				  { model: Pregunta, as: 'pregunta', attributes: [/* 'ID', 'titulo' */] } // *Include Pregunta in Respuesta
 				],
 				required: false,
-				attributes: ['ID', 'preguntaID'] 
+				attributes: [/* 'ID', 'preguntaID' */] 
 			  },  
-			  { model: Pregunta, as: 'pregunta', required: false, attributes: ['ID', 'titulo'] } 
+			  { model: Pregunta, as: 'pregunta', required: false, attributes: [/* 'ID', 'titulo' */] } 
 			]
 		  }
 		],
@@ -997,6 +1012,26 @@ router.get('/notificacion', function(req,res){
 		  //'$post.pregunta.ID$': { [Sequelize.Op.ne]: null }, // *Check if the post is a question
 		  notificadoDNI: req.session.usuario.DNI // *Filter by notificadoDNI matching user's DNI
 		},
+		attributes:[
+			[Sequelize.fn('min',Sequelize.col('notificacion.visto')),'visto']
+			,[Sequelize.fn('max',Sequelize.col('notificacion.createdAt')),'createdAt']
+			,[Sequelize.fn('count',Sequelize.col('*')),'cantidad']
+			,[Sequelize.literal(`IF(post.duenioDNI='${req.session.usuario.DNI}',1,0)`),'propia']
+			,[Sequelize.fn('coalesce',Sequelize.col('post.respuesta.pregunta.titulo'),Sequelize.col('post.pregunta.titulo')),'titulo']
+			// ,[Sequelize.literal(`COALESCE(post.respuesta.pregunta.titulo,post.pregunta.titulo)`),'titulo']
+			// ,Sequelize.fn.max('createdAt')
+			// ,
+			// ,['post.respuesta.ID','respuestaID']
+			,[Sequelize.col('post.respuesta.preguntaID'),'respuestaPreguntaID']
+			,[Sequelize.col('post.pregunta.ID'),'preguntaID']
+		],
+		group:[
+			// 'post.respuesta.ID'
+			// ,
+			'propia'
+			,'post.respuesta.preguntaID'
+			,'post.pregunta.ID'
+		],
 		raw: true,
 		nest: true
 	  }).then(notificaciones=>{
