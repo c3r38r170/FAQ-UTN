@@ -1,5 +1,6 @@
 import { Boton } from "./boton.js";
 import {BotonReporte} from "./botonReporte.js";
+import { BotonSuscripcion } from "./botonSuscripcion.js";
 import { Breadcrumb } from "./breadcrumb.js";
 import { Busqueda } from "./busqueda.js";
 import { ChipUsuario } from "./chipusuario.js";
@@ -32,7 +33,7 @@ export {
 	, Breadcrumb
 	, Busqueda
 	,ComponenteLiteral
-	,Boton, BotonReporte
+	,Boton, BotonReporte, BotonSuscripcion
 	
 	,ChipUsuario,ChipValoracion
 	,Etiqueta
