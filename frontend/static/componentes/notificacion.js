@@ -40,7 +40,7 @@ class Notificacion{
 				this.#tituloPregunta = post.pregunta.titulo
 				this.#idPregunta =post.pregunta.ID
 			}else{
-				this.#texto= 'Nueva pregunta que te puede interesar'
+				this.#texto= 'Nueva pregunta que te puede interesar:'
 				this.#tituloPregunta = post.pregunta.titulo
 				this.#idPregunta =post.pregunta.ID
 			}
@@ -50,7 +50,7 @@ class Notificacion{
 				this.#tituloPregunta = post.respuesta.pregunta.titulo
 				this.#idPregunta=post.respuesta.pregunta.ID
 			}else{
-				this.#texto = 'Nuevas respuestas en la pregunta '
+				this.#texto = 'Nuevas respuestas en la pregunta'
 				this.#tituloPregunta = post.respuesta.pregunta.titulo
 				this.#idPregunta=post.respuesta.pregunta.ID
 			}
@@ -104,13 +104,14 @@ class Notificacion{
 	render(){
 		// TODO UX: Estilos, visto no visto, al enlace, etc. (.notificacion)
 		// TODO Feature: Implementar registro de visto. onclick
+		// TODO Feature: Marcar como visto.  onclick="Notificacion.verNotificacion()"
 		return`
-		<div class="notificacion ${this.visto==0? 'noti-no-vista': ''}" id='chip-notificacion-${this.#ID}' data-id='${this.#ID}' data-idPregunta='${this.#idPregunta}'>
+		<div class="chip-notificacion notificacion ${this.visto==0? 'noti-no-vista': ''}" id='chip-notificacion-${this.#ID}' data-id='${this.#ID}' data-idPregunta='${this.#idPregunta}'>
 			<div class="img-container">
 				<img class="img" class="img" src="/user.webp"/>
 			</div>
 			<div class="noti-container">
-			${this.#texto}<a class="notificacion" onclick="Notificacion.verNotificacion()">${this.#tituloPregunta}</a>
+			${this.#texto} <a class="notificacion" href="/pregunta/${this.#idPregunta}">${this.#tituloPregunta}</a>
 			${this.#fecha.render()}
 			</div>
 		</div>
