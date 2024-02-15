@@ -4,6 +4,7 @@ const router = express.Router();
 import {
 	Usuario
 	, Perfil
+	, Permiso
 	, Voto
 	, ReportePost
 	,Pregunta
@@ -32,7 +33,12 @@ const reportaPost = 70;
 
 router.post('/sesion', function(req, res) {
 	let usuario;
-	Usuario.findByPk(req.body.DNI)
+	Usuario.findByPk(req.body.DNI,{
+		include:{
+			model: Perfil,
+			include:Permiso
+		}
+	})
 		.then(usu=>{
 			if(!usu){
 				res.status(404).send('El DNI no se encuentra registrado.');
@@ -65,8 +71,12 @@ router.delete('/sesion', function(req, res) {
 // usuario
 
 router.get('/usuario', function(req,res){
-	//TODO Feature: permisos
+	
 	if(!req.session.usuario){
+		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
+		return;
+	}
+	else if(req.session.usuario.perfil.permiso.ID < 2){
 		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
 		return;
 	}
@@ -755,7 +765,10 @@ router.post('/post/:reportadoID/reporte', reportarPost);
 
 router.post('moderacion_pregunta', function(req,res){
 	if(!req.session.usuario){
-		//Falta lo de permisos
+		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
+		return;
+	}
+	else if(req.session.usuario.perfil.permiso.ID < 2){
 		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
 		return;
 	}
@@ -804,7 +817,10 @@ router.post('moderacion_pregunta', function(req,res){
 
 router.post('moderacion_respuesta', function(req,res){
 	if(!req.session.usuario){
-		//Falta lo de permisos
+		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
+		return;
+	}
+	else if(req.session.usuario.perfil.permiso.ID < 2){
 		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
 		return;
 	}

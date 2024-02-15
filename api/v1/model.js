@@ -370,6 +370,9 @@ Permiso.hasOne(Perfil, {
     constraints:false
 });
 
+Perfil.belongsTo(Permiso,{
+    constraints:false
+})
 
 Permiso.upsert({
     ID: 1,
@@ -569,7 +572,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
                             as: 'duenio',
                             include: {
                                 model: Perfil,
-                                attributes: ['ID', 'nombre']
+                                attributes: ['ID', 'nombre', 'color']
                             },
                             attributes: ['DNI', 'nombre']
                         }
@@ -699,7 +702,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 						,as:'duenio'
 						,include:{
 							model:Perfil
-							,attributes:['ID','nombre']
+							,attributes:['ID','nombre', 'color']
 						}
 						,attributes:['DNI','nombre']
 					}
