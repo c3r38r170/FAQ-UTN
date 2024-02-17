@@ -87,7 +87,7 @@ class Pagina {
 		${this.#encabezado.render()}
 		<div id="contenedor-principal" class="columns">
 			<div  id="columna-1" class="column is-3">
-				${new Navegacion(this.#sesion?.usuario).render()}
+				${new Navegacion(this.#sesion?.usuario, this.#ruta).render()}
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}

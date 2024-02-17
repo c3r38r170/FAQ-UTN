@@ -4,19 +4,47 @@ class Navegacion{
     // Comprobar sesion --> sino mostrar sólo búsqueda
     // Enviar objeto para mapear y renderizar el menú
 	#enlaces = [];
-    constructor(usuarioIdentificado){
+    constructor(usuarioIdentificado, ruta){
         if(!usuarioIdentificado){
             // Visitante
             this.#enlaces=[new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'/explorar')];
         } else {
-            // Si hay usuario, ver si es moderador o no
+            let perfil =new EnlaceNavegacion('Perfil',{tipo:'regular',nombre:'user'},'/perfil');
+
+            //si esta en ruta perfil
+            //TODO: Refactor para no crear el objeto principal otra vez
+            if(ruta=="/perfil" || ruta=="/perfil/preguntas" || ruta=="/perfil/respuestas")
+                perfil = new EnlaceNavegacion('Perfil',{tipo:'regular',nombre:'user', subenlaces:[
+                    new EnlaceNavegacion('Información',{tipo:'solid',nombre:'circle'},'/perfil'),
+                    new EnlaceNavegacion('Preguntas',{tipo:'solid',nombre:'circle'},'/perfil/preguntas'),
+                    new EnlaceNavegacion('Respuestas',{tipo:'solid',nombre:'circle'},'/perfil/respuestas')
+        ]},'/perfil');
 
             this.#enlaces=[
                 new EnlaceNavegacion('Buscar',{tipo:'solid',nombre:'magnifying-glass'},'/explorar'),
                 new EnlaceNavegacion('Preguntar',{tipo:'solid',nombre:'plus'},'/pregunta'),
                 new EnlaceNavegacion('Suscripciones',{tipo:'solid',nombre:'arrow-right'}, '/suscripciones'),
-                new EnlaceNavegacion('Perfil',{tipo:'regular',nombre:'user'},'/perfil')
+                perfil
             ];
+            if(usuarioIdentificado.perfil.permiso.ID>=2){
+                //Enlances para moderadores
+                let moderacion =new EnlaceNavegacion('Moderación',{tipo:'regular',nombre:'user'},'/moderacion/usuarios');
+
+                //si esta en ruta perfil
+                //TODO: Refactor para no crear el objeto principal otra vez
+                //TODO: esto es un placeholder
+                if(ruta=="/moderacion/preguntas" || ruta=="/moderacion/usuarios" || ruta=="/moderacion/etiquetas")
+                    moderacion = new EnlaceNavegacion('Moderación',{tipo:'regular',nombre:'user', subenlaces:[
+                        new EnlaceNavegacion('Usuarios',{tipo:'solid',nombre:'circle'},'/moderacion/usuarios'),
+                        new EnlaceNavegacion('Preguntas',{tipo:'solid',nombre:'circle'},'/moderacion/preguntas'),
+                        new EnlaceNavegacion('Etiquetas',{tipo:'solid',nombre:'circle'},'/moderacion/etiquetas')]},'/moderacion/usuarios');
+                this.#enlaces.push(moderacion)
+            }
+            if(usuarioIdentificado.perfil.permiso.ID>=3){
+                //TODO nav para admins
+
+            }
+            
         }
         
     }
@@ -27,6 +55,7 @@ class Navegacion{
                     ${this.#enlaces.reduce((s,en)=>s+en.render(),'')}
                 </ul>
             </div>`;
+            
 	}
 }
 
@@ -45,14 +74,24 @@ class EnlaceNavegacion{
     }
 
     render(){
+        let subnavegacionHTML = '';
+        if (this.#icono.subenlaces) {
+            subnavegacionHTML = `<ul class="subnavegacion">
+                ${this.#icono.subenlaces.reduce((s, en) => s + en.render(), '')}
+            </ul>`;
+        }
+        
         return `<li>
-                    
-        <a id="link" href="${this.#enlace}">
-            <i class="fa-${this.#icono.tipo} fa-${this.#icono.nombre} mr-1"></i>
-            ${this.#texto}
-        </a>
-    </li>`
+            <a id="link" href="${this.#enlace}">
+                <i class="fa-${this.#icono.tipo} fa-${this.#icono.nombre} mr-1"></i>
+                ${this.#texto}
+            </a>
+            ${subnavegacionHTML}
+        </li>`;
     }
 }
+
+
+
 
 export {Navegacion};
