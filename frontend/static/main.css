@@ -142,9 +142,40 @@ div.notificacion {
   padding: 0.5rem 15px;
   margin-bottom: 0.5rem;
   border-radius: 10px;
+  position: relative;
 }
 div.notificacion.noti-no-vista {
   background-color: #f3f6ff;
+  margin-top: 3rem;
+}
+div.notificacion.noti-no-vista::before {
+  content: "Nuevas";
+  display: block;
+  position: absolute;
+  top: -2rem;
+  font-weight: bold;
+}
+div.notificacion.noti-no-vista ~ .noti-no-vista {
+  margin-top: 0;
+}
+div.notificacion.noti-no-vista ~ .noti-no-vista::before {
+  content: "";
+}
+div.notificacion:not(.noti-no-vista) {
+  margin-top: 3rem;
+}
+div.notificacion:not(.noti-no-vista)::before {
+  content: "Anteriores";
+  display: block;
+  position: absolute;
+  top: -2rem;
+  font-weight: bold;
+}
+div.notificacion:not(.noti-no-vista) ~ div {
+  margin-top: 0;
+}
+div.notificacion:not(.noti-no-vista) ~ div::before {
+  content: "";
 }
 div.notificacion div.img-container {
   min-width: 60px;
@@ -258,6 +289,8 @@ div.notificacion div.noti-container .fecha {
   line-height: 2;
   font-weight: 700;
   display: block;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 .pregunta .titulo:hover {
   color: #485fc7;
@@ -268,6 +301,8 @@ div.notificacion div.noti-container .fecha {
   font-size: 1.2rem;
   font-weight: 500;
   display: inline-block;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 .pregunta .cantRespuestas {
   margin-top: 1rem;
@@ -411,6 +446,8 @@ div.respuesta .valoracion {
 }
 div.respuesta .cuerpo {
   min-width: 85%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 div.respuesta .cuerpo .usuario {
   margin-top: 1.5rem;
