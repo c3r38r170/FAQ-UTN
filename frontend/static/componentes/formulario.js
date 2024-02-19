@@ -53,11 +53,30 @@ class Formulario{
 	}
 
 	render(){
-		return `<form id=${this.#id} onsubmit="Formulario.instancias['${this.#id}'].enviar(event)">`
-			+ this.campos.reduce((html,c)=>html+(new Campo(c)).render(),'') 
-			// TODO Refactor: new Boton ??
-			+`<input class="button ${this.#clasesBotonEnviar}" type=submit value="${this.#textoEnviar}">`
-			+'</form>';
+        return `<form id=${this.#id} class="" onsubmit="Formulario.instancias['${this.#id}'].enviar(event)">`
+            + this.campos.reduce((html,c)=>html+(new Campo(c)).render(),'') 
+            // TODO Refactor: new Boton ??
+            +`<input class="button ${this.#clasesBotonEnviar}" type=submit value="${this.#textoEnviar}">`
+            +'</form>'
+            +this.instanciaAScript();
+    }
+
+    instanciaAScript(){
+        return '<script> addEventListener("load",()=> {'
+
+        // id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='button is-primary mt-3'}={}
+            +    `Formulario.instancias['${this.#id}']=new Formulario(
+                '${this.#id}',
+                '${this.#endpoint}',
+                '${JSON.stringify(this.campos)}',
+                function ${this.#funcionRetorno.toString()},
+                {
+                    textoEnviar: '${this.#textoEnviar}',
+                    verbo: '${this.verbo}',
+                    clasesBoton: '${this.#clasesBotonEnviar}'
+                }
+            )`
+            +'}); </script>'
 	}
 }
 

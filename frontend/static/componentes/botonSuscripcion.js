@@ -19,11 +19,7 @@ class BotonSuscripcion{
 
       }
 
-      procesarRespuesta(){
-        e.preventDefault();
-        console.log('Estas queriendp suscribirte a una pregunta/etiqueta');
-      }
-
+      procesarRespuesta(){ console.log('Suscripcion'); }
 		
     render(){
         return`

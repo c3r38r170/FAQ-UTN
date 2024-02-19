@@ -14,6 +14,7 @@ import { PaginaPerfil } from "./static/pantallas/perfil.js";
 import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
 import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
 import { PaginaPerfilPropioRespuestas } from "./static/pantallas/perfil-propio-respuestas.js";
+import { PaginaSuscripciones } from "./static/pantallas/suscripciones.js";
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
@@ -170,59 +171,51 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 
 
 router.get("/suscripciones",(req,res)=>{
-	
-	if(!req.session.usuario){
-		res.status(401).send();
-		return;
-	}
-	let modal = new Modal('General','modal-general');
-	PreguntaDAO.findAll({
-		// TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
-		// TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta 
-		include:[
-			{
-				model: PostDAO,
-				as: 'post',
-									include: [
-										{
-											model: UsuarioDAO,
-											as: 'duenio'
-										}
-									]
-			},
-			{
-				model: EtiquetasPreguntaDAO,
-				as:'etiquetas',
-				include:EtiquetaDAO
-			},
-			{
-			model:SuscripcionesPreguntaDAO
-			,where:{
-				suscriptoDNI:req.session.usuario.DNI
-			}
-			,as: 'suscriptos'
-			}]
-	})
-		.then((preguntas)=>{
-			let pagina=new Pagina({
-				ruta:req.path
-				,titulo: 'Suscripciones'
-				,sesion:req.session
-				// TODO Feature: endpoint de preguntas por suscripción
-				,partes:[
-					modal,
-					new DesplazamientoInfinito(
-					'suscripciones-desplinf',
-					'/preguntas?suscritas',
-					// TODO Feature: Indicar que acá es con la primera respuesta. Quizá buscar con el DAO con o sin Respuestas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
-					p=>new Pregunta(p,modal,req.session).render(),
-					preguntas
-					)
-					]
-			});
+	try {
 			
-			res.send(pagina.render());
+		if (!req.session.usuario) {
+			res.status(404).send('No está autorizado');
+			return;
+		}
+		PreguntaDAO.findAll({
+			// TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
+			// TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta 
+			include:[
+				{
+					model: PostDAO,
+					as: 'post',
+										include: [
+											{
+												model: UsuarioDAO,
+												as: 'duenio'
+											}
+										]
+				},
+				{
+					model: EtiquetasPreguntaDAO,
+					as:'etiquetas',
+					include:EtiquetaDAO
+				},
+				{
+				model:SuscripcionesPreguntaDAO
+				,where:{
+					suscriptoDNI:req.session.usuario.DNI
+				}
+				,as: 'suscriptos'
+				}]
 		})
+			.then(pre=>{
+				let pagina = PaginaSuscripciones(req.path,req.session);
+				// TODO Feature -- Hacer paginacion de suscripciones en api
+				// pagina.partes[1]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
+
+				res.send(pagina.render());
+				});
+	
+	}catch(error){
+        console.error(error);
+        res.status(500).send('Error interno del servidor');
+	}
 })
 
 
@@ -285,10 +278,6 @@ router.get("/etiqueta/:id/preguntas",async (req,res)=>{
 	}
 });
 
-
-
-
-
 router.get("/perfil/info", (req, res) => {
 	try {
 			
@@ -307,9 +296,6 @@ router.get("/perfil/info", (req, res) => {
 	}
 
 });
-
-
-
 
 router.get('/administracion/usuarios',(req,res)=>{
 	let usu=req.session.usuario;
