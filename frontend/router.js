@@ -499,6 +499,11 @@ router.get("/usuario/:id?", async (req, res) =>  {
 });
 
 
+router.get("/administracion/perfiles", async (req, res) =>{
+	let pagina=PantallaAdministracionPerfiles(req.path,req.session);
+				res.send(pagina.render());
+})
+
 // Ruta Para búsqueda
 // Solo muestra el formulario de búsqueda
 // ToDo Feature 

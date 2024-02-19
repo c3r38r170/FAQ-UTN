@@ -2,6 +2,8 @@ import { SqS, gEt } from "../libs/c3tools.js";
 
 class ChipValoracion{
 
+    //TODO Feature: puse un rojo cualquiera para el voto hecho, cambiar por otro mas lindo
+
     static instancias={};
     #valoracion;
     #estado;
@@ -32,7 +34,8 @@ class ChipValoracion{
         let estado = +divChipvaloracion.dataset.estado;
         let valoracion = +divChipvaloracion.dataset.valoracion;
         let valor =+botonApretado.value;
-        
+        let iPos = document.getElementById("iPos-"+id);
+        let iNeg = document.getElementById("iNeg-"+id);
         
         const url= `http://localhost:8080/api/post/${id}/valoracion`;
         if(estado!=valor){ //si el voto ya esta puesto hace delete
@@ -51,6 +54,13 @@ class ChipValoracion{
                 document.getElementById("chip-valoracion-"+id+"-numero").innerHTML=nuevaValoracion;
                 divChipvaloracion.dataset.valoracion=nuevaValoracion;
                 divChipvaloracion.dataset.estado=valor;
+                if(valor==1){
+                    iPos.style.color="#B90E0A";
+                    iNeg.style.color ="";
+                }else if(valor==-1){
+                    iNeg.style.color="#B90E0A";
+                    iPos.style.color ="";
+                }
             }
         });
         
@@ -64,6 +74,8 @@ class ChipValoracion{
                     document.getElementById("chip-valoracion-"+id+"-numero").innerHTML=nuevaValoracion;
                     divChipvaloracion.dataset.valoracion=nuevaValoracion;
                     divChipvaloracion.dataset.estado=0;
+                    iNeg.style.color="";
+                    iPos.style.color ="";
                 }
             });
             }
@@ -75,13 +87,13 @@ class ChipValoracion{
         <div id="chip-valoracion-${this.#id}" data-id='${this.#id}' data-valoracion='${this.#valoracion}' data-estado='${this.#estado}' class="chip-valoracion">
             <button class="positiva" value='1' onclick="ChipValoracion.votar(event)" ${this.#sesion.usuario=== undefined?"disabled":''}>
                 <span>
-                    <i class="fa-solid fa-caret-up"></i>
+                    <i id="iPos-${this.#id}" class="fa-solid fa-caret-up" ${this.#estado == 1 ? 'style="color: #B90E0A"':''}></i>
                 </span>
             </button>
             <div id="chip-valoracion-${this.#id}-numero" class="valoraciones" >${this.#valoracion}</div>
             <button class="negativa" value ='-1' onclick="ChipValoracion.votar(event)" ${this.#sesion.usuario=== undefined?"disabled":''}>
                 <span>
-                    <i class="fa-solid fa-caret-down"></i>
+                    <i id="iNeg-${this.#id}" class="fa-solid fa-caret-down" ${this.#estado == -1 ? 'style="color: #B90E0A"':''}></i>
                 </span>
             </button>
         </div>

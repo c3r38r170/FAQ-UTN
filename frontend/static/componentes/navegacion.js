@@ -43,6 +43,14 @@ class Navegacion{
             }
             if(usuarioIdentificado.perfil.permiso.ID>=3){
                 //TODO nav para admins
+                let administracion =new EnlaceNavegacion('Administracion',{tipo:'regular',nombre:'user'},'/Administracion/perfiles');
+
+                if(ruta=="/administracion" || ruta=="/administracion/perfiles" || ruta=="/administracion/etiquetas"){
+                    administracion = new EnlaceNavegacion('Administración',{tipo:'regular',nombre:'user', subenlaces:[
+                        new EnlaceNavegacion('Perfiles',{tipo:'solid',nombre:'circle'},'/administracion/perfiles'),
+                        new EnlaceNavegacion('Etiquetas',{tipo:'solid',nombre:'circle'},'/administracion/etiquetas'),]},'/administracion/perfiles');
+                }
+                this.#enlaces.push(administracion)
 
             }
             

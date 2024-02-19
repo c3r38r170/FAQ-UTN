@@ -650,7 +650,6 @@ const valorarPost=function(req,res) {
 					nest:true,
 					plain:true
 				}).then(voto=>{
-					console.log(voto)
 					if(!voto){
 						// si no exite el voto lo crea con lo que mandó
 						if(req.body.valoracion=="null"){
