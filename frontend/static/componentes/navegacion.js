@@ -33,6 +33,7 @@ class Navegacion{
                 //si esta en ruta perfil
                 //TODO: Refactor para no crear el objeto principal otra vez
                 //TODO: esto es un placeholder
+                //TODO: Feature, definir icono para moderacion
                 if(ruta=="/moderacion/preguntas" || ruta=="/moderacion/usuarios" || ruta=="/moderacion/etiquetas")
                     moderacion = new EnlaceNavegacion('Moderación',{tipo:'regular',nombre:'user', subenlaces:[
                         new EnlaceNavegacion('Usuarios',{tipo:'solid',nombre:'circle'},'/moderacion/usuarios'),
@@ -66,7 +67,7 @@ class EnlaceNavegacion{
         tipo:'' // solid, regular, etc...
         ,nombre:''
     }
-
+    //TODO Refactor: por alguna razón los subenlances están adentro de tipo
     constructor(texto,icono,enlace=''){
         this.#texto=texto;
         this.#icono=icono;
