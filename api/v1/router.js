@@ -16,6 +16,8 @@ import {
 	, Notificacion
   , EtiquetasPregunta,
 	Categoria
+	,Carrera
+	,Bloqueo
 } from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar, moderarWithRetry} from "./ia.js";
@@ -67,20 +69,61 @@ router.delete('/sesion', function(req, res) {
 router.get('/usuario', function(req,res){
 	//TODO Feature: permisos
 	if(!req.session.usuario){
-		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
+		res.status(401).send("No se posee sesión válida activa");
 		return;
 	}
 
-	Usuario.findAll({
-		where:{
-			nombre:{[Sequelize.Op.substring]: req.body.nombre}
-		},
+	let opciones={
+		subQuery: false,
 		limit:PAGINACION.resultadosPorPagina,
-		offset:(+req.body.pagina)*PAGINACION.resultadosPorPagina
-	}).then(usuarios=>{
-		if(usuarios.length==0){
+		offset:(+req.query.pagina||0)*PAGINACION.resultadosPorPagina
+	};
+	let include=[]
+		,where={}
+		,order=[];
+
+	if(+req.query.reportados){
+		include.push(
+			{
+				model:Bloqueo
+				,as:'bloqueosRecibidos'
+				// ,attributes:[]
+				,where:{
+					fecha_desbloqueo:{[Sequelize.Op.is]:null}
+				}
+				,required:false
+			}
+			,{
+				model:ReportesUsuario
+				,as:'reportesRecibidos'
+				// ,attributes:[]
+				,required:true
+			}
+		);
+		order.push([Sequelize.col('reportesRecibidos.fecha'),'DESC']);
+	}
+	let filtro=req.query.filtro;
+	if(filtro){
+		where.DNI={[Sequelize.Op.substring]: filtro};
+		where.nombre={[Sequelize.Op.substring]: filtro};
+		include.push(Carrera);
+		where['$carrera.legajo$']={[Sequelize.Op.substring]: filtro};
+	}
+
+	if(include.length){
+		opciones.include=include;
+	}
+	if(Object.keys(where).length){
+		opciones.where=where;
+	}
+	opciones.order=[...order,['DNI','ASC']];
+
+	// console.log(opciones);
+
+	Usuario.findAll(opciones).then(usuarios=>{
+		// console.log(usuarios);
+		if(usuarios.length==0 && filtro){
 			res.status(404).send("No se encontraron usuarios");
-			return;
 		}else{
 			res.status(200).send(usuarios);
 		}

@@ -107,6 +107,9 @@ div#columna-principal{
 	padding-left: 0;
 	padding-right: 0;
 
+	&>form{
+		padding: 0 3rem;
+	}
 }
 
 

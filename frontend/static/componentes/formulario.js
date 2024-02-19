@@ -41,15 +41,14 @@ class Formulario{
 					return;
 			}
 			if(!Array.isArray(datos[key])){
-					datos[key] = [datos[key]];    
+					datos[key] = [datos[key]];
 			}
 			datos[key].push(value);
-	});
+		});
 
-		 superFetch(this.#endpoint,datos,{ method: this.verbo})
+		superFetch(this.#endpoint,datos,{ method: this.verbo})
 			.then(res=>res.text())
 			.then(this.#funcionRetorno);
-		
 	}
 
 	render(){
