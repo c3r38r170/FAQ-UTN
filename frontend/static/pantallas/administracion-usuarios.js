@@ -1,4 +1,4 @@
-import { Pagina, Titulo, Formulario, Tabla } from '../componentes/todos.js'
+import { Pagina, Titulo, Formulario, Tabla,Fecha } from '../componentes/todos.js'
 
 function crearPantalla(ruta,sesion){
 	let tabla=new Tabla('administrar-usuarios','/api/usuario?reportados=1',[
@@ -7,13 +7,16 @@ function crearPantalla(ruta,sesion){
 			celda:(usu)=>usu.nombre
 		},{
 			nombre:'Cant. Reportes',
-			celda:(usu)=>usu.cantidadDeReportes
+			clases:['centrado'],
+			celda:(usu)=>usu.reportesRecibidos.length
 		},{
 			nombre:'Último Reporte',
-			celda:(usu)=>usu.fechaUltimoReporte
+			clases:['centrado'],
+			celda:(usu)=>new Fecha(usu.reportesRecibidos[0].fecha,Fecha.CORTA).render() // * Debería al menos tener un reporte para estar aquí.
 		}
 		,{
 			nombre:'Estado',
+			clases:['centrado'],
 			celda:(usu)=>'<button></button>'
 			// TODO Feature: Un toggle que represente si el usuario está bloqueado o no, y que permita el cambio. A priori, una checkbox glorificada
 		}

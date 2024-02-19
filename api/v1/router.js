@@ -73,11 +73,15 @@ router.get('/usuario', function(req,res){
 		return;
 	}
 
+	// TODO Feature: Considerar siempre los bloqueos, y el perfil. Recoger ejemplos (y quizás, normalizarlos) de estas inclusiones
+
 	let opciones={
 		subQuery: false,
 		limit:PAGINACION.resultadosPorPagina,
-		offset:(+req.query.pagina||0)*PAGINACION.resultadosPorPagina
+		offset:(+req.query.pagina||0)*PAGINACION.resultadosPorPagina,
+		attributes:['nombre','DNI','correo','fecha_alta'/* ,'perfilID' Si se quiere el perfil, traer todo, no solo la ID... */]
 	};
+
 	let include=[]
 		,where={}
 		,order=[];

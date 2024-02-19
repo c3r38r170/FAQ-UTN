@@ -10,8 +10,12 @@
 		}
 	}
 
-	thead th,tfoot td{
+	thead th,tbody td{
 		padding: 5px 1rem;
+
+		&.centrado{
+			text-align: center;
+		}
 	}
 
 	fieldset{

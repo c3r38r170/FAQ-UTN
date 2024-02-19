@@ -93,7 +93,7 @@ class Tabla{
 		for(let ent of this.#entidades){
 			html+='<tr>';
 			for(let col of this.#columnas){
-				html+='<td>'+col.celda(ent)+'</td>'
+				html+=`<td class="${col.clases?.join(' ')}">`+col.celda(ent)+'</td>'
 			}
 			html+='</tr>';
 		}
@@ -113,7 +113,7 @@ class Tabla{
 		let html=`<table id=${this.#id}><thead><tr>`;
 
 		for(let col of this.#columnas){
-			html+='<th>'+col.nombre+'</th>';
+			html+=`<th class="${col.clases?.join(' ')}">`+col.nombre+'</th>';
 		}
 
 		html+='</tr></thead><tbody>';
