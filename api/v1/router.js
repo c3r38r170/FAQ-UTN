@@ -91,7 +91,8 @@ router.get('/usuario', function(req,res){
 			{
 				model:Bloqueo
 				,as:'bloqueosRecibidos'
-				// ,attributes:[]
+				// TODO Feature: Traer quién bloqueó y razón.
+				,attributes:[]
 				,where:{
 					fecha_desbloqueo:{[Sequelize.Op.is]:null}
 				}
@@ -100,7 +101,7 @@ router.get('/usuario', function(req,res){
 			,{
 				model:ReportesUsuario
 				,as:'reportesRecibidos'
-				// ,attributes:[]
+				,attributes:['fecha']
 				,required:true
 			}
 		);

@@ -4,7 +4,7 @@ class Tabla{
 	// Específicamente: usuarios, posts (moderación), etiquetas...
 	static instancias={};
 
-	#columnas=[]; //{nombre,celda(entidad)}
+	#columnas=[]; //{nombre,celda(entidad),clases:[]}
 	#entidades=[];
 	#endpointPaginacion='';
 	set endpointPaginacion(valor){
@@ -93,7 +93,7 @@ class Tabla{
 		for(let ent of this.#entidades){
 			html+='<tr>';
 			for(let col of this.#columnas){
-				html+=`<td class="${col.clases?.join(' ')}">`+col.celda(ent)+'</td>'
+				html+=`<td ${col.clases?'class="'+col.clases.join(' ')+'"':''}>`+col.celda(ent)+'</td>'
 			}
 			html+='</tr>';
 		}
@@ -113,7 +113,7 @@ class Tabla{
 		let html=`<table id=${this.#id}><thead><tr>`;
 
 		for(let col of this.#columnas){
-			html+=`<th class="${col.clases?.join(' ')}">`+col.nombre+'</th>';
+			html+=`<th ${col.clases?'class="'+col.clases.join(' ')+'"':''}>`+col.nombre+'</th>';
 		}
 
 		html+='</tr></thead><tbody>';

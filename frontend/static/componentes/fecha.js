@@ -6,7 +6,8 @@ class Fecha{
         return true;
     }
     static #opcionesDeFormato = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false };
-    static #opcionesDeFormatoCorto= { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false };
+    // TODO Feature: Ver si hace falta un formato corto con hora.
+    static #opcionesDeFormatoCorto= { year: 'numeric', month: 'numeric', day: 'numeric' };
     #fecha;
     #fechaformateada;
     constructor(fecha,larga=true) {

@@ -12,6 +12,7 @@
 
 	thead th,tbody td{
 		padding: 5px 1rem;
+		vertical-align: middle;
 
 		&.centrado{
 			text-align: center;
@@ -23,4 +24,8 @@
 		justify-content: center;
 		gap: 1rem;
 	}
+}
+
+.switch[type="checkbox"]:checked + label::before{
+	background:#f04b4c !important;
 }

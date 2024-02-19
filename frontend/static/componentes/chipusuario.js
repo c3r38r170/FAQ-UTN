@@ -1,5 +1,6 @@
 import { Fecha } from "./fecha.js"
 
+// TODO Refactor: Propiedades como CORTO o LARGO de fecha, pero para si es completo o simple (u otro par de adjetivos)
 class ChipUsuario{
     #DNI
     #nombreusuario;
@@ -12,11 +13,12 @@ class ChipUsuario{
         ,nombre
         ,correo
         ,createdAt
-    },esPerfil){
+        ,fecha_alta
+    },esPerfil=false){
         this.#DNI = DNI;
 		this.#nombreusuario = nombre;
         this.#correo = correo;
-        this.#createdAt = new Fecha(createdAt);
+        this.#createdAt = new Fecha(fecha_alta || createdAt);
         this.#esPerfil = esPerfil;
 	}
 	render(){
