@@ -28,25 +28,25 @@ class Navegacion{
             ];
             if(usuarioIdentificado.perfil.permiso.ID>=2){
                 //Enlances para moderadores
-                let moderacion =new EnlaceNavegacion('Moderación',{tipo:'regular',nombre:'user'},'/moderacion/usuarios');
+                let moderacion =new EnlaceNavegacion('Moderación',{tipo:'solid',nombre:'user-tie'},'/moderacion/usuarios');
 
                 //si esta en ruta perfil
                 //TODO: Refactor para no crear el objeto principal otra vez
                 //TODO: esto es un placeholder
-                //TODO: Feature, definir icono para moderacion
                 if(ruta=="/moderacion/preguntas" || ruta=="/moderacion/usuarios" || ruta=="/moderacion/etiquetas")
-                    moderacion = new EnlaceNavegacion('Moderación',{tipo:'regular',nombre:'user', subenlaces:[
+                    moderacion = new EnlaceNavegacion('Moderación',{tipo:'solid',nombre:'user-tie', subenlaces:[
                         new EnlaceNavegacion('Usuarios',{tipo:'solid',nombre:'circle'},'/moderacion/usuarios'),
                         new EnlaceNavegacion('Preguntas',{tipo:'solid',nombre:'circle'},'/moderacion/preguntas'),
                         new EnlaceNavegacion('Etiquetas',{tipo:'solid',nombre:'circle'},'/moderacion/etiquetas')]},'/moderacion/usuarios');
                 this.#enlaces.push(moderacion)
             }
             if(usuarioIdentificado.perfil.permiso.ID>=3){
-                //TODO nav para admins
-                let administracion =new EnlaceNavegacion('Administracion',{tipo:'regular',nombre:'user'},'/Administracion/perfiles');
+                //TODO: Refactor para no crear el objeto principal otra vez
+                //TODO: esto es un placeholder
+                let administracion =new EnlaceNavegacion('Administracion',{tipo:'solid',nombre:'user-secret'},'/Administracion/perfiles');
 
                 if(ruta=="/administracion" || ruta=="/administracion/perfiles" || ruta=="/administracion/etiquetas"){
-                    administracion = new EnlaceNavegacion('Administración',{tipo:'regular',nombre:'user', subenlaces:[
+                    administracion = new EnlaceNavegacion('Administración',{tipo:'solid',nombre:'user-secret', subenlaces:[
                         new EnlaceNavegacion('Perfiles',{tipo:'solid',nombre:'circle'},'/administracion/perfiles'),
                         new EnlaceNavegacion('Etiquetas',{tipo:'solid',nombre:'circle'},'/administracion/etiquetas'),]},'/administracion/perfiles');
                 }
