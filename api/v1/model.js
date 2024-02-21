@@ -82,7 +82,7 @@ const Bloqueo = sequelize.define('bloqueo',{
         type: DataTypes.DATEONLY
     }
 });
-
+// TODO Refactor: Considerar algo como Usuario.Bloqueos=... https://sequelize.org/docs/v6/advanced-association-concepts/creating-with-associations/#belongsto--hasmany--hasone-association
 Usuario.hasMany(Bloqueo, {
     as:'bloqueosRealizados',
     constraints :false,

@@ -244,16 +244,107 @@ router.post('/usuario/:DNI/reporte', function(req, res){
 		}
 	})
     .catch(err=>{
+			// TODO Refactor: Sacar todos estos console log.
 		console.log(err);
         res.status(500).send(err);
     })  
 })
 
 router.post('/usuario/:DNI/bloqueo', function(req, res){
-	
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+	// TODO Security: Chequear permisos
+	// TODO Feature: Comprobar que exista req.body.motivo
+
+	Usuario
+		.findByPk(req.params.DNI,{
+			include:[
+				{
+					model:Bloqueo
+					,as:'bloqueosRecibidos'
+					,where:{fecha_desbloqueo:{[Sequelize.Op.is]:null}}
+					,required:false
+				}
+			]
+		})
+		.then(usuario=>{
+			if(!usuario){
+				res.status(404).send("Usuario no encontrado");
+				return;
+			}
+			
+			// TODO Refactor: Ver si viene igual el array o no.
+			let mensaje="Usuario bloqueado.";
+			if(!usuario.bloqueosRecibidos?.length){
+				let bloqueo=new Bloqueo({
+					motivo:req.body.motivo
+				});
+				bloqueo.save()
+					.then(()=>{
+						Promise.all([
+							Usuario
+								.findByPk(req.session.usuario.DNI)
+								.then((usuarioActual)=>usuarioActual.addBloqueosRealizados(bloqueo))
+								.then((usuarioActual)=>usuarioActual.save())
+							,usuario
+								.addBloqueosRecibidos(bloqueo)
+								.then(()=>usuario.save())
+						])
+							.then(()=>{
+								res.status(201).send(mensaje);
+							});
+					})
+
+			}else res.status(200).send(mensaje);
+		})
+    .catch(err=>{
+		console.log(err);
+        res.status(500).send(err);
+    });
 });
 
 router.delete('/usuario/:DNI/bloqueo', function(req, res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+	// TODO Security: Chequear permisos
+	// TODO Feature: Comprobar que exista req.body.motivo
+
+	Usuario
+		.findByPk(req.params.DNI,{
+			include:[
+				{
+					model:Bloqueo
+					,as:'bloqueosRecibidos'
+					,where:{fecha_desbloqueo:{[Sequelize.Op.is]:null}}
+					,required:false
+				}
+			]
+		})
+		.then(usuario=>{
+			if(!usuario){
+				res.status(404).send("Usuario no encontrado");
+				return;
+			}
+			
+			// TODO Refactor: Ver si viene igual el array o no.
+			let mensaje="Usuario desbloqueado.";
+			if(usuario.bloqueosRecibidos?.length){
+				let bloqueo=usuario.bloqueosRecibidos[0];
+				bloqueo.motivo_desbloqueo=req.body.motivo;
+				bloqueo.fecha_desbloqueo=new Date;
+				bloqueo.save()
+					.then(()=>Usuario.findByPk(req.session.usuario.DNI))
+					.then((usuarioActual)=>usuarioActual.addDesbloqueosRealizados(bloqueo))
+					.then((usuarioActual)=>usuarioActual.save())
+					.then(()=>{
+						res.status(201).send(mensaje);
+					})
+			}
+		});
 });
 
 router.patch('/usuario', function(req, res){

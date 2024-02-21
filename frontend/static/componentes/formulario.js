@@ -46,9 +46,15 @@ class Formulario{
 			datos[key].push(value);
 		});
 
+		// TODO Feature: Llevarle
+		let ok,codigo;
 		superFetch(this.#endpoint,datos,{ method: this.verbo})
-			.then(res=>res.text())
-			.then(this.#funcionRetorno);
+			.then(res=>{
+				ok=res.ok;
+				codigo=res.status;
+				return res.text();
+			})
+			.then(txt=>this.#funcionRetorno(txt,{ok,codigo}));
 	}
 
 	render(){
