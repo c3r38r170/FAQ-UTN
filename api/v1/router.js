@@ -92,7 +92,7 @@ router.get('/usuario', function(req,res){
 				model:Bloqueo
 				,as:'bloqueosRecibidos'
 				// TODO Feature: Traer quién bloqueó y razón.
-				,attributes:[]
+				,attributes:['motivo']
 				,where:{
 					fecha_desbloqueo:{[Sequelize.Op.is]:null}
 				}
@@ -248,6 +248,13 @@ router.post('/usuario/:DNI/reporte', function(req, res){
         res.status(500).send(err);
     })  
 })
+
+router.post('/usuario/:DNI/bloqueo', function(req, res){
+	
+});
+
+router.delete('/usuario/:DNI/bloqueo', function(req, res){
+});
 
 router.patch('/usuario', function(req, res){
 	if(!req.session.usuario){

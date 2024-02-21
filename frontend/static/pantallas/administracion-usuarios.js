@@ -1,4 +1,4 @@
-import { Pagina, Titulo, Formulario, Tabla,Fecha, ChipUsuario } from '../componentes/todos.js'
+import { Pagina, Titulo, Formulario, Tabla,Fecha, ChipUsuario, Modal } from '../componentes/todos.js'
 
 function crearPantalla(ruta,sesion){
 	let tabla=new Tabla('administrar-usuarios','/api/usuario?reportados=1',[
@@ -18,8 +18,7 @@ function crearPantalla(ruta,sesion){
 		,{
 			nombre:'Bloqueado',
 			clases:['centrado'],
-			celda:(usu)=>`<div class="field"><input type="checkbox" value="${usu.DNI}" id="bloqueo-${usu.DNI}" class="switch"><label for="bloqueo-${usu.DNI}"></label></div>`
-			// TODO Feature: Un toggle que represente si el usuario está bloqueado o no, y que permita el cambio. A priori, una checkbox glorificada
+			celda:(usu)=>`<div class="field"><input type="checkbox" value="${usu.DNI}" id="bloqueo-${usu.DNI}" class="switch" ${usu.bloqueosRecibidos?.length?'checked':''}><label for="bloqueo-${usu.DNI}"></label></div>`
 		}
 	]/* ,usuariosReportados */);
 	let pagina = new Pagina({
@@ -29,7 +28,7 @@ function crearPantalla(ruta,sesion){
 		partes:[
 			/* new Titulo(3,'Usuarios Reportados')
 			, */
-			// TODO Feature: Considerar si vale la pena filtro por persona
+			// TODO Feature: Considerar si vale la pena filtro por persona  Caso: Viene alguien y me dice que le hackearon la cuenta, la recuperó, y quiere que lo desbloqueen, ¿cómo lo buscan? ¿Si fue hace mil? ¿Si se hicieron banda de reportes?
 			// Filtro de usuarios, busca por DNI. legajo y nombre.
 			/* new Formulario(
 				'moderacion-usuarios-buscar'
@@ -46,6 +45,7 @@ function crearPantalla(ruta,sesion){
 			) */
 			// id,endpoint,columnas,entidades=[],cantidadDePaginas=1
 			// ,
+			new Modal('Bloquear usuario','administrar-usuarios-modal'), // * El título se va cambiando.
 			tabla
 		]
   });

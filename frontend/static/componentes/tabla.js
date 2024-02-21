@@ -5,7 +5,7 @@ class Tabla{
 	static instancias={};
 
 	#columnas=[]; //{nombre,celda(entidad),clases:[]}
-	#entidades=[];
+	entidades=[];
 	#endpointPaginacion='';
 	set endpointPaginacion(valor){
 		this.#endpointPaginacion=valor+(valor.includes('?')?'&':'?');
@@ -21,13 +21,14 @@ class Tabla{
 		this.#id=id;
 		this.endpointPaginacion=endpoint;
 		this.#columnas=columnas;
-		this.#entidades=entidades;
+		this.entidades=entidades;
 		this.cantidadDePaginas=cantidadDePaginas
 
 		Tabla.instancias[id]=this;
 	}
 
 	iniciar(){
+		// TODO	Feature: Conseguir la cantidad de páginas. Quizá con otra consulta...
 		let tabla=document.getElementById(this.#id);
 		let fieldset=tabla.querySelector('tfoot fieldset');
 
@@ -40,7 +41,7 @@ class Tabla{
 			resolve(new Array(3).fill(null).map((n,i)=>(3*(this.#pagina-1)+i)));
 		}) */
 			.then((nuevasEntidades)=>{
-				this.#entidades=nuevasEntidades;
+				this.entidades=nuevasEntidades;
 				
 				// let tabla=form.closest('table');
 				tabla.children[1] // body
@@ -74,7 +75,7 @@ class Tabla{
 			resolve(new Array(3).fill(null).map((n,i)=>(3*(this.#pagina-1)+i)));
 		}) */
 			.then((nuevasEntidades)=>{
-				this.#entidades=nuevasEntidades;
+				this.entidades=nuevasEntidades;
 				
 				let tabla=form.closest('table');
 				tabla.children[1] // body
@@ -90,7 +91,7 @@ class Tabla{
 
 	generarCuerpo(){
 		let html='';
-		for(let ent of this.#entidades){
+		for(let ent of this.entidades){
 			html+='<tr>';
 			for(let col of this.#columnas){
 				html+=`<td ${col.clases?'class="'+col.clases.join(' ')+'"':''}>`+col.celda(ent)+'</td>'

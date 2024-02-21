@@ -118,6 +118,7 @@ class Pagina {
 				</div>
 			</div>
 		</footer>
+		<!-- TODO Refactor: Meter esto en su propio archivo, por mantenibilidad. -->
 		<script>
 		document.addEventListener('DOMContentLoaded', () => {
 			// Funciones para abrir y cerrar el modal

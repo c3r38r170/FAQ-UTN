@@ -86,6 +86,7 @@ class Campo{
 		if(this.#type){
 			switch(this.#type){
 			case 'textarea':
+				// TODO Feature: Usar extra para ponerle rows y cols. rows=4 por default. O CSS, porque por lo que vi, rows=4 no anda por Bulma.
 				html=html.replace('input','textarea');
 				endTag='></textarea>';
 				break;

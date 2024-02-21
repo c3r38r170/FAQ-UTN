@@ -20,6 +20,7 @@ class Boton{
       }
 
     render(){
+      // TODO Refactor: Considerar los casos en que type sea undefined, ver si onClick realmente se usa, ver el resto de los parámetros.
         return `
         <button class="${this.#classes} is-rounded" data-target="${this.#dataTarget}" onclick="${this.#onClick}" type="${this.#type}">
           ${
