@@ -8,22 +8,26 @@ let tabla=pagina.partes[1];
 tabla/* ! Tabla */.iniciar();
 
 let modalElemento=gEt('administrar-usuarios-modal');
+modalElemento.addEventListener('submit',()=>{
+	modalElemento.classList.remove('is-active');
+})
 
-// TODO Feature: Que al volver para atrás se mantenga la paginación. localStorage? dejar que el caché de chrome se encargue?
-
+// TODO Feature: Que al volver para atrás (por historial) se mantenga la paginación. localStorage? dejar que el caché de chrome se encargue?
 gEt('administrar-usuarios').onchange=e=>{
 	let checkbox=e.target;
 	if(checkbox.type!='checkbox'){
 		return;
 	}
 
-	// * No chequeamos estado de la checkbox porque debería ser consistente.
-	checkbox.disabled = true;
+	// TODO UX: Deshacer el cambio si se sale del modal. Esto no se puede implementar rápido porque el handler de cerrado está en pagina, no en modal.
+	checkbox.checked = !checkbox.checked;
 
 	let DNI=checkbox.value;
 
 	let indiceUsuarioElegido=tabla.entidades.findIndex(({DNI: esteDNI})=>esteDNI==DNI);
 	let usuarioElegido=tabla.entidades[indiceUsuarioElegido];
+
+	// TODO Refactor: Aplicar DRY a lo que se pueda.
 	// ! Se deben crear nuevos formularios porque el valor del DNI del elegido estará en el indice, en el endpoint, y en más lógica dentro del manipulador de respuesta.
 	if(usuarioElegido.bloqueosRecibidos.length){ // * Se desea desbloquear
 		modal.titulo='Desbloquear a '+usuarioElegido.nombre;
@@ -36,50 +40,53 @@ gEt('administrar-usuarios').onchange=e=>{
 				if(info.ok){
 					if(tabla.entidades[indiceUsuarioElegido].DNI==DNI){ // * Si se sigue en la misma página
 						// ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
-						checkbox.checked=true;
-						checkbox.disabled=false;
+						checkbox.checked=false;
 	
-						// TODO Refactor: Ver si los que no están bloqueados traen un array vacio o directamente no traen la propiedad.
 						tabla.entidades[indiceUsuarioElegido].bloqueosRecibidos=[];
 					}
 				}else{
-					// TODO UX: Mejores alertas
+						checkbox.checked=true;
+						// TODO UX: Mejores alertas
 					alert(`Error ${info.codigo}: ${txt}`);
 				}
+
+				checkbox.disabled=false;
 			},{
 				verbo:'DELETE'
 				,textoEnviar:'Registrar motivo y desbloquear'
-				,clasesBoton:'button is-link is-rounded mt-3'
+				,clasesBoton:'is-link is-rounded mt-3'
+				,alEnviar:()=>checkbox.disabled=true
 			})
 		];
 	}else{ // * Se desea bloquear
 		modal.titulo='Bloquear a '+usuarioElegido.nombre;
 		modal.contenido=[
-					new Formulario('administracion-usuarios-desbloquear',`/api/usuario/${DNI}/bloqueo`,[
-						{name:'motivo',textoEtiqueta:'Motivo del bloqueo:',type:'textarea'}
-					],(txt,info)=>{
-						if(info.ok){
-							if(tabla.entidades[indiceUsuarioElegido].DNI==DNI){ // * Si se sigue en la misma página
-								// ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
-								checkbox.checked=true;
-								checkbox.disabled=false;
+			new Formulario('administracion-usuarios-desbloquear',`/api/usuario/${DNI}/bloqueo`,[
+				{name:'motivo',textoEtiqueta:'Motivo del bloqueo:',type:'textarea'}
+			],(txt,info)=>{
+				if(info.ok){
+					if(tabla.entidades[indiceUsuarioElegido].DNI==DNI){ // * Si se sigue en la misma página
+						// ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
+						checkbox.checked=true;
 
-								tabla.entidades[indiceUsuarioElegido].bloqueosRecibidos=[{motivo:SqS('#administracion-usuarios-desbloquear [name="motivo"]').value}];
-							}
-						}else{
-							// TODO UX: Mejores alertas
-							alert(`Error ${info.codigo}: ${txt}`);
-						}
-					},{
-						verbo:'POST'
-						,textoEnviar:'Registrar motivo y bloquear'
-						,clasesBoton:'button is-link is-rounded mt-3'
-					})
-			];
+						tabla.entidades[indiceUsuarioElegido].bloqueosRecibidos=[{motivo:SqS('#administracion-usuarios-desbloquear [name="motivo"]').value}];
+					}
+				}else{
+						checkbox.checked=false;
+						// TODO UX: Mejores alertas
+					alert(`Error ${info.codigo}: ${txt}`);
+				}
+
+				checkbox.disabled=false;
+			},{
+				verbo:'POST'
+				,textoEnviar:'Registrar motivo y bloquear'
+				,clasesBoton:'is-link is-rounded mt-3'
+				,alEnviar:()=>checkbox.disabled=true
+			})
+		];
 	}
+
 	modal.redibujar();
 	modalElemento.classList.add('is-active');
-
-	// TODO Feature: Volver al valor anterior si se cancela el formulario.
-	checkbox.disabled=false;
 }

@@ -1,5 +1,4 @@
 import { superFetch } from '../libs/c3tools.js'
-//import {superFetch} from 'https://unpkg.com/@c3r38r170/c3tools@1.1.0/c3tools.m.js';
 
 class Formulario{
 	static instancias = {};
@@ -11,8 +10,9 @@ class Formulario{
 	campos=[];
 	verbo=[];
 	#clasesBotonEnviar='';
+	#alEnviar=null;
 
-	constructor(id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='button is-primary mt-3'}={},){
+	constructor(id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='is-primary mt-3',alEnviar=null}={},){
 		this.#id=id;
 		this.#endpoint=endpoint;
 		this.campos=campos;
@@ -20,12 +20,18 @@ class Formulario{
 		this.#textoEnviar=textoEnviar;
 		this.#funcionRetorno=funcionRetorno;
 		this.#clasesBotonEnviar=clasesBotonEnviar;
+		this.#alEnviar=alEnviar;
+
 		Formulario.instancias[id]=this;
 	}
 
 	enviar(e){
 		e.preventDefault();
 		// ! No funciona GET con FormData.
+
+		if(this.#alEnviar){
+			this.#alEnviar();
+		}
 
 		// Crear un objeto FormData para facilitar la obtención de datos del formulario
 		const formData = new FormData(e.target);
@@ -46,7 +52,6 @@ class Formulario{
 			datos[key].push(value);
 		});
 
-		// TODO Feature: Llevarle
 		let ok,codigo;
 		superFetch(this.#endpoint,datos,{ method: this.verbo})
 			.then(res=>{
