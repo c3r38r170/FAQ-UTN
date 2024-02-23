@@ -186,7 +186,7 @@ router.get('/usuario/:DNI/respuestas', function(req, res){
 	//Respuesta.pagina(filtros).then(respuestas=>res.send(respuestas))
 })
 
-router.post('/usuario', (req,res)=>{
+router.post('/usuario', function(req,res){
 	Usuario.findAll({
 		where:{DNI:req.body.DNI}
 		, raw:true, nest:true,
@@ -198,9 +198,20 @@ router.post('/usuario', (req,res)=>{
                 nombre: req.body.nombre,
                 DNI: req.body.DNI,
                 correo: req.body.correo,
-                contrasenia: req.body.contrasenia
-            })
-            res.status(200).send('Registro exitoso');
+                contrasenia: req.body.contrasenia,
+				perfilID: 1
+            }).then(usu=>{
+				Usuario.findByPk(usu.DNI,{
+					include:{
+						model: Perfil,
+						include:Permiso
+					}
+				}).then(usuario=>{
+					console.log(usuario);
+					req.session.usuario=usuario;
+					res.status(200).send('Registro exitoso');
+				})
+			});
             return;
         }
         res.status(400).send('El Usuario ya se encuentra registrado');

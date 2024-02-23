@@ -18,10 +18,10 @@ class ChipValoracion{
         this.#id = ID;
         this.#sesion=usuarioActual;
         this.#valoracion=votos.reduce((suma, voto)=>suma+=voto.valoracion,0);
-        if(this.#sesion.usuario===undefined){
-            this.#estado=0;
-        }else{
+        if(this.#sesion && this.#sesion.usuario){
             this.#estado=(votos.find(voto=>voto.votanteDNI==this.#sesion.usuario.DNI))?.valoracion||0;
+        }else{
+            this.#estado=0;
         }
 
 	}
