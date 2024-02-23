@@ -19,17 +19,28 @@ import {
 	Categoria
 	,Carrera
 	,Bloqueo
+	,Parametro
 } from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar, moderarWithRetry} from "./ia.js";
 
 // TODO Refactor: ¿Sacar y poner en models.js? Así el modelo se encarga de la paginación, y a los controladores no les importa.
-const PAGINACION={
-	resultadosPorPagina:10
+let PAGINACION={
+	resultadosPorPagina: 10
 }
 
-const rechazaPost = 40;
-const reportaPost = 70;
+let rechazaPost = 40;
+let reportaPost = 70;
+let modera = false;
+
+Parametro.findByPk(1).then(p =>{
+	if(p){
+		PAGINACION.resultadosPorPagina = p.EntradasPorPagina;
+		rechazaPost = p.RechazaPost;
+		reportaPost = p.ReportaPost;
+		modera = p.ModerarIA
+	}
+})
 
 // sesiones
 
@@ -421,26 +432,36 @@ router.patch('/pregunta', function(req,res){
 				res.status(403).send("No puede editar una pregunta ajena.");
 				return;
 			}else{
-				moderarWithRetry((req.body.titulo + " " + req.body.cuerpo),10).then(respuesta=>{
-					if(respuesta.apropiado < rechazaPost){
-						res.status(400).send("Texto rechazo por moderación automática");
-						return;
-					}else if(respuesta.apropiado<reportaPost){
-						//Crear reporte
-						//TODO Feature: definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front (Santiago: Yo digo dejarlo NULL y que se encargue el frontend.)
-						ReportePost.create({
-							reportadoID: pregunta.ID
-						});
-					}
-					//si pasa el filtro
-					pregunta.post.cuerpo=req.body.cuerpo;
-					pregunta.titulo=req.body.titulo;
-					//etiquetas vienen los id en array
-					pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})));
-					//no se porque pero asi anda pregunta.save() no
-					pregunta.post.save();
-					res.status(200).send("Pregunta actualizada exitosamente");
+				if(modera){
+					moderarWithRetry((req.body.titulo + " " + req.body.cuerpo),10).then(respuesta=>{
+						if(respuesta.apropiado < rechazaPost){
+							res.status(400).send("Texto rechazo por moderación automática");
+							return;
+						}else if(respuesta.apropiado<reportaPost){
+							//Crear reporte
+							//TODO Feature: definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front (Santiago: Yo digo dejarlo NULL y que se encargue el frontend.)
+							ReportePost.create({
+								reportadoID: pregunta.ID
+							});
+						}
+						//si pasa el filtro
+						pregunta.post.cuerpo=req.body.cuerpo;
+						pregunta.titulo=req.body.titulo;
+						//etiquetas vienen los id en array
+						pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})));
+						//no se porque pero asi anda pregunta.save() no
+						pregunta.post.save();
+						res.status(200).send("Pregunta actualizada exitosamente");
 				});
+				}else{
+					pregunta.post.cuerpo=req.body.cuerpo;
+						pregunta.titulo=req.body.titulo;
+						//etiquetas vienen los id en array
+						pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})));
+						//no se porque pero asi anda pregunta.save() no
+						pregunta.post.save();
+						res.status(200).send("Pregunta actualizada exitosamente");
+				}
 				
 			}
 		}

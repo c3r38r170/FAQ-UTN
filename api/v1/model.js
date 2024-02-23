@@ -33,6 +33,24 @@ sequelize.authenticate().then(() => {
 });
 
 
+const Parametro = sequelize.define('parametro',{
+    EntradasPorPagina:{
+        type: DataTypes.INTEGER,
+        allowNull:false
+    },
+    ModerarIA:{
+        type : DataTypes.BOOLEAN,
+        allowNull:false
+    },
+    RechazaPost:{
+        type: DataTypes.INTEGER,
+        allowNull:false
+    },
+    ReportaPost:{
+        type: DataTypes.INTEGER,
+        allowNull:false
+    }
+})
 const Usuario = sequelize.define('usuario', {
     DNI: {
         type: DataTypes.STRING,
@@ -1154,7 +1172,7 @@ Pregunta.create({
 
 
 //sequelize.sync({alter:true});
+sequelize.sync();
 
-
-export {Carrera, SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
+export {Parametro, Carrera, SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
 
