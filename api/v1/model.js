@@ -709,35 +709,6 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 				]
 			};
 
-			// * Respuesta más interesante
-			// opciones.include.push(
-			// 	// TODO Feature: Ordenar respuesta y tener una sola. Resolver primero en el caso de preguntas por usuario y después traer acá (es más cómodo trabajar allá)
-			// 	{
-			// 		model:Respuesta
-			// 		,as:'respuestas'
-            //         ,separate:true
-			// 		,include:
-            //         {
-            //             model: Post,
-            //             include: [
-            //                 {
-            //                     model:Usuario
-            //                     ,as:'duenio'
-            //                     ,include:{
-            //                         model:Perfil
-            //                         ,attributes:['ID','nombre']
-            //                     }
-            //                     ,attributes:['DNI','nombre']
-            //                 },
-            //                 {
-            //                     model:Voto,
-            //                     as: 'votos',
-            //                     //TODO Feature: encontrar manera de traer solo la suma
-            //                 }
-            //             ]
-            //         }
-			// 	}
-			// );
 			if(!filtraEtiquetas){
 				opciones.include.push({
                     model:EtiquetasPregunta
@@ -1045,21 +1016,6 @@ const SuscripcionesPregunta = sequelize.define('suscripcionesPregunta',{
         type:DataTypes.DATE,
     }
 })
-
-// TODO Refactor: alias más lindos
-/* 
-Usuario.hasMany(SuscripcionesPregunta,{
-    as:'preguntasSuscriptas',
-    constraints:false,
-    foreignKey:'suscriptoDNI'
-});
-
-Pregunta.hasMany(SuscripcionesPregunta,{
-    as:'suscriptos',
-    constraints:false,
-    foreignKey:'preguntaID'
-}) */
-
 
 Usuario.belongsToMany(Pregunta, { 
     through: SuscripcionesPregunta,
