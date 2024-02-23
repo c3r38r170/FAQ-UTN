@@ -1,19 +1,19 @@
 import { gEt,SqS } from '../libs/c3tools.js';
-import { PantallaAdministracionUsuarios } from "../pantallas/administracion-usuarios.js";
+import { PantallaModeracionUsuarios } from "../pantallas/moderacion-usuarios.js";
 import { Titulo,Formulario, ComponenteLiteral } from '../componentes/todos.js';
 
-let pagina= PantallaAdministracionUsuarios(location.pathname, {usuario:window.usuarioActual});
+let pagina= PantallaModeracionUsuarios(location.pathname, {usuario:window.usuarioActual});
 let modal=pagina.partes[0];
 let tabla=pagina.partes[1];
 tabla/* ! Tabla */.iniciar();
 
-let modalElemento=gEt('administrar-usuarios-modal');
+let modalElemento=gEt('moderacion-usuarios-modal');
 modalElemento.addEventListener('submit',()=>{
 	modalElemento.classList.remove('is-active');
 })
 
 // TODO Feature: Que al volver para atrás (por historial) se mantenga la paginación. localStorage? dejar que el caché de chrome se encargue?
-gEt('administrar-usuarios').onchange=e=>{
+gEt('moderar-usuarios').onchange=e=>{
 	let checkbox=e.target;
 	if(checkbox.type!='checkbox'){
 		return;
@@ -34,7 +34,7 @@ gEt('administrar-usuarios').onchange=e=>{
 		modal.contenido=[
 			// TODO Feature: Mostrar razón del desbloqueo, preguntar si se está seguro.
 			new ComponenteLiteral(()=>`<big><b><p>¿Estás seguro?</p></b></big> <p><i>${usuarioElegido.nombre} fue bloqueado con el siguiente motivo:</i><br/>${usuarioElegido.bloqueosRecibidos[0].motivo}</p><br/>`),
-			new Formulario('administracion-usuarios-desbloquear',`/api/usuario/${DNI}/bloqueo`,[
+			new Formulario('moderacion-usuarios-desbloquear',`/api/usuario/${DNI}/bloqueo`,[
 				{name:'motivo',textoEtiqueta:'Motivo del desbloqueo:',type:'textarea'}
 			],(txt,info)=>{
 				if(info.ok){
@@ -61,7 +61,7 @@ gEt('administrar-usuarios').onchange=e=>{
 	}else{ // * Se desea bloquear
 		modal.titulo='Bloquear a '+usuarioElegido.nombre;
 		modal.contenido=[
-			new Formulario('administracion-usuarios-desbloquear',`/api/usuario/${DNI}/bloqueo`,[
+			new Formulario('moderacion-usuarios-desbloquear',`/api/usuario/${DNI}/bloqueo`,[
 				{name:'motivo',textoEtiqueta:'Motivo del bloqueo:',type:'textarea'}
 			],(txt,info)=>{
 				if(info.ok){
@@ -69,7 +69,7 @@ gEt('administrar-usuarios').onchange=e=>{
 						// ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
 						checkbox.checked=true;
 
-						tabla.entidades[indiceUsuarioElegido].bloqueosRecibidos=[{motivo:SqS('#administracion-usuarios-desbloquear [name="motivo"]').value}];
+						tabla.entidades[indiceUsuarioElegido].bloqueosRecibidos=[{motivo:SqS('#moderacion-usuarios-desbloquear [name="motivo"]').value}];
 					}
 				}else{
 						checkbox.checked=false;

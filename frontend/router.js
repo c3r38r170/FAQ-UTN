@@ -11,7 +11,7 @@ import { Voto as VotoDAO, Notificacion as NotificacionDAO, EtiquetasPregunta as 
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
 // TODO Refactor: Usar todas.js
-import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaAdministracionUsuarios } from './static/pantallas/todas.js';
+import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios } from './static/pantallas/todas.js';
 import { PaginaPerfil } from "./static/pantallas/perfil.js";
 import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
 import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
@@ -271,7 +271,7 @@ router.get("/perfil/info", (req, res) => {
 
 });
 
-router.get('/administracion/usuarios',(req,res)=>{
+router.get('/moderacion/usuarios',(req,res)=>{
 	let usu=req.session.usuario;
 	// TODO Security: Permisos. Acá y en todos lados.
 
@@ -340,7 +340,7 @@ router.get('/administracion/usuarios',(req,res)=>{
 		,limit:15
 	}); */
 
-  let pagina=PantallaAdministracionUsuarios(req.path,req.session);
+  let pagina=PantallaModeracionUsuarios(req.path,req.session);
   res.send(pagina.render());
 })
 
@@ -497,10 +497,6 @@ router.get("/usuario/:id?", async (req, res) =>  {
 });
 
 
-router.get("/administracion/perfiles", async (req, res) =>{
-	let pagina=PantallaAdministracionPerfiles(req.path,req.session);
-				res.send(pagina.render());
-})
 
 // Ruta Para búsqueda
 // Solo muestra el formulario de búsqueda

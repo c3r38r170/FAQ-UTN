@@ -1,7 +1,7 @@
 import { Pagina, Titulo, Formulario, Tabla,Fecha, ChipUsuario, Modal } from '../componentes/todos.js'
 
 function crearPantalla(ruta,sesion){
-	let tabla=new Tabla('administrar-usuarios','/api/usuario?reportados=1',[
+	let tabla=new Tabla('moderacion-usuarios','/api/usuario?reportados=1',[
 		{
 			nombre:'Usuario',
 			celda:(usu)=>new ChipUsuario(usu).render()
@@ -23,7 +23,7 @@ function crearPantalla(ruta,sesion){
 	]/* ,usuariosReportados */);
 	let pagina = new Pagina({
     ruta: ruta,
-    titulo: 'Administración - Usuarios Reportados',
+    titulo: 'Moderación - Usuarios Reportados',
     sesion: sesion,
 		partes:[
 			/* new Titulo(3,'Usuarios Reportados')
@@ -45,11 +45,11 @@ function crearPantalla(ruta,sesion){
 			) */
 			// id,endpoint,columnas,entidades=[],cantidadDePaginas=1
 			// ,
-			new Modal('Bloquear usuario','administrar-usuarios-modal'), // * El título se va cambiando.
+			new Modal('Bloquear usuario','moderacion-usuarios-modal'), // * El título se va cambiando.
 			tabla
 		]
   });
 	return pagina;
 }
 
-export {crearPantalla as PantallaAdministracionUsuarios};
+export {crearPantalla as PantallaModeracionUsuarios};
