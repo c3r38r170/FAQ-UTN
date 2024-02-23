@@ -1,6 +1,4 @@
-import { Modal } from "../componentes/modal.js";
-import { ChipUsuario } from '../componentes/todos.js'
-import { Pagina } from "../componentes/pagina.js";
+import { ChipUsuario, Modal, Pagina } from '../componentes/todos.js'
 
 function crearPagina(ruta, sesion){
     let titulo = 'Mi perfil'

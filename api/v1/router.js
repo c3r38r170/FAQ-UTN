@@ -17,6 +17,8 @@ import {
 	, Notificacion
   , EtiquetasPregunta,
 	Categoria
+	,Carrera
+	,Bloqueo
 } from "./model.js";
 import { Sequelize } from "sequelize";
 import {moderar, moderarWithRetry} from "./ia.js";
@@ -73,7 +75,7 @@ router.delete('/sesion', function(req, res) {
 router.get('/usuario', function(req,res){
 	
 	if(!req.session.usuario){
-		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
+		res.status(401).send("No se posee sesión válida activa");
 		return;
 	}
 	else if(req.session.usuario.perfil.permiso.ID < 2){
@@ -81,16 +83,62 @@ router.get('/usuario', function(req,res){
 		return;
 	}
 
-	Usuario.findAll({
-		where:{
-			nombre:{[Sequelize.Op.substring]: req.body.nombre}
-		},
+	// TODO Feature: Considerar siempre los bloqueos, y el perfil. Recoger ejemplos (y quizás, normalizarlos) de estas inclusiones
+
+	let opciones={
+		subQuery: false,
 		limit:PAGINACION.resultadosPorPagina,
-		offset:(+req.body.pagina)*PAGINACION.resultadosPorPagina
-	}).then(usuarios=>{
-		if(usuarios.length==0){
+		offset:(+req.query.pagina||0)*PAGINACION.resultadosPorPagina,
+		attributes:['nombre','DNI','correo','fecha_alta'/* ,'perfilID' Si se quiere el perfil, traer todo, no solo la ID... */]
+	};
+
+	let include=[]
+		,where={}
+		,order=[];
+
+	if(+req.query.reportados){
+		include.push(
+			{
+				model:Bloqueo
+				,as:'bloqueosRecibidos'
+				// TODO Feature: Traer quién bloqueó y razón.
+				,attributes:['motivo']
+				,where:{
+					fecha_desbloqueo:{[Sequelize.Op.is]:null}
+				}
+				,required:false
+			}
+			,{
+				model:ReportesUsuario
+				,as:'reportesRecibidos'
+				,attributes:['fecha']
+				,required:true
+			}
+		);
+		order.push([Sequelize.col('reportesRecibidos.fecha'),'DESC']);
+	}
+	let filtro=req.query.filtro;
+	if(filtro){
+		where.DNI={[Sequelize.Op.substring]: filtro};
+		where.nombre={[Sequelize.Op.substring]: filtro};
+		include.push(Carrera);
+		where['$carrera.legajo$']={[Sequelize.Op.substring]: filtro};
+	}
+
+	if(include.length){
+		opciones.include=include;
+	}
+	if(Object.keys(where).length){
+		opciones.where=where;
+	}
+	opciones.order=[...order,['DNI','ASC']];
+
+	// console.log(opciones);
+
+	Usuario.findAll(opciones).then(usuarios=>{
+		// console.log(usuarios);
+		if(usuarios.length==0 && filtro){
 			res.status(404).send("No se encontraron usuarios");
-			return;
 		}else{
 			res.status(200).send(usuarios);
 		}
@@ -207,10 +255,108 @@ router.post('/usuario/:DNI/reporte', function(req, res){
 		}
 	})
     .catch(err=>{
+			// TODO Refactor: Sacar todos estos console log.
 		console.log(err);
         res.status(500).send(err);
     })  
 })
+
+router.post('/usuario/:DNI/bloqueo', function(req, res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+	// TODO Security: Chequear permisos
+	// TODO Feature: Comprobar que exista req.body.motivo
+
+	Usuario
+		.findByPk(req.params.DNI,{
+			include:[
+				{
+					model:Bloqueo
+					,as:'bloqueosRecibidos'
+					,where:{fecha_desbloqueo:{[Sequelize.Op.is]:null}}
+					,required:false
+				}
+			]
+		})
+		.then(usuario=>{
+			if(!usuario){
+				res.status(404).send("Usuario no encontrado");
+				return;
+			}
+			
+			// TODO Refactor: Ver si viene igual el array o no.
+			let mensaje="Usuario bloqueado.";
+			if(!usuario.bloqueosRecibidos?.length){
+				let bloqueo=new Bloqueo({
+					motivo:req.body.motivo
+				});
+				bloqueo.save()
+					.then(()=>{
+						Promise.all([
+							Usuario
+								.findByPk(req.session.usuario.DNI)
+								.then((usuarioActual)=>usuarioActual.addBloqueosRealizados(bloqueo))
+								.then((usuarioActual)=>usuarioActual.save())
+							,usuario
+								.addBloqueosRecibidos(bloqueo)
+								.then(()=>usuario.save())
+						])
+							.then(()=>{
+								res.status(201).send(mensaje);
+							});
+					})
+
+			}else res.status(200).send(mensaje);
+		})
+    .catch(err=>{
+		console.log(err);
+        res.status(500).send(err);
+    });
+});
+
+router.delete('/usuario/:DNI/bloqueo', function(req, res){
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+	// TODO Security: Chequear permisos
+	// TODO Feature: Comprobar que exista req.body.motivo
+
+	Usuario
+		.findByPk(req.params.DNI,{
+			include:[
+				{
+					model:Bloqueo
+					,as:'bloqueosRecibidos'
+					,where:{fecha_desbloqueo:{[Sequelize.Op.is]:null}}
+					,required:false
+				}
+			]
+		})
+		.then(usuario=>{
+			if(!usuario){
+				res.status(404).send("Usuario no encontrado");
+				return;
+			}
+			
+			// TODO Refactor: Ver si viene igual el array o no.
+			let mensaje="Usuario desbloqueado.";
+			if(usuario.bloqueosRecibidos?.length){
+				let bloqueo=usuario.bloqueosRecibidos[0];
+				bloqueo.motivo_desbloqueo=req.body.motivo;
+				bloqueo.fecha_desbloqueo=new Date;
+				bloqueo.save()
+					.then(()=>Usuario.findByPk(req.session.usuario.DNI))
+					.then((usuarioActual)=>usuarioActual.addDesbloqueosRealizados(bloqueo))
+					.then((usuarioActual)=>usuarioActual.save())
+					.then(()=>{
+						res.status(201).send(mensaje);
+					})
+			}
+		});
+});
 
 router.patch('/usuario', function(req, res){
 	if(!req.session.usuario){
@@ -550,7 +696,7 @@ router.post('/respuesta', function(req,res){
 							  suscriptoDNI: { [Sequelize.Op.ne]: req.session.usuario.DNI} 
 							}
 						  }).then(suscripciones=>{
-							console.log(suscripciones);
+							console.log('Suscripciones:',suscripciones);
 							suscripciones.forEach(suscripcion => {
 								Notificacion.create({
 									postNotificadoID:post.ID,
@@ -867,6 +1013,7 @@ router.get('/etiqueta', function(req,res){
 	//* sin paginación porque no deberían ser tantas
 
 	// TODO Refactor: Ver si el estandar de REST permite enviar colecciones separadas en casos como este, donde la redundancia es aproximadamente el 50% de la carga. O si hay que hacer endpoint de categorias...
+	// TODO Refactor: Quizá directamente pedir categorias ¯\_(ツ)_/¯
 	/* Promise.all(
 		Etiqueta.findAll({
 			raw:true,
@@ -992,9 +1139,23 @@ router.delete('/etiqueta/:etiquetaID/suscripcion', function(req,res){
 // TODO Refactor: Minimizar datos que envia este endpoint.
 // TODO Feature: Hacer que se devuelvan una sola notificacion por pregunta (sí, pregunta)
 router.get('/notificacion', function(req,res){
-	//ppregunta ajena es notificacion por etiqueta suscripta 
+	// pregunta
+	// 	propia
+	// 		valoraciones, cantidad n
+	// 	ajena
+	// 		nueva pregunta, siempre es 1, suscripcion a etiqueta
+	// respuesta
+	// 	propia
+	// 		Valoracion, cantidad n
+	// 	ajena
+	// 		nuevas respuestas, cantidad n, Suscripcion a pregunta
+
+	//ppregunta ajena es notificacion por etiqueta suscripta
+		// preguntaID not null es "nueva pregunta a etiqueta"
 	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
 	//respuesta o pregunta propia es notificación por valoración
+		// nuevos votos en tu pregunta...
+		// nuevos votos en tu respuesta a ...
 	if(!req.session.usuario){
 		res.status(403).send("No se posee sesión válida activa");
 		return;
@@ -1010,18 +1171,18 @@ router.get('/notificacion', function(req,res){
 		include: [
 		  {
 			model: Post,
-			attributes: ['ID', 'cuerpo'],
+			attributes: [/* 'ID', 'cuerpo' */],
 			required:true,
 			include: [
-			  { model: Usuario, as: 'duenio', attributes: ['DNI', 'nombre'] }, 
+			  { model: Usuario, as: 'duenio', attributes: [/* 'DNI', 'nombre' */] }, 
 			  { model: Respuesta, as: 'respuesta', 
 				include: [
-				  { model: Pregunta, as: 'pregunta', attributes: ['ID', 'titulo'] } // *Include Pregunta in Respuesta
+				  { model: Pregunta, as: 'pregunta', attributes: [/* 'ID', 'titulo' */] } // *Include Pregunta in Respuesta
 				],
 				required: false,
-				attributes: ['ID', 'preguntaID'] 
+				attributes: [/* 'ID', 'preguntaID' */] 
 			  },  
-			  { model: Pregunta, as: 'pregunta', required: false, attributes: ['ID', 'titulo'] } 
+			  { model: Pregunta, as: 'pregunta', required: false, attributes: [/* 'ID', 'titulo' */] } 
 			]
 		  }
 		],
@@ -1029,6 +1190,26 @@ router.get('/notificacion', function(req,res){
 		  //'$post.pregunta.ID$': { [Sequelize.Op.ne]: null }, // *Check if the post is a question
 		  notificadoDNI: req.session.usuario.DNI // *Filter by notificadoDNI matching user's DNI
 		},
+		attributes:[
+			[Sequelize.fn('min',Sequelize.col('notificacion.visto')),'visto']
+			,[Sequelize.fn('max',Sequelize.col('notificacion.createdAt')),'createdAt']
+			,[Sequelize.fn('count',Sequelize.col('*')),'cantidad']
+			,[Sequelize.literal(`IF(post.duenioDNI='${req.session.usuario.DNI}',1,0)`),'propia']
+			,[Sequelize.fn('coalesce',Sequelize.col('post.respuesta.pregunta.titulo'),Sequelize.col('post.pregunta.titulo')),'titulo']
+			// ,[Sequelize.literal(`COALESCE(post.respuesta.pregunta.titulo,post.pregunta.titulo)`),'titulo']
+			// ,Sequelize.fn.max('createdAt')
+			// ,
+			// ,['post.respuesta.ID','respuestaID']
+			,[Sequelize.col('post.respuesta.preguntaID'),'respuestaPreguntaID']
+			,[Sequelize.col('post.pregunta.ID'),'preguntaID']
+		],
+		group:[
+			// 'post.respuesta.ID'
+			// ,
+			'propia'
+			,'post.respuesta.preguntaID'
+			,'post.pregunta.ID'
+		],
 		raw: true,
 		nest: true
 	  }).then(notificaciones=>{

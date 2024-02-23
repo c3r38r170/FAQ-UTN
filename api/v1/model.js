@@ -16,7 +16,7 @@ const sequelize = new Sequelize(
           rejectUnauthorized: true,
         },
       },
-      logging: false,
+    //   logging: false,
      }
    );
    /* new Sequelize('faqutn', 'root', 'password', {
@@ -86,7 +86,7 @@ const Bloqueo = sequelize.define('bloqueo',{
         type: DataTypes.DATEONLY
     }
 });
-
+// TODO Refactor: Considerar algo como Usuario.Bloqueos=... https://sequelize.org/docs/v6/advanced-association-concepts/creating-with-associations/#belongsto--hasmany--hasone-association
 Usuario.hasMany(Bloqueo, {
     as:'bloqueosRealizados',
     constraints :false,
@@ -1155,4 +1155,6 @@ Pregunta.create({
 
 sequelize.sync({alter:true});
 
+
 export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
+

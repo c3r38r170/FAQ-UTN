@@ -10,6 +10,9 @@ import { ChipUsuario,DesplazamientoInfinito,Titulo } from './todos.js'
 // TODO Feature: Tirar errores en los constructores con parámetros necesarios 
 // TODO Refactor: Cambiar a Pantalla. Colisiona con el concepto de página de los modelos.
 class Pagina {
+	/* Idealmente, quizá la página podría serializarse, incluirse en las globales, y deserializarse en el frontend. Un ejemplo de algo que nos permitiría esto sería https://github.com/erossignon/serialijse (aunque no parece soportar las propiedades privadas)
+	De esta manera nos ahorramos la carpeta pantallas, y el archivo de visibilizar-clases. */
+
 	// TODO Refactor: ¿No debería ser un string?
   #ruta=''/*  = {
 	ruta: ""
@@ -81,6 +84,7 @@ class Pagina {
 		<link rel="stylesheet" href="/styles${rutaRecursos + ".css"}">
 		
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-switch@2.0.4/dist/css/bulma-switch.min.css">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
 	</head>
 	<body>
@@ -114,6 +118,7 @@ class Pagina {
 				</div>
 			</div>
 		</footer>
+		<!-- TODO Refactor: Meter esto en su propio archivo, por mantenibilidad. -->
 		<script>
 		document.addEventListener('DOMContentLoaded', () => {
 			// Funciones para abrir y cerrar el modal

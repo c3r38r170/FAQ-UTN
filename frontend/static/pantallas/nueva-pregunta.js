@@ -15,8 +15,12 @@ function crearPagina(ruta,sesion){
 					// TODO UX: Detalles? ¿O Cuerpo? ¿O algo...? Ver algún ejemplo. Also, mostrar más grande (rows) y limitar texto (max?)
 					,{name:'cuerpo',textoEtiqueta:'Detalles',type:'textarea'}
 				]
-				,preguntaID=>{
-					window.location.replace('/pregunta/'+preguntaID);
+				,(respuesta,info)=>{
+					if(info.ok){
+						let preguntaID=+respuesta
+						window.location.replace('/pregunta/'+preguntaID);
+						// TODO UX: Mejores alertas.
+					}else alert(`Error ${info.codigo}: ${respuesta}`);
 				}
 				,{
 					textoEnviar:'Crear Pregunta', clasesBoton:'is-link is-rounded mt-3'

@@ -1,5 +1,4 @@
 import { superFetch } from '../libs/c3tools.js'
-//import {superFetch} from 'https://unpkg.com/@c3r38r170/c3tools@1.1.0/c3tools.m.js';
 
 class Formulario{
 	static instancias = {};
@@ -11,8 +10,9 @@ class Formulario{
 	campos=[];
 	verbo=[];
 	#clasesBotonEnviar='';
+	#alEnviar=null;
 
-	constructor(id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='button is-primary mt-3'}={},){
+	constructor(id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='is-primary mt-3',alEnviar=null}={},){
 		this.#id=id;
 		this.#endpoint=endpoint;
 		this.campos=campos;
@@ -20,12 +20,18 @@ class Formulario{
 		this.#textoEnviar=textoEnviar;
 		this.#funcionRetorno=funcionRetorno;
 		this.#clasesBotonEnviar=clasesBotonEnviar;
+		this.#alEnviar=alEnviar;
+
 		Formulario.instancias[id]=this;
 	}
 
 	enviar(e){
 		e.preventDefault();
 		// ! No funciona GET con FormData.
+
+		if(this.#alEnviar){
+			this.#alEnviar();
+		}
 
 		// Crear un objeto FormData para facilitar la obtención de datos del formulario
 		const formData = new FormData(e.target);
@@ -41,15 +47,19 @@ class Formulario{
 					return;
 			}
 			if(!Array.isArray(datos[key])){
-					datos[key] = [datos[key]];    
+					datos[key] = [datos[key]];
 			}
 			datos[key].push(value);
-	});
+		});
 
-		 superFetch(this.#endpoint,datos,{ method: this.verbo})
-			.then(res=>res.text())
-			.then(this.#funcionRetorno);
-		
+		let ok,codigo;
+		superFetch(this.#endpoint,datos,{ method: this.verbo})
+			.then(res=>{
+				ok=res.ok;
+				codigo=res.status;
+				return res.text();
+			})
+			.then(txt=>this.#funcionRetorno(txt,{ok,codigo}));
 	}
 
 	render(){
@@ -87,6 +97,7 @@ class Campo{
 		if(this.#type){
 			switch(this.#type){
 			case 'textarea':
+				// TODO Feature: Usar extra para ponerle rows y cols. rows=4 por default. O CSS, porque por lo que vi, rows=4 no anda por Bulma.
 				html=html.replace('input','textarea');
 				endTag='></textarea>';
 				break;

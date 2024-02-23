@@ -1,0 +1,31 @@
+#administrar-usuarios{
+	width: calc(100% - 6rem);
+  margin: 1rem 3rem;
+
+	thead{
+		background: #ECECEC;
+
+		th:first-child{
+			width: 35%;
+		}
+	}
+
+	thead th,tbody td{
+		padding: 5px 1rem;
+		vertical-align: middle;
+
+		&.centrado{
+			text-align: center;
+		}
+	}
+
+	fieldset{
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+	}
+}
+
+.switch[type="checkbox"]:checked + label::before{
+	background:#f04b4c !important;
+}

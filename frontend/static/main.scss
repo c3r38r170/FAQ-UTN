@@ -1,4 +1,5 @@
 // TODO Refactor: usar imports para separar en archivos si se vuelve innavegable. Ponerlos en una carpetita y cambiar
+// TODO Refactor: ¿Meter en scripts y styles? ¿Por qué sí, por qué no?
 
 $p-central: 3rem;
 $text-hover: #485fc7;;
@@ -106,6 +107,9 @@ div#columna-principal{
 	padding-left: 0;
 	padding-right: 0;
 
+	&>form{
+		padding: 0 3rem;
+	}
 }
 
 
@@ -172,10 +176,47 @@ div.notificacion{
     margin-bottom: 0.5rem;
 	border-radius: 10px;
     // border-bottom: 1px solid lightgray;
-
+	position: relative;
 
 	&.noti-no-vista{
 		background-color: $paleta-4;
+
+		margin-top: 3rem;
+
+		&::before{
+			content: 'Nuevas';
+			display: block;
+			position: absolute;
+			top: -2rem;
+			font-weight: bold;
+		}
+
+		& ~ .noti-no-vista{
+			margin-top: 0;
+			
+			&::before{
+				content: '';
+			}
+		}
+	}
+	&:not(.noti-no-vista){
+		margin-top: 3rem;
+
+		&::before{
+			content: 'Anteriores';
+			display: block;
+			position: absolute;
+			top: -2rem;
+			font-weight: bold;
+		}
+		
+		& ~ div{
+			margin-top: 0;
+			
+			&::before{
+				content: '';
+			}
+		}
 	}
 	div.img-container{
 		min-width: 60px;

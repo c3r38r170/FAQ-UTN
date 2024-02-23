@@ -4,10 +4,11 @@ class ChipValoracion{
 
     //TODO Feature: puse un rojo cualquiera para el voto hecho, cambiar por otro mas lindo
 
+    //TODO Feature: puse un rojo cualquiera para el voto hecho, cambiar por otro mas lindo
     static instancias={};
     #valoracion;
     #estado;
-    #id //id del post
+    #id; //id del post
     #sesion;
 	constructor({
         ID,
@@ -15,7 +16,6 @@ class ChipValoracion{
         usuarioActual
     }){
         this.#id = ID;
-        ChipValoracion.instancias[this.#id]=this;
         this.#sesion=usuarioActual;
         this.#valoracion=votos.reduce((suma, voto)=>suma+=voto.valoracion,0);
         if(this.#sesion.usuario===undefined){

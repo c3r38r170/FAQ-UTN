@@ -16,6 +16,7 @@ class MensajeInterfaz {
     }
 
     render() {
+    // TODO Feature: Hacerlos cerrables o no cerrables.
       return `
         <div class='notification is-light ${this.#tipo} m-4'>
             <button class="delete"></button>

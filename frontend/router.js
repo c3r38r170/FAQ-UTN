@@ -4,12 +4,14 @@ const router = express.Router();
 /* 
 */
 import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo, Formulario } from "./static/componentes/todos.js";
-import { Voto as VotoDAO, Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta as SuscripcionesPreguntaDAO, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO, Perfil as PerfilDAO, Permiso as PermisoDAO} from '../api/v1/model.js';
+import { Voto as VotoDAO, Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta as SuscripcionesPreguntaDAO, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO, Bloqueo as BloqueoDAO, Usuario, Perfil as PerfilDAO, Permiso as PermisoDAO} from '../api/v1/model.js';
+
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
-import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta /* PaginaExplorar, */ } from './static/pantallas/todas.js';
+// TODO Refactor: Usar todas.js
+import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaAdministracionUsuarios } from './static/pantallas/todas.js';
 import { PaginaPerfil } from "./static/pantallas/perfil.js";
 import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
 import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
@@ -36,7 +38,7 @@ router.get("/", (req, res) => {
 				});
 	}else{ // * Inicio regular.
 		 PreguntaDAO.pagina()
-			.then(pre=>{ 
+			.then(pre=>{
 				let pagina=PaginaInicio(req.session);
 				pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
@@ -106,6 +108,36 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 					res.status(404).send('ID de pregunta inválida');
 					return;
 				}
+
+				if(req.session.usuario){
+					NotificacionDAO.findAll({
+						include:[
+							{
+								model:PostDAO
+								,include:{
+									model:RespuestaDAO
+									,as:'respuesta'
+								}
+							}
+						],
+						where:{
+							notificadoDNI: req.session.usuario.DNI
+							,visto:false
+							,[Sequelize.Op.or]:{
+								postNotificadoID:req.params.id
+								,'$post.respuesta.preguntaID$':req.params.id
+							}
+						}
+					})
+						.then(notificaciones=>{
+							for(let not of notificaciones){
+								not.visto=true;
+								not.save();
+							}
+						})
+				}
+
+				// ! No se puede traer votos Y un resumen, por eso lo calculamos acá. Los votos los traemos solo para ver si el usuario actual votó.
 
 				//Ordenar respuestas por valoracion
 				function calculateSumValoracion(respuesta) {
@@ -286,63 +318,71 @@ router.get('/administracion/usuarios',(req,res)=>{
 	// TODO Security: Permisos. Acá y en todos lados.
 
 	// TODO Refactor: Página. Un método que se encargue de la paginación, los límites, los filtros, la agrupación, los datos extra (cantidadDeReportes)
-	let usuariosReportados=ReportesUsuarioDAO.findAll({
+	/* let usuariosReportados=UsuarioDAO.findAll({
 		include:[
 			{
-				model:UsuarioDAO
+				model:BloqueoDAO
+				,as:'bloqueosRecibidos'
 				,attributes:[]
-				,include:BloqueoDAO
+				,where:{
+					fecha_desbloqueo:{[Sequelize.Op.is]:null}
+				}
+			}
+			,{
+				model:ReportesUsuarioDAO
+				,as:'reportesRecibidos'
+				,attributes:[]
+				,required:true
 			}
 		]
 		,attributes:[
-			'Usuario.ID'
-			,'Usuario.nombre'
-			,'Usuario.DNI'
+			'DNI'
+			,'nombre'
+			,[Sequelize.literal('MAX(reportesRecibidos.fecha)'),'fechaUltimoReporte']
+			,[Sequelize.literal( `COUNT(*)` ),`cantidadDeReportes`]
 		]
 		,group:[
-			'ID'
+			'DNI'
 			,'nombre'
-			,'DNI'
-			,[Sequelize.literal('MAX(fecha)'),'fechaUltimoReporte']
-			,[Sequelize.literal(`COUNT(*)`), `cantidadDeReportes`]
 		]
-		/* ,where:{
-			[Sequelize.or]:[
-				{'$Usuario.Bloqueo':{[Sequelize.Op.is]:null}}
-				,{'$Usuario.Bloqueo.fecha_desbloqueo$':{[Sequelize.Op.not]:null}}
-			]
-		} */
-		,order:['fecha','DESC']
+	}); */
+	/* let usuariosReportados=ReportesUsuarioDAO.findAll({
+		subQuery:false
+		,include:[
+			{
+				model:UsuarioDAO
+				,as:'reportado'
+				,attributes:[]
+				,include:[
+					{
+						model:BloqueoDAO
+						,as:'bloqueosRecibidos'
+						,attributes:[]
+					}
+				]
+			}
+		]
+		,attributes:[
+			'reportado.DNI'
+			,'reportado.nombre'
+			,[Sequelize.literal('MAX(reporteUsuarios.fecha)'),'fechaUltimoReporte']
+			,[Sequelize.literal( `COUNT(*)` ),`cantidadDeReportes`]
+		]
+		,group:[
+			'reportado.DNI'
+			,'reportado.nombre'
+		]
+		// ,where:{
+		// 	[Sequelize.or]:[
+		// 		{'$Usuario.Bloqueo':{[Sequelize.Op.is]:null}}
+		// 		,{'$Usuario.Bloqueo.fecha_desbloqueo$':{[Sequelize.Op.not]:null}}
+		// 	]
+		// }
+		,order:[['fecha','DESC']]
 		,limit:15
-	});
+	}); */
 
-  let pagina = new Pagina({
-    ruta: req.path,
-    titulo: 'Administración - Usuarios Reportados',
-    sesion: req.session,
-		partes:[
-			// Título('Usuarios Reportados' (,nivel?(h2,h3...)) )
-			// Filtro de usuarios, busca por DNI. legajo y nombre.
-			// TODO Feature: páginado
-			// id,endpoint,columnas,entidades=[],cantidadDePaginas=1
-			/*,new Tabla('administrar-usuarios','/reportes-de-usuarios',[
-				{
-					nombre:'Usuario'
-					celda:(usu)=>usu.nombre;
-				},{
-					nombre:'Cant. Reportes'
-					celda:(usu)=>usu.cantidadDeReportes;
-				},{
-					nombre:'Último Reporte'
-					celda:(usu)=>usu.fechaUltimoReporte;
-				}
-				,{
-					nombre:'Estado'
-					// TODO Feature: Un toggle que represente si el usuario está bloqueado o no, y que permita el cambio. A priori, una checkbox glorificada
-				}
-			],usuariosReportados)*/
-		]
-  });
+  let pagina=PantallaAdministracionUsuarios(req.path,req.session);
   res.send(pagina.render());
 })
 
