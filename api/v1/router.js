@@ -449,8 +449,8 @@ router.post('/pregunta', function(req,res){
 	}
 
 	//A veces crashea la ia
-	moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10).then(respuesta=>{
-		if(respuesta.apropiado < rechazaPost){
+	moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10).then(respuestaIA=>{
+		if(respuestaIA.apropiado < rechazaPost){
 			//esto anda
 			res.status(400).send("Texto rechazo por moderación automática");
 			return;
@@ -465,26 +465,30 @@ router.post('/pregunta', function(req,res){
 			}).then((pregunta)=>{
 				let esperarA=[];
 
-				if(respuesta.apropiado < reportaPost){
+				if(respuestaIA.apropiado < reportaPost){
 					// TODO Feature testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
 					esperarA.push(ReportePost.create({
 						reportadoID: post.ID}));
 				}
 
-				// TODO Feature: Ninguno de estas 2 anda. Ni setEtiquetas ni addSuscriptos.
-
 				//etiquetas
-				//asumo que vienen en el body en un array con los id (a chequear)
 				
 				esperarA.push(
-					pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})))
-				);
+					Promise.all(req.body.etiquetasIDs.map(ID=>Etiqueta.findByPk(ID)))
+						.then(etiquetas=>Promise.all(etiquetas.map(eti=>{
+							let ep=new EtiquetasPregunta();
+							ep.etiqueta=eti;
+							return ep.save();
+						})))
+						.then(eps=>pregunta.setEtiquetas(eps))
+				)
 				
-				//Suscribe a su propia pregunta
-
-				esperarA.push(
-					pregunta.addSuscriptos(req.session.usuario.DNI)
-				);
+					//Suscribe a su propia pregunta
+					
+					esperarA.push(
+						Usuario.findByPk(req.session.usuario.DNI)
+							.then(usu=>pregunta.addUsuariosSuscriptos(usu))
+					)
 
 				//notificaciones
 				esperarA.push(
@@ -508,6 +512,7 @@ router.post('/pregunta', function(req,res){
 				);
 				
 				Promise.all(esperarA)
+					.then(()=>pregunta.save())
 					.then(() => {
 						// ! Sin las comillas se piensa que pusimos el status dentro del send
 						res.status(201).send(post.ID+"");

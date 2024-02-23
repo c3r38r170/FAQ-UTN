@@ -1,6 +1,8 @@
 import { PantallaNuevaPregunta} from '../pantallas/nueva-pregunta.js';
 import {SqS,gEt,createElement} from '../libs/c3tools.js';
+// TODO Refactor: RIP Desplegable?
 import { Desplegable } from '../componentes/desplegable.js';
+import BulmaTagsInput from 'https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tagsinput@1.0.3/+esm';
 
 let pagina=PantallaNuevaPregunta(location.pathname,{usuario:window.usuarioActual});
 
@@ -19,29 +21,23 @@ fetch('/api/etiqueta')
 
 		let botonCrear=SqS('[type="submit"]',{from:gEt('nueva-pregunta')});
 
-		/*let contenedorDeEtiquetas=createElement('DIV',{class:'contenedor-de-etiquetas'});
-		contenedorDeEtiquetas.innerHTML=Object.entries(etiquetasIndexadasPorCategoria).reduce((acc,[ID,categoria])=>acc+(new Desplegable('entradas-etiquetas',categoria.descripcion,categoria.etiquetas.map(({ID,descripcion})=>({
-			descripcion
-			,value:ID
-		})),{tipoPorDefecto:'option'})).render(),'');
-		botonCrear.before(contenedorDeEtiquetas);
-		console.log(botonCrear,botonCrear.previousElementSibling); */
-
-		// TODO Feature: Obligar a poner una por lo menos.
-		botonCrear.before(createElement([
-			'DIV',{
-				id:'nueva-pregunta-etiquetas',
-				children:Object.entries(etiquetasIndexadasPorCategoria).map(([ID,categoria])=>['LABEL',{
-					classList:['label','select','is-multiple'],
-					children:[
-						['SPAN',{innerText:categoria.descripcion}]
-						,['SELECT',{
-							name:'etiquetasIDs',
-							multiple:true,
-							children:categoria.etiquetas.map(({ID,descripcion})=>['OPTION',{innerText:descripcion,value:ID}])
-						}]
-					]
-				}])
-			}
-		]));
+		// TODO UX: Label, que se vea como los demás.
+		botonCrear.before(createElement(
+					['SELECT',{
+						dataset:{
+							type:'tags'
+							,placeholder:'Etiquetas'
+							,selectable:"false"
+						}
+						,name:'etiquetasIDs'
+						,multiple:true
+						,required:true
+						,children:etiquetas.map(({ID,descripcion,categoria:{categoriaID,descripcion:categoriaDescripcion}})=>['OPTION',{
+							value:ID
+							,innerText:`${categoriaDescripcion} - ${descripcion}`
+						}])
+					}]
+		));
+		
+		BulmaTagsInput.attach();
 	})

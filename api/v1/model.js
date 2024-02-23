@@ -928,6 +928,7 @@ Etiqueta.hasMany(EtiquetasPregunta,{
     ,constraints:false
 }) */
 
+
 /* Pregunta.belongsToMany(Etiqueta, {
     as:'etiquetas',
     through: EtiquetasPregunta,
@@ -1028,7 +1029,7 @@ const SuscripcionesPregunta = sequelize.define('suscripcionesPregunta',{
 })
 
 // TODO Refactor: alias más lindos
-
+/* 
 Usuario.hasMany(SuscripcionesPregunta,{
     as:'preguntasSuscriptas',
     constraints:false,
@@ -1039,19 +1040,20 @@ Pregunta.hasMany(SuscripcionesPregunta,{
     as:'suscriptos',
     constraints:false,
     foreignKey:'preguntaID'
-})
+}) */
+
 
 Usuario.belongsToMany(Pregunta, { 
     through: SuscripcionesPregunta,
     constraints:false,
-    as: 'usuariosSuscriptos',
+    as: 'preguntasSuscriptas',
     foreignKey:'suscriptoDNI'
 });
 
 Pregunta.belongsToMany(Usuario, { 
     through: SuscripcionesPregunta,
     constraints:false,
-    as:'suscriptas',
+    as:'usuariosSuscriptos',
     foreignKey:'preguntaID'
 });
 
