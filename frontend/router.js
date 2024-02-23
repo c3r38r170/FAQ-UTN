@@ -4,7 +4,7 @@ const router = express.Router();
 /* 
 */
 import { Pagina, DesplazamientoInfinito,Modal,  Pregunta , ChipUsuario , Busqueda , Respuesta , Tabla, MensajeInterfaz, Titulo, Formulario } from "./static/componentes/todos.js";
-import { Voto as VotoDAO, Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta as SuscripcionesPreguntaDAO, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO, Bloqueo as BloqueoDAO, Usuario, Perfil as PerfilDAO, Permiso as PermisoDAO} from '../api/v1/model.js';
+import { Voto as VotoDAO, Notificacion as NotificacionDAO, EtiquetasPregunta as EtiquetasPreguntaDAO, Etiqueta as EtiquetaDAO, Pregunta as PreguntaDAO, SuscripcionesPregunta as SuscripcionesPreguntaDAO, Usuario as UsuarioDAO, Respuesta as RespuestaDAO, Post as PostDAO, ReportesUsuario as ReportesUsuarioDAO, Bloqueo as BloqueoDAO, Usuario, Perfil as PerfilDAO, Permiso as PermisoDAO, Parametro as ParametroDAO} from '../api/v1/model.js';
 
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
@@ -17,6 +17,7 @@ import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js
 import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
 import { PaginaPerfilPropioRespuestas } from "./static/pantallas/perfil-propio-respuestas.js";
 import { PaginaSuscripciones } from "./static/pantallas/suscripciones.js";
+import { PantallaAdministracionParametros } from "./static/pantallas/administracion-parametros.js";
 
 router.get("/", (req, res) => {
 	// ! req.path es ''
@@ -497,6 +498,12 @@ router.get("/usuario/:id?", async (req, res) =>  {
 });
 
 
+router.get("/administracion/parametros", async(req, res)=>{
+	const p = await ParametroDAO.findByPk(1);
+	let pagina=PantallaAdministracionParametros(req.path,req.session, p);
+	pagina.globales.parametros = p;
+  	res.send(pagina.render());
+});
 
 // Ruta Para búsqueda
 // Solo muestra el formulario de búsqueda

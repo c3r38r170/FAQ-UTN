@@ -1464,4 +1464,26 @@ router.patch('/notificacion',function(req,res){
 	// retornar estado de la api, disponible o no
 }) */
 
+//EntradasPorPagina	ModerarIA	RechazaPost	ReportaPost
+
+router.patch('/parametros', function(req, res){
+	if(!req.session.usuario){
+		res.status(403).send("No se poseen permisos de administración o sesión válida activa");
+		return;
+	}
+	else if(req.session.usuario.perfil.permiso.ID < 3){
+		res.status(403).send("No se poseen permisos de administración o sesión válida activa");
+		return;
+	}
+	Parametro.findByPk(1).then(p=>{
+		p.EntradasPorPagina = req.body.EntradasPorPagina;
+		p.ModerarIA = req.body.ModerarIA;
+		p.RechazaPost = req.body.RechazaPost;
+		p.ReportaPost = req.body.ReportaPost;
+		p.save();
+		res.status(200).send("Guardado con Exito")
+	})
+
+})
+
 export {router};
