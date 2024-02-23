@@ -602,6 +602,57 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 		// TODO Refactor: ahorrar el callback hell, acá y en todos lados.
 })
 
+router.get('/suscripciones', function(req,res){
+	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
+	//Todo Feature: paginacion
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+	const pagina = req.query.pagina || 0;
+	console.log("hola")
+	Pregunta.findAll({
+		include:[
+			{
+				model: Post,
+				as: 'post',
+				include: [
+					{
+						model: Usuario,
+						as: 'duenio'
+					}
+				]
+			},
+			{
+				model: EtiquetasPregunta,
+				as:'etiquetas',
+				include:Etiqueta
+			},
+			{
+			model:SuscripcionesPregunta
+				,where:{
+					suscriptoDNI:req.session.usuario.DNI
+			}
+			,as: 'suscriptos'
+			}],subQuery:false,	
+            order:[[Post,'fecha','DESC']],
+            limit:PAGINACION.resultadosPorPagina,
+            offset:(+pagina)*PAGINACION.resultadosPorPagina,
+	})
+	.then((suscripciones)=>{
+		if(!suscripciones){
+			res.status(404).send("No se encontraron suscripciones");
+			return;
+		}else{
+			res.status(200).send(suscripciones);
+		}
+	})
+	.catch(err=>{
+		console.log(err);
+        res.status(500).send(err);
+    })  
+})
+
 router.delete('/pregunta/:preguntaID/suscripcion', function(req,res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");

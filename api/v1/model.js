@@ -16,7 +16,7 @@ const sequelize = new Sequelize(
           rejectUnauthorized: true,
         },
       },
-    //   logging: false,
+       logging: false,
      }
    );
    /* new Sequelize('faqutn', 'root', 'password', {
@@ -1153,8 +1153,8 @@ Pregunta.create({
 })*/
 
 
-sequelize.sync({alter:true});
+//sequelize.sync({alter:true});
 
 
-export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
+export {Carrera, SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
 

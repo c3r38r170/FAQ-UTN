@@ -215,7 +215,7 @@ class Encabezado {
 			'formularioCerrarSesion'
 			, '/api/sesion'
 			, []
-			,this.procesarRespuesta.bind(this)
+			,this.procesarRespuesta
 			,  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE',clasesBoton:'is-link is-light is-small'}
 		);
 
@@ -228,7 +228,7 @@ class Encabezado {
 				{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
 				{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
 			]
-			, this.procesarRespuesta.bind(this)
+			, this.procesarRespuesta
 			,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-link is-rounded mt-3'}
 		);
 		this.#modal.contenido.push(form);
@@ -236,9 +236,8 @@ class Encabezado {
 
   }
 
-  procesarRespuesta(respuesta) {
-		// TODO Feature: Mostrar errores.
-	console.log('Respuesta:', JSON.stringify(respuesta));
+  procesarRespuesta() {
+	// TODO Feature: Mostrar errores.
 	location.reload();
   }
   

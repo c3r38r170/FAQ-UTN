@@ -16,6 +16,7 @@ class ChipUsuario{
         ,correo
         ,createdAt
         ,fecha_alta
+        ,perfil
     },esPerfil=false){
         this.#DNI = DNI;
 		this.#nombreusuario = nombre;

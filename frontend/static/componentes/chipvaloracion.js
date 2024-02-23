@@ -85,13 +85,13 @@ class ChipValoracion{
 	render(){
 		return`
         <div id="chip-valoracion-${this.#id}" data-id='${this.#id}' data-valoracion='${this.#valoracion}' data-estado='${this.#estado}' class="chip-valoracion">
-            <button class="positiva" value='1' onclick="ChipValoracion.votar(event)" ${this.#sesion.usuario=== undefined?"disabled":''}>
+            <button class="positiva" value='1' onclick="ChipValoracion.votar(event)" ${this.#sesion=== undefined?"disabled":''}>
                 <span>
                     <i id="iPos-${this.#id}" class="fa-solid fa-caret-up" ${this.#estado == 1 ? 'style="color: #B90E0A"':''}></i>
                 </span>
             </button>
             <div id="chip-valoracion-${this.#id}-numero" class="valoraciones" >${this.#valoracion}</div>
-            <button class="negativa" value ='-1' onclick="ChipValoracion.votar(event)" ${this.#sesion.usuario=== undefined?"disabled":''}>
+            <button class="negativa" value ='-1' onclick="ChipValoracion.votar(event)" ${this.#sesion=== undefined?"disabled":''}>
                 <span>
                     <i id="iNeg-${this.#id}" class="fa-solid fa-caret-down" ${this.#estado == -1 ? 'style="color: #B90E0A"':''}></i>
                 </span>

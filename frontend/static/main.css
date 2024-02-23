@@ -124,11 +124,11 @@ div #navegacion-container ul.navegacion li a#link {
 div #navegacion-container ul.navegacion li a#link:hover {
   color: #485fc7;
 }
+
 div #navegacion-container ul.navegacion li ul.subnavegacion {
   margin-top: 5px;
   padding-left: 2rem;
 }
-
 #notificacion-titulo {
   font-size: 1.2rem;
   font-weight: 600;
@@ -141,9 +141,40 @@ div.notificacion {
   padding: 0.5rem 15px;
   margin-bottom: 0.5rem;
   border-radius: 10px;
+  position: relative;
 }
 div.notificacion.noti-no-vista {
   background-color: #f3f6ff;
+  margin-top: 3rem;
+}
+div.notificacion.noti-no-vista::before {
+  content: "Nuevas";
+  display: block;
+  position: absolute;
+  top: -2rem;
+  font-weight: bold;
+}
+div.notificacion.noti-no-vista ~ .noti-no-vista {
+  margin-top: 0;
+}
+div.notificacion.noti-no-vista ~ .noti-no-vista::before {
+  content: "";
+}
+div.notificacion:not(.noti-no-vista) {
+  margin-top: 3rem;
+}
+div.notificacion:not(.noti-no-vista)::before {
+  content: "Anteriores";
+  display: block;
+  position: absolute;
+  top: -2rem;
+  font-weight: bold;
+}
+div.notificacion:not(.noti-no-vista) ~ div {
+  margin-top: 0;
+}
+div.notificacion:not(.noti-no-vista) ~ div::before {
+  content: "";
 }
 div.notificacion div.img-container {
   min-width: 60px;
@@ -215,6 +246,7 @@ div.notificacion div.noti-container .fecha {
   font-weight: 600;
 }
 .chip-usuario-perfil .tipo-usuario {
+  background-color: #485fc7;
   display: inline-block;
   color: #fff;
   border-radius: 16px;
