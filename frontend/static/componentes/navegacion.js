@@ -43,12 +43,13 @@ class Navegacion{
             if(usuarioIdentificado.perfil.permiso.ID>=3){
                 //TODO: Refactor para no crear el objeto principal otra vez
                 //TODO: esto es un placeholder
-                let administracion =new EnlaceNavegacion('Administracion',{tipo:'solid',nombre:'user-secret'},'/administracion/perfiles');
+                let administracion =new EnlaceNavegacion('Administracion',{tipo:'solid',nombre:'user-secret'},'/administracion/parametros');
 
                 if(ruta=="/administracion" || ruta=="/administracion/perfiles" || ruta=="/administracion/etiquetas"){
                     administracion = new EnlaceNavegacion('Administración',{tipo:'solid',nombre:'user-secret', subenlaces:[
                         new EnlaceNavegacion('Perfiles',{tipo:'solid',nombre:'circle'},'/administracion/perfiles'),
-                        new EnlaceNavegacion('Etiquetas',{tipo:'solid',nombre:'circle'},'/administracion/etiquetas'),]},'/administracion/perfiles');
+                        new EnlaceNavegacion('Etiquetas',{tipo:'solid',nombre:'circle'},'/administracion/etiquetas'),
+                        new EnlaceNavegacion('Parámetros',{tipo:'solid',nombre:'circle'},'/administracion/parametros'),]},'/administracion/perfiles');
                 }
                 this.#enlaces.push(administracion)
 

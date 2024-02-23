@@ -22,8 +22,8 @@ function crearPantalla(ruta,sesion, p){
         ,[//EntradasPorPagina	ModerarIA	RechazaPost	ReportaPost
         {name:'EntradasPorPagina',textoEtiqueta:textoEntradas,value:p.EntradasPorPagina},
         {name:'ModerarIA',textoEtiqueta:textoModera,value:p.ModerarIA},
-        {name:'ReportaPost',textoEtiqueta:textoSinReporte,value:p.textoSinReporte},
-        {name:'RechazaPost',textoEtiqueta:textoConReporte,value:p.textoConReporte},
+        {name:'ReportaPost',textoEtiqueta:textoSinReporte,value:p.ReportaPost},
+        {name:'RechazaPost',textoEtiqueta:textoConReporte,value:p.RechazaPost},
         ]
         ,()=>{
             //TODO: Feature: modal si rechaza
