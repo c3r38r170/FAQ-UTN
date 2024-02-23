@@ -4,6 +4,8 @@ import { Respuesta } from "./respuesta.js";
 import { Boton } from "./boton.js";
 import { Fecha } from "./fecha.js"
 import { BotonReporte } from "./botonReporte.js";
+import { Formulario } from "./formulario.js";
+import { BotonSuscripcion } from "./botonSuscripcion.js";
 
 class Pregunta{
     #ID;
@@ -16,7 +18,6 @@ class Pregunta{
     #instanciaModal;
     #usuarioActual;
     #respuestasCount;
-    #suscripto;
     // TODO Feature: Hay 2 representaciones de pregunta. En el inicio, donde hay un listado, se ve la pregunta y la primera respuesta; y en la página propia se ve solo la pregunta y las respuestas se verían abajo con su propia representación.
 
 	constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, suscriptos},instanciaModal, usuarioActual){
@@ -30,13 +31,9 @@ class Pregunta{
             this.#respuestas = respuestas;
             this.#respuestasCount = respuestasCount;
             this.#ID = ID;
-
             this.#etiquetas = etiquetas;
             this.#instanciaModal = instanciaModal;
-            this.#usuarioActual=usuarioActual;
-            if(suscriptos){
-                this.#suscripto = true;
-            }
+            this.#usuarioActual=usuarioActual.usuario;
             
         // }
         // TODO Feature: fallar en el else
@@ -50,14 +47,14 @@ class Pregunta{
                     ${new ChipUsuario(this.#usuario).render()}
                     <div class="pl-0 py-0">
                         ${this.#fecha.render()}
-                        ${this.#suscripto? "<div class='ml-2 tag is-link'>Suscripto</div>": ''}
                     </div>
+                    ${ this.#usuarioActual == undefined ? '' : new BotonSuscripcion(this.#ID,'/api/pregunta/'+this.#ID+'/suscripcion').render() }
                     ${ new BotonReporte(this.#ID, this.#instanciaModal).render() }
                 </div>
                 <a href="/pregunta/${this.#ID}">
                     <div class="titulo">${this.#titulo}</div>
                 </a>
-                <div class="cuerpo">${this.#cuerpo}</div>
+                <div class="cuerpo">${this.#cuerpo.replace(/\n/g, '<br>')}</div>
                 <div class="etiquetas">
                 ${this.#etiquetas ? this.#etiquetas.map(e=>new Etiqueta(e.etiquetum).render()).join('') : ''}
                 </div>

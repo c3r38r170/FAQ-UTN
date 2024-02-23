@@ -2,6 +2,8 @@ import {Sequelize, DataTypes} from 'sequelize';
 
 import * as bcrypt from "bcrypt";
 
+
+
 const sequelize = new Sequelize(
     'faqutn',
     'vj6h6slqojgkqj8l6upf',
@@ -14,14 +16,16 @@ const sequelize = new Sequelize(
           rejectUnauthorized: true,
         },
       },
-    //   logging: false,
+       logging: false,
      }
    );
    /* new Sequelize('faqutn', 'root', 'password', {
     host: 'localhost',
     dialect: 'mariadb'
   }); */
-   
+
+  
+
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');
 }).catch((error) => {
@@ -332,6 +336,10 @@ const Perfil = sequelize.define('perfil',{
     nombre:{
         type:DataTypes.STRING,
         allowNull:false
+    },
+    color:{ //RGB?
+        type:DataTypes.STRING,
+        allowNull:false
     }
 })
 
@@ -357,23 +365,27 @@ const Permiso = sequelize.define('permiso',{
     }
 })
 
-const PerfilesPermiso = sequelize.define('perfilesPermiso', {
-    ID: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    }
+
+Permiso.hasOne(Perfil, {
+    constraints:false
+});
+
+Perfil.belongsTo(Permiso,{
+    constraints:false
 })
 
-Perfil.belongsToMany(Permiso, {
-    through: PerfilesPermiso,
-    constraints:false
-});
-
-Permiso.belongsToMany(Perfil, { 
-    through: PerfilesPermiso ,
-    constraints:false
-});
+Permiso.upsert({
+    ID: 1,
+    descripcion: "Solo tiene permisos básicos"
+})
+Permiso.upsert({
+    ID: 2,
+    descripcion: "Puede moderar"
+})
+Permiso.upsert({
+    ID: 3,
+    descripcion: "Puede administrar listas"
+})
 
 const Respuesta = sequelize.define('respuesta',{
     ID: {
@@ -439,6 +451,11 @@ const Pregunta = sequelize.define('pregunta',{
         set(value){
             this.post.setDataValue('cuerpo', value);
         }
+    },respuestasCount:{
+        type:DataTypes.VIRTUAL,
+        get(){
+            return this.dataValues?.respuestasCount;
+        },
     }
 },{
     indexes:[
@@ -555,7 +572,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
                             as: 'duenio',
                             include: {
                                 model: Perfil,
-                                attributes: ['ID', 'nombre']
+                                attributes: ['ID', 'nombre', 'color']
                             },
                             attributes: ['DNI', 'nombre']
                         }
@@ -582,7 +599,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
         }   
             ,
             where: {
-                '$post.duenio.DNI$': +duenioID
+                '$post.duenio.DNI$': duenioID
             },
             order:[[Post,'fecha','DESC']],
             limit:PAGINACION.resultadosPorPagina,
@@ -595,8 +612,8 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 			include:[Post],
 			limit:PAGINACION.resultadosPorPagina,
 			offset:(+pagina)*PAGINACION.resultadosPorPagina,
-			subQuery:false
-		};
+			subQuery:false,	
+        };
         opciones.attributes = {
             include: [
                 [
@@ -685,7 +702,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 						,as:'duenio'
 						,include:{
 							model:Perfil
-							,attributes:['ID','nombre']
+							,attributes:['ID','nombre', 'color']
 						}
 						,attributes:['DNI','nombre']
 					}
@@ -858,10 +875,11 @@ Respuesta.pagina=({pagina=0, DNI}={})=>{
                     'respuestasCount'
                 ]]
         },
+        separate:true,
         where:{
             '$respuestas.post.duenio.DNI$':DNI
         },
-        order:[[Post, 'fecha','DESC']],
+        order:[[Post, 'fecha','DESC']]
         // ,raw:true,nest:true
     })
 }
@@ -1137,6 +1155,8 @@ Pregunta.create({
 })*/
 
 
-// sequelize.sync({alter:true});
+//sequelize.sync({alter:true});
 
-export {SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, PerfilesPermiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta, Carrera}
+
+export {Carrera, SuscripcionesPregunta, Usuario, Bloqueo, ReportesUsuario, Post, Notificacion, Voto, TipoReporte, ReportePost, Perfil, Permiso, Respuesta, Pregunta, Etiqueta, EtiquetasPregunta, Categoria, SuscripcionesEtiqueta}
+

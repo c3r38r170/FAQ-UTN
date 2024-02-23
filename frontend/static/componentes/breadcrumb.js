@@ -33,7 +33,7 @@ class Breadcrumb{
         let html = ''
         html+= '<nav class="breadcrumb ml-5 pl-5" aria-label="breadcrumbs"><ul>'
 
-        html += `<li id="breadcrumb"><a href="#">Inicio</a></li>`
+        html += `<li id="breadcrumb"><a href="/">Inicio</a></li>`
 
         /*
         this.#crumbs.forEach((crumb, index) => {

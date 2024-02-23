@@ -4,6 +4,7 @@ const router = express.Router();
 import {
 	Usuario
 	, Perfil
+	, Permiso
 	, Voto
 	, ReportePost
 	,Pregunta
@@ -34,7 +35,12 @@ const reportaPost = 70;
 
 router.post('/sesion', function(req, res) {
 	let usuario;
-	Usuario.findByPk(req.body.DNI)
+	Usuario.findByPk(req.body.DNI,{
+		include:{
+			model: Perfil,
+			include:Permiso
+		}
+	})
 		.then(usu=>{
 			if(!usu){
 				res.status(404).send('El DNI no se encuentra registrado.');
@@ -67,9 +73,13 @@ router.delete('/sesion', function(req, res) {
 // usuario
 
 router.get('/usuario', function(req,res){
-	//TODO Feature: permisos
+	
 	if(!req.session.usuario){
 		res.status(401).send("No se posee sesión válida activa");
+		return;
+	}
+	else if(req.session.usuario.perfil.permiso.ID < 2){
+		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
 		return;
 	}
 
@@ -157,7 +167,6 @@ router.get('/usuario/:DNI/preguntas', function(req, res){
 
 router.get('/usuario/:DNI/posts', function(req, res){
 	let filtros={pagina:null,DNI:req.params.DNI};
-		
 		if(req.query.pagina){
 			filtros.pagina=req.query.pagina;
 		}
@@ -167,11 +176,13 @@ router.get('/usuario/:DNI/posts', function(req, res){
 
 router.get('/usuario/:DNI/respuestas', function(req, res){
 	let filtros={pagina:null,DNI:req.params.DNI};
-		
+	let pagina = 0;
 		if(req.query.pagina){
 			filtros.pagina=req.query.pagina;
+			pagina = req.query.pagina;
 		}
-		res.status(200).send([])
+
+		Respuesta.pagina(filtros).then(posts=>res.send(posts.slice((+pagina)*PAGINACION.resultadosPorPagina,(1+pagina)*PAGINACION.resultadosPorPagina )))
 	//Respuesta.pagina(filtros).then(respuestas=>res.send(respuestas))
 })
 
@@ -440,14 +451,12 @@ router.patch('/pregunta', function(req,res){
     })  
 })
 
-// TODO Feature: Se pierden los enters al registrar el cuerpo.
 
 router.post('/pregunta', function(req,res){
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
-
 	//A veces crashea la ia
 	moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10).then(respuestaIA=>{
 		if(respuestaIA.apropiado < rechazaPost){
@@ -473,6 +482,13 @@ router.post('/pregunta', function(req,res){
 
 				//etiquetas
 				
+/* req.body.etiquetasIDs.forEach(id=>{
+							EtiquetasPregunta.create({
+								'preguntumID':post.ID,
+								'etiquetumID':id
+							})
+						}) */
+
 				esperarA.push(
 					Promise.all(req.body.etiquetasIDs.map(ID=>Etiqueta.findByPk(ID)))
 						.then(etiquetas=>Promise.all(etiquetas.map(eti=>{
@@ -491,25 +507,26 @@ router.post('/pregunta', function(req,res){
 					)
 
 				//notificaciones
-				esperarA.push(
-					SuscripcionesEtiqueta.findAll({
-						attributes: ['suscriptoDNI'],
-						where: {
-							etiquetaID: {
-							[Sequelize.Op.in]: req.body.etiquetasIDs
+				if(req.body.etiquetasIDs)
+					esperarA.push(
+						SuscripcionesEtiqueta.findAll({
+							attributes: ['suscriptoDNI'],
+							where: {
+								etiquetaID: {
+								[Sequelize.Op.in]: req.body.etiquetasIDs
+								},
+								fecha_baja: null
 							},
-							fecha_baja: null
-						},
-						distinct: true
-						}).then(suscripciones=>{
-						suscripciones.forEach(suscripcion => {
-							Notificacion.create({
-								postNotificadoID:post.ID,
-								notificadoDNI:suscripcion.suscriptoDNI
-							})
-						});
-					})
-				);
+							distinct: true
+							}).then(suscripciones=>{
+							suscripciones.forEach(suscripcion => {
+								Notificacion.create({
+									postNotificadoID:post.ID,
+									notificadoDNI:suscripcion.suscriptoDNI
+								})
+							});
+						})
+					);
 				
 				Promise.all(esperarA)
 					.then(()=>pregunta.save())
@@ -581,6 +598,57 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
         res.status(500).send(err);
     })  
 		// TODO Refactor: ahorrar el callback hell, acá y en todos lados.
+})
+
+router.get('/suscripciones', function(req,res){
+	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
+	//Todo Feature: paginacion
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+	const pagina = req.query.pagina || 0;
+	console.log("hola")
+	Pregunta.findAll({
+		include:[
+			{
+				model: Post,
+				as: 'post',
+				include: [
+					{
+						model: Usuario,
+						as: 'duenio'
+					}
+				]
+			},
+			{
+				model: EtiquetasPregunta,
+				as:'etiquetas',
+				include:Etiqueta
+			},
+			{
+			model:SuscripcionesPregunta
+				,where:{
+					suscriptoDNI:req.session.usuario.DNI
+			}
+			,as: 'suscriptos'
+			}],subQuery:false,	
+            order:[[Post,'fecha','DESC']],
+            limit:PAGINACION.resultadosPorPagina,
+            offset:(+pagina)*PAGINACION.resultadosPorPagina,
+	})
+	.then((suscripciones)=>{
+		if(!suscripciones){
+			res.status(404).send("No se encontraron suscripciones");
+			return;
+		}else{
+			res.status(200).send(suscripciones);
+		}
+	})
+	.catch(err=>{
+		console.log(err);
+        res.status(500).send(err);
+    })  
 })
 
 router.delete('/pregunta/:preguntaID/suscripcion', function(req,res){
@@ -755,6 +823,7 @@ const valorarPost=function(req,res) {
 	//res tendría idpregunta 
 	//la valoracion(true es positiva, false negativa) 
 	//el usuario viene con la sesión
+	//TODO: Refactor en vez de borrar el voto ponerle un campo, asi creamos la noti solo si el voto es nuevo, no si te vuelve loco poniendo y sacando
 
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa.");
@@ -776,21 +845,22 @@ const valorarPost=function(req,res) {
 					nest:true,
 					plain:true
 				}).then(voto=>{
-					console.log(voto)
 					if(!voto){
 						// si no exite el voto lo crea con lo que mandó
 						if(req.body.valoracion=="null"){
 							res.status(403).send("No existe la valoracion")
 						}else{
-							Voto.create({
-								valoracion: req.body.valoracion,
-								votadoID:IDvotado,
-								votanteDNI:req.session.usuario.DNI
-							}).then(v=>v.save());
-							Notificacion.create({
-								postNotificadoID:post.ID,
-								notificadoDNI:post.duenioDNI
-							})
+							if(req.body.valoracion){
+								Voto.create({
+									valoracion: req.body.valoracion,
+									votadoID:IDvotado,
+									votanteDNI:req.session.usuario.DNI
+								}).then(v=>v.save());
+								Notificacion.create({
+									postNotificadoID:post.ID,
+									notificadoDNI:post.duenioDNI
+								})
+						}
 					}
 					}else{
 						voto.valoracion=req.body.valoracion;
@@ -889,7 +959,10 @@ router.post('/post/:reportadoID/reporte', reportarPost);
 
 router.post('moderacion_pregunta', function(req,res){
 	if(!req.session.usuario){
-		//Falta lo de permisos
+		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
+		return;
+	}
+	else if(req.session.usuario.perfil.permiso.ID < 2){
 		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
 		return;
 	}
@@ -938,7 +1011,10 @@ router.post('moderacion_pregunta', function(req,res){
 
 router.post('moderacion_respuesta', function(req,res){
 	if(!req.session.usuario){
-		//Falta lo de permisos
+		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
+		return;
+	}
+	else if(req.session.usuario.perfil.permiso.ID < 2){
 		res.status(403).send("No se poseen permisos de moderación o sesión válida activa");
 		return;
 	}

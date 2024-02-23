@@ -152,6 +152,12 @@ div #navegacion-container{
 					color: $text-hover;
 				}
 			}
+			
+			ul.subnavegacion {
+				margin-top: 5px; 
+				padding-left: 2rem;
+			}
+
 		}
 	}
 }
@@ -288,7 +294,6 @@ div.notificacion{
 		font-weight: 600;
 	}
 	.tipo-usuario{
-		background-color: $paleta-1;
 		display: inline-block;
 		color: white;
 		border-radius: 16px;
@@ -316,6 +321,7 @@ div.notificacion{
 		align-items: center;
 		margin-bottom: 1.3rem;
 		flex-wrap: wrap;
+		
 
 	}
 	.fecha{
@@ -332,6 +338,8 @@ div.notificacion{
 		line-height: 2;
 		font-weight: 700;
 		display:block;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
 		&:hover{
 			color: $paleta-1;
 		}
@@ -342,6 +350,8 @@ div.notificacion{
 		font-size: 1.2rem;
 		font-weight: 500;
 		display: inline-block;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
 	}
 	
 	.cantRespuestas{
@@ -507,6 +517,8 @@ footer#footer{
 	}
 	.cuerpo{
 		min-width: 85%;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
 		.usuario{
 			margin-top: 1.5rem;
 			display: flex;

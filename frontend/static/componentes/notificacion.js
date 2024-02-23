@@ -74,10 +74,10 @@ class Notificacion{
 		}*/
 	}
 
-	static verNotificacion(){
+	static verNotificacion(e){
 		e.preventDefault();
 	let aApretado = e.target.closest("a");
-	let divChipNotificacion = aApretado.closest(".chip-notificacion");
+	let divChipNotificacion = aApretado.closest(".notificacion");
 	let id = divChipNotificacion.dataset.id;
 	let idPregunta = divChipNotificacion.dataset.idPregunta;
 	

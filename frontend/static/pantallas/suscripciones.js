@@ -4,7 +4,7 @@ import { Pregunta } from "../componentes/pregunta.js";
 import { Pagina } from "../componentes/pagina.js";
 
 function crearPagina(ruta, sesion){
-    let titulo = 'Tus Respuestas';
+    let titulo = 'Tus Suscripciones';
     let modal = new Modal('General','modal-general');
     return new Pagina({
         ruta:ruta,
@@ -13,13 +13,13 @@ function crearPagina(ruta, sesion){
         partes:[
             modal,
             new DesplazamientoInfinito(
-                'perfil-desplinf'
-        ,`/api/usuario/${sesion.usuario.DNI}/respuestas`
-        ,p=>(new Pregunta(p, modal, sesion)).render()
+                'suscripciones-desplinf'
+        ,`/api/suscripciones`
+        ,p=>(new Pregunta(p, modal, sesion.usuario)).render()
             )
         ]
     });
 
 }
 
-export {crearPagina as PaginaPerfilPropioRespuestas}
+export {crearPagina as PaginaSuscripciones}

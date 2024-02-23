@@ -17,13 +17,10 @@ class DesplazamientoInfinito{
 		// TODO Feature: fallar si no se proveen los parámetros obligatorios. Aplicar a todfas las clases.
 		this.#id=id;
 		this.#endpoint=endpoint+(endpoint.includes('?')?'&':'?');
-		
 		this.#generadorDeComponentes=transformarRespuestaEnComponente;
 		// * Las primeras entidades solo se usan desde el servidor y sirven para servir contenido generado y así mejorar el SEO de la página. Si solamente se generara el contenido dinámico desde el frontend, no podría ser analizado.
 		this.entidadesIniciales=primerasEntidades;
-
 		DesplazamientoInfinito.instancias[this.#id]=this;
-		console.log(this.#id)
 	}
 
 	navegar(e){
@@ -43,7 +40,7 @@ class DesplazamientoInfinito{
 		}) */
 			.then((nuevasEntidades)=>{
 				let html='';
-
+				
 				for(let ent of nuevasEntidades){
 					html+=this.#generadorDeComponentes(ent);
 				}

@@ -60,7 +60,7 @@ class Pagina {
 	// * Pagina.render solo se va a llamar desde el backend.
   render() {
 		// * Quita los identificadores de las rutas, y los reemplaza por "viendo"
-		let rutaRecursos='/' + this.#ruta.split('/').map(parte=>(+parte)?'viendo':parte).join('-').substring(1);
+		let rutaRecursos='/' + this.#ruta.split('/').map(parte=>(/[0-9]/.test(parte))?'viendo':parte).join('-').substring(1);
 
 		// TODO Feature: Meta properties. https://es.stackoverflow.com/questions/66388/poner-una-imagen-de-preview-y-t%C3%ADtulo-en-mi-p%C3%A1gina-para-que-se-visualice-en-face
     return `<!DOCTYPE html>
@@ -92,7 +92,7 @@ class Pagina {
 		${this.#encabezado.render()}
 		<div id="contenedor-principal" class="columns">
 			<div  id="columna-1" class="column is-3">
-				${new Navegacion(this.#sesion?.usuario).render()}
+				${new Navegacion(this.#sesion?.usuario, this.#ruta).render()}
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
@@ -216,7 +216,7 @@ class Encabezado {
 			'formularioCerrarSesion'
 			, '/api/sesion'
 			, []
-			,this.procesarRespuesta.bind(this)
+			,this.procesarRespuesta
 			,  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE',clasesBoton:'is-link is-light is-small'}
 		);
 
@@ -229,7 +229,7 @@ class Encabezado {
 				{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
 				{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
 			]
-			, this.procesarRespuesta.bind(this)
+			, this.procesarRespuesta
 			,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-link is-rounded mt-3'}
 		);
 		this.#modal.contenido.push(form);
@@ -237,9 +237,8 @@ class Encabezado {
 
   }
 
-  procesarRespuesta(respuesta) {
-		// TODO Feature: Mostrar errores.
-	console.log('Respuesta:', JSON.stringify(respuesta));
+  procesarRespuesta() {
+	// TODO Feature: Mostrar errores.
 	location.reload();
   }
   
