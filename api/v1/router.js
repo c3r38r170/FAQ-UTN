@@ -707,14 +707,16 @@ router.post('/pregunta/:preguntaID/suscripcion', function(req,res){
 })
 
 router.get('/suscripciones', function(req,res){
-	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
-	//Todo Feature: paginacion
+	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja. fecha_baja, ver si conviene volver a las relaciones como antes...
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
+
+	// TODO Feature Poner en Pregunta.pagina para tener también las suscripciones (aca hace falta?? sabemos que todas estas lo incluyen, quizá poner en el frontend. Esto haría un parámetro de si hacen falta los votos o no)
+	// TODO Feature Usar Pregunta.pagina para tener todos los datos unificados, como los votos
+
 	const pagina = req.query.pagina || 0;
-	console.log("hola")
 	Pregunta.findAll({
 		include:[
 			{
@@ -733,11 +735,12 @@ router.get('/suscripciones', function(req,res){
 				include:Etiqueta
 			},
 			{
-			model:SuscripcionesPregunta
+			model:Usuario
 				,where:{
-					suscriptoDNI:req.session.usuario.DNI
+					DNI:req.session.usuario.DNI
+					// fecha_baja:NULL
 			}
-			,as: 'suscriptos'
+			,as: 'usuariosSuscriptos'
 			}],subQuery:false,	
             order:[[Post,'fecha','DESC']],
             limit:PAGINACION.resultadosPorPagina,

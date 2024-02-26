@@ -378,14 +378,12 @@ div.notificacion{
 	justify-content: start;
 	margin-top: 0.8rem;
 	flex-wrap: wrap;
-	.etiqueta{
+	gap: 1rem;
+
+	.tag{
 		line-height: 2.4;
-		margin-left: 1rem;
-		margin-right: 1.2rem;
 		color: gray;
 		font-size: 1rem;
-		font-weight: 300;
-		display: inline-block;
 		text-transform: capitalize;
 		&:hover{
 			color: $text-hover;
