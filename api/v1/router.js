@@ -635,21 +635,20 @@ router.get('/suscripciones', function(req,res){
 					// fecha_baja:NULL
 			}
 			,as: 'usuariosSuscriptos'
-			}],subQuery:false,	
+			}],subQuery:false,
             order:[[Post,'fecha','DESC']],
             limit:PAGINACION.resultadosPorPagina,
             offset:(+pagina)*PAGINACION.resultadosPorPagina,
 	})
-	.then((suscripciones)=>{
-		if(!suscripciones){
-			res.status(404).send("No se encontraron suscripciones");
-			return;
-		}else{
-			res.status(200).send(suscripciones);
-		}
-	})
-	.catch(err=>{
-		console.log(err);
+		.then((suscripciones)=>{
+			if(!suscripciones){
+				res.status(404).send("No se encontraron suscripciones");
+				return;
+			}else{
+				res.status(200).send(suscripciones);
+			}
+		})
+		.catch(err=>{
         res.status(500).send(err);
     })  
 })

@@ -493,13 +493,17 @@ Fuente: https://stackoverflow.com/questions/18838433/sequelize-find-based-on-ass
 Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
     // TODO Feature: NO traer la primera respuesta. Por otro lado, sí traer la _cantidad_ de respuestas. https://stackoverflow.com/questions/56149251/node-js-sequelize-virtual-column-pulling-value-from-other-model
 	/*
-		1) Inicio: Pregunta y primera respuesta, ordenada por más recientes
-			Esto es la funcion .pagina().
-		2) Búsqueda: Pregunta y primera respuesta, filtrado por texto y etiquetas, ordenada por coincidencia
-		3) Perfil: Preguntas y primera respuesta, filtradas por usuario, ordenada por más recientes
-		4) Sugerencias: Solo título e ID, filtrado por texto de título y cuerpo, ordenada por coincidencia
+		1) Inicio: Pregunta completas, ordenada por más recientes
+			Esto es la funcion `.pagina()`.
+		2) Búsqueda: Pregunta completas, filtradas por texto y etiquetas, ordenada por coincidencia
+		3) Perfil: Preguntas completas, filtradas por usuario, ordenada por más recientes
+		4) Sugerencias: Solo título e ID, filtradas por texto de título y cuerpo, ordenada por coincidencia
+        5) Suscripciones: Preguntas completas, filtradas por suscripciones, ordenadas por más recientes
 
-        Las suscripciones se obtienen indirectamente por notificaciones, no acá.
+        Agrupación lógica:
+            1, 3 y 5: formato largo, filtro por usuario actual y orden más reciente
+            2, 4: Filtro por texto, y orden por coincidencia
+
 		Los reportes se conseguirán de /pregunta/reporte y otro endpoint, este no.
 
 		El formato largo incluye:
@@ -520,42 +524,21 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 			- nombre
 			- ID
 			- rol
+        - Usuarios suscriptos
+            - Probablemente solo ID
 		El formato corto:
 		- Pregunta / título
 		- ID
 
 		Parámetros para lograr esto:
 		{
-			filtro:null (puede ser texto (busqueda o titulo+cuerpo por sugerencia), vacío, o un objeto con texto y etiquetas; si está definido, se ordena por coincidencia)
+			filtro:null (puede ser texto (busqueda o titulo+cuerpo por sugerencia), vacío, o un objeto con texto, etiquetas o si es por suscripciones; si texto está definido, se ordena por coincidencia)
 
 			formatoCorto:false (booleano. Todos los datos o solo pregunta/título e ID)
 
 			duenioID:null (duenioID, )
 
 			pagina: Paginación, paralelo a cualquier conjunto de las superiores
-		}
-
-		 filtro  |     sí     |      no
-		f. largo |  búsqueda  | inicio/perfil
-		f. corto | sugerencia |      -
-
-		if(req.query.duenioID){
-			// devolver en formato largo y sin filtros, según el dueño
-		}else{
-			if(req.query.filtros){
-				// Ver si el filtro es solo texto o etiquetas también
-				// Agregar filtro de match al where, y de etiquetas.
-			}
-			if(req.query.formatoCorto){
-				// Agregar raw, y eso para que sean pocos datos. No hace falta cruzar con casi nada.
-				// Otra opción es manipular lo que se obtiene para mandar objetos reducidos.
-			}
-
-			if(req.query.filtros && !req.query.formatoCorto){
-				// Búsqueda: Agregar relevancia por votaciones y respuestas... Desarrollar algoritmo de puntaje teniendo en cuenta todo.
-			}
-
-			// Devolver lo que se obtuvo, como objeto...
 		}
 	*/
 	
@@ -657,35 +640,20 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 			}
 		}
 
+        // TODO Feature: Ordenar respuestas por relevancia, y por fecha
+		/* if(filtrar){ // && !formatoCorto ){
+			// Búsqueda: Agregar relevancia por votaciones y respuestas... Desarrollar algoritmo de puntaje teniendo en cuenta todo.
+			// opciones.attributes={include:[Sequelize.literal('(SELECT COUNT(r.*)*2 FROM respuestas ON )'),'puntuacion']}
+		}else{
+			opciones.order=[[Post,'fecha','DESC']];
+		} */
+        // ? ¿Agregar las etiquetas al ranking / relevancia?
         if(filtrarTexto){
             opciones.order=[Sequelize.literal('(match(post.cuerpo) against ("'+filtrar.texto+'*"  IN BOOLEAN MODE)+ match(titulo) against ("'+filtrar.texto+'*"  IN BOOLEAN MODE)) desc, fecha desc')]
-            // TODO Feature: Ordenar por match
         }else opciones.order=[[Post,'fecha','DESC']];
 
-		/* El formato largo incluye:
-		- Pregunta ✅
-			- fecha ✅
-			- ID ✅
-		- Cuerpo ✅
-		- 1ra respuesta
-			- Dueño??
-				- nombre
-				- ID
-				- rol
-			- fecha ✅
-			- Valoración
-			- cuerpo ✅
-		- Valoración ✅
-		- Dueño ✅
-			- nombre ✅
-			- ID ✅
-			- rol ✅
-		El formato corto: ✅
-		- Pregunta / título ✅
-		- ID  ✅*/
 		if(formatoCorto){
-			// Agregar raw, y eso para que sean pocos datos. No hace falta cruzar con casi nada.
-			// Otra opción es manipular lo que se obtiene para mandar objetos reducidos.
+            // TODO Feature: Ver qué más trae esto, eliminar lo que no haga falta. Ideas: Agregar raw, manipular array conseguido para mandar objetos reducidos
 			opciones.attributes=['ID','titulo'];
 		}else{
 			// * Datos propios
@@ -722,13 +690,6 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 			}
 		}
 
-        // TODO Feature: Ordenar respuestas por relevancia, y por fecha
-		/* if(filtrar){ // && !formatoCorto ){
-			// Búsqueda: Agregar relevancia por votaciones y respuestas... Desarrollar algoritmo de puntaje teniendo en cuenta todo.
-			// opciones.attributes={include:[Sequelize.literal('(SELECT COUNT(r.*)*2 FROM respuestas ON )'),'puntuacion']}
-		}else{
-			opciones.order=[[Post,'fecha','DESC']];
-		} */
         return Pregunta.findAll(opciones);
     }
 }
