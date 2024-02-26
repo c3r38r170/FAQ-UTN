@@ -640,6 +640,18 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
                 ]
             ]
         };
+
+        // Para traer los suscriptos y manejar el boton de suscripcion / desuscripcion
+        opciones.include.push({
+            model:Usuario
+            ,as: 'usuariosSuscriptos'
+            ,through: {
+				model: SuscripcionesPregunta,
+				where: {
+					fecha_baja: null // Condición para que la fecha de baja sea nula
+				}
+			}
+        })
     
 
 		let filtraEtiquetas=false
@@ -726,6 +738,17 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 					}
 				]
 			};
+
+            opciones.include.push({
+                model:Usuario
+                ,as: 'usuariosSuscriptos'
+                ,through: {
+                    model: SuscripcionesPregunta,
+                    where: {
+                        fecha_baja: null // Condición para que la fecha de baja sea nula
+                    }
+                }
+            })
 
 			if(!filtraEtiquetas){
 				opciones.include.push({

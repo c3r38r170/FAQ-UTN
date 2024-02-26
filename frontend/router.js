@@ -91,6 +91,16 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 						model: EtiquetasPreguntaDAO,
 						as: 'etiquetas',
 						include: EtiquetaDAO
+					},
+					{
+						model:UsuarioDAO
+            			,as: 'usuariosSuscriptos',
+						through: {
+							model: SuscripcionesPreguntaDAO,
+							where: {
+								fecha_baja: null // Condición para que la fecha de baja sea nula
+							}
+						}
 					}
 				];
 				// // Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido

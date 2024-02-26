@@ -18,9 +18,10 @@ class Pregunta{
     #instanciaModal;
     #usuarioActual;
     #respuestasCount;
+    #estaSuscripto = false ;
     // TODO Feature: Hay 2 representaciones de pregunta. En el inicio, donde hay un listado, se ve la pregunta y la primera respuesta; y en la página propia se ve solo la pregunta y las respuestas se verían abajo con su propia representación.
 
-	constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, suscriptos},instanciaModal, usuarioActual){
+	constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, usuariosSuscriptos},instanciaModal, usuarioActual){
 
         // TODO Feature: Pensar condiciones de fallo de creación. Considerar que puede venir sin cuerpo (formato corto) o sin título (/pregunta, quitado "artificialmente")
         // if (titulo && cuerpo && fecha) {
@@ -34,8 +35,15 @@ class Pregunta{
             this.#etiquetas = etiquetas;
             this.#instanciaModal = instanciaModal;
             this.#usuarioActual=usuarioActual.usuario;
+
+            if(this.#usuarioActual){
+                usuariosSuscriptos.forEach(usuario => {
+                    if(usuario.DNI == this.#usuarioActual.DNI && usuario.suscripcionesPregunta.fecha_baja == null){
+                        this.#estaSuscripto = true;
+                    }
+                  });
+            }
             
-        // }
         // TODO Feature: fallar en el else
 	}
 
@@ -48,7 +56,7 @@ class Pregunta{
                     <div class="pl-0 py-0">
                         ${this.#fecha.render()}
                     </div>
-                    ${ this.#usuarioActual == undefined ? '' : new BotonSuscripcion(this.#ID,'/api/pregunta/'+this.#ID+'/suscripcion').render() }
+                    ${ this.#usuarioActual == undefined ? '' : new BotonSuscripcion(this.#ID,'/api/pregunta/'+this.#ID+'/suscripcion', this.#estaSuscripto).render() }
                     ${ new BotonReporte(this.#ID, this.#instanciaModal).render() }
                 </div>
                 <a href="/pregunta/${this.#ID}">

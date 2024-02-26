@@ -735,12 +735,18 @@ router.get('/suscripciones', function(req,res){
 				include:Etiqueta
 			},
 			{
-			model:Usuario
+				model:Usuario
 				,where:{
 					DNI:req.session.usuario.DNI
 					// fecha_baja:NULL
-			}
-			,as: 'usuariosSuscriptos'
+				}
+				,as: 'usuariosSuscriptos',
+				through: {
+					model: SuscripcionesPregunta,
+					where: {
+						fecha_baja: null // Condición para que la fecha de baja sea nula
+					}
+				}
 			}],subQuery:false,	
             order:[[Post,'fecha','DESC']],
             limit:PAGINACION.resultadosPorPagina,
