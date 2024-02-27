@@ -156,14 +156,12 @@ gEt("administrar-perfiles").onclick = (e) => {
             // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
             //TODO: cambiar los datos
             let tab = document.getElementById("administrar-perfiles");
-            tab.rows[indicePerfilElegido + 1].cells[0].innerText =
-              JSON.parse(txt).nombre;
             tab.rows[
               indicePerfilElegido + 1
-            ].cells[1].innerHTML = `<div style="background-color: ${
+            ].cells[0].innerHTML = `<div class="perfil" style="background-color: ${
               JSON.parse(txt).color
-            }">${JSON.parse(txt).color}</div>`;
-            tab.rows[indicePerfilElegido + 1].cells[2].innerText =
+            }">${JSON.parse(txt).nombre}</div>`;
+            tab.rows[indicePerfilElegido + 1].cells[1].innerText =
               JSON.parse(txt).permisoID == 1
                 ? "Usuario"
                 : JSON.parse(txt).permisoID == 2

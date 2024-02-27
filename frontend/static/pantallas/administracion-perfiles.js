@@ -13,13 +13,8 @@ function crearPantalla(ruta, sesion) {
   let tabla = new Tabla("administrar-perfiles", "/api/perfiles", [
     {
       nombre: "Perfil",
-      celda: (perfil) => perfil.nombre,
-    },
-    {
-      nombre: "Color",
-      clases: ["centrado"],
       celda: (perfil) =>
-        `<div style="background-color: ${perfil.color}">${perfil.color}</div>`,
+        `<div class="perfil" style="background-color: ${perfil.color}">${perfil.nombre}</div>`,
     },
     {
       nombre: "Nivel",
