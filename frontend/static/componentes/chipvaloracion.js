@@ -14,9 +14,9 @@ class ChipValoracion{
         usuarioActual: sesion
     }){
         this.#id = ID;
+        // TODO Refactor: Simplificar el uso de sesiones a usuario y punto, y no sesion.usuario  Esto pasa en los chips, en pregunta y en respuesta, principalmente.
         this.#usuarioActual=sesion?.usuario;
         this.#valoracion=votos.reduce((suma, voto)=>suma+=voto.valoracion,0);
-        // TODO Refactor: Simplificar el uso de sesiones a usuario y punto, y no sesion.usuario
         if(this.#usuarioActual===undefined){
             this.#estado=0;
         }else{

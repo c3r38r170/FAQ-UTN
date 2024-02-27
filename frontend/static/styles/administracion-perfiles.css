@@ -1,0 +1,26 @@
+#administrar-perfiles {
+  width: calc(100% - 6rem);
+  margin: 1rem 3rem;
+}
+#administrar-perfiles thead {
+  background: #ECECEC;
+}
+#administrar-perfiles thead th:first-child {
+  width: 35%;
+}
+#administrar-perfiles thead th, #administrar-perfiles tbody td {
+  padding: 5px 1rem;
+  vertical-align: middle;
+}
+#administrar-perfiles thead th.centrado, #administrar-perfiles tbody td.centrado {
+  text-align: center;
+}
+#administrar-perfiles fieldset {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.switch[type=checkbox]:checked + label::before {
+  background: #88f04b !important;
+}/*# sourceMappingURL=administracion-perfiles.css.map */
