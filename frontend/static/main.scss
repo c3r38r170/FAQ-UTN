@@ -265,10 +265,13 @@ div.notificacion{
 	}
 	.tipo-usuario{
 		margin-left: 0.4rem;
-		color: gray;
 		font-size: 0.9rem;
 		font-weight: 300;
 		display: inline-block;
+
+		color: white;
+		border-radius: 16px;
+		padding: 2px 0.5rem;
 	}
 	
 	.img-usuario{
