@@ -26,7 +26,7 @@ class Pregunta{
         this.#ID = ID;
         this.#etiquetas = etiquetas;
         this.#instanciaModal = instanciaModal;
-        this.#usuarioActual=sesion.usuario;
+        this.#usuarioActual=sesion?.usuario;
         if(post.votos && this.#usuarioActual){
             this.#chipValoracion=new ChipValoracion({
                 ID

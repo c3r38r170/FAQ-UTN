@@ -38,12 +38,7 @@ import {
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
 // TODO Refactor: Usar todas.js
-import {
-  PaginaInicio,
-  PantallaNuevaPregunta,
-  PaginaPregunta,
-  PantallaModeracionUsuarios,
-} from "./static/pantallas/todas.js";
+import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts } from './static/pantallas/todas.js';
 import { PaginaPerfil } from "./static/pantallas/perfil.js";
 import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
 import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
@@ -328,6 +323,14 @@ router.get("/moderacion/usuarios", (req, res) => {
   let pagina = PantallaModeracionUsuarios(req.path, req.session);
   res.send(pagina.render());
 });
+
+router.get('/moderacion/preguntas-y-respuestas',(req,res)=>{
+	// let usu=req.session.usuario;
+	// TODO Security: Permisos. Acá y en todos lados.
+
+  let pagina=PantallaModeracionPosts(req.path,req.session);
+  res.send(pagina.render());
+})
 
 router.get("/perfil/preguntas", (req, res) => {
   try {

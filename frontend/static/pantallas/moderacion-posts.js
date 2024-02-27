@@ -1,16 +1,19 @@
-import { Pagina, Titulo, Formulario, Tabla,Fecha, ChipUsuario, Modal, Respuesta, Pregunta } from '../componentes/todos.js'
+import { Pagina, Titulo, Formulario, Tabla,Fecha, ChipUsuario, Modal, Respuesta, Pregunta, ComponenteLiteral } from '../componentes/todos.js'
 
 function crearPantalla(ruta,sesion){
 	let tabla=new Tabla('moderar-posts','/api/post/reporte',[
 		{
 			nombre:'Post'
-			,celda:(rep)=>(rep.reportado.respuestaID?
-				new Respuesta({ ID:rep.reportado.respuestaID, ...rep.reportado})
-				:new Pregunta({ID:rep.reportado.preguntaID,...rep.reportado})).render()
+			,celda:({reportado})=>[
+				new ChipUsuario(reportado.duenio)
+				,new ComponenteLiteral(()=>`<span class="pregunta">${reportado.respuestaID?'Respuesta a ':''}<a href="/pregunta/${reportado.preguntaID}" class="titulo">${reportado.titulo}</a></span>`
+					+`<div class="cuerpo">${reportado.cuerpo}</div>`)
+			].reduce((acc,el)=>acc+el.render(),'')
 		}
 		,{
 			nombre:'Reportes'
-			,celda:(rep)=>`Última fecha: ${new Fecha(rep.fecha,Fecha.CORTA).render()}, Cantidad: ${rep.cantidad}`
+			,celda:(rep)=>`Última fecha: <b>${new Fecha(rep.fecha,Fecha.CORTA).render()}</b>Cantidad: <b>${rep.cantidad}</b>`
+			,clases:['centrado']
 		}
 		,{
 			nombre:'Acciones'
@@ -21,7 +24,7 @@ function crearPantalla(ruta,sesion){
 	let pagina = new Pagina({
     ruta: ruta,
     titulo: 'Moderación - Preguntas y Respuestas Reportadas',
-    sesion: sesion,
+    sesion,
 		partes:[
 			// TODO Feature: Considerar poner una barra de búsqueda.
 			tabla

@@ -295,17 +295,28 @@ Voto.belongsTo(Post, {
   constraints: false,
 });
 
-const TipoReporte = sequelize.define("tipoReporte", {
-  ID: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  descripcion: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
+// * Reportes de post. No de usuarios.
+const TipoReporte = sequelize.define('tipoReporte',{
+    ID: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    descripcion:{
+        type: DataTypes.STRING,
+        allowNull:false
+    }
+})
+
+TipoReporte.upsert({
+    ID: 1,
+    descripcion: "Comportamiento abusivo / vulgar"
+})
+
+TipoReporte.upsert({
+    ID: 2,
+    descripcion: "Pregunta repetida"
+})
 
 const ReportePost = sequelize.define("reportePost", {
   ID: {
@@ -522,11 +533,8 @@ User.findAll({ include: { all: true }});
 Fuente: https://stackoverflow.com/questions/18838433/sequelize-find-based-on-association
 */
 
-
-
 Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
-    // TODO Feature: NO traer la primera respuesta. Por otro lado, sí traer la _cantidad_ de respuestas. https://stackoverflow.com/questions/56149251/node-js-sequelize-virtual-column-pulling-value-from-other-model
-	/*
+    /*
 		1) Inicio: Pregunta completas, ordenada por más recientes
 			Esto es la funcion `.pagina()`.
 		2) Búsqueda: Pregunta completas, filtradas por texto y etiquetas, ordenada por coincidencia

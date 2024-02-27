@@ -406,7 +406,7 @@ router.get("/pregunta", (req, res) => {
   // TODO Refactor: Mandar este comentario a Pregunta.pagina
   // ! Siempre pedir el Post, por más que no se consulten los datos.
 
-  // TODO Feature: Aceptar etiquetas y filtro de texto. https://masteringjs.io/tutorials/express/query-parameters
+  // TODO Feature: Aceptar etiquetas.
 
   let filtros = { pagina: null, filtrar: [] };
 
@@ -720,6 +720,7 @@ router.post("/pregunta/:preguntaID/suscripcion", function (req, res) {
   // TODO Refactor: ahorrar el callback hell, acá y en todos lados.
 });
 
+// TODO Refactor: "suscripcion"? Todos los demás endpoints están en singular.
 router.get('/suscripciones', function(req,res){
 	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja. fecha_baja, ver si conviene volver a las relaciones como antes...
 	if(!req.session.usuario){
@@ -1012,6 +1013,70 @@ router.patch("/respuesta", function (req, res) {
     });
 });
 
+
+router.get('/post/reporte',function(req, res){
+	let pagina=req.query.pagina||0;
+	ReportePost.findAll({
+		limit: PAGINACION.resultadosPorPagina,
+		offset: (+pagina) * PAGINACION.resultadosPorPagina,
+		// subQuery:false,
+		// separate: true,
+		include: [
+		  {
+				model: Post,
+				attributes: ['cuerpo','fecha'],
+				required:true,
+				as:'reportado',
+				include: [
+					{
+						model:Usuario
+						,as:'duenio'
+						,include:{
+							model:Perfil
+							,attributes:['ID','nombre', 'color']
+						}
+						,attributes:['DNI','nombre']
+					},
+
+					{
+						model: Respuesta
+						, as: 'respuesta',
+						include: [
+							{model:Post, attributes: []},
+							{ model: Pregunta, as: 'pregunta', attributes: [] } // *Include Pregunta in Respuesta
+						],
+						required: false,
+						attributes: [] 
+					},  
+					{ model: Pregunta, as: 'pregunta', required: false, include:{model:Post, attributes: []}, attributes: [] } 
+				]
+		  }
+		],
+		attributes:[
+			// * Orgánicamente se obtienen los datos comunes de los posts (cuerpo y fecha), y los datos del usuario (propios y de su perfil).
+
+			// * Datos de la pregunta o respuesta
+			[Sequelize.fn('coalesce',Sequelize.col('reportado.respuesta.pregunta.ID'),Sequelize.col('reportado.pregunta.ID')),'reportado.preguntaID']
+			,[Sequelize.fn('coalesce',Sequelize.col('reportado.respuesta.pregunta.titulo'),Sequelize.col('reportado.pregunta.titulo')),'reportado.titulo']
+			,[Sequelize.col('reportado.respuesta.ID'),'reportado.respuestaID']
+			
+			// * Datos resumen de los reportes.
+			,[Sequelize.fn('max',Sequelize.col('reportePost.fecha')),'fecha']
+			,[Sequelize.fn('count',Sequelize.col('*')),'cantidad']
+		]
+		,nest:true,raw:true
+		,group:[
+			'reportado.ID'
+			// ? Supuestamente hay que agrupar por todos los datos atómicos, pero esto funciona ya. Considerar si nos debemos basar en la teoría o en la práctica.
+			/* cuerpo,fecha,DNI,nombre,perfilID,perfilNombre,perfilColor */
+		]
+		,order:[
+			['fecha','DESC']
+		]
+	})
+		.then(reportes=>res.send(reportes));
+})
+
 // valoracion
 // TODO Feature: No permitir autovotarse.
 
@@ -1107,6 +1172,8 @@ const eliminarVoto = function (req, res) {
       res.status(500).send(err);
     });
 };
+
+// TODO Feature: Hacer las funciones anónimas, si ya no hace falta usarlas en diferentes lugares. valorar, eliminarVoto, y reportarPost
 
 router.post("/post/:votadoID/valoracion", valorarPost);
 
@@ -1402,128 +1469,84 @@ router.delete("/etiqueta/:etiquetaID/suscripcion", function (req, res) {
 
 // TODO Refactor: Minimizar datos que envia este endpoint.
 // TODO Feature: Hacer que se devuelvan una sola notificacion por pregunta (sí, pregunta)
-router.get("/notificacion", function (req, res) {
-  // pregunta
-  // 	propia
-  // 		valoraciones, cantidad n
-  // 	ajena
-  // 		nueva pregunta, siempre es 1, suscripcion a etiqueta
-  // respuesta
-  // 	propia
-  // 		Valoracion, cantidad n
-  // 	ajena
-  // 		nuevas respuestas, cantidad n, Suscripcion a pregunta
+router.get('/notificacion', function(req,res){
+	// pregunta
+	// 	propia
+	// 		valoraciones, cantidad n
+	// 	ajena
+	// 		nueva pregunta, siempre es 1, suscripcion a etiqueta
+	// respuesta
+	// 	propia
+	// 		Valoracion, cantidad n
+	// 	ajena
+	// 		nuevas respuestas, cantidad n, Suscripcion a pregunta
 
-  //ppregunta ajena es notificacion por etiqueta suscripta
-  // preguntaID not null es "nueva pregunta a etiqueta"
-  //respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
-  //respuesta o pregunta propia es notificación por valoración
-  // nuevos votos en tu pregunta...
-  // nuevos votos en tu respuesta a ...
-  if (!req.session.usuario) {
-    res.status(403).send("No se posee sesión válida activa");
-    return;
-  }
-  Notificacion.findAll({
-    attributes: ["ID", "visto", "createdAt"],
-    order: [
-      ["visto", "ASC"],
-      ["createdAt", "DESC"],
-    ],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +req.query.pagina * PAGINACION.resultadosPorPagina,
-    include: [
-      {
-        model: Post,
-        attributes: [
-          /* 'ID', 'cuerpo' */
-        ],
-        required: true,
-        include: [
-          {
-            model: Usuario,
-            as: "duenio",
-            attributes: [
-              /* 'DNI', 'nombre' */
-            ],
-          },
-          {
-            model: Respuesta,
-            as: "respuesta",
-            include: [
-              {
-                model: Pregunta,
-                as: "pregunta",
-                attributes: [
-                  /* 'ID', 'titulo' */
-                ],
-              }, // *Include Pregunta in Respuesta
-            ],
-            required: false,
-            attributes: [
-              /* 'ID', 'preguntaID' */
-            ],
-          },
-          {
-            model: Pregunta,
-            as: "pregunta",
-            required: false,
-            attributes: [
-              /* 'ID', 'titulo' */
-            ],
-          },
-        ],
-      },
-    ],
-    where: {
-      //'$post.pregunta.ID$': { [Sequelize.Op.ne]: null }, // *Check if the post is a question
-      notificadoDNI: req.session.usuario.DNI, // *Filter by notificadoDNI matching user's DNI
-    },
-    attributes: [
-      [Sequelize.fn("min", Sequelize.col("notificacion.visto")), "visto"],
-      [
-        Sequelize.fn("max", Sequelize.col("notificacion.createdAt")),
-        "createdAt",
-      ],
-      [Sequelize.fn("count", Sequelize.col("*")), "cantidad"],
-      [
-        Sequelize.literal(
-          `IF(post.duenioDNI='${req.session.usuario.DNI}',1,0)`
-        ),
-        "propia",
-      ],
-      [
-        Sequelize.fn(
-          "coalesce",
-          Sequelize.col("post.respuesta.pregunta.titulo"),
-          Sequelize.col("post.pregunta.titulo")
-        ),
-        "titulo",
-      ],
-      // ,[Sequelize.literal(`COALESCE(post.respuesta.pregunta.titulo,post.pregunta.titulo)`),'titulo']
-      // ,Sequelize.fn.max('createdAt')
-      // ,
-      // ,['post.respuesta.ID','respuestaID']
-      [Sequelize.col("post.respuesta.preguntaID"), "respuestaPreguntaID"],
-      [Sequelize.col("post.pregunta.ID"), "preguntaID"],
-    ],
-    group: [
-      // 'post.respuesta.ID'
-      // ,
-      "propia",
-      "post.respuesta.preguntaID",
-      "post.pregunta.ID",
-    ],
-    raw: true,
-    nest: true,
-  })
-    .then((notificaciones) => {
-      res.status(200).send(notificaciones);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).send(err);
-    });
+	//ppregunta ajena es notificacion por etiqueta suscripta
+		// preguntaID not null es "nueva pregunta a etiqueta"
+	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
+	//respuesta o pregunta propia es notificación por valoración
+		// nuevos votos en tu pregunta...
+		// nuevos votos en tu respuesta a ...
+	if(!req.session.usuario){
+		res.status(403).send("No se posee sesión válida activa");
+		return;
+	}
+
+	Notificacion.findAll({
+		attributes: ['ID', 'visto', 'createdAt'],
+		order: [
+		  ['visto', 'ASC'],
+		  ['createdAt', 'DESC']
+		],
+		limit: PAGINACION.resultadosPorPagina,
+		offset: (+req.query.pagina) * PAGINACION.resultadosPorPagina,
+		include: [
+			{
+				model: Post,
+				attributes: [/* 'ID', 'cuerpo' */],
+				required:true,
+				include: [
+					{ model: Usuario, as: 'duenio', attributes: [/* 'DNI', 'nombre' */] }, 
+					{
+						model: Respuesta
+						, as: 'respuesta'
+						, include: [
+							{ model: Pregunta, as: 'pregunta', attributes: [/* 'ID', 'titulo' */] } // *Include Pregunta in Respuesta
+						],
+						required: false,
+						attributes: [/* 'ID', 'preguntaID' */] 
+					},  
+					{ model: Pregunta, as: 'pregunta', required: false, attributes: [/* 'ID', 'titulo' */] } 
+				]
+			}
+		],
+		where: {
+		  //'$post.pregunta.ID$': { [Sequelize.Op.ne]: null }, // *Check if the post is a question
+		  notificadoDNI: req.session.usuario.DNI // *Filter by notificadoDNI matching user's DNI
+		},
+		attributes:[
+			[Sequelize.fn('min',Sequelize.col('notificacion.visto')),'visto']
+			,[Sequelize.fn('max',Sequelize.col('notificacion.createdAt')),'createdAt']
+			,[Sequelize.fn('count',Sequelize.col('*')),'cantidad']
+			,[Sequelize.literal(`IF(post.duenioDNI='${req.session.usuario.DNI}',1,0)`),'propia']
+			,[Sequelize.fn('coalesce',Sequelize.col('post.respuesta.pregunta.titulo'),Sequelize.col('post.pregunta.titulo')),'titulo']
+			
+			,[Sequelize.col('post.respuesta.preguntaID'),'respuestaPreguntaID']
+			,[Sequelize.col('post.pregunta.ID'),'preguntaID']
+		],
+		group:[
+			'propia'
+			,'post.respuesta.preguntaID'
+			,'post.pregunta.ID'
+		],
+		raw: true,
+		nest: true
+	}).then(notificaciones=>{
+		res.status(200).send(notificaciones);
+	}).catch(err=>{
+		console.log(err);
+		res.status(500).send(err);
+	});
 });
 
 router.patch("/notificacion", function (req, res) {

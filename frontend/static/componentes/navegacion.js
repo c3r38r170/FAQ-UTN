@@ -83,7 +83,7 @@ class Navegacion {
         //TODO: Refactor para no crear el objeto principal otra vez
         //TODO: esto es un placeholder
         if (
-          ruta == "/moderacion/preguntas" ||
+          ruta == "/moderacion/preguntas-y-respuestas" ||
           ruta == "/moderacion/usuarios" ||
           ruta == "/moderacion/etiquetas"
         )
@@ -98,10 +98,11 @@ class Navegacion {
                   { tipo: "solid", nombre: "circle" },
                   "/moderacion/usuarios"
                 ),
+                // TODO UX: El nav no está listo para esto. Además, según las opciones se agranda y se achica. Darle un formato consistente. Quizá achicar los laterales incluso.
                 new EnlaceNavegacion(
-                  "Preguntas",
+                  "Preguntas y Respuestas",
                   { tipo: "solid", nombre: "circle" },
-                  "/moderacion/preguntas"
+                  "/moderacion/preguntas-y-respuestas"
                 ),
                 new EnlaceNavegacion(
                   "Etiquetas",
