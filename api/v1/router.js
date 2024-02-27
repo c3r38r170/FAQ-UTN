@@ -1615,6 +1615,8 @@ router.patch("/perfiles/:id", async (req, res) => {
       perfil.color = color;
       perfil.permisoID = permisoID;
       await perfil.save();
+      if (req.session.usuario.perfil.ID == id)
+        req.session.usuario.perfil.color = color;
       res.json(perfil);
     } else {
       res.status(404).json({ error: "Perfil no encontrado" });
@@ -1624,8 +1626,8 @@ router.patch("/perfiles/:id", async (req, res) => {
   }
 });
 
-// Ruta para eliminar un perfil por su ID
-router.delete("/perfiles/:id", async (req, res) => {
+// Ruta para desactivar un perfil por su ID
+router.patch("/perfiles/:id/activado", async (req, res) => {
   const { id } = req.params;
   try {
     const perfil = await Perfil.findByPk(id);

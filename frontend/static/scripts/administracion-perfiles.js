@@ -45,7 +45,7 @@ gEt("administrar-perfiles").onchange = (e) => {
       ),
       new Formulario(
         "administracion-perfiles-deshabilitar",
-        `/api/perfiles/${ID}`,
+        `/api/perfiles/${ID}/activado`,
         [],
         (txt, info) => {
           if (info.ok) {
@@ -65,7 +65,7 @@ gEt("administrar-perfiles").onchange = (e) => {
           checkbox.disabled = false;
         },
         {
-          verbo: "DELETE",
+          verbo: "PATCH",
           textoEnviar: "Deshabilitar perfil",
           clasesBoton: "is-link is-rounded mt-3",
           alEnviar: () => (checkbox.disabled = true),
@@ -78,7 +78,7 @@ gEt("administrar-perfiles").onchange = (e) => {
     modal.contenido = [
       new Formulario(
         "administracion-perfiles-deshabilitar",
-        `/api/perfiles/${ID}`,
+        `/api/perfiles/${ID}/activado`,
         [],
         (txt, info) => {
           if (info.ok) {
@@ -98,7 +98,7 @@ gEt("administrar-perfiles").onchange = (e) => {
           checkbox.disabled = false;
         },
         {
-          verbo: "DELETE",
+          verbo: "PATCH",
           textoEnviar: "Habilitar perfil",
           clasesBoton: "is-link is-rounded mt-3",
           alEnviar: () => (checkbox.disabled = true),
