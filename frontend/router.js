@@ -51,6 +51,7 @@ import { PaginaPerfilPropioRespuestas } from "./static/pantallas/perfil-propio-r
 import { PaginaSuscripciones } from "./static/pantallas/suscripciones.js";
 import { PantallaAdministracionParametros } from "./static/pantallas/administracion-parametros.js";
 import { SinPermisos } from "./static/pantallas/sin-permisos.js";
+import { PantallaAdministracionPerfiles } from "./static/pantallas/administracion-perfiles.js";
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -307,7 +308,7 @@ router.get("/moderacion/usuarios", (req, res) => {
     let pagina = SinPermisos(usu, "No está logueado");
     res.send(pagina.render());
     return;
-  } else if (usu.usuario.perfil.ID < 2) {
+  } else if (usu.usuario.perfil.permiso.ID < 2) {
     let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
     res.send(pagina.render());
     return;
@@ -532,7 +533,7 @@ router.get("/administracion/parametros", async (req, res) => {
     let pagina = SinPermisos(usu, "No está logueado");
     res.send(pagina.render());
     return;
-  } else if (usu.usuario.perfil.ID < 3) {
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
     let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
     res.send(pagina.render());
     return;
@@ -541,6 +542,12 @@ router.get("/administracion/parametros", async (req, res) => {
   const p = await ParametroDAO.findByPk(1);
   let pagina = PantallaAdministracionParametros(req.path, req.session, p);
   pagina.globales.parametros = p;
+  res.send(pagina.render());
+});
+
+router.get("/administracion/perfiles", async (req, res) => {
+  const p = await ParametroDAO.findByPk(1);
+  let pagina = PantallaAdministracionPerfiles(req.path, req.session, p);
   res.send(pagina.render());
 });
 
