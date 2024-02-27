@@ -103,11 +103,6 @@ class Navegacion {
                   { tipo: "solid", nombre: "circle" },
                   "/moderacion/preguntas"
                 ),
-                new EnlaceNavegacion(
-                  "Etiquetas",
-                  { tipo: "solid", nombre: "circle" },
-                  "/moderacion/etiquetas"
-                ),
               ],
             },
             "/moderacion/usuarios"
@@ -126,7 +121,9 @@ class Navegacion {
         if (
           ruta == "/administracion" ||
           ruta == "/administracion/perfiles" ||
-          ruta == "/administracion/categorias"
+          ruta == "/administracion/categorias" ||
+          ruta == "/administracion/etiquetas" ||
+          ruta == "/administracion/parametros"
         ) {
           administracion = new EnlaceNavegacion(
             "Administración",
@@ -143,6 +140,11 @@ class Navegacion {
                   "Categorías",
                   { tipo: "solid", nombre: "circle" },
                   "/administracion/categorias"
+                ),
+                new EnlaceNavegacion(
+                  "Etiquetas",
+                  { tipo: "solid", nombre: "circle" },
+                  "/administracion/etiquetas"
                 ),
                 new EnlaceNavegacion(
                   "Parámetros",

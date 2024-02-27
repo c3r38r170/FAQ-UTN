@@ -1374,6 +1374,43 @@ router.get("/etiqueta", function (req, res) {
     });
 });
 
+router.patch("/etiquetas/:id/activado", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const etiqueta = await Etiqueta.findByPk(id);
+    if (etiqueta) {
+      etiqueta.activado = !etiqueta.activado;
+      await etiqueta.save();
+      res.json(etiqueta);
+    } else {
+      res.status(404).json({ error: "Etiqueta no encontrado" });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.patch("/etiquetas/:id", async (req, res) => {
+  const id = req.params.id;
+  const { descripcion, categoriaID } = req.body;
+  try {
+    let etiqueta = await Etiqueta.findByPk(id, {
+      include: [{ model: Categoria, as: "categoria" }],
+    });
+    if (!etiqueta) {
+      return res.status(404).json({ message: "Etiqueta no encontrada" });
+    }
+    etiqueta = await etiqueta.update({ descripcion, categoriaID });
+    etiqueta = await Etiqueta.findByPk(id, {
+      include: [{ model: Categoria, as: "categoria" }],
+    }).then((etiqueta) => {
+      res.json(etiqueta);
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 router.post("/etiqueta/:etiquetaID/suscripcion", function (req, res) {
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa");

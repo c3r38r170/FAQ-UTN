@@ -962,6 +962,11 @@ const Etiqueta = sequelize.define("etiqueta", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  activado: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+    allowNull: false,
+  },
 });
 
 const EtiquetasPregunta = sequelize.define("etiquetasPregunta", {

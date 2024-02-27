@@ -53,6 +53,7 @@ import { PantallaAdministracionParametros } from "./static/pantallas/administrac
 import { SinPermisos } from "./static/pantallas/sin-permisos.js";
 import { PantallaAdministracionPerfiles } from "./static/pantallas/administracion-perfiles.js";
 import { PantallaAdministracionCategorias } from "./static/pantallas/administracion-categorias.js";
+import { PantallaAdministracionEtiquetas } from "./static/pantallas/administracion-etiquetas.js";
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -568,6 +569,24 @@ router.get("/administracion/categorias", async (req, res) => {
 
   const p = await ParametroDAO.findByPk(1);
   let pagina = PantallaAdministracionCategorias(req.path, req.session);
+  pagina.globales.parametros = p;
+  res.send(pagina.render());
+});
+
+router.get("/administracion/etiquetas", async (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+
+  const p = await ParametroDAO.findByPk(1);
+  let pagina = PantallaAdministracionEtiquetas(req.path, req.session);
   pagina.globales.parametros = p;
   res.send(pagina.render());
 });
