@@ -288,8 +288,10 @@ router.get("/etiqueta/:id/preguntas", async (req, res) => {
 
 router.get("/perfil/info", (req, res) => {
   try {
-    if (!req.session.usuario) {
-      res.status(404).send("No está autorizado");
+    let usu = req.session;
+    if (!usu.usuario) {
+      let pagina = SinPermisos(usu, "No está logueado");
+      res.send(pagina.render());
       return;
     }
 
@@ -546,6 +548,17 @@ router.get("/administracion/parametros", async (req, res) => {
 });
 
 router.get("/administracion/perfiles", async (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+
   const p = await ParametroDAO.findByPk(1);
   let pagina = PantallaAdministracionPerfiles(req.path, req.session, p);
   res.send(pagina.render());
