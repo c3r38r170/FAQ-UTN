@@ -193,7 +193,9 @@ gEt("administrar-etiquetas").onclick = (e) => {
 
   modalElemento.classList.add("is-active");
 };
+//TODO AGREGAR
 
+/*
 gEt("botonAgregar").onclick = (e) => {
   modal.titulo = "Agregar Categoría";
   modal.contenido = [
@@ -235,3 +237,4 @@ gEt("botonAgregar").onclick = (e) => {
 
   modalElemento.classList.add("is-active");
 };
+*/

@@ -20,7 +20,7 @@ function crearPantalla(ruta, sesion) {
       nombre: "Editar",
       clases: ["centrado"],
       celda: (categoria) =>
-        `<button class=" is-rounded" id="boton-editar-${categoria.ID}" type="button">
+        `<button class="button is-link is-small is-rounded" id="boton-editar-${categoria.ID}" type="button">
         Editar
       </button>`,
     },
