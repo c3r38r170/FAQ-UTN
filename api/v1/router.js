@@ -1574,6 +1574,10 @@ router.patch("/parametros", function (req, res) {
     p.save();
     res.status(200).send("Guardado con Exito");
   });
+  PAGINACION.resultadosPorPagina = parseInt(req.body.EntradasPorPagina);
+  modera = req.body.ModerarIA;
+  rechazaPost = req.body.RechazaPost;
+  reportaPost = req.body.ReportaPost;
 });
 
 router.get("/perfiles", async (req, res) => {

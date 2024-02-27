@@ -196,6 +196,12 @@ router.get("/pregunta/:id?", async (req, res) => {
 
       res.send(pagina.render());
     } else {
+      let usu = req.session;
+      if (!usu.usuario) {
+        let pagina = SinPermisos(usu, "No está logueado");
+        res.send(pagina.render());
+        return;
+      }
       // * Nueva pregunta.
       let pagina = PantallaNuevaPregunta(req.path, req.session);
       res.send(pagina.render());
