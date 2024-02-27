@@ -126,7 +126,7 @@ class Navegacion {
         if (
           ruta == "/administracion" ||
           ruta == "/administracion/perfiles" ||
-          ruta == "/administracion/etiquetas"
+          ruta == "/administracion/categorias"
         ) {
           administracion = new EnlaceNavegacion(
             "Administración",
@@ -140,9 +140,9 @@ class Navegacion {
                   "/administracion/perfiles"
                 ),
                 new EnlaceNavegacion(
-                  "Etiquetas",
+                  "Categorías",
                   { tipo: "solid", nombre: "circle" },
-                  "/administracion/etiquetas"
+                  "/administracion/categorias"
                 ),
                 new EnlaceNavegacion(
                   "Parámetros",

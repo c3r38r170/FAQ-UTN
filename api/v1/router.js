@@ -1257,6 +1257,89 @@ router.post("moderacion_respuesta", function (req, res) {
     });
 });
 
+//categorias
+
+router.get("/categorias", async (req, res) => {
+  try {
+    const categorias = await Categoria.findAll();
+    res.json(categorias);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Ruta para obtener una categoría por su ID
+router.get("/categorias/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    const categoria = await Categoria.findByPk(id);
+    if (!categoria) {
+      return res.status(404).json({ message: "Categoría no encontrada" });
+    }
+    res.json(categoria);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.patch("/categoria/:id/activado", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const categoria = await Categoria.findByPk(id);
+    if (categoria) {
+      categoria.activado = !categoria.activado;
+      await categoria.save();
+      res.json(categoria);
+    } else {
+      res.status(404).json({ error: "Categoria no encontrado" });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Ruta para crear una nueva categoría
+router.post("/categorias", async (req, res) => {
+  const { descripcion, color } = req.body;
+  try {
+    const categoria = await Categoria.create({ descripcion, color });
+    res.status(201).json(categoria);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Ruta para actualizar una categoría por su ID
+router.patch("/categorias/:id", async (req, res) => {
+  const id = req.params.id;
+  const { descripcion, color } = req.body;
+  try {
+    let categoria = await Categoria.findByPk(id);
+    if (!categoria) {
+      return res.status(404).json({ message: "Categoría no encontrada" });
+    }
+    categoria = await categoria.update({ descripcion, color });
+    res.json(categoria);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Ruta para eliminar una categoría por su ID
+router.delete("/categorias/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    const categoria = await Categoria.findByPk(id);
+    if (!categoria) {
+      return res.status(404).json({ message: "Categoría no encontrada" });
+    }
+    await categoria.destroy();
+    res.json({ message: "Categoría eliminada correctamente" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // etiquetas
 
 router.get("/etiqueta", function (req, res) {

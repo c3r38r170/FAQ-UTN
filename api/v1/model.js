@@ -1018,6 +1018,11 @@ const Categoria = sequelize.define("categoria", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  activado: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+    allowNull: false,
+  },
 });
 
 Categoria.hasMany(Etiqueta, {
