@@ -23,6 +23,7 @@ function crearPantalla(ruta,sesion){
 	]/* ,usuariosReportados */);
 	let pagina = new Pagina({
     ruta: ruta,
+		// TODO Refactor: Cambiar en todos lados de Administración a Moderación
     titulo: 'Administración - Usuarios Reportados',
     sesion: sesion,
 		partes:[

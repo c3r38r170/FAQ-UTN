@@ -30,7 +30,6 @@ router.get("/", (req, res) => {
 		
 		// * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
 		PreguntaDAO.pagina(filtros)
-
 			.then(pre=>{
 					let pagina=PaginaInicio(req.session, queryString);
 					pagina.partes[2]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
@@ -50,8 +49,11 @@ router.get("/", (req, res) => {
 });
 
 
-// Ruta que muestra 1 pregunta con sus respuestas
+// * Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) =>  {
+	
+// TODO Feature: En caso de que sea una pregunta borrada, no permitir a menos que se tengan permisos de moderación, o administración.
+
     try {
 			if (req.params.id) {
 				const include = [
@@ -62,6 +64,11 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 							{
 								model: UsuarioDAO,
 								as: 'duenio'
+							}
+							,{
+								model:VotoDAO
+														,separate:true
+								,include:{model:UsuarioDAO,as:'votante'}
 							}
 						]
 					},
@@ -272,73 +279,8 @@ router.get("/perfil/info", (req, res) => {
 });
 
 router.get('/administracion/usuarios',(req,res)=>{
-	let usu=req.session.usuario;
+	// let usu=req.session.usuario;
 	// TODO Security: Permisos. Acá y en todos lados.
-
-	// TODO Refactor: Página. Un método que se encargue de la paginación, los límites, los filtros, la agrupación, los datos extra (cantidadDeReportes)
-	/* let usuariosReportados=UsuarioDAO.findAll({
-		include:[
-			{
-				model:BloqueoDAO
-				,as:'bloqueosRecibidos'
-				,attributes:[]
-				,where:{
-					fecha_desbloqueo:{[Sequelize.Op.is]:null}
-				}
-			}
-			,{
-				model:ReportesUsuarioDAO
-				,as:'reportesRecibidos'
-				,attributes:[]
-				,required:true
-			}
-		]
-		,attributes:[
-			'DNI'
-			,'nombre'
-			,[Sequelize.literal('MAX(reportesRecibidos.fecha)'),'fechaUltimoReporte']
-			,[Sequelize.literal( `COUNT(*)` ),`cantidadDeReportes`]
-		]
-		,group:[
-			'DNI'
-			,'nombre'
-		]
-	}); */
-	/* let usuariosReportados=ReportesUsuarioDAO.findAll({
-		subQuery:false
-		,include:[
-			{
-				model:UsuarioDAO
-				,as:'reportado'
-				,attributes:[]
-				,include:[
-					{
-						model:BloqueoDAO
-						,as:'bloqueosRecibidos'
-						,attributes:[]
-					}
-				]
-			}
-		]
-		,attributes:[
-			'reportado.DNI'
-			,'reportado.nombre'
-			,[Sequelize.literal('MAX(reporteUsuarios.fecha)'),'fechaUltimoReporte']
-			,[Sequelize.literal( `COUNT(*)` ),`cantidadDeReportes`]
-		]
-		,group:[
-			'reportado.DNI'
-			,'reportado.nombre'
-		]
-		// ,where:{
-		// 	[Sequelize.or]:[
-		// 		{'$Usuario.Bloqueo':{[Sequelize.Op.is]:null}}
-		// 		,{'$Usuario.Bloqueo.fecha_desbloqueo$':{[Sequelize.Op.not]:null}}
-		// 	]
-		// }
-		,order:[['fecha','DESC']]
-		,limit:15
-	}); */
 
   let pagina=PantallaAdministracionUsuarios(req.path,req.session);
   res.send(pagina.render());
@@ -391,12 +333,13 @@ router.get('/perfil/respuestas',(req, res) => {
 	}
 })
 
-
 router.get("/perfil/:id?", async (req, res) => {
 	// TODO Feature: Ordenar posts por fecha
 	/* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
 	// TODO Refactor: ver si es posible simplificar casos.
 	// TODO Refactor: DNI en vez de id
+// TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
+
 	try {
 		let usu;
 		if(req.params.id && req.session.usuario && (req.params.id == req.session.usuario.DNI)){

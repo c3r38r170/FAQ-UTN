@@ -3,25 +3,24 @@ import { SqS, gEt } from "../libs/c3tools.js";
 class ChipValoracion{
 
     //TODO Feature: puse un rojo cualquiera para el voto hecho, cambiar por otro mas lindo
-
-    //TODO Feature: puse un rojo cualquiera para el voto hecho, cambiar por otro mas lindo
     static instancias={};
     #valoracion;
     #estado;
     #id; //id del post
-    #sesion;
+    #usuarioActual;
 	constructor({
         ID,
         votos,
-        usuarioActual
+        usuarioActual: sesion
     }){
         this.#id = ID;
-        this.#sesion=usuarioActual;
+        this.#usuarioActual=sesion?.usuario;
         this.#valoracion=votos.reduce((suma, voto)=>suma+=voto.valoracion,0);
-        if(this.#sesion.usuario===undefined){
+        // TODO Refactor: Simplificar el uso de sesiones a usuario y punto, y no sesion.usuario
+        if(this.#usuarioActual===undefined){
             this.#estado=0;
         }else{
-            this.#estado=(votos.find(voto=>voto.votanteDNI==this.#sesion.usuario.DNI))?.valoracion||0;
+            this.#estado=(votos.find(voto=>voto.votanteDNI==this.#usuarioActual.DNI))?.valoracion||0;
         }
 
 	}
@@ -85,13 +84,13 @@ class ChipValoracion{
 	render(){
 		return`
         <div id="chip-valoracion-${this.#id}" data-id='${this.#id}' data-valoracion='${this.#valoracion}' data-estado='${this.#estado}' class="chip-valoracion">
-            <button class="positiva" value='1' onclick="ChipValoracion.votar(event)" ${this.#sesion=== undefined?"disabled":''}>
+            <button class="positiva" value='1' onclick="ChipValoracion.votar(event)" ${this.#usuarioActual=== undefined?"disabled":''}>
                 <span>
                     <i id="iPos-${this.#id}" class="fa-solid fa-caret-up" ${this.#estado == 1 ? 'style="color: #B90E0A"':''}></i>
                 </span>
             </button>
             <div id="chip-valoracion-${this.#id}-numero" class="valoraciones" >${this.#valoracion}</div>
-            <button class="negativa" value ='-1' onclick="ChipValoracion.votar(event)" ${this.#sesion=== undefined?"disabled":''}>
+            <button class="negativa" value ='-1' onclick="ChipValoracion.votar(event)" ${this.#usuarioActual=== undefined?"disabled":''}>
                 <span>
                     <i id="iNeg-${this.#id}" class="fa-solid fa-caret-down" ${this.#estado == -1 ? 'style="color: #B90E0A"':''}></i>
                 </span>

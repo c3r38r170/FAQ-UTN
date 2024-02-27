@@ -8,14 +8,11 @@ function PaginaPregunta(ruta, sesion, idPregunta){
         ruta: ruta,
         titulo: '',
         sesion: sesion,
-        idPregunta: idPregunta, // ???
     });
-
 
     let modal = new Modal('General','modal-general');
     pagina.partes.push(modal);
-    if(!sesion || sesion.usuario ===undefined){}
-    else{
+    if(sesion && sesion.usuario){
     let form = new Formulario(
         'nueva-respuesta'
         ,'/api/respuesta'
