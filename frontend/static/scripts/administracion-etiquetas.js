@@ -154,7 +154,9 @@ gEt("administrar-etiquetas").onclick = (e) => {
               indiceEtiquetaElegida + 1
             ].cells[1].innerHTML = `<div class="categoria" style="background-color: ${
               JSON.parse(txt).categoria.color
-            }"><div class="descripcion">${JSON.parse(txt).categoria.descripcion}</div></div>`;
+            }"><div class="descripcion">${
+              JSON.parse(txt).categoria.descripcion
+            }</div></div>`;
             tab.rows[indiceEtiquetaElegida + 1].cells[0].innerText =
               JSON.parse(txt).descripcion;
             etiquetaElegida.descripcion = JSON.parse(txt).descripcion;
@@ -193,15 +195,13 @@ gEt("administrar-etiquetas").onclick = (e) => {
 
   modalElemento.classList.add("is-active");
 };
-//TODO AGREGAR
 
-/*
 gEt("botonAgregar").onclick = (e) => {
-  modal.titulo = "Agregar Categoría";
+  modal.titulo = "Agregar Etiquetas";
   modal.contenido = [
     new Formulario(
-      "administracion-categorias-agregar",
-      `/api/categorias`,
+      "administracion-etiquetas-agregar",
+      `/api/etiqueta`,
       [
         {
           name: "descripcion",
@@ -209,9 +209,9 @@ gEt("botonAgregar").onclick = (e) => {
           type: "text",
         },
         {
-          name: "color",
-          textoEtiqueta: "Color:",
-          type: "color",
+          name: "categoriaID",
+          textoEtiqueta: "Categoria:",
+          type: "select",
         },
       ],
       (txt, info) => {
@@ -227,7 +227,7 @@ gEt("botonAgregar").onclick = (e) => {
       },
       {
         verbo: "POST",
-        textoEnviar: "Agregar Categoría",
+        textoEnviar: "Agregar Etiqueta",
         clasesBoton: "is-link is-rounded mt-3",
       }
     ),
@@ -235,6 +235,18 @@ gEt("botonAgregar").onclick = (e) => {
 
   modal.redibujar();
 
+  let select = document.getElementsByName("categoriaID")[0];
+
+  fetch("/api/categorias").then((options) => {
+    options.json().then((options) => {
+      options.forEach((option) => {
+        var o = document.createElement("option");
+        o.text = option.descripcion;
+        o.value = option.ID;
+        select.add(o);
+      });
+    });
+  });
+
   modalElemento.classList.add("is-active");
 };
-*/

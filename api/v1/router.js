@@ -740,10 +740,10 @@ router.get("/suscripciones", function (req, res) {
         as: "etiquetas",
         include: {
           model: Etiqueta,
-          include:{
-            model:Categoria,
-            as: 'categoria'
-          }
+          include: {
+            model: Categoria,
+            as: "categoria",
+          },
         },
       },
       {
@@ -1347,6 +1347,17 @@ router.delete("/categorias/:id", async (req, res) => {
 });
 
 // etiquetas
+
+router.post("/etiqueta", function (req, res) {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  const { descripcion, categoriaID } = req.body;
+  Etiqueta.create({ descripcion, categoriaID }).then(() => {
+    res.status(200).send();
+  });
+});
 
 router.get("/etiqueta", function (req, res) {
   //* sin paginación porque no deberían ser tantas
