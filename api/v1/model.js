@@ -293,17 +293,28 @@ Voto.belongsTo(Post, {
   constraints: false,
 });
 
-const TipoReporte = sequelize.define("tipoReporte", {
-  ID: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  descripcion: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
+// * Reportes de post. No de usuarios.
+const TipoReporte = sequelize.define('tipoReporte',{
+    ID: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    descripcion:{
+        type: DataTypes.STRING,
+        allowNull:false
+    }
+})
+
+TipoReporte.upsert({
+    ID: 1,
+    descripcion: "Comportamiento abusivo / vulgar"
+})
+
+TipoReporte.upsert({
+    ID: 2,
+    descripcion: "Pregunta repetida"
+})
 
 const ReportePost = sequelize.define("reportePost", {
   ID: {
@@ -520,16 +531,19 @@ User.findAll({ include: { all: true }});
 Fuente: https://stackoverflow.com/questions/18838433/sequelize-find-based-on-association
 */
 
-Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
-  // TODO Feature: NO traer la primera respuesta. Por otro lado, sí traer la _cantidad_ de respuestas. https://stackoverflow.com/questions/56149251/node-js-sequelize-virtual-column-pulling-value-from-other-model
-  /*
-		1) Inicio: Pregunta y primera respuesta, ordenada por más recientes
-			Esto es la funcion .pagina().
-		2) Búsqueda: Pregunta y primera respuesta, filtrado por texto y etiquetas, ordenada por coincidencia
-		3) Perfil: Preguntas y primera respuesta, filtradas por usuario, ordenada por más recientes
-		4) Sugerencias: Solo título e ID, filtrado por texto de título y cuerpo, ordenada por coincidencia
+Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
+    /*
+		1) Inicio: Pregunta completas, ordenada por más recientes
+			Esto es la funcion `.pagina()`.
+		2) Búsqueda: Pregunta completas, filtradas por texto y etiquetas, ordenada por coincidencia
+		3) Perfil: Preguntas completas, filtradas por usuario, ordenada por más recientes
+		4) Sugerencias: Solo título e ID, filtradas por texto de título y cuerpo, ordenada por coincidencia
+        5) Suscripciones: Preguntas completas, filtradas por suscripciones, ordenadas por más recientes
 
-        Las suscripciones se obtienen indirectamente por notificaciones, no acá.
+        Agrupación lógica:
+            1, 3 y 5: formato largo, filtro por usuario actual y orden más reciente
+            2, 4: Filtro por texto, y orden por coincidencia
+
 		Los reportes se conseguirán de /pregunta/reporte y otro endpoint, este no.
 
 		El formato largo incluye:
@@ -550,42 +564,21 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
 			- nombre
 			- ID
 			- rol
+        - Usuarios suscriptos
+            - Probablemente solo ID
 		El formato corto:
 		- Pregunta / título
 		- ID
 
 		Parámetros para lograr esto:
 		{
-			filtro:null (puede ser texto (busqueda o titulo+cuerpo por sugerencia), vacío, o un objeto con texto y etiquetas; si está definido, se ordena por coincidencia)
+			filtro:null (puede ser texto (busqueda o titulo+cuerpo por sugerencia), vacío, o un objeto con texto, etiquetas o si es por suscripciones; si texto está definido, se ordena por coincidencia)
 
 			formatoCorto:false (booleano. Todos los datos o solo pregunta/título e ID)
 
 			duenioID:null (duenioID, )
 
 			pagina: Paginación, paralelo a cualquier conjunto de las superiores
-		}
-
-		 filtro  |     sí     |      no
-		f. largo |  búsqueda  | inicio/perfil
-		f. corto | sugerencia |      -
-
-		if(req.query.duenioID){
-			// devolver en formato largo y sin filtros, según el dueño
-		}else{
-			if(req.query.filtros){
-				// Ver si el filtro es solo texto o etiquetas también
-				// Agregar filtro de match al where, y de etiquetas.
-			}
-			if(req.query.formatoCorto){
-				// Agregar raw, y eso para que sean pocos datos. No hace falta cruzar con casi nada.
-				// Otra opción es manipular lo que se obtiene para mandar objetos reducidos.
-			}
-
-			if(req.query.filtros && !req.query.formatoCorto){
-				// Búsqueda: Agregar relevancia por votaciones y respuestas... Desarrollar algoritmo de puntaje teniendo en cuenta todo.
-			}
-
-			// Devolver lo que se obtuvo, como objeto...
 		}
 	*/
 
@@ -643,20 +636,33 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
     });
   } else {
     let opciones = {
-      include: [Post],
-      limit: PAGINACION.resultadosPorPagina,
-      offset: +pagina * PAGINACION.resultadosPorPagina,
-      subQuery: false,
-    };
-    opciones.attributes = {
       include: [
-        [
-          sequelize.literal(
-            "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-          ),
-          "respuestasCount",
-        ],
+        Post
+        // TODO Refactor: Solo hace falta si hay una sesión, y solo hace falta mandar para saber si el usuario está suscrito o no. Ver ejemplo en votos.
+        ,{
+          model:Usuario
+          ,as: 'usuariosSuscriptos'
+          ,through: {
+            model: SuscripcionesPregunta,
+            where: {
+              fecha_baja: null // Condición para que la fecha de baja sea nula
+            }
+          }
+        }
       ],
+      limit: PAGINACION.resultadosPorPagina,
+      offset: (+pagina) * PAGINACION.resultadosPorPagina,
+      subQuery: false,
+      attributes : {
+        include: [
+          [
+            sequelize.literal(
+              "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+            ),
+            "respuestasCount",
+          ],
+        ],
+      }
     };
 
     let filtraEtiquetas = false,
@@ -700,6 +706,14 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
       }
     }
 
+    // TODO Feature: Ordenar respuestas por relevancia, y por fecha
+    /* if(filtrar){ // && !formatoCorto ){
+        // Búsqueda: Agregar relevancia por votaciones y respuestas... Desarrollar algoritmo de puntaje teniendo en cuenta todo.
+        // opciones.attributes={include:[Sequelize.literal('(SELECT COUNT(r.*)*2 FROM respuestas ON )'),'puntuacion']}
+    }else{
+        opciones.order=[[Post,'fecha','DESC']];
+    } */
+    // ? ¿Agregar las etiquetas al ranking / relevancia?
     if (filtrarTexto) {
       opciones.order = [
         Sequelize.literal(
@@ -710,115 +724,52 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
             '*"  IN BOOLEAN MODE)) desc, fecha desc'
         ),
       ];
-      // TODO Feature: Ordenar por match
     } else opciones.order = [[Post, "fecha", "DESC"]];
 
-    /* El formato largo incluye:
-		- Pregunta ✅
-			- fecha ✅
-			- ID ✅
-		- Cuerpo ✅
-		- 1ra respuesta
-			- Dueño??
-				- nombre
-				- ID
-				- rol
-			- fecha ✅
-			- Valoración
-			- cuerpo ✅
-		- Valoración ✅
-		- Dueño ✅
-			- nombre ✅
-			- ID ✅
-			- rol ✅
-		El formato corto: ✅
-		- Pregunta / título ✅
-		- ID  ✅*/
-    if (formatoCorto) {
-      // Agregar raw, y eso para que sean pocos datos. No hace falta cruzar con casi nada.
-      // Otra opción es manipular lo que se obtiene para mandar objetos reducidos.
-      opciones.attributes = ["ID", "titulo"];
-    } else {
-      // * Datos propios
-      opciones.include[0] = {
-        // ! include[0] es Post por default
-        model: Post,
-        include: [
-          {
-            model: Voto,
-            separate: true,
-            include: { model: Usuario, as: "votante" },
-          },
-          {
-            model: Usuario,
-            as: "duenio",
-            include: {
-              model: Perfil,
-              attributes: ["ID", "nombre", "color"],
-            },
-            attributes: ["DNI", "nombre"],
-          },
-        ],
-      };
+    if(formatoCorto){
+        // TODO Feature: Ver qué más trae esto, eliminar lo que no haga falta. Ideas: Agregar raw, manipular array conseguido para mandar objetos reducidos
+        opciones.attributes=['ID','titulo'];
+    }else{
+			// * Datos propios
+			opciones.include[0]={ // ! include[0] es Post por default
+				model:Post
+				,include:[
+					{
+						model:Voto
+                        ,separate:true
+						,include:{model:Usuario,as:'votante'}
+					}
+					,{
+						model:Usuario
+						,as:'duenio'
+						,include:{
+							model:Perfil
+							,attributes:['ID','nombre', 'color']
+						}
+						,attributes:['DNI','nombre']
+					}
+				]
+			};
 
-      // * Respuesta más interesante
-      // opciones.include.push(
-      // 	// TODO Feature: Ordenar respuesta y tener una sola. Resolver primero en el caso de preguntas por usuario y después traer acá (es más cómodo trabajar allá)
-      // 	{
-      // 		model:Respuesta
-      // 		,as:'respuestas'
-      //         ,separate:true
-      // 		,include:
-      //         {
-      //             model: Post,
-      //             include: [
-      //                 {
-      //                     model:Usuario
-      //                     ,as:'duenio'
-      //                     ,include:{
-      //                         model:Perfil
-      //                         ,attributes:['ID','nombre']
-      //                     }
-      //                     ,attributes:['DNI','nombre']
-      //                 },
-      //                 {
-      //                     model:Voto,
-      //                     as: 'votos',
-      //                     //TODO Feature: encontrar manera de traer solo la suma
-      //                 }
-      //             ]
-      //         }
-      // 	}
-      // );
-      if (!filtraEtiquetas) {
-        opciones.include.push({
-          model: EtiquetasPregunta,
-          include: {
+			if(!filtraEtiquetas){
+				opciones.include.push({
+          model:EtiquetasPregunta
+          ,include:{
             model: Etiqueta,
             include: {
               model: Categoria,
               as: "categoria",
             },
-          } /* {
-                        model:Etiqueta,
-                        as:'etiqueta'
-                    } */,
+          },
           as: "etiquetas",
           separate: true,
         });
       }
     }
 
-    // TODO Feature: Ordenar respuestas por relevancia, y por fecha
-    /* if(filtrar){ // && !formatoCorto ){
-			// Búsqueda: Agregar relevancia por votaciones y respuestas... Desarrollar algoritmo de puntaje teniendo en cuenta todo.
-			// opciones.attributes={include:[Sequelize.literal('(SELECT COUNT(r.*)*2 FROM respuestas ON )'),'puntuacion']}
-		}else{
-			opciones.order=[[Post,'fecha','DESC']];
-		} */
-    return Pregunta.findAll(opciones);
-  }
-};
+        return Pregunta.findAll(opciones);
+    }
+}
 
 Post.pagina = ({ pagina = 0, DNI } = {}) => {
   return Post.findAll({
@@ -1001,20 +952,21 @@ Pregunta.hasMany(EtiquetasPregunta, {
   as: "etiquetas",
   constraints: false,
 });
-/* 
+/*
 Etiqueta.hasMany(EtiquetasPregunta,{
     // as:'etiqueta',
     constraints:false
     ,foreignKey:'etiquetumID'
-});
- */
-EtiquetasPregunta.belongsTo(Etiqueta, { constraints: false });
+});*/
+
+EtiquetasPregunta.belongsTo(Etiqueta, { constraints: false});
 
 /* 
 Etiqueta.hasMany(EtiquetasPregunta,{
     as:'preguntas'
     ,constraints:false
 }) */
+
 
 /* Pregunta.belongsToMany(Etiqueta, {
     as:'etiquetas',
@@ -1119,32 +1071,18 @@ const SuscripcionesPregunta = sequelize.define("suscripcionesPregunta", {
   },
 });
 
-// TODO Refactor: alias más lindos
-
-Usuario.hasMany(SuscripcionesPregunta, {
-  as: "preguntasSuscriptas",
-  constraints: false,
-  foreignKey: "suscriptoDNI",
+Usuario.belongsToMany(Pregunta, { 
+    through: SuscripcionesPregunta,
+    constraints:false,
+    as: 'preguntasSuscriptas',
+    foreignKey:'suscriptoDNI'
 });
 
-Pregunta.hasMany(SuscripcionesPregunta, {
-  as: "suscriptos",
-  constraints: false,
-  foreignKey: "preguntaID",
-});
-
-Usuario.belongsToMany(Pregunta, {
-  through: SuscripcionesPregunta,
-  constraints: false,
-  as: "usuariosSuscriptos",
-  foreignKey: "suscriptoDNI",
-});
-
-Pregunta.belongsToMany(Usuario, {
-  through: SuscripcionesPregunta,
-  constraints: false,
-  as: "suscriptas",
-  foreignKey: "preguntaID",
+Pregunta.belongsToMany(Usuario, { 
+    through: SuscripcionesPregunta,
+    constraints:false,
+    as:'usuariosSuscriptos',
+    foreignKey:'preguntaID'
 });
 
 const Carrera = sequelize.define("carrera", {

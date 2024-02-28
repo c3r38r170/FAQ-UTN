@@ -154,8 +154,6 @@ router.get("/usuario", function (req, res) {
   }
   opciones.order = [...order, ["DNI", "ASC"]];
 
-  // console.log(opciones);
-
   Usuario.findAll(opciones)
     .then((usuarios) => {
       // console.log(usuarios);
@@ -170,30 +168,40 @@ router.get("/usuario", function (req, res) {
     });
 });
 
+router.get("/usuario/:DNI/preguntas", function(req, res){
+	let filtros={pagina:null,duenioID:null};
+		filtros.duenioID=req.params.DNI
+		filtros.pagina=req.query.pagina
+		// console.log(filtros);
+		Pregunta.pagina(filtros)
+		// Pregunta.findAll(opciones)
+			.then(preguntas=>{
+				res.status(200).send(preguntas)
+			})
+			.catch(err=>{
+				console.log(err)
+			});
+	// }
+	return;
+})
+
 router.get("/usuario/:DNI/preguntas", function (req, res) {
-  let filtros = { pagina: null, duenioID: null };
-  filtros.duenioID = req.params.DNI;
-  filtros.pagina = req.query.pagina;
-  // console.log(filtros);
-  Pregunta.pagina(filtros)
-    // Pregunta.findAll(opciones)
+  Pregunta.pagina({
+    pagina: req.query.pagina
+    , duenioID: req.params.DNI
+  })
     .then((preguntas) => {
       res.status(200).send(preguntas);
     })
     .catch((err) => {
       console.log(err);
     });
-  // }
-  return;
+    // TODO Refactor: ¿Este return hace algo? Chequear en el resto de los routers.
+  // return;
 });
 
 router.get("/usuario/:DNI/posts", function (req, res) {
-  let filtros = { pagina: null, DNI: req.params.DNI };
-  if (req.query.pagina) {
-    filtros.pagina = req.query.pagina;
-  }
-
-  Post.pagina(filtros).then((posts) => res.send(posts));
+  Post.pagina({ pagina: req.query.pagina||null, DNI: req.params.DNI }).then((posts) => res.send(posts));
 });
 
 router.get("/usuario/:DNI/respuestas", function (req, res) {
@@ -206,6 +214,7 @@ router.get("/usuario/:DNI/respuestas", function (req, res) {
 
   Respuesta.pagina(filtros).then((posts) =>
     res.send(
+      // TODO Refactor: Documentar por qué hay que hacer esto...
       posts.slice(
         +pagina * PAGINACION.resultadosPorPagina,
         (1 + pagina) * PAGINACION.resultadosPorPagina
@@ -229,8 +238,16 @@ router.post("/usuario", (req, res) => {
           DNI: req.body.DNI,
           correo: req.body.correo,
           contrasenia: req.body.contrasenia,
+          perfilID: 1
+        }).then(usu=>Usuario.findByPk(usu.DNI,{
+            include:{
+              model: Perfil,
+              include:Permiso
+            }
+        })).then(usuarioConPerfilYPermisos=>{
+          req.session.usuario=usuarioConPerfilYPermisos;
+          res.status(200).send("Registro exitoso");
         });
-        res.status(200).send("Registro exitoso");
         return;
       }
       res.status(400).send("El Usuario ya se encuentra registrado");
@@ -418,7 +435,7 @@ router.get("/pregunta", (req, res) => {
   // TODO Refactor: Mandar este comentario a Pregunta.pagina
   // ! Siempre pedir el Post, por más que no se consulten los datos.
 
-  // TODO Feature: Aceptar etiquetas y filtro de texto. https://masteringjs.io/tutorials/express/query-parameters
+  // TODO Feature: Aceptar etiquetas.
 
   let filtros = { pagina: null, filtrar: [] };
 
@@ -455,6 +472,7 @@ router.patch("/pregunta", function (req, res) {
           res.status(403).send("No puede editar una pregunta ajena.");
           return;
         } else {
+          // TODO Refactor: DRY en este if
           if (modera) {
             moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10).then(
               (respuesta) => {
@@ -506,171 +524,104 @@ router.patch("/pregunta", function (req, res) {
     });
 });
 
+function crearPregunta(req,res,respuestaIA=null){
+  Post.create({
+    cuerpo: req.body.cuerpo,
+    duenioDNI: req.session.usuario.DNI,
+  }).then((post) => {
+    return Pregunta.create({
+      ID: post.ID,
+      titulo: req.body.titulo,
+    })
+  }).then((pregunta) => {
+    // TODO Refactor: Se puede simplificar incluso más. Para empezar, poniendo todo lo del push obligatorio dentro de la definición.
+    let esperarA = [];
+
+    if (respuestaIA && respuestaIA < reportaPost) {
+      // TODO Feature testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
+      esperarA.push(
+        ReportePost.create({
+          reportadoID: pregunta.ID,
+        })
+      );
+    }
+    
+    esperarA.push(
+      //etiquetas
+      
+   req.body.etiquetasIDs.forEach(id=>{
+            EtiquetasPregunta.create({
+              'preguntumID':pregunta.ID,
+              'etiquetumID':id
+            })
+          }) 
+      /*Promise.all(req.body.etiquetasIDs.map(ID=>Etiqueta.findByPk(ID)))
+        .then(etiquetas=>Promise.all(etiquetas.map(eti=>{
+          let ep=new EtiquetasPregunta();
+          ep.etiqueta=eti;
+          return ep.save();
+        })))
+        .then(eps=>pregunta.setEtiquetas(eps))*/
+
+// Suscripciones a etiquetas
+      ,SuscripcionesEtiqueta.findAll({
+        attributes: ['suscriptoDNI'],
+        where: {
+          etiquetaID: {
+          [Sequelize.Op.in]: req.body.etiquetasIDs
+          },
+          fecha_baja: null
+        },
+        distinct: true
+      }).then(suscripciones=>{
+        return Promise.all(suscripciones.map(suscripcion =>Notificacion.create({
+          postNotificadoID:pregunta.ID,
+          notificadoDNI:suscripcion.suscriptoDNI
+        })));
+      })
+
+      //Suscribe a su propia pregunta
+      ,Usuario.findByPk(req.session.usuario.DNI)
+        .then(usu=>pregunta.addUsuariosSuscriptos(usu))
+    )
+    
+    Promise.all(esperarA)
+      .then(()=>pregunta.save())
+      .then(() => {
+        // ! Sin las comillas se piensa que pusimos el status dentro del send
+        res.status(201).send(pregunta.ID+"");
+      })
+  })
+  .catch(err=>{
+    console.log(err);
+    res.status(500).send(err);
+  })
+}
+
 router.post("/pregunta", function (req, res) {
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa");
     return;
   }
+
   if (modera) {
     moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10)
       .then((respuesta) => {
         if (respuesta.apropiado < rechazaPost) {
           //esto anda
+          // TODO UX: ¿Mandar respuesta del bot?
           res.status(400).send("Texto rechazo por moderación automática");
           return;
         }
-        Post.create({
-          cuerpo: req.body.cuerpo,
-          duenioDNI: req.session.usuario.DNI,
-        }).then((post) => {
-          Pregunta.create({
-            ID: post.ID,
-            titulo: req.body.titulo,
-          })
-            .then((pregunta) => {
-              let esperarA = [];
 
-              if (respuesta.apropiado < reportaPost) {
-                // TODO Feature testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
-                esperarA.push(
-                  ReportePost.create({
-                    reportadoID: post.ID,
-                  })
-                );
-              }
-
-              // TODO Feature: Ninguno de estas 2 anda. Ni setEtiquetas ni addSuscriptos.
-
-              //etiquetas
-              //asumo que vienen en el body en un array con los id (a chequear)
-              if (req.body.etiquetasIDs) {
-                esperarA.push(
-                  //pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})))
-                  //por ahora
-                  req.body.etiquetasIDs.forEach((id) => {
-                    EtiquetasPregunta.create({
-                      preguntumID: post.ID,
-                      etiquetumID: id,
-                    });
-                  })
-                );
-              }
-              //Suscribe a su propia pregunta
-
-              esperarA.push(
-                //pregunta.addSuscriptos(req.session.usuario.DNI)
-                //por ahora
-                SuscripcionesPregunta.create({
-                  preguntaID: post.ID,
-                  suscriptoDNI: req.session.usuario.DNI,
-                })
-              );
-
-              //notificaciones
-              if (req.body.etiquetasIDs)
-                esperarA.push(
-                  SuscripcionesEtiqueta.findAll({
-                    attributes: ["suscriptoDNI"],
-                    where: {
-                      etiquetaID: {
-                        [Sequelize.Op.in]: req.body.etiquetasIDs,
-                      },
-                      fecha_baja: null,
-                    },
-                    distinct: true,
-                  }).then((suscripciones) => {
-                    suscripciones.forEach((suscripcion) => {
-                      Notificacion.create({
-                        postNotificadoID: post.ID,
-                        notificadoDNI: suscripcion.suscriptoDNI,
-                      });
-                    });
-                  })
-                );
-
-              Promise.all(esperarA).then(() => {
-                // ! Sin las comillas se piensa que pusimos el status dentro del send
-                res.status(201).send(post.ID + "");
-              });
-            })
-            .catch((err) => {
-              console.log(err);
-              res.status(500).send(err);
-            });
-        });
+        crearPregunta(req,res,respuesta.apropiado)
       })
       .catch((err) => {
         console.log(err);
         res.status(500).send(err);
       });
-  } else {
-    Post.create({
-      cuerpo: req.body.cuerpo,
-      duenioDNI: req.session.usuario.DNI,
-    }).then((post) => {
-      Pregunta.create({
-        ID: post.ID,
-        titulo: req.body.titulo,
-      }).then((pregunta) => {
-        let esperarA = [];
-
-        // TODO Feature: Ninguno de estas 2 anda. Ni setEtiquetas ni addSuscriptos.
-
-        //etiquetas
-        //asumo que vienen en el body en un array con los id (a chequear)
-        if (req.body.etiquetasIDs) {
-          esperarA.push(
-            //pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})))
-            //por ahora
-            req.body.etiquetasIDs.forEach((id) => {
-              EtiquetasPregunta.create({
-                preguntumID: post.ID,
-                etiquetumID: id,
-              });
-            })
-          );
-        }
-        //Suscribe a su propia pregunta
-
-        esperarA.push(
-          //pregunta.addSuscriptos(req.session.usuario.DNI)
-          //por ahora
-          SuscripcionesPregunta.create({
-            preguntaID: post.ID,
-            suscriptoDNI: req.session.usuario.DNI,
-          })
-        );
-
-        //notificaciones
-        if (req.body.etiquetasIDs)
-          esperarA.push(
-            SuscripcionesEtiqueta.findAll({
-              attributes: ["suscriptoDNI"],
-              where: {
-                etiquetaID: {
-                  [Sequelize.Op.in]: req.body.etiquetasIDs,
-                },
-                fecha_baja: null,
-              },
-              distinct: true,
-            }).then((suscripciones) => {
-              suscripciones.forEach((suscripcion) => {
-                Notificacion.create({
-                  postNotificadoID: post.ID,
-                  notificadoDNI: suscripcion.suscriptoDNI,
-                });
-              });
-            })
-          );
-
-        Promise.all(esperarA).then(() => {
-          // ! Sin las comillas se piensa que pusimos el status dentro del send
-          res.status(201).send(post.ID + "");
-        });
-      });
-    });
-  }
-});
+  } else crearPregunta(req,res)
+})
 
 //Suscripción / desuscripción a pregunta
 
@@ -726,64 +677,67 @@ router.post("/pregunta/:preguntaID/suscripcion", function (req, res) {
   // TODO Refactor: ahorrar el callback hell, acá y en todos lados.
 });
 
-router.get("/suscripciones", function (req, res) {
-  //TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
-  //Todo Feature: paginacion
-  if (!req.session.usuario) {
-    res.status(401).send("Usuario no tiene sesión válida activa");
-    return;
-  }
-  const pagina = req.query.pagina || 0;
-  console.log("hola");
-  Pregunta.findAll({
-    include: [
-      {
-        model: Post,
-        as: "post",
-        include: [
-          {
-            model: Usuario,
-            as: "duenio",
-          },
-        ],
-      },
-      {
-        model: EtiquetasPregunta,
-        as: "etiquetas",
-        include: {
+// TODO Refactor: "suscripcion"? Todos los demás endpoints están en singular.
+router.get('/suscripciones', function(req,res){
+	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja. fecha_baja, ver si conviene volver a las relaciones como antes...
+	if(!req.session.usuario){
+		res.status(401).send("Usuario no tiene sesión válida activa");
+		return;
+	}
+
+	// TODO Feature Poner en Pregunta.pagina para tener también las suscripciones (aca hace falta?? sabemos que todas estas lo incluyen, quizá poner en el frontend. Esto haría un parámetro de si hacen falta los votos o no)
+	// TODO Feature Usar Pregunta.pagina para tener todos los datos unificados, como los votos
+
+	const pagina = req.query.pagina || 0;
+	Pregunta.findAll({
+		include:[
+			{
+				model: Post,
+				as: 'post',
+				include: [
+					{
+						model: Usuario,
+						as: 'duenio'
+					}
+				]
+			},
+			{
+				model: EtiquetasPregunta,
+				as:'etiquetas',
+				include: {
           model: Etiqueta,
           include: {
             model: Categoria,
             as: "categoria",
           },
-        },
-      },
-      {
-        model: SuscripcionesPregunta,
-        where: {
-          suscriptoDNI: req.session.usuario.DNI,
-        },
-        as: "suscriptos",
-      },
-    ],
-    subQuery: false,
-    order: [[Post, "fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina,
-  })
-    .then((suscripciones) => {
-      if (!suscripciones) {
-        res.status(404).send("No se encontraron suscripciones");
-        return;
-      } else {
-        res.status(200).send(suscripciones);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
+        }
+			},
+			{
+				model:Usuario
+				,where:{
+					DNI:req.session.usuario.DNI
+				}
+				,as: 'usuariosSuscriptos',
+				through: {
+					model: SuscripcionesPregunta,
+					where: {
+						fecha_baja: null // * Condición para que la fecha de baja sea nula
+					}
+				}
+			}
+		],
+		subQuery:false,
+		order:[[Post,'fecha','DESC']],
+		limit:PAGINACION.resultadosPorPagina,
+		offset:(+pagina)*PAGINACION.resultadosPorPagina,
+	})
+		.then((suscripciones)=>{
+      res.status(200).send(suscripciones);
+		})
+		.catch(err=>{
       res.status(500).send(err);
-    });
-});
+    })  
+})
 
 router.delete("/pregunta/:preguntaID/suscripcion", function (req, res) {
   if (!req.session.usuario) {
@@ -813,13 +767,12 @@ router.delete("/pregunta/:preguntaID/suscripcion", function (req, res) {
         })
           .then((sus) => {
             if (!sus) {
-              res.status(401).send("No se encuentra suscripto a la pregunta");
+              res.status(404).send("No se encuentra suscripto a la pregunta");
               return;
             } else {
               sus.fecha_baja = new Date().toISOString().split("T")[0];
-              sus.save();
-              //devuelve el 204 pero no el mensaje
-              res.status(201).send("Suscripción cancelada");
+              //! el 204 no devuelve el mensaje
+              sus.save().then(()=>res.status(201).send("Suscripción cancelada"));
             }
           })
           .catch((err) => {
@@ -841,6 +794,7 @@ router.post("/respuesta", function (req, res) {
     res.status(401).send("Usuario no tiene sesión válida activa");
     return;
   }
+  // TODO Refactor: Unificar if y else. Ver cuál es la versión más reciente de cada parte.
   if (modera) {
     moderarWithRetry(req.body.cuerpo, 10)
       .then((respuesta) => {
@@ -985,6 +939,7 @@ router.patch("/respuesta", function (req, res) {
           return;
         } else {
           //filtro IA
+          // TODO Refactor: DRY
           if (modera) {
             moderarWithRetry(req.body.cuerpo, 10).then((resp) => {
               if (resp.apropiado < rechazaPost) {
@@ -1014,6 +969,70 @@ router.patch("/respuesta", function (req, res) {
       res.status(500).send(err);
     });
 });
+
+
+router.get('/post/reporte',function(req, res){
+	let pagina=req.query.pagina||0;
+	ReportePost.findAll({
+		limit: PAGINACION.resultadosPorPagina,
+		offset: (+pagina) * PAGINACION.resultadosPorPagina,
+		// subQuery:false,
+		// separate: true,
+		include: [
+		  {
+				model: Post,
+				attributes: ['cuerpo','fecha'],
+				required:true,
+				as:'reportado',
+				include: [
+					{
+						model:Usuario
+						,as:'duenio'
+						,include:{
+							model:Perfil
+							,attributes:['ID','nombre', 'color']
+						}
+						,attributes:['DNI','nombre']
+					},
+
+					{
+						model: Respuesta
+						, as: 'respuesta',
+						include: [
+							{model:Post, attributes: []},
+							{ model: Pregunta, as: 'pregunta', attributes: [] } // *Include Pregunta in Respuesta
+						],
+						required: false,
+						attributes: [] 
+					},  
+					{ model: Pregunta, as: 'pregunta', required: false, include:{model:Post, attributes: []}, attributes: [] } 
+				]
+		  }
+		],
+		attributes:[
+			// * Orgánicamente se obtienen los datos comunes de los posts (cuerpo y fecha), y los datos del usuario (propios y de su perfil).
+
+			// * Datos de la pregunta o respuesta
+			[Sequelize.fn('coalesce',Sequelize.col('reportado.respuesta.pregunta.ID'),Sequelize.col('reportado.pregunta.ID')),'reportado.preguntaID']
+			,[Sequelize.fn('coalesce',Sequelize.col('reportado.respuesta.pregunta.titulo'),Sequelize.col('reportado.pregunta.titulo')),'reportado.titulo']
+			,[Sequelize.col('reportado.respuesta.ID'),'reportado.respuestaID']
+			
+			// * Datos resumen de los reportes.
+			,[Sequelize.fn('max',Sequelize.col('reportePost.fecha')),'fecha']
+			,[Sequelize.fn('count',Sequelize.col('*')),'cantidad']
+		]
+		,nest:true,raw:true
+		,group:[
+			'reportado.ID'
+			// ? Supuestamente hay que agrupar por todos los datos atómicos, pero esto funciona ya. Considerar si nos debemos basar en la teoría o en la práctica.
+			/* cuerpo,fecha,DNI,nombre,perfilID,perfilNombre,perfilColor */
+		]
+		,order:[
+			['fecha','DESC']
+		]
+	})
+		.then(reportes=>res.send(reportes));
+})
 
 // valoracion
 // TODO Feature: No permitir autovotarse.
@@ -1110,6 +1129,8 @@ const eliminarVoto = function (req, res) {
       res.status(500).send(err);
     });
 };
+
+// TODO Feature: Hacer las funciones anónimas, si ya no hace falta usarlas en diferentes lugares. valorar, eliminarVoto, y reportarPost
 
 router.post("/post/:votadoID/valoracion", valorarPost);
 
@@ -1578,128 +1599,84 @@ router.delete("/etiqueta/:etiquetaID/suscripcion", function (req, res) {
 
 // TODO Refactor: Minimizar datos que envia este endpoint.
 // TODO Feature: Hacer que se devuelvan una sola notificacion por pregunta (sí, pregunta)
-router.get("/notificacion", function (req, res) {
-  // pregunta
-  // 	propia
-  // 		valoraciones, cantidad n
-  // 	ajena
-  // 		nueva pregunta, siempre es 1, suscripcion a etiqueta
-  // respuesta
-  // 	propia
-  // 		Valoracion, cantidad n
-  // 	ajena
-  // 		nuevas respuestas, cantidad n, Suscripcion a pregunta
+router.get('/notificacion', function(req,res){
+	// pregunta
+	// 	propia
+	// 		valoraciones, cantidad n
+	// 	ajena
+	// 		nueva pregunta, siempre es 1, suscripcion a etiqueta
+	// respuesta
+	// 	propia
+	// 		Valoracion, cantidad n
+	// 	ajena
+	// 		nuevas respuestas, cantidad n, Suscripcion a pregunta
 
-  //ppregunta ajena es notificacion por etiqueta suscripta
-  // preguntaID not null es "nueva pregunta a etiqueta"
-  //respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
-  //respuesta o pregunta propia es notificación por valoración
-  // nuevos votos en tu pregunta...
-  // nuevos votos en tu respuesta a ...
-  if (!req.session.usuario) {
-    res.status(403).send("No se posee sesión válida activa");
-    return;
-  }
-  Notificacion.findAll({
-    attributes: ["ID", "visto", "createdAt"],
-    order: [
-      ["visto", "ASC"],
-      ["createdAt", "DESC"],
-    ],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +req.query.pagina * PAGINACION.resultadosPorPagina,
-    include: [
-      {
-        model: Post,
-        attributes: [
-          /* 'ID', 'cuerpo' */
-        ],
-        required: true,
-        include: [
-          {
-            model: Usuario,
-            as: "duenio",
-            attributes: [
-              /* 'DNI', 'nombre' */
-            ],
-          },
-          {
-            model: Respuesta,
-            as: "respuesta",
-            include: [
-              {
-                model: Pregunta,
-                as: "pregunta",
-                attributes: [
-                  /* 'ID', 'titulo' */
-                ],
-              }, // *Include Pregunta in Respuesta
-            ],
-            required: false,
-            attributes: [
-              /* 'ID', 'preguntaID' */
-            ],
-          },
-          {
-            model: Pregunta,
-            as: "pregunta",
-            required: false,
-            attributes: [
-              /* 'ID', 'titulo' */
-            ],
-          },
-        ],
-      },
-    ],
-    where: {
-      //'$post.pregunta.ID$': { [Sequelize.Op.ne]: null }, // *Check if the post is a question
-      notificadoDNI: req.session.usuario.DNI, // *Filter by notificadoDNI matching user's DNI
-    },
-    attributes: [
-      [Sequelize.fn("min", Sequelize.col("notificacion.visto")), "visto"],
-      [
-        Sequelize.fn("max", Sequelize.col("notificacion.createdAt")),
-        "createdAt",
-      ],
-      [Sequelize.fn("count", Sequelize.col("*")), "cantidad"],
-      [
-        Sequelize.literal(
-          `IF(post.duenioDNI='${req.session.usuario.DNI}',1,0)`
-        ),
-        "propia",
-      ],
-      [
-        Sequelize.fn(
-          "coalesce",
-          Sequelize.col("post.respuesta.pregunta.titulo"),
-          Sequelize.col("post.pregunta.titulo")
-        ),
-        "titulo",
-      ],
-      // ,[Sequelize.literal(`COALESCE(post.respuesta.pregunta.titulo,post.pregunta.titulo)`),'titulo']
-      // ,Sequelize.fn.max('createdAt')
-      // ,
-      // ,['post.respuesta.ID','respuestaID']
-      [Sequelize.col("post.respuesta.preguntaID"), "respuestaPreguntaID"],
-      [Sequelize.col("post.pregunta.ID"), "preguntaID"],
-    ],
-    group: [
-      // 'post.respuesta.ID'
-      // ,
-      "propia",
-      "post.respuesta.preguntaID",
-      "post.pregunta.ID",
-    ],
-    raw: true,
-    nest: true,
-  })
-    .then((notificaciones) => {
-      res.status(200).send(notificaciones);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).send(err);
-    });
+	//ppregunta ajena es notificacion por etiqueta suscripta
+		// preguntaID not null es "nueva pregunta a etiqueta"
+	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
+	//respuesta o pregunta propia es notificación por valoración
+		// nuevos votos en tu pregunta...
+		// nuevos votos en tu respuesta a ...
+	if(!req.session.usuario){
+		res.status(403).send("No se posee sesión válida activa");
+		return;
+	}
+
+	Notificacion.findAll({
+		attributes: ['ID', 'visto', 'createdAt'],
+		order: [
+		  ['visto', 'ASC'],
+		  ['createdAt', 'DESC']
+		],
+		limit: PAGINACION.resultadosPorPagina,
+		offset: (+req.query.pagina) * PAGINACION.resultadosPorPagina,
+		include: [
+			{
+				model: Post,
+				attributes: [/* 'ID', 'cuerpo' */],
+				required:true,
+				include: [
+					{ model: Usuario, as: 'duenio', attributes: [/* 'DNI', 'nombre' */] }, 
+					{
+						model: Respuesta
+						, as: 'respuesta'
+						, include: [
+							{ model: Pregunta, as: 'pregunta', attributes: [/* 'ID', 'titulo' */] } // *Include Pregunta in Respuesta
+						],
+						required: false,
+						attributes: [/* 'ID', 'preguntaID' */] 
+					},  
+					{ model: Pregunta, as: 'pregunta', required: false, attributes: [/* 'ID', 'titulo' */] } 
+				]
+			}
+		],
+		where: {
+		  //'$post.pregunta.ID$': { [Sequelize.Op.ne]: null }, // *Check if the post is a question
+		  notificadoDNI: req.session.usuario.DNI // *Filter by notificadoDNI matching user's DNI
+		},
+		attributes:[
+			[Sequelize.fn('min',Sequelize.col('notificacion.visto')),'visto']
+			,[Sequelize.fn('max',Sequelize.col('notificacion.createdAt')),'createdAt']
+			,[Sequelize.fn('count',Sequelize.col('*')),'cantidad']
+			,[Sequelize.literal(`IF(post.duenioDNI='${req.session.usuario.DNI}',1,0)`),'propia']
+			,[Sequelize.fn('coalesce',Sequelize.col('post.respuesta.pregunta.titulo'),Sequelize.col('post.pregunta.titulo')),'titulo']
+			
+			,[Sequelize.col('post.respuesta.preguntaID'),'respuestaPreguntaID']
+			,[Sequelize.col('post.pregunta.ID'),'preguntaID']
+		],
+		group:[
+			'propia'
+			,'post.respuesta.preguntaID'
+			,'post.pregunta.ID'
+		],
+		raw: true,
+		nest: true
+	}).then(notificaciones=>{
+		res.status(200).send(notificaciones);
+	}).catch(err=>{
+		console.log(err);
+		res.status(500).send(err);
+	});
 });
 
 router.patch("/notificacion", function (req, res) {

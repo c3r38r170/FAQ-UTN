@@ -360,7 +360,6 @@ div.notificacion{
 		color: $text;
 		font-size: 1.2rem;
 		font-weight: 500;
-		display: inline-block;
 		word-wrap: break-word;
 		overflow-wrap: break-word;
 	}
@@ -381,7 +380,7 @@ div.notificacion{
 		flex-wrap: wrap;
 	}
 
-  }
+}
 
 
 .etiquetas{
@@ -389,21 +388,20 @@ div.notificacion{
 	justify-content: start;
 	margin-top: 0.8rem;
 	flex-wrap: wrap;
-	.etiqueta{
+	gap: 1rem;
+	clear: both;
+
+	.tag{
 		line-height: 1.6;
-		margin-left: 0.5rem;
-		margin-right: 0.5rem;
+		color: gray;
 		font-size: 1rem;
-		font-weight: 300;
-		display: inline-block;
 		text-transform: capitalize;
+		border-radius: 16px;
+		padding: 1px 1rem;
+		
 		&:hover{
 			color: $text-hover;
 		}
-
-		color: white;
-		border-radius: 16px;
-		padding: 1px 1rem;
 	}
 	.descripcion{
 		color:grey;
@@ -458,6 +456,7 @@ footer#footer{
     align-items: center;
 	text-align: center;
 	width: 10%;
+	float: left;
 
 	button{
 		// border-radius: 50%;

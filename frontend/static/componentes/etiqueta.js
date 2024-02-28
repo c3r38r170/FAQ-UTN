@@ -1,20 +1,23 @@
-class Etiqueta {
-  #descripcion;
-  #ID;
+class Etiqueta{
+    #descripcion;
+	#ID;
+	#enlazar=true;
   #categoria;
-  constructor({ ID, descripcion, categoria }) {
-    this.#descripcion = descripcion;
-    this.#ID = ID;
+
+	constructor({
+        ID, descripcion, enlazar, categoria
+    }){
+		this.#descripcion = descripcion;
+		this.#ID = ID;
+		this.#enlazar = enlazar;
     this.#categoria = categoria;
-  }
-  // ToDo Refactor: FALTA RUTA PARA VER ETIQUETAS
-  render() {
-    return `
-        <a class="etiqueta" style="background-color: ${
-          this.#categoria.color
-        }" href="/etiqueta/${this.#ID}/preguntas"><div class="descripcion">${this.#descripcion}</div></a>
+	}
+	render(){
+		return`
+        <a class="tag" style="background-color: ${this.#categoria.color}" ${this.#enlazar?`href="/etiqueta/${this.#ID}/preguntas"`:''}>${this.#descripcion}</a>
         `;
   }
+
 }
 
 export { Etiqueta };

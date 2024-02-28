@@ -72,6 +72,25 @@ class Formulario{
     }
 
     instanciaAScript(){
+			/* *
+				Lo de las funciones es así:
+				- método:
+					- Formato: nombre(){}
+					- Acción: Ponerle function atrás
+				- flecha:
+					- Formato: ()=>{}
+					- Acción: Nada.
+				- anónima:
+					- Formato: function(){}
+					- Acción: Nada.
+			*/
+			let representacionDeLaFuncion=this.#funcionRetorno.toString();
+			let parteHastaPrimerParentesis=representacionDeLaFuncion.substring(0,representacionDeLaFuncion.indexOf('('));
+			if(parteHastaPrimerParentesis/* ! No es flecha. */ && parteHastaPrimerParentesis!='function' /* ! No es anónima. */){
+				representacionDeLaFuncion='function '+representacionDeLaFuncion;
+			}
+			// ! Queda terminantemente prohibido nombrar funciones con el prefijo `function`
+
         return '<script> addEventListener("load",()=> {'
 
         // id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='button is-primary mt-3'}={}
@@ -79,7 +98,7 @@ class Formulario{
                 '${this.#id}',
                 '${this.#endpoint}',
                 '${JSON.stringify(this.campos)}',
-                function ${this.#funcionRetorno.toString()},
+                ${representacionDeLaFuncion},
                 {
                     textoEnviar: '${this.#textoEnviar}',
                     verbo: '${this.verbo}',
@@ -117,7 +136,7 @@ class Campo{
 			switch(this.#type){
 			case 'textarea':
 				// TODO Feature: Usar extra para ponerle rows y cols. rows=4 por default. O CSS, porque por lo que vi, rows=4 no anda por Bulma.
-				html=html.replace('input','textarea');
+				html=html.replaceAll('input','textarea');
 				endTag='></textarea>';
 				break;
 			case 'select':

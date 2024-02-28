@@ -39,12 +39,7 @@ import {
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
 // TODO Refactor: Usar todas.js
-import {
-  PaginaInicio,
-  PantallaNuevaPregunta,
-  PaginaPregunta,
-  PantallaModeracionUsuarios,
-} from "./static/pantallas/todas.js";
+import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts } from './static/pantallas/todas.js';
 import { PaginaPerfil } from "./static/pantallas/perfil.js";
 import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
 import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
@@ -85,62 +80,71 @@ router.get("/", (req, res) => {
   }
 });
 
-// Ruta que muestra 1 pregunta con sus respuestas
-router.get("/pregunta/:id?", async (req, res) => {
-  try {
-    if (req.params.id) {
-      const include = [
-        {
-          model: PostDAO,
-          as: "post",
-          include: [
-            {
-              model: UsuarioDAO,
-              as: "duenio",
-            },
-          ],
-        },
-        {
-          model: RespuestaDAO,
-          as: "respuestas",
-          include: [
-            {
-              model: PostDAO,
-              as: "post",
-              include: [
-                {
-                  model: UsuarioDAO,
-                  as: "duenio",
-                },
-                {
-                  model: VotoDAO,
-                  as: "votos",
-                },
-              ],
-            },
-          ],
-          order: [["updatedAt", "DESC"]],
-        },
-        {
-          model: EtiquetasPreguntaDAO,
-          as: "etiquetas",
-          include: {
-            model: EtiquetaDAO,
-            include: { model: Categoria, as: "categoria" },
-          },
-        },
-      ];
-      // // Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido
-      // if (req.session.usuario && req.session.usuario.DNI) {
-      // 	include.push({
-      // 		model: SuscripcionesPreguntaDAO,
-      // 		where: {
-      // 			suscriptoDNI: req.session.usuario.DNI
-      // 		},
-      // 		as: 'suscriptos'
-      // 	});
-      // }
+// * Ruta que muestra 1 pregunta con sus respuestas
+router.get("/pregunta/:id?", async (req, res) =>  {
+	
+// TODO Feature: En caso de que sea una pregunta borrada, no permitir a menos que se tengan permisos de moderación, o administración.
 
+    try {
+			if (req.params.id) {
+				const include = [
+					{
+						model: PostDAO,
+						as: 'post',
+						include: [
+							{
+								model: UsuarioDAO,
+								as: 'duenio'
+							}
+							,{
+								model:VotoDAO
+														,separate:true
+								,include:{model:UsuarioDAO,as:'votante'}
+							}
+						]
+					},
+					{
+						model: RespuestaDAO,
+						as: 'respuestas',
+						include: [
+							{
+								model: PostDAO,
+								as: 'post',
+								include: [
+									{
+										model: UsuarioDAO,
+										as: 'duenio'
+									},
+									{
+										model: VotoDAO,
+										as: 'votos'
+									}
+								]
+							}
+						], 
+						order: [['updatedAt', 'DESC']]
+					},
+					{
+						model: EtiquetasPreguntaDAO,
+						as: 'etiquetas',
+            include: {
+              model: EtiquetaDAO,
+              include: { model: Categoria, as: "categoria" },
+            }
+					},
+          // TODO Refactor: Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido. No hace falta traer todas, sino solo la que nos interesa. Ver voto como ejemplo.
+					{
+						model:UsuarioDAO
+            			,as: 'usuariosSuscriptos',
+						through: {
+							model: SuscripcionesPreguntaDAO,
+							where: {
+								fecha_baja: null // Condición para que la fecha de baja sea nula
+							}
+						}
+					}
+				];
+		
       const p = await PreguntaDAO.findByPk(req.params.id, { include });
 
       if (!p) {
@@ -333,76 +337,18 @@ router.get("/moderacion/usuarios", (req, res) => {
     res.send(pagina.render());
     return;
   }
-  // TODO Security: Permisos. Acá y en todos lados.
-
-  // TODO Refactor: Página. Un método que se encargue de la paginación, los límites, los filtros, la agrupación, los datos extra (cantidadDeReportes)
-  /* let usuariosReportados=UsuarioDAO.findAll({
-		include:[
-			{
-				model:BloqueoDAO
-				,as:'bloqueosRecibidos'
-				,attributes:[]
-				,where:{
-					fecha_desbloqueo:{[Sequelize.Op.is]:null}
-				}
-			}
-			,{
-				model:ReportesUsuarioDAO
-				,as:'reportesRecibidos'
-				,attributes:[]
-				,required:true
-			}
-		]
-		,attributes:[
-			'DNI'
-			,'nombre'
-			,[Sequelize.literal('MAX(reportesRecibidos.fecha)'),'fechaUltimoReporte']
-			,[Sequelize.literal( `COUNT(*)` ),`cantidadDeReportes`]
-		]
-		,group:[
-			'DNI'
-			,'nombre'
-		]
-	}); */
-  /* let usuariosReportados=ReportesUsuarioDAO.findAll({
-		subQuery:false
-		,include:[
-			{
-				model:UsuarioDAO
-				,as:'reportado'
-				,attributes:[]
-				,include:[
-					{
-						model:BloqueoDAO
-						,as:'bloqueosRecibidos'
-						,attributes:[]
-					}
-				]
-			}
-		]
-		,attributes:[
-			'reportado.DNI'
-			,'reportado.nombre'
-			,[Sequelize.literal('MAX(reporteUsuarios.fecha)'),'fechaUltimoReporte']
-			,[Sequelize.literal( `COUNT(*)` ),`cantidadDeReportes`]
-		]
-		,group:[
-			'reportado.DNI'
-			,'reportado.nombre'
-		]
-		// ,where:{
-		// 	[Sequelize.or]:[
-		// 		{'$Usuario.Bloqueo':{[Sequelize.Op.is]:null}}
-		// 		,{'$Usuario.Bloqueo.fecha_desbloqueo$':{[Sequelize.Op.not]:null}}
-		// 	]
-		// }
-		,order:[['fecha','DESC']]
-		,limit:15
-	}); */
 
   let pagina = PantallaModeracionUsuarios(req.path, req.session);
   res.send(pagina.render());
 });
+
+router.get('/moderacion/preguntas-y-respuestas',(req,res)=>{
+	// let usu=req.session.usuario;
+	// TODO Security: Permisos. Acá y en todos lados.
+
+  let pagina=PantallaModeracionPosts(req.path,req.session);
+  res.send(pagina.render());
+})
 
 router.get("/perfil/preguntas", (req, res) => {
   try {
@@ -451,10 +397,12 @@ router.get("/perfil/respuestas", (req, res) => {
 });
 
 router.get("/perfil/:id?", async (req, res) => {
+  // TODO Security: Permisos. Acá y en todos lados.
   // TODO Feature: Ordenar posts por fecha
   /* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
   // TODO Refactor: ver si es posible simplificar casos.
   // TODO Refactor: DNI en vez de id
+	// TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
   try {
     let usu;
     if (

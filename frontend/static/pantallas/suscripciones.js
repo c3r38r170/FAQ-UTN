@@ -15,7 +15,7 @@ function crearPagina(ruta, sesion){
             new DesplazamientoInfinito(
                 'suscripciones-desplinf'
         ,`/api/suscripciones`
-        ,p=>(new Pregunta(p, modal, sesion.usuario)).render()
+        ,p=>(new Pregunta(p, modal, sesion)).render()
             )
         ]
     });
