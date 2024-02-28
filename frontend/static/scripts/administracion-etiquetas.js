@@ -154,7 +154,7 @@ gEt("administrar-etiquetas").onclick = (e) => {
               indiceEtiquetaElegida + 1
             ].cells[1].innerHTML = `<div class="categoria" style="background-color: ${
               JSON.parse(txt).categoria.color
-            }">${JSON.parse(txt).categoria.descripcion}</div>`;
+            }"><div class="descripcion">${JSON.parse(txt).categoria.descripcion}</div></div>`;
             tab.rows[indiceEtiquetaElegida + 1].cells[0].innerText =
               JSON.parse(txt).descripcion;
             etiquetaElegida.descripcion = JSON.parse(txt).descripcion;

@@ -12,7 +12,7 @@ class Etiqueta {
     return `
         <a class="etiqueta" style="background-color: ${
           this.#categoria.color
-        }" href="/etiqueta/${this.#ID}/preguntas">${this.#descripcion}</a>
+        }" href="/etiqueta/${this.#ID}/preguntas"><div class="descripcion">${this.#descripcion}</div></a>
         `;
   }
 }

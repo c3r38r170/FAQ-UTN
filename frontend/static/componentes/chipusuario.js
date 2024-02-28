@@ -36,7 +36,7 @@ class ChipUsuario {
                     <div>Miembro desde: <span>${this.#createdAt.render()}</span></div>
                     <div class="tipo-usuario" style="background-color: ${
                       this.#color
-                    }">${this.#tipo}</div>
+                    }"><div class="descripcion">${this.#tipo}</div></div>
                 </div>
             </div>
             `;
@@ -49,7 +49,7 @@ class ChipUsuario {
       }</a>
                 <div class="tipo-usuario" style="background-color: ${
                   this.#color
-                }">${this.#tipo}</div>
+                }"><div class="descripcion">${this.#tipo}</div></div>
             </div>
             `;
     }

@@ -27,6 +27,10 @@
   padding: 4px 1.5rem;
   margin-top: 10px;
 }
+#administrar-perfiles .descripcion {
+  color: grey;
+  mix-blend-mode: multiply;
+}
 
 .switch[type=checkbox]:checked + label::before {
   background: #88f04b !important;

@@ -160,7 +160,7 @@ gEt("administrar-perfiles").onclick = (e) => {
               indicePerfilElegido + 1
             ].cells[0].innerHTML = `<div class="perfil" style="background-color: ${
               JSON.parse(txt).color
-            }">${JSON.parse(txt).nombre}</div>`;
+            }"><div class="descripcion">${JSON.parse(txt).nombre}</div></div>`;
             tab.rows[indicePerfilElegido + 1].cells[1].innerText =
               JSON.parse(txt).permisoID == 1
                 ? "Usuario"

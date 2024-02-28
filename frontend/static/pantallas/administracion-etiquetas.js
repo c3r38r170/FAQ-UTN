@@ -18,7 +18,7 @@ function crearPantalla(ruta, sesion) {
     {
       nombre: "Categoría",
       celda: (etiqueta) =>
-        `<div class="categoria" style="background-color: ${etiqueta.categoria.color}">${etiqueta.categoria.descripcion}</div>`,
+        `<div class="categoria" style="background-color: ${etiqueta.categoria.color}"><div class="descripcion">${etiqueta.categoria.descripcion}</div></div>`,
     },
     {
       nombre: "Editar",

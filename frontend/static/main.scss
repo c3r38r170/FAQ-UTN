@@ -273,6 +273,10 @@ div.notificacion{
 		border-radius: 16px;
 		padding: 2px 0.5rem;
 	}
+	.descripcion{
+		color:grey;
+		mix-blend-mode: multiply;
+	}
 	
 	.img-usuario{
 		width: 32px;
@@ -302,6 +306,10 @@ div.notificacion{
 		border-radius: 16px;
 		padding: 4px 1.5rem;
 		margin-top: 10px;
+	}
+	.descripcion{
+		color:grey;
+		mix-blend-mode: multiply;
 	}
 }
 
@@ -396,6 +404,10 @@ div.notificacion{
 		color: white;
 		border-radius: 16px;
 		padding: 1px 1rem;
+	}
+	.descripcion{
+		color:grey;
+		mix-blend-mode: multiply;
 	}
 }
 

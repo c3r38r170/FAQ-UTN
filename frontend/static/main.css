@@ -236,6 +236,10 @@ div.notificacion div.noti-container .fecha {
   border-radius: 16px;
   padding: 2px 0.5rem;
 }
+.chip-usuario .descripcion {
+  color: grey;
+  mix-blend-mode: multiply;
+}
 .chip-usuario .img-usuario {
   width: 32px;
   border-radius: 100%;
@@ -262,6 +266,10 @@ div.notificacion div.noti-container .fecha {
   border-radius: 16px;
   padding: 4px 1.5rem;
   margin-top: 10px;
+}
+.chip-usuario-perfil .descripcion {
+  color: grey;
+  mix-blend-mode: multiply;
 }
 
 .pregunta {
@@ -344,6 +352,10 @@ div.notificacion div.noti-container .fecha {
 }
 .etiquetas .etiqueta:hover {
   color: #485fc7;
+}
+.etiquetas .descripcion {
+  color: grey;
+  mix-blend-mode: multiply;
 }
 
 div.buscador {

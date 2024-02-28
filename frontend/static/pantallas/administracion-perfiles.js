@@ -14,7 +14,7 @@ function crearPantalla(ruta, sesion) {
     {
       nombre: "Perfil",
       celda: (perfil) =>
-        `<div class="perfil" style="background-color: ${perfil.color}">${perfil.nombre}</div>`,
+        `<div class="perfil" style="background-color: ${perfil.color}"><div class="descripcion">${perfil.nombre}</div></div>`,
     },
     {
       nombre: "Nivel",

@@ -154,7 +154,7 @@ gEt("administrar-categorias").onclick = (e) => {
               indiceCategoriaElegida + 1
             ].cells[0].innerHTML = `<div class="categoria" style="background-color: ${
               JSON.parse(txt).color
-            }">${JSON.parse(txt).descripcion}</div>`;
+            }"><div class="descripcion">${JSON.parse(txt).descripcion}</div></div>`;
             categoriaElegida.descripcion = JSON.parse(txt).descripcion;
             categoriaElegida.color = JSON.parse(txt).color;
           }
