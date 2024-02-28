@@ -32,23 +32,21 @@ sequelize
   });
 
 const Parametro = sequelize.define("parametro", {
-  EntradasPorPagina: {
+  ID: {
     type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  descripcion: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
-  ModerarIA: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-  },
-  RechazaPost: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  ReportaPost: {
-    type: DataTypes.INTEGER,
+  valor: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
 });
+
 const Usuario = sequelize.define("usuario", {
   DNI: {
     type: DataTypes.STRING,
@@ -1229,6 +1227,7 @@ Pregunta.create({
 })*/
 
 //sequelize.sync({ alter: true });
+
 sequelize.sync();
 
 export {

@@ -6,27 +6,111 @@ let pagina = PantallaAdministracionParametros(
   { usuario: window.usuarioActual },
   window.parametros
 );
+let modal = pagina.partes[0];
+let tabla = pagina.partes[1];
+tabla /* ! Tabla */
+  .iniciar();
 
-let select = document.getElementsByName("ModerarIA")[0];
-
-var options = [
-  {
-    text: "Sí",
-    value: true,
-    selected: window.parametros.ModerarIA == true,
-  },
-  {
-    text: "No",
-    value: false,
-    selected: window.parametros.ModerarIA == false,
-  },
-];
-options.forEach((option) => {
-  var o = document.createElement("option");
-  o.text = option.text;
-  o.value = option.value;
-  if (option.selected) {
-    o.selected = true;
-  }
-  select.add(o);
+let modalElemento = gEt("modal-editar-parametros");
+modalElemento.addEventListener("submit", () => {
+  modalElemento.classList.remove("is-active");
 });
+
+// TODO Feature: Que al volver para atrás (por historial) se mantenga la paginación. localStorage? dejar que el caché de chrome se encargue?
+
+gEt("administrar-parametros").onclick = (e) => {
+  let boton = e.target;
+  if (boton.type != "button") {
+    return;
+  }
+
+  let ID = boton.id.split("-")[2];
+
+  let indiceParametroElegido = tabla.entidades.findIndex(
+    ({ ID: esteID }) => esteID == ID
+  );
+  let parametroElegido = tabla.entidades[indiceParametroElegido];
+
+  modal.titulo = "Editar " + parametroElegido.descripcion;
+  modal.contenido = [
+    new Formulario(
+      "administracion-parametros-editar",
+      `/api/parametros/${ID}`,
+      [
+        {
+          name: "valor",
+          textoEtiqueta: "Valor:",
+          type: "text",
+          value: parametroElegido.valor,
+        },
+      ],
+      (txt, info) => {
+        if (info.ok) {
+          if (tabla.entidades[indiceParametroElegido].ID == ID) {
+            // * Si se sigue en la misma página
+            // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
+            //TODO: cambiar los datos
+            let tab = document.getElementById("administrar-parametros");
+            tab.rows[indiceParametroElegido + 1].cells[1].innerText =
+              JSON.parse(txt).valor;
+            parametroElegido.valor = JSON.parse(txt).valor;
+          }
+        } else {
+          // TODO UX: Mejores alertas
+          alert(`Error ${info.codigo}: ${txt}`);
+        }
+      },
+      {
+        verbo: "PATCH",
+        textoEnviar: "Editar parametro",
+        clasesBoton: "is-link is-rounded mt-3",
+      }
+    ),
+  ];
+
+  modal.redibujar();
+
+  modalElemento.classList.add("is-active");
+};
+
+gEt("botonAgregar").onclick = (e) => {
+  modal.titulo = "Agregar Categoría";
+  modal.contenido = [
+    new Formulario(
+      "administracion-categorias-agregar",
+      `/api/categorias`,
+      [
+        {
+          name: "descripcion",
+          textoEtiqueta: "Descripción",
+          type: "text",
+        },
+        {
+          name: "color",
+          textoEtiqueta: "Color:",
+          type: "color",
+        },
+      ],
+      (txt, info) => {
+        if (info.ok) {
+          // * Si se sigue en la misma página
+          // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
+          //TODO: cambiar los datos
+          window.location.reload();
+        } else {
+          // TODO UX: Mejores alertas
+          alert(`Error ${info.codigo}: ${txt}`);
+        }
+      },
+      {
+        verbo: "POST",
+        textoEnviar: "Agregar Categoría",
+        clasesBoton: "is-link is-rounded mt-3",
+      }
+    ),
+  ];
+
+  modal.redibujar();
+
+  modalElemento.classList.add("is-active");
+};

@@ -1,0 +1,22 @@
+#administrar-parametros {
+  width: calc(100% - 6rem);
+  margin: 1rem 3rem;
+}
+#administrar-parametros thead {
+  background: #ECECEC;
+}
+#administrar-parametros thead th:first-child {
+  width: 35%;
+}
+#administrar-parametros thead th, #administrar-parametros tbody td {
+  padding: 5px 1rem;
+  vertical-align: middle;
+}
+#administrar-parametros thead th.centrado, #administrar-parametros tbody td.centrado {
+  text-align: center;
+}
+#administrar-parametros fieldset {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}/*# sourceMappingURL=administracion-parametros.css.map */

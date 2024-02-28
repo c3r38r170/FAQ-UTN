@@ -33,13 +33,13 @@ let rechazaPost = 40;
 let reportaPost = 70;
 let modera = false;
 
-Parametro.findByPk(1).then((p) => {
-  if (p) {
-    PAGINACION.resultadosPorPagina = p.EntradasPorPagina;
-    rechazaPost = p.RechazaPost;
-    reportaPost = p.ReportaPost;
-    modera = p.ModerarIA;
-  }
+Parametro.findAll().then((ps) => {
+  ps.forEach((p) => {
+    if (p.ID == 1) PAGINACION.resultadosPorPagina = parseInt(p.valor);
+    if (p.ID == 2) modera = p.valor == "1";
+    if (p.ID == 3) rechazaPost = parseInt(p.valor);
+    if (p.ID == 4) reportaPost = parseInt(p.valor);
+  });
 });
 
 // sesiones
@@ -1691,7 +1691,13 @@ router.patch("/notificacion", function (req, res) {
 
 //EntradasPorPagina	ModerarIA	RechazaPost	ReportaPost
 
-router.patch("/parametros", function (req, res) {
+router.get("/parametros", function (req, res) {
+  Parametro.findAll().then((parametros) => {
+    res.send(parametros);
+  });
+});
+
+router.patch("/parametros/:ID", function (req, res) {
   if (!req.session.usuario) {
     res
       .status(403)
@@ -1703,18 +1709,16 @@ router.patch("/parametros", function (req, res) {
       .send("No se poseen permisos de administración o sesión válida activa");
     return;
   }
-  Parametro.findByPk(1).then((p) => {
-    p.EntradasPorPagina = req.body.EntradasPorPagina;
-    p.ModerarIA = req.body.ModerarIA;
-    p.RechazaPost = req.body.RechazaPost;
-    p.ReportaPost = req.body.ReportaPost;
+  Parametro.findByPk(req.params.ID).then((p) => {
+    p.valor = req.body.valor;
     p.save();
-    res.status(200).send("Guardado con Exito");
+    res.status(200).send(p);
+    if (req.params.ID == 1)
+      PAGINACION.resultadosPorPagina = parseInt(req.body.valor);
+    if (req.params.ID == 2) modera = req.body.valor == "1";
+    if (req.params.ID == 3) rechazaPost = parseInt(req.body.valor);
+    if (req.params.ID == 4) reportaPost = parseInt(req.body.valor);
   });
-  PAGINACION.resultadosPorPagina = parseInt(req.body.EntradasPorPagina);
-  modera = req.body.ModerarIA;
-  rechazaPost = req.body.RechazaPost;
-  reportaPost = req.body.ReportaPost;
 });
 
 router.get("/perfiles", async (req, res) => {
