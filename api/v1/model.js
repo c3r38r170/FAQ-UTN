@@ -616,6 +616,10 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
           as: "etiquetas",
           include: {
             model: Etiqueta,
+            include: {
+              model: Categoria,
+              as: "categoria",
+            },
           },
           separate: true,
         },
@@ -686,6 +690,10 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
             as: "etiquetas",
             where: {
               ID: filtrar.etiquetas,
+            },
+            include: {
+              model: Categoria,
+              as: "categoria",
             },
           },
           separate: true,
@@ -787,7 +795,13 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
       if (!filtraEtiquetas) {
         opciones.include.push({
           model: EtiquetasPregunta,
-          include: Etiqueta /* {
+          include: {
+            model: Etiqueta,
+            include: {
+              model: Categoria,
+              as: "categoria",
+            },
+          } /* {
                         model:Etiqueta,
                         as:'etiqueta'
                     } */,
@@ -827,6 +841,10 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
                 as: "etiquetas",
                 include: {
                   model: Etiqueta,
+                  include: {
+                    model: Categoria,
+                    as: "categoria",
+                  },
                 },
                 separate: true,
               },
@@ -907,6 +925,10 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         as: "etiquetas",
         include: {
           model: Etiqueta,
+          include: {
+            model: Categoria,
+            as: "categoria",
+          },
         },
         separate: true,
       },

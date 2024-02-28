@@ -32,6 +32,7 @@ import {
   Perfil as PerfilDAO,
   Permiso as PermisoDAO,
   Parametro as ParametroDAO,
+  Categoria,
 } from "../api/v1/model.js";
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
@@ -123,7 +124,10 @@ router.get("/pregunta/:id?", async (req, res) => {
         {
           model: EtiquetasPreguntaDAO,
           as: "etiquetas",
-          include: EtiquetaDAO,
+          include: {
+            model: EtiquetaDAO,
+            include: { model: Categoria, as: "categoria" },
+          },
         },
       ];
       // // Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido

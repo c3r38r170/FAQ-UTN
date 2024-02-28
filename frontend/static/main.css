@@ -331,14 +331,16 @@ div.notificacion div.noti-container .fecha {
   flex-wrap: wrap;
 }
 .etiquetas .etiqueta {
-  line-height: 2.4;
-  margin-left: 1rem;
-  margin-right: 1.2rem;
-  color: gray;
+  line-height: 1.6;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
   font-size: 1rem;
   font-weight: 300;
   display: inline-block;
   text-transform: capitalize;
+  color: white;
+  border-radius: 16px;
+  padding: 1px 1rem;
 }
 .etiquetas .etiqueta:hover {
   color: #485fc7;
