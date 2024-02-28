@@ -545,14 +545,15 @@ function crearPregunta(req,res,respuestaIA=null){
         })
       );
     }
-    
+    //si es una tira error
+    const etiquetasIDs = Array.isArray(req.body.etiquetasIDs) ? req.body.etiquetasIDs : [req.body.etiquetasIDs]; 
     esperarA.push(
       //etiquetas
-      
-   req.body.etiquetasIDs.forEach(id=>{
+        
+   etiquetasIDs.forEach(id=>{
             EtiquetasPregunta.create({
-              'preguntumID':pregunta.ID,
-              'etiquetumID':id
+              preguntumID:pregunta.ID,
+              etiquetumID:id
             })
           }) 
       /*Promise.all(req.body.etiquetasIDs.map(ID=>Etiqueta.findByPk(ID)))
@@ -568,7 +569,7 @@ function crearPregunta(req,res,respuestaIA=null){
         attributes: ['suscriptoDNI'],
         where: {
           etiquetaID: {
-          [Sequelize.Op.in]: req.body.etiquetasIDs
+          [Sequelize.Op.in]: etiquetasIDs
           },
           fecha_baja: null
         },
