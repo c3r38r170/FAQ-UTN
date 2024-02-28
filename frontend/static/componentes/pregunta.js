@@ -34,7 +34,7 @@ class Pregunta{
                 ,votos:post.votos
                 ,usuarioActual:sesion
             });
-            this.#estaSuscripto=usuariosSuscriptos.some(usu=>usuario.DNI == this.#usuarioActual.DNI && usuario.suscripcionesPregunta.fecha_baja == null);
+            this.#estaSuscripto=usuariosSuscriptos.some(usuario=>usuario.DNI == this.#usuarioActual.DNI && usuario.suscripcionesPregunta.fecha_baja == null);
             // TODO Refactor: Que ni vengan las suscripciones que estén dadas de baja (no chequear que fecha_baja == null). fecha_baja es una eliminación suave.
         }
 	}
