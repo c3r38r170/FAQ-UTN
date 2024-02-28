@@ -636,20 +636,33 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
     });
   } else {
     let opciones = {
-      include: [Post],
-      limit: PAGINACION.resultadosPorPagina,
-      offset: +pagina * PAGINACION.resultadosPorPagina,
-      subQuery: false,
-    };
-    opciones.attributes = {
       include: [
-        [
-          sequelize.literal(
-            "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-          ),
-          "respuestasCount",
-        ],
+        Post
+        // TODO Refactor: Solo hace falta si hay una sesión, y solo hace falta mandar para saber si el usuario está suscrito o no. Ver ejemplo en votos.
+        ,{
+          model:Usuario
+          ,as: 'usuariosSuscriptos'
+          ,through: {
+            model: SuscripcionesPregunta,
+            where: {
+              fecha_baja: null // Condición para que la fecha de baja sea nula
+            }
+          }
+        }
       ],
+      limit: PAGINACION.resultadosPorPagina,
+      offset: (+pagina) * PAGINACION.resultadosPorPagina,
+      subQuery: false,
+      attributes : {
+        include: [
+          [
+            sequelize.literal(
+              "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+            ),
+            "respuestasCount",
+          ],
+        ],
+      }
     };
 
     let filtraEtiquetas = false,
@@ -713,7 +726,6 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       ];
     } else opciones.order = [[Post, "fecha", "DESC"]];
 
-    
     if(formatoCorto){
         // TODO Feature: Ver qué más trae esto, eliminar lo que no haga falta. Ideas: Agregar raw, manipular array conseguido para mandar objetos reducidos
         opciones.attributes=['ID','titulo'];
@@ -741,14 +753,14 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 
 			if(!filtraEtiquetas){
 				opciones.include.push({
-                    model:EtiquetasPregunta
-                    ,include:{
-                      model: Etiqueta,
-                      include: {
-                        model: Categoria,
-                        as: "categoria",
-                      },
-                    },
+          model:EtiquetasPregunta
+          ,include:{
+            model: Etiqueta,
+            include: {
+              model: Categoria,
+              as: "categoria",
+            },
+          },
           as: "etiquetas",
           separate: true,
         });

@@ -17,7 +17,7 @@ function crearPantalla(ruta,sesion){
 		}
 		,{
 			nombre:'Acciones'
-			,celda:(rep)=>'<button></button>'
+			,celda:(rep)=>'<button>Eliminar</button><button>Unificar</button>'
 		}
 	]);
 
@@ -28,6 +28,8 @@ function crearPantalla(ruta,sesion){
 		partes:[
 			// TODO Feature: Considerar poner una barra de búsqueda.
 			tabla
+			// TODO Feature: Modal para buscar con qué unificar. En sí, falta todo el mecanismo de unificación, y eliminado.
+			// ,new Modal()
 		]
   });
 	return pagina;

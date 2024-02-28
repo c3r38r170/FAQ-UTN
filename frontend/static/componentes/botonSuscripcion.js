@@ -5,21 +5,37 @@ class BotonSuscripcion{
     #endpoint;
     #formulario;
     #targetID;
-    constructor(targetID, endpoint) {
+    #estaSuscripto;
+    constructor(targetID, endpoint, estaSuscripto) {
+        this.#estaSuscripto = estaSuscripto;
         this.#targetID = targetID;
         this.#endpoint = endpoint;
-        this.#formulario = new Formulario(
-			'formularioSuscripcion'+targetID
-			, this.#endpoint
-			, []
-			,this.procesarRespuesta
-			,  {textoEnviar:'Suscribirse',verbo: 'POST',clasesBoton:'is-link is-small is-rounded'}
-		);
+
+        if(this.#estaSuscripto){
+            this.#formulario = new Formulario(
+                'formularioSuscripcion'+targetID
+                , this.#endpoint
+                , []
+                ,this.procesarDesuscripcion
+                ,  {textoEnviar:'Desuscribirse',verbo: 'DELETE',clasesBoton:'ml-2 is-link is-small is-rounded is-outlined'}
+            );
+    
+        }else{
+            this.#formulario = new Formulario(
+                'formularioSuscripcion'+targetID
+                , this.#endpoint
+                , []
+                ,this.procesarSuscripcion
+                ,  {textoEnviar:'Suscribirse',verbo: 'POST',clasesBoton:'ml-2 is-link is-small is-rounded'}
+            );
+        }
 
 
       }
 
-      procesarRespuesta(){ console.log('Suscripcion'); }
+      procesarSuscripcion(){ console.log('Suscripcion'); }
+
+      procesarDesuscripcion(){ console.log('Desuscripcion'); }
 		
     render(){
         return`

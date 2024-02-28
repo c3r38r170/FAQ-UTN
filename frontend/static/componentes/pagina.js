@@ -204,46 +204,64 @@ class Pagina {
 }
 
 class Encabezado {
-	#modal;
-  #posibleUsuario;
-  #posibleForm
-  #sesion;
-  constructor(sesion) {
-	this.#sesion = sesion;
-    if (sesion && sesion.usuario) {
-      	this.#posibleUsuario = new ChipUsuario(sesion.usuario);
-		this.#posibleForm = new Formulario(
-			'formularioCerrarSesion'
-			, '/api/sesion'
-			, []
-			,this.procesarRespuesta
-			,  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE',clasesBoton:'is-link is-light is-small'}
-		);
+	#modalLogin;
+	#modalRegistro;
+	#posibleUsuario;
+	#posibleForm
+	#sesion;
+	constructor(sesion) {
+		this.#sesion = sesion;
+		if (sesion && sesion.usuario) {
+			this.#posibleUsuario = new ChipUsuario(sesion.usuario);
+			this.#posibleForm = new Formulario(
+				'formularioCerrarSesion'
+				, '/api/sesion'
+				, []
+				,this.procesarRespuesta
+				,  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE',clasesBoton:'is-link is-light is-small'}
+			);
 
-    }else{ 
-		this.#modal = new Modal('Ingresar','modal-login');
-		let form = new Formulario(
-			'formularioSesion'
-			, '/api/sesion'
-			, [
-				{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
-				{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
-			]
-			, this.procesarRespuesta
-			,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-link is-rounded mt-3'}
-		);
-		this.#modal.contenido.push(form);
+		}else{ 
+			this.#modalLogin = new Modal('Ingresar','modal-login');
+			this.#modalRegistro = new Modal('Registrarse', 'modal-registro');
+			let formLogin = new Formulario(
+				'formularioSesion'
+				, '/api/sesion'
+				, [
+					{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
+					{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
+				]
+				, this.procesarRespuesta
+				,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-link is-rounded mt-3'}
+			);
+			let formRegistro = new Formulario(
+				'formularioRegistro'
+				, '/api/usuario'
+				, [
+					{ name:'nombre', textoEtiqueta:'Nombre', type: 'text' },
+					{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
+					{ name:'correo', textoEtiqueta:'Correo electrónico', type: 'email' },
+					{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
+				]
+				, this.procesarRegistro
+				,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-link is-rounded mt-3'}
+			);
+			this.#modalLogin.contenido.push(formLogin);
+			this.#modalRegistro.contenido.push(formRegistro);
+			}
 	}
-
-  }
 
   procesarRespuesta() {
 	// TODO Feature: Mostrar errores.
 	location.reload();
   }
-  
 
+  procesarRegistro(){
+	
+	location.reload();
+  }
   
+ 
   render() {
     return `<div id="encabezado">
 	<div id=encabezado-izquierdo>
@@ -260,9 +278,10 @@ class Encabezado {
 			//+ new Boton({titulo: 'Cerrar Sesión', classes: 'button is-link is-inverted is-small'}).render()
 		    + this.#posibleForm.render()
 			): (
-       	new Boton({titulo:'Ingresar', classes: 'button is-link is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
-		+ this.#modal.render() 
-		+ new Boton({titulo:'Registrarse', classes: 'button is-link'}).render() 
+       	 new Boton({titulo:'Ingresar', classes: 'button is-link is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
+		+ new Boton({titulo:'Registrarse', classes: 'button is-link js-modal-trigger', dataTarget:'modal-registro'}).render() 
+		+ this.#modalLogin.render() + ' '
+		+ this.#modalRegistro.render() + ' '
 		)}
 	</div>
 </div>`;

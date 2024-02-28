@@ -131,18 +131,19 @@ router.get("/pregunta/:id?", async (req, res) =>  {
               model: EtiquetaDAO,
               include: { model: Categoria, as: "categoria" },
             }
+					},
+          // TODO Refactor: Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido. No hace falta traer todas, sino solo la que nos interesa. Ver voto como ejemplo.
+					{
+						model:UsuarioDAO
+            			,as: 'usuariosSuscriptos',
+						through: {
+							model: SuscripcionesPreguntaDAO,
+							where: {
+								fecha_baja: null // Condición para que la fecha de baja sea nula
+							}
+						}
 					}
 				];
-				// // Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido
-				// if (req.session.usuario && req.session.usuario.DNI) {
-				// 	include.push({
-				// 		model: SuscripcionesPreguntaDAO,
-				// 		where: {
-				// 			suscriptoDNI: req.session.usuario.DNI
-				// 		},
-				// 		as: 'suscriptos'
-				// 	});
-				// }
 		
       const p = await PreguntaDAO.findByPk(req.params.id, { include });
 

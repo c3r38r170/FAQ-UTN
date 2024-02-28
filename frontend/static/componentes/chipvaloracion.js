@@ -1,9 +1,9 @@
 import { SqS, gEt } from "../libs/c3tools.js";
 
+//TODO Feature: puse un rojo cualquiera para el voto hecho, cambiar por otro mas lindo
 class ChipValoracion{
-
-    //TODO Feature: puse un rojo cualquiera para el voto hecho, cambiar por otro mas lindo
     static instancias={};
+
     #valoracion;
     #estado;
     #id; //id del post
@@ -36,33 +36,32 @@ class ChipValoracion{
         let iPos = document.getElementById("iPos-"+id);
         let iNeg = document.getElementById("iNeg-"+id);
         
-        const url= `http://localhost:8080/api/post/${id}/valoracion`;
+        const url= `/api/post/${id}/valoracion`;
         if(estado!=valor){ //si el voto ya esta puesto hace delete
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                valoracion: valor 
-            })
-        }).then(response=>{
-            if(response.status==201){
-                //TODO Feature: cambiar flechita
-                let nuevaValoracion= valoracion+(valor-estado);
-                document.getElementById("chip-valoracion-"+id+"-numero").innerHTML=nuevaValoracion;
-                divChipvaloracion.dataset.valoracion=nuevaValoracion;
-                divChipvaloracion.dataset.estado=valor;
-                if(valor==1){
-                    iPos.style.color="#B90E0A";
-                    iNeg.style.color ="";
-                }else if(valor==-1){
-                    iNeg.style.color="#B90E0A";
-                    iPos.style.color ="";
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    valoracion: valor 
+                })
+            }).then(response=>{
+                if(response.status==201){
+                    //TODO Feature: cambiar flechita
+                    let nuevaValoracion= valoracion+(valor-estado);
+                    document.getElementById("chip-valoracion-"+id+"-numero").innerHTML=nuevaValoracion;
+                    divChipvaloracion.dataset.valoracion=nuevaValoracion;
+                    divChipvaloracion.dataset.estado=valor;
+                    if(valor==1){
+                        iPos.style.color="#B90E0A";
+                        iNeg.style.color ="";
+                    }else if(valor==-1){
+                        iNeg.style.color="#B90E0A";
+                        iPos.style.color ="";
+                    }
                 }
-            }
-        });
-        
+            });
         }else{
             fetch(url, {
                 method: 'DELETE'

@@ -150,8 +150,6 @@ router.get("/usuario", function (req, res) {
   }
   opciones.order = [...order, ["DNI", "ASC"]];
 
-  // console.log(opciones);
-
   Usuario.findAll(opciones)
     .then((usuarios) => {
       // console.log(usuarios);
@@ -166,30 +164,40 @@ router.get("/usuario", function (req, res) {
     });
 });
 
+router.get("/usuario/:DNI/preguntas", function(req, res){
+	let filtros={pagina:null,duenioID:null};
+		filtros.duenioID=req.params.DNI
+		filtros.pagina=req.query.pagina
+		// console.log(filtros);
+		Pregunta.pagina(filtros)
+		// Pregunta.findAll(opciones)
+			.then(preguntas=>{
+				res.status(200).send(preguntas)
+			})
+			.catch(err=>{
+				console.log(err)
+			});
+	// }
+	return;
+})
+
 router.get("/usuario/:DNI/preguntas", function (req, res) {
-  let filtros = { pagina: null, duenioID: null };
-  filtros.duenioID = req.params.DNI;
-  filtros.pagina = req.query.pagina;
-  // console.log(filtros);
-  Pregunta.pagina(filtros)
-    // Pregunta.findAll(opciones)
+  Pregunta.pagina({
+    pagina: req.query.pagina
+    , duenioID: req.params.DNI
+  })
     .then((preguntas) => {
       res.status(200).send(preguntas);
     })
     .catch((err) => {
       console.log(err);
     });
-  // }
-  return;
+    // TODO Refactor: ¿Este return hace algo? Chequear en el resto de los routers.
+  // return;
 });
 
 router.get("/usuario/:DNI/posts", function (req, res) {
-  let filtros = { pagina: null, DNI: req.params.DNI };
-  if (req.query.pagina) {
-    filtros.pagina = req.query.pagina;
-  }
-
-  Post.pagina(filtros).then((posts) => res.send(posts));
+  Post.pagina({ pagina: req.query.pagina||null, DNI: req.params.DNI }).then((posts) => res.send(posts));
 });
 
 router.get("/usuario/:DNI/respuestas", function (req, res) {
@@ -202,6 +210,7 @@ router.get("/usuario/:DNI/respuestas", function (req, res) {
 
   Respuesta.pagina(filtros).then((posts) =>
     res.send(
+      // TODO Refactor: Documentar por qué hay que hacer esto...
       posts.slice(
         +pagina * PAGINACION.resultadosPorPagina,
         (1 + pagina) * PAGINACION.resultadosPorPagina
@@ -225,8 +234,16 @@ router.post("/usuario", (req, res) => {
           DNI: req.body.DNI,
           correo: req.body.correo,
           contrasenia: req.body.contrasenia,
+          perfilID: 1
+        }).then(usu=>Usuario.findByPk(usu.DNI,{
+            include:{
+              model: Perfil,
+              include:Permiso
+            }
+        })).then(usuarioConPerfilYPermisos=>{
+          req.session.usuario=usuarioConPerfilYPermisos;
+          res.status(200).send("Registro exitoso");
         });
-        res.status(200).send("Registro exitoso");
         return;
       }
       res.status(400).send("El Usuario ya se encuentra registrado");
@@ -451,6 +468,7 @@ router.patch("/pregunta", function (req, res) {
           res.status(403).send("No puede editar una pregunta ajena.");
           return;
         } else {
+          // TODO Refactor: DRY en este if
           if (modera) {
             moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10).then(
               (respuesta) => {
@@ -502,6 +520,80 @@ router.patch("/pregunta", function (req, res) {
     });
 });
 
+function crearPregunta(req,res,respuestaIA=null){
+  Post.create({
+    cuerpo: req.body.cuerpo,
+    duenioDNI: req.session.usuario.DNI,
+  }).then((post) => {
+    return Pregunta.create({
+      ID: post.ID,
+      titulo: req.body.titulo,
+    })
+  }).then((pregunta) => {
+    // TODO Refactor: Se puede simplificar incluso más. Para empezar, poniendo todo lo del push obligatorio dentro de la definición.
+    let esperarA = [];
+
+    if (respuestaIA && respuestaIA < reportaPost) {
+      // TODO Feature testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
+      esperarA.push(
+        ReportePost.create({
+          reportadoID: post.ID,
+        })
+      );
+    }
+    
+    esperarA.push(
+      //etiquetas
+      
+  /* req.body.etiquetasIDs.forEach(id=>{
+            EtiquetasPregunta.create({
+              'preguntumID':post.ID,
+              'etiquetumID':id
+            })
+          }) */
+      Promise.all(req.body.etiquetasIDs.map(ID=>Etiqueta.findByPk(ID)))
+        .then(etiquetas=>Promise.all(etiquetas.map(eti=>{
+          let ep=new EtiquetasPregunta();
+          ep.etiqueta=eti;
+          return ep.save();
+        })))
+        .then(eps=>pregunta.setEtiquetas(eps))
+
+// Suscripciones a etiquetas
+      ,SuscripcionesEtiqueta.findAll({
+        attributes: ['suscriptoDNI'],
+        where: {
+          etiquetaID: {
+          [Sequelize.Op.in]: req.body.etiquetasIDs
+          },
+          fecha_baja: null
+        },
+        distinct: true
+      }).then(suscripciones=>{
+        return Promise.all(suscripciones.map(suscripcion =>Notificacion.create({
+          postNotificadoID:pregunta.ID,
+          notificadoDNI:suscripcion.suscriptoDNI
+        })));
+      })
+
+      //Suscribe a su propia pregunta
+      ,Usuario.findByPk(req.session.usuario.DNI)
+        .then(usu=>pregunta.addUsuariosSuscriptos(usu))
+    )
+    
+    Promise.all(esperarA)
+      .then(()=>pregunta.save())
+      .then(() => {
+        // ! Sin las comillas se piensa que pusimos el status dentro del send
+        res.status(201).send(pregunta.ID+"");
+      })
+  })
+  .catch(err=>{
+    console.log(err);
+    res.status(500).send(err);
+  })
+}
+
 router.post("/pregunta", function (req, res) {
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa");
@@ -513,165 +605,18 @@ router.post("/pregunta", function (req, res) {
       .then((respuesta) => {
         if (respuesta.apropiado < rechazaPost) {
           //esto anda
+          // TODO UX: ¿Mandar respuesta del bot?
           res.status(400).send("Texto rechazo por moderación automática");
           return;
         }
-        Post.create({
-          cuerpo: req.body.cuerpo,
-          duenioDNI: req.session.usuario.DNI,
-        }).then((post) => {
-          Pregunta.create({
-            ID: post.ID,
-            titulo: req.body.titulo,
-          })
-            .then((pregunta) => {
-              let esperarA = [];
 
-              if (respuesta.apropiado < reportaPost) {
-                // TODO Feature testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
-                esperarA.push(
-                  ReportePost.create({
-                    reportadoID: post.ID,
-                  })
-                );
-              }
-
-              // TODO Feature: Ninguno de estas 2 anda. Ni setEtiquetas ni addSuscriptos.
-
-              //etiquetas
-              //asumo que vienen en el body en un array con los id (a chequear)
-              if (req.body.etiquetasIDs) {
-                esperarA.push(
-                  //pregunta.setEtiquetas(req.body.etiquetasIDs.map(ID=>new EtiquetasPregunta({etiquetumID: ID})))
-                  //por ahora
-                  req.body.etiquetasIDs.forEach((id) => {
-                    EtiquetasPregunta.create({
-                      preguntumID: post.ID,
-                      etiquetumID: id,
-                    });
-                  })
-                );
-              }
-              //Suscribe a su propia pregunta
-
-              esperarA.push(
-                //pregunta.addSuscriptos(req.session.usuario.DNI)
-                //por ahora
-                SuscripcionesPregunta.create({
-                  preguntaID: post.ID,
-                  suscriptoDNI: req.session.usuario.DNI,
-                })
-              );
-
-              //notificaciones
-              if (req.body.etiquetasIDs)
-                esperarA.push(
-                  SuscripcionesEtiqueta.findAll({
-                    attributes: ["suscriptoDNI"],
-                    where: {
-                      etiquetaID: {
-                        [Sequelize.Op.in]: req.body.etiquetasIDs,
-                      },
-                      fecha_baja: null,
-                    },
-                    distinct: true,
-                  }).then((suscripciones) => {
-                    suscripciones.forEach((suscripcion) => {
-                      Notificacion.create({
-                        postNotificadoID: post.ID,
-                        notificadoDNI: suscripcion.suscriptoDNI,
-                      });
-                    });
-                  })
-                );
-
-              Promise.all(esperarA).then(() => {
-                // ! Sin las comillas se piensa que pusimos el status dentro del send
-                res.status(201).send(post.ID + "");
-              });
-            })
-            .catch((err) => {
-              console.log(err);
-              res.status(500).send(err);
-            });
-        });
+        crearPregunta(req,res,respuesta.apropiado)
       })
       .catch((err) => {
         console.log(err);
         res.status(500).send(err);
       });
-  } else {
-    Post.create({
-      cuerpo: req.body.cuerpo,
-      duenioDNI: req.session.usuario.DNI,
-    }).then((post) => {
-      Pregunta.create({
-        ID: post.ID,
-        titulo: req.body.titulo,
-      }).then((pregunta) => {
-        let esperarA = [];
-
-				//etiquetas
-				
-/* req.body.etiquetasIDs.forEach(id=>{
-							EtiquetasPregunta.create({
-								'preguntumID':post.ID,
-								'etiquetumID':id
-							})
-						}) */
-
-				esperarA.push(
-					Promise.all(req.body.etiquetasIDs.map(ID=>Etiqueta.findByPk(ID)))
-						.then(etiquetas=>Promise.all(etiquetas.map(eti=>{
-							let ep=new EtiquetasPregunta();
-							ep.etiqueta=eti;
-							return ep.save();
-						})))
-						.then(eps=>pregunta.setEtiquetas(eps))
-				)
-				
-					//Suscribe a su propia pregunta
-					
-					esperarA.push(
-						Usuario.findByPk(req.session.usuario.DNI)
-							.then(usu=>pregunta.addUsuariosSuscriptos(usu))
-					)
-
-				//notificaciones
-				if(req.body.etiquetasIDs)
-					esperarA.push(
-						SuscripcionesEtiqueta.findAll({
-							attributes: ['suscriptoDNI'],
-							where: {
-								etiquetaID: {
-								[Sequelize.Op.in]: req.body.etiquetasIDs
-								},
-								fecha_baja: null
-							},
-							distinct: true
-							}).then(suscripciones=>{
-							suscripciones.forEach(suscripcion => {
-								Notificacion.create({
-									postNotificadoID:post.ID,
-									notificadoDNI:suscripcion.suscriptoDNI
-								})
-							});
-						})
-					);
-				
-				Promise.all(esperarA)
-					.then(()=>pregunta.save())
-					.then(() => {
-						// ! Sin las comillas se piensa que pusimos el status dentro del send
-						res.status(201).send(post.ID+"");
-					})
-			})
-			.catch(err=>{
-				console.log(err);
-				res.status(500).send(err);
-			})
-		})
-	}
+  } else crearPregunta(req,res)
 })
 
 //Suscripción / desuscripción a pregunta
@@ -767,9 +712,14 @@ router.get('/suscripciones', function(req,res){
 				model:Usuario
 				,where:{
 					DNI:req.session.usuario.DNI
-					// fecha_baja:NULL
 				}
-				,as: 'usuariosSuscriptos'
+				,as: 'usuariosSuscriptos',
+				through: {
+					model: SuscripcionesPregunta,
+					where: {
+						fecha_baja: null // * Condición para que la fecha de baja sea nula
+					}
+				}
 			}
 		],
 		subQuery:false,
@@ -778,15 +728,10 @@ router.get('/suscripciones', function(req,res){
 		offset:(+pagina)*PAGINACION.resultadosPorPagina,
 	})
 		.then((suscripciones)=>{
-			if(!suscripciones){
-				res.status(404).send("No se encontraron suscripciones");
-				return;
-			}else{
-				res.status(200).send(suscripciones);
-			}
+      res.status(200).send(suscripciones);
 		})
 		.catch(err=>{
-        res.status(500).send(err);
+      res.status(500).send(err);
     })  
 })
 
@@ -818,13 +763,12 @@ router.delete("/pregunta/:preguntaID/suscripcion", function (req, res) {
         })
           .then((sus) => {
             if (!sus) {
-              res.status(401).send("No se encuentra suscripto a la pregunta");
+              res.status(404).send("No se encuentra suscripto a la pregunta");
               return;
             } else {
               sus.fecha_baja = new Date().toISOString().split("T")[0];
-              sus.save();
-              //devuelve el 204 pero no el mensaje
-              res.status(201).send("Suscripción cancelada");
+              //! el 204 no devuelve el mensaje
+              sus.save().then(()=>res.status(201).send("Suscripción cancelada"));
             }
           })
           .catch((err) => {
@@ -846,6 +790,7 @@ router.post("/respuesta", function (req, res) {
     res.status(401).send("Usuario no tiene sesión válida activa");
     return;
   }
+  // TODO Refactor: Unificar if y else. Ver cuál es la versión más reciente de cada parte.
   if (modera) {
     moderarWithRetry(req.body.cuerpo, 10)
       .then((respuesta) => {
@@ -990,6 +935,7 @@ router.patch("/respuesta", function (req, res) {
           return;
         } else {
           //filtro IA
+          // TODO Refactor: DRY
           if (modera) {
             moderarWithRetry(req.body.cuerpo, 10).then((resp) => {
               if (resp.apropiado < rechazaPost) {
