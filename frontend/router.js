@@ -269,7 +269,13 @@ router.get("/etiqueta/:id/preguntas", async (req, res) => {
           where: {
             etiquetumID: req.params.id,
           },
-          include: EtiquetaDAO,
+          include: {
+            model:EtiquetaDAO,
+            include:{
+              model: Categoria,
+              as: 'categoria'
+            }
+          },
         },
       ],
     }).then((preguntas) => {

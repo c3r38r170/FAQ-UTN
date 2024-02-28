@@ -738,7 +738,13 @@ router.get("/suscripciones", function (req, res) {
       {
         model: EtiquetasPregunta,
         as: "etiquetas",
-        include: Etiqueta,
+        include: {
+          model: Etiqueta,
+          include:{
+            model:Categoria,
+            as: 'categoria'
+          }
+        },
       },
       {
         model: SuscripcionesPregunta,
