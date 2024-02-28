@@ -537,7 +537,7 @@ function crearPregunta(req,res,respuestaIA=null){
       // TODO Feature testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
       esperarA.push(
         ReportePost.create({
-          reportadoID: post.ID,
+          reportadoID: pregunta.ID,
         })
       );
     }
@@ -545,19 +545,19 @@ function crearPregunta(req,res,respuestaIA=null){
     esperarA.push(
       //etiquetas
       
-  /* req.body.etiquetasIDs.forEach(id=>{
+   req.body.etiquetasIDs.forEach(id=>{
             EtiquetasPregunta.create({
-              'preguntumID':post.ID,
+              'preguntumID':pregunta.ID,
               'etiquetumID':id
             })
-          }) */
-      Promise.all(req.body.etiquetasIDs.map(ID=>Etiqueta.findByPk(ID)))
+          }) 
+      /*Promise.all(req.body.etiquetasIDs.map(ID=>Etiqueta.findByPk(ID)))
         .then(etiquetas=>Promise.all(etiquetas.map(eti=>{
           let ep=new EtiquetasPregunta();
           ep.etiqueta=eti;
           return ep.save();
         })))
-        .then(eps=>pregunta.setEtiquetas(eps))
+        .then(eps=>pregunta.setEtiquetas(eps))*/
 
 // Suscripciones a etiquetas
       ,SuscripcionesEtiqueta.findAll({

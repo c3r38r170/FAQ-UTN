@@ -952,14 +952,14 @@ Pregunta.hasMany(EtiquetasPregunta, {
   as: "etiquetas",
   constraints: false,
 });
-/* 
+/*
 Etiqueta.hasMany(EtiquetasPregunta,{
     // as:'etiqueta',
     constraints:false
     ,foreignKey:'etiquetumID'
-});
- */
-EtiquetasPregunta.belongsTo(Etiqueta, { constraints: false });
+});*/
+
+EtiquetasPregunta.belongsTo(Etiqueta, { constraints: false});
 
 /* 
 Etiqueta.hasMany(EtiquetasPregunta,{
