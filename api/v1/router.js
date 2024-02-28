@@ -109,7 +109,11 @@ router.get("/usuario", function (req, res) {
     ],
   };
 
-  let include = [],
+  let include = [
+      {
+        model: Perfil,
+      },
+    ],
     where = {},
     order = [];
 
