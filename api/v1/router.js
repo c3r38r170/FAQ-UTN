@@ -33,13 +33,13 @@ let rechazaPost = 40;
 let reportaPost = 70;
 let modera = false;
 
-Parametro.findByPk(1).then((p) => {
-  if (p) {
-    PAGINACION.resultadosPorPagina = p.EntradasPorPagina;
-    rechazaPost = p.RechazaPost;
-    reportaPost = p.ReportaPost;
-    modera = p.ModerarIA;
-  }
+Parametro.findAll().then((ps) => {
+  ps.forEach((p) => {
+    if (p.ID == 1) PAGINACION.resultadosPorPagina = parseInt(p.valor);
+    if (p.ID == 2) modera = p.valor == "1";
+    if (p.ID == 3) rechazaPost = parseInt(p.valor);
+    if (p.ID == 4) reportaPost = parseInt(p.valor);
+  });
 });
 
 // sesiones
@@ -236,6 +236,7 @@ router.post("/usuario", (req, res) => {
     });
 });
 
+//Te deja reinciar la contra de cualquiera lol
 router.post("/usuario/:DNI/contrasenia", function (req, res) {
   function generarContrasenia() {
     var length = 8,
@@ -293,6 +294,10 @@ router.post("/usuario/:DNI/bloqueo", function (req, res) {
     res.status(401).send("Usuario no tiene sesión válida activa");
     return;
   }
+  if (req.session.usuario.perfil.permiso.ID < 2) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
   // TODO Security: Chequear permisos
   // TODO Feature: Comprobar que exista req.body.motivo
 
@@ -343,7 +348,10 @@ router.delete("/usuario/:DNI/bloqueo", function (req, res) {
     res.status(401).send("Usuario no tiene sesión válida activa");
     return;
   }
-  // TODO Security: Chequear permisos
+  if (req.session.usuario.perfil.permiso.ID < 2) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
   // TODO Feature: Comprobar que exista req.body.motivo
 
   Usuario.findByPk(req.params.DNI, {
@@ -747,7 +755,13 @@ router.get('/suscripciones', function(req,res){
 			{
 				model: EtiquetasPregunta,
 				as:'etiquetas',
-				include:Etiqueta
+				include: {
+          model: Etiqueta,
+          include: {
+            model: Categoria,
+            as: "categoria",
+          },
+        }
 			},
 			{
 				model:Usuario
@@ -757,13 +771,6 @@ router.get('/suscripciones', function(req,res){
 				}
 				,as: 'usuariosSuscriptos'
 			}
-			/* {
-        model: SuscripcionesPregunta,
-        where: {
-          suscriptoDNI: req.session.usuario.DNI,
-        },
-        as: "suscriptos",
-      } */
 		],
 		subQuery:false,
 		order:[[Post,'fecha','DESC']],
@@ -1339,7 +1346,127 @@ router.post("moderacion_respuesta", function (req, res) {
     });
 });
 
+//categorias
+
+router.get("/categorias", async (req, res) => {
+  try {
+    const categorias = await Categoria.findAll();
+    res.json(categorias);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.patch("/categoria/:id/activado", async (req, res) => {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
+  const { id } = req.params;
+  try {
+    const categoria = await Categoria.findByPk(id);
+    if (categoria) {
+      categoria.activado = !categoria.activado;
+      await categoria.save();
+      res.json(categoria);
+    } else {
+      res.status(404).json({ error: "Categoria no encontrado" });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Ruta para crear una nueva categoría
+router.post("/categorias", async (req, res) => {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
+  const { descripcion, color } = req.body;
+  try {
+    const categoria = await Categoria.create({ descripcion, color });
+    res.status(201).json(categoria);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Ruta para actualizar una categoría por su ID
+router.patch("/categorias/:id", async (req, res) => {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
+  const id = req.params.id;
+  const { descripcion, color } = req.body;
+  try {
+    let categoria = await Categoria.findByPk(id);
+    if (!categoria) {
+      return res.status(404).json({ message: "Categoría no encontrada" });
+    }
+    categoria = await categoria.update({ descripcion, color });
+    res.json(categoria);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Ruta para eliminar una categoría por su ID
+router.delete("/categorias/:id", async (req, res) => {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
+  const id = req.params.id;
+  try {
+    const categoria = await Categoria.findByPk(id);
+    if (!categoria) {
+      return res.status(404).json({ message: "Categoría no encontrada" });
+    }
+    await categoria.destroy();
+    res.json({ message: "Categoría eliminada correctamente" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // etiquetas
+
+router.post("/etiqueta", function (req, res) {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  const { descripcion, categoriaID } = req.body;
+  Etiqueta.create({ descripcion, categoriaID }).then(() => {
+    res.status(200).send();
+  });
+});
 
 router.get("/etiqueta", function (req, res) {
   //* sin paginación porque no deberían ser tantas
@@ -1371,6 +1498,59 @@ router.get("/etiqueta", function (req, res) {
     .catch((err) => {
       res.status(500).send(err);
     });
+});
+
+router.patch("/etiquetas/:id/activado", async (req, res) => {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
+  const { id } = req.params;
+  try {
+    const etiqueta = await Etiqueta.findByPk(id);
+    if (etiqueta) {
+      etiqueta.activado = !etiqueta.activado;
+      await etiqueta.save();
+      res.json(etiqueta);
+    } else {
+      res.status(404).json({ error: "Etiqueta no encontrado" });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.patch("/etiquetas/:id", async (req, res) => {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
+  const id = req.params.id;
+  const { descripcion, categoriaID } = req.body;
+  try {
+    let etiqueta = await Etiqueta.findByPk(id, {
+      include: [{ model: Categoria, as: "categoria" }],
+    });
+    if (!etiqueta) {
+      return res.status(404).json({ message: "Etiqueta no encontrada" });
+    }
+    etiqueta = await etiqueta.update({ descripcion, categoriaID });
+    etiqueta = await Etiqueta.findByPk(id, {
+      include: [{ model: Categoria, as: "categoria" }],
+    }).then((etiqueta) => {
+      res.json(etiqueta);
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 });
 
 router.post("/etiqueta/:etiquetaID/suscripcion", function (req, res) {
@@ -1592,7 +1772,21 @@ router.patch("/notificacion", function (req, res) {
 
 //EntradasPorPagina	ModerarIA	RechazaPost	ReportaPost
 
-router.patch("/parametros", function (req, res) {
+router.get("/parametros", function (req, res) {
+  Parametro.findAll().then((parametros) => {
+    res.send(parametros);
+  });
+});
+
+router.patch("/parametros/:ID", function (req, res) {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
   if (!req.session.usuario) {
     res
       .status(403)
@@ -1604,13 +1798,15 @@ router.patch("/parametros", function (req, res) {
       .send("No se poseen permisos de administración o sesión válida activa");
     return;
   }
-  Parametro.findByPk(1).then((p) => {
-    p.EntradasPorPagina = req.body.EntradasPorPagina;
-    p.ModerarIA = req.body.ModerarIA;
-    p.RechazaPost = req.body.RechazaPost;
-    p.ReportaPost = req.body.ReportaPost;
+  Parametro.findByPk(req.params.ID).then((p) => {
+    p.valor = req.body.valor;
     p.save();
-    res.status(200).send("Guardado con Exito");
+    res.status(200).send(p);
+    if (req.params.ID == 1)
+      PAGINACION.resultadosPorPagina = parseInt(req.body.valor);
+    if (req.params.ID == 2) modera = req.body.valor == "1";
+    if (req.params.ID == 3) rechazaPost = parseInt(req.body.valor);
+    if (req.params.ID == 4) reportaPost = parseInt(req.body.valor);
   });
 });
 
@@ -1619,7 +1815,9 @@ router.get("/perfiles", async (req, res) => {
     const perfiles = await Perfil.findAll({
       include: Permiso,
       limit: PAGINACION.resultadosPorPagina,
-      offset: (+req.query.pagina || 0) * PAGINACION.resultadosPorPagina,
+      offset:
+        (+req.query.pagina * PAGINACION.resultadosPorPagina || 0) *
+        PAGINACION.resultadosPorPagina,
     });
     res.json(perfiles);
   } catch (error) {
@@ -1629,6 +1827,14 @@ router.get("/perfiles", async (req, res) => {
 
 // Ruta para crear un nuevo perfil
 router.post("/perfiles", async (req, res) => {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
   const { nombre, color, permisoID } = req.body;
   try {
     const nuevoPerfil = await Perfil.create({
@@ -1644,6 +1850,14 @@ router.post("/perfiles", async (req, res) => {
 
 // Ruta para actualizar un perfil por su ID
 router.patch("/perfiles/:id", async (req, res) => {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
   const { id } = req.params;
   const { nombre, color, permisoID } = req.body;
   try {
@@ -1666,6 +1880,14 @@ router.patch("/perfiles/:id", async (req, res) => {
 
 // Ruta para desactivar un perfil por su ID
 router.patch("/perfiles/:id/activado", async (req, res) => {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
   const { id } = req.params;
   try {
     const perfil = await Perfil.findByPk(id);

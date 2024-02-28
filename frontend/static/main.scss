@@ -265,10 +265,17 @@ div.notificacion{
 	}
 	.tipo-usuario{
 		margin-left: 0.4rem;
-		color: gray;
 		font-size: 0.9rem;
 		font-weight: 300;
 		display: inline-block;
+
+		color: white;
+		border-radius: 16px;
+		padding: 2px 0.5rem;
+	}
+	.descripcion{
+		color:grey;
+		mix-blend-mode: multiply;
 	}
 	
 	.img-usuario{
@@ -299,6 +306,10 @@ div.notificacion{
 		border-radius: 16px;
 		padding: 4px 1.5rem;
 		margin-top: 10px;
+	}
+	.descripcion{
+		color:grey;
+		mix-blend-mode: multiply;
 	}
 }
 
@@ -381,13 +392,20 @@ div.notificacion{
 	clear: both;
 
 	.tag{
-		line-height: 2.4;
+		line-height: 1.6;
 		color: gray;
 		font-size: 1rem;
 		text-transform: capitalize;
+		border-radius: 16px;
+		padding: 1px 1rem;
+		
 		&:hover{
 			color: $text-hover;
 		}
+	}
+	.descripcion{
+		color:grey;
+		mix-blend-mode: multiply;
 	}
 }
 

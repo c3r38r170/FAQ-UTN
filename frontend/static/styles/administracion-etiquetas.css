@@ -1,37 +1,37 @@
-#administrar-perfiles {
+#administrar-etiquetas {
   width: calc(100% - 6rem);
   margin: 1rem 3rem;
 }
-#administrar-perfiles thead {
+#administrar-etiquetas thead {
   background: #ECECEC;
 }
-#administrar-perfiles thead th:first-child {
+#administrar-etiquetas thead th:first-child {
   width: 35%;
 }
-#administrar-perfiles thead th, #administrar-perfiles tbody td {
+#administrar-etiquetas thead th, #administrar-etiquetas tbody td {
   padding: 5px 1rem;
   vertical-align: middle;
 }
-#administrar-perfiles thead th.centrado, #administrar-perfiles tbody td.centrado {
+#administrar-etiquetas thead th.centrado, #administrar-etiquetas tbody td.centrado {
   text-align: center;
 }
-#administrar-perfiles fieldset {
+#administrar-etiquetas fieldset {
   display: flex;
   justify-content: center;
   gap: 1rem;
 }
-#administrar-perfiles .perfil {
+#administrar-etiquetas .categoria {
   display: inline-block;
   color: white;
   border-radius: 16px;
   padding: 4px 1.5rem;
   margin-top: 10px;
 }
-#administrar-perfiles .descripcion {
+#administrar-etiquetas .descripcion {
   color: grey;
   mix-blend-mode: multiply;
 }
 
 .switch[type=checkbox]:checked + label::before {
   background: #88f04b !important;
-}/*# sourceMappingURL=administracion-perfiles.css.map */
+}/*# sourceMappingURL=administracion-etiquetas.css.map */

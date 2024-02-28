@@ -1,9 +1,9 @@
 import { gEt, SqS } from "../libs/c3tools.js";
 import { Titulo, Formulario, ComponenteLiteral } from "../componentes/todos.js";
-import { PantallaAdministracionPerfiles } from "../pantallas/administracion-perfiles.js";
+import { PantallaAdministracionEtiquetas } from "../pantallas/administracion-etiquetas.js";
 import { Modal } from "../componentes/todos.js";
 
-let pagina = PantallaAdministracionPerfiles(location.pathname, {
+let pagina = PantallaAdministracionEtiquetas(location.pathname, {
   usuario: window.usuarioActual,
 });
 let modal = pagina.partes[0];
@@ -11,13 +11,13 @@ let tabla = pagina.partes[1];
 tabla /* ! Tabla */
   .iniciar();
 
-let modalElemento = gEt("modal-eliminar-perfil");
+let modalElemento = gEt("modal-eliminar-etiqueta");
 modalElemento.addEventListener("submit", () => {
   modalElemento.classList.remove("is-active");
 });
 
 // TODO Feature: Que al volver para atrás (por historial) se mantenga la paginación. localStorage? dejar que el caché de chrome se encargue?
-gEt("administrar-perfiles").onchange = (e) => {
+gEt("administrar-etiquetas").onchange = (e) => {
   let checkbox = e.target;
   if (checkbox.type != "checkbox") {
     return;
@@ -28,33 +28,33 @@ gEt("administrar-perfiles").onchange = (e) => {
 
   let ID = checkbox.value;
 
-  let indicePerfilElegido = tabla.entidades.findIndex(
+  let indiceEtiquetaElegida = tabla.entidades.findIndex(
     ({ ID: esteID }) => esteID == ID
   );
-  let perfilElegido = tabla.entidades[indicePerfilElegido];
+  let etiquetaElegida = tabla.entidades[indiceEtiquetaElegida];
 
   // TODO Refactor: Aplicar DRY a lo que se pueda.
   // ! Se deben crear nuevos formularios porque el valor del DNI del elegido estará en el indice, en el endpoint, y en más lógica dentro del manipulador de respuesta.
-  if (perfilElegido.activado) {
+  if (etiquetaElegida.activado) {
     // * Se desea desbloquear
-    modal.titulo = "Deshabilitar " + perfilElegido.nombre;
+    modal.titulo = "Deshabilitar " + etiquetaElegida.descripcion;
     modal.contenido = [
       // TODO Feature: Mostrar razón del desbloqueo, preguntar si se está seguro.
       new ComponenteLiteral(
         () => `<big><b><p>¿Estás seguro?</p></b></big><br/>`
       ),
       new Formulario(
-        "administracion-perfiles-deshabilitar",
-        `/api/perfiles/${ID}/activado`,
+        "administracion-etiquetas-deshabilitar",
+        `/api/etiquetas/${ID}/activado`,
         [],
         (txt, info) => {
           if (info.ok) {
-            if (tabla.entidades[indicePerfilElegido].ID == ID) {
+            if (tabla.entidades[indiceEtiquetaElegida].ID == ID) {
               // * Si se sigue en la misma página
               // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
               checkbox.checked = false;
 
-              tabla.entidades[indicePerfilElegido].activado = false;
+              tabla.entidades[indiceEtiquetaElegida].activado = false;
             }
           } else {
             checkbox.checked = true;
@@ -66,7 +66,7 @@ gEt("administrar-perfiles").onchange = (e) => {
         },
         {
           verbo: "PATCH",
-          textoEnviar: "Deshabilitar perfil",
+          textoEnviar: "Deshabilitar etiqueta",
           clasesBoton: "is-link is-rounded mt-3",
           alEnviar: () => (checkbox.disabled = true),
         }
@@ -74,20 +74,20 @@ gEt("administrar-perfiles").onchange = (e) => {
     ];
   } else {
     // * Se desea bloquear
-    modal.titulo = "Habilitar a " + perfilElegido.nombre;
+    modal.titulo = "Habilitar a " + etiquetaElegida.descripcion;
     modal.contenido = [
       new Formulario(
-        "administracion-perfiles-deshabilitar",
-        `/api/perfiles/${ID}/activado`,
+        "administracion-etiqueta-deshabilitar",
+        `/api/etiquetas/${ID}/activado`,
         [],
         (txt, info) => {
           if (info.ok) {
-            if (tabla.entidades[indicePerfilElegido].ID == ID) {
+            if (tabla.entidades[indiceEtiquetaElegida].ID == ID) {
               // * Si se sigue en la misma página
               // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
               checkbox.checked = true;
 
-              tabla.entidades[indicePerfilElegido].activado = false;
+              tabla.entidades[indiceEtiquetaElegida].activado = false;
             }
           } else {
             checkbox.checked = false;
@@ -99,7 +99,7 @@ gEt("administrar-perfiles").onchange = (e) => {
         },
         {
           verbo: "PATCH",
-          textoEnviar: "Habilitar perfil",
+          textoEnviar: "Habilitar etiqueta",
           clasesBoton: "is-link is-rounded mt-3",
           alEnviar: () => (checkbox.disabled = true),
         }
@@ -111,7 +111,7 @@ gEt("administrar-perfiles").onchange = (e) => {
   modalElemento.classList.add("is-active");
 };
 
-gEt("administrar-perfiles").onclick = (e) => {
+gEt("administrar-etiquetas").onclick = (e) => {
   let boton = e.target;
   if (boton.type != "button") {
     return;
@@ -119,67 +119,57 @@ gEt("administrar-perfiles").onclick = (e) => {
 
   let ID = boton.id.split("-")[2];
 
-  let indicePerfilElegido = tabla.entidades.findIndex(
+  let indiceEtiquetaElegida = tabla.entidades.findIndex(
     ({ ID: esteID }) => esteID == ID
   );
-  let perfilElegido = tabla.entidades[indicePerfilElegido];
+  let etiquetaElegida = tabla.entidades[indiceEtiquetaElegida];
 
-  modal.titulo = "Editar a " + perfilElegido.nombre;
+  modal.titulo = "Editar a " + etiquetaElegida.descripcion;
   modal.contenido = [
     new Formulario(
-      "administracion-perfiles-editar",
-      `/api/perfiles/${ID}`,
+      "administracion-etiquetas-editar",
+      `/api/etiquetas/${ID}`,
       [
         {
-          name: "nombre",
-          textoEtiqueta: "Nombre",
+          name: "descripcion",
+          textoEtiqueta: "Descripción",
           type: "text",
-          value: perfilElegido.nombre,
+          value: etiquetaElegida.descripcion,
         },
         {
-          name: "color",
-          textoEtiqueta: "Color:",
-          type: "color",
-          value: perfilElegido.color,
-        },
-        {
-          name: "permisoID",
-          textoEtiqueta: "Nivel",
+          name: "categoriaID",
+          textoEtiqueta: "Categoría:",
           type: "select",
-          value: perfilElegido.permiso.ID,
         },
       ],
       (txt, info) => {
         if (info.ok) {
-          if (tabla.entidades[indicePerfilElegido].ID == ID) {
+          if (tabla.entidades[indiceEtiquetaElegida].ID == ID) {
             // * Si se sigue en la misma página
             // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
             //TODO: cambiar los datos
-            let tab = document.getElementById("administrar-perfiles");
+            let tab = document.getElementById("administrar-etiquetas");
+            console.log(JSON.parse(txt).categoria.descripcion);
             tab.rows[
-              indicePerfilElegido + 1
-            ].cells[0].innerHTML = `<div class="perfil" style="background-color: ${
-              JSON.parse(txt).color
-            }"><div class="descripcion">${JSON.parse(txt).nombre}</div></div>`;
-            tab.rows[indicePerfilElegido + 1].cells[1].innerText =
-              JSON.parse(txt).permisoID == 1
-                ? "Usuario"
-                : JSON.parse(txt).permisoID == 2
-                ? "Moderación"
-                : "Administración";
-            perfilElegido.nombre = JSON.parse(txt).nombre;
-            perfilElegido.color = JSON.parse(txt).color;
-            perfilElegido.permisoID = JSON.parse(txt).permisoID;
+              indiceEtiquetaElegida + 1
+            ].cells[1].innerHTML = `<div class="categoria" style="background-color: ${
+              JSON.parse(txt).categoria.color
+            }"><div class="descripcion">${
+              JSON.parse(txt).categoria.descripcion
+            }</div></div>`;
+            tab.rows[indiceEtiquetaElegida + 1].cells[0].innerText =
+              JSON.parse(txt).descripcion;
+            etiquetaElegida.descripcion = JSON.parse(txt).descripcion;
+            etiquetaElegida.categoria = JSON.parse(txt).categoria;
           }
         } else {
-          checkbox.checked = true;
           // TODO UX: Mejores alertas
           alert(`Error ${info.codigo}: ${txt}`);
         }
       },
       {
         verbo: "PATCH",
-        textoEnviar: "Editar perfil",
+        textoEnviar: "Editar etiqueta",
         clasesBoton: "is-link is-rounded mt-3",
       }
     ),
@@ -187,58 +177,40 @@ gEt("administrar-perfiles").onclick = (e) => {
 
   modal.redibujar();
 
-  let select = document.getElementsByName("permisoID")[0];
+  let select = document.getElementsByName("categoriaID")[0];
 
-  var options = [
-    {
-      text: "Usuario",
-      value: 1,
-      selected: 1 == perfilElegido.permisoID,
-    },
-    {
-      text: "Moderación",
-      value: 2,
-      selected: 2 == perfilElegido.permisoID,
-    },
-    {
-      text: "Administración",
-      value: 3,
-      selected: 3 == perfilElegido.permisoID,
-    },
-  ];
-  options.forEach((option) => {
-    var o = document.createElement("option");
-    o.text = option.text;
-    o.value = option.value;
-    if (option.selected) {
-      o.selected = true;
-    }
-    select.add(o);
+  fetch("/api/categorias").then((options) => {
+    options.json().then((options) => {
+      options.forEach((option) => {
+        var o = document.createElement("option");
+        o.text = option.descripcion;
+        o.value = option.ID;
+        if (option.ID == etiquetaElegida.categoria.ID) {
+          o.selected = true;
+        }
+        select.add(o);
+      });
+    });
   });
 
   modalElemento.classList.add("is-active");
 };
 
 gEt("botonAgregar").onclick = (e) => {
-  modal.titulo = "Agregar Perfil";
+  modal.titulo = "Agregar Etiquetas";
   modal.contenido = [
     new Formulario(
-      "administracion-perfiles-agregar",
-      `/api/perfiles`,
+      "administracion-etiquetas-agregar",
+      `/api/etiqueta`,
       [
         {
-          name: "nombre",
-          textoEtiqueta: "Nombre",
+          name: "descripcion",
+          textoEtiqueta: "Descripción",
           type: "text",
         },
         {
-          name: "color",
-          textoEtiqueta: "Color:",
-          type: "color",
-        },
-        {
-          name: "permisoID",
-          textoEtiqueta: "Nivel",
+          name: "categoriaID",
+          textoEtiqueta: "Categoria:",
           type: "select",
         },
       ],
@@ -255,7 +227,7 @@ gEt("botonAgregar").onclick = (e) => {
       },
       {
         verbo: "POST",
-        textoEnviar: "Agregar perfil",
+        textoEnviar: "Agregar Etiqueta",
         clasesBoton: "is-link is-rounded mt-3",
       }
     ),
@@ -263,27 +235,17 @@ gEt("botonAgregar").onclick = (e) => {
 
   modal.redibujar();
 
-  let select = document.getElementsByName("permisoID")[0];
+  let select = document.getElementsByName("categoriaID")[0];
 
-  var options = [
-    {
-      text: "Usuario",
-      value: 1,
-    },
-    {
-      text: "Moderación",
-      value: 2,
-    },
-    {
-      text: "Administración",
-      value: 3,
-    },
-  ];
-  options.forEach((option) => {
-    var o = document.createElement("option");
-    o.text = option.text;
-    o.value = option.value;
-    select.add(o);
+  fetch("/api/categorias").then((options) => {
+    options.json().then((options) => {
+      options.forEach((option) => {
+        var o = document.createElement("option");
+        o.text = option.descripcion;
+        o.value = option.ID;
+        select.add(o);
+      });
+    });
   });
 
   modalElemento.classList.add("is-active");

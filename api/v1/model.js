@@ -32,23 +32,21 @@ sequelize
   });
 
 const Parametro = sequelize.define("parametro", {
-  EntradasPorPagina: {
+  ID: {
     type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  descripcion: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
-  ModerarIA: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-  },
-  RechazaPost: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  ReportaPost: {
-    type: DataTypes.INTEGER,
+  valor: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
 });
+
 const Usuario = sequelize.define("usuario", {
   DNI: {
     type: DataTypes.STRING,
@@ -609,6 +607,10 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
           as: "etiquetas",
           include: {
             model: Etiqueta,
+            include: {
+              model: Categoria,
+              as: "categoria",
+            },
           },
           separate: true,
         },
@@ -680,6 +682,10 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
             where: {
               ID: filtrar.etiquetas,
             },
+            include: {
+              model: Categoria,
+              as: "categoria",
+            },
           },
           separate: true,
         });
@@ -736,7 +742,13 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 			if(!filtraEtiquetas){
 				opciones.include.push({
                     model:EtiquetasPregunta
-                    ,include:Etiqueta,
+                    ,include:{
+                      model: Etiqueta,
+                      include: {
+                        model: Categoria,
+                        as: "categoria",
+                      },
+                    },
           as: "etiquetas",
           separate: true,
         });
@@ -766,6 +778,10 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
                 as: "etiquetas",
                 include: {
                   model: Etiqueta,
+                  include: {
+                    model: Categoria,
+                    as: "categoria",
+                  },
                 },
                 separate: true,
               },
@@ -846,6 +862,10 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         as: "etiquetas",
         include: {
           model: Etiqueta,
+          include: {
+            model: Categoria,
+            as: "categoria",
+          },
         },
         separate: true,
       },
@@ -899,6 +919,11 @@ const Etiqueta = sequelize.define("etiqueta", {
   },
   descripcion: {
     type: DataTypes.STRING,
+    allowNull: false,
+  },
+  activado: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
     allowNull: false,
   },
 });
@@ -956,6 +981,11 @@ const Categoria = sequelize.define("categoria", {
   },
   color: {
     type: DataTypes.STRING,
+    allowNull: false,
+  },
+  activado: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
     allowNull: false,
   },
 });
@@ -1123,6 +1153,7 @@ Pregunta.create({
 })*/
 
 //sequelize.sync({ alter: true });
+
 sequelize.sync();
 
 export {

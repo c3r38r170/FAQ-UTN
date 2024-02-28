@@ -32,6 +32,7 @@ import {
   Perfil as PerfilDAO,
   Permiso as PermisoDAO,
   Parametro as ParametroDAO,
+  Categoria,
 } from "../api/v1/model.js";
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
@@ -47,6 +48,8 @@ import { PaginaSuscripciones } from "./static/pantallas/suscripciones.js";
 import { PantallaAdministracionParametros } from "./static/pantallas/administracion-parametros.js";
 import { SinPermisos } from "./static/pantallas/sin-permisos.js";
 import { PantallaAdministracionPerfiles } from "./static/pantallas/administracion-perfiles.js";
+import { PantallaAdministracionCategorias } from "./static/pantallas/administracion-categorias.js";
+import { PantallaAdministracionEtiquetas } from "./static/pantallas/administracion-etiquetas.js";
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -76,7 +79,6 @@ router.get("/", (req, res) => {
     // TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
   }
 });
-
 
 // * Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) =>  {
@@ -125,7 +127,10 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 					{
 						model: EtiquetasPreguntaDAO,
 						as: 'etiquetas',
-						include: EtiquetaDAO
+            include: {
+              model: EtiquetaDAO,
+              include: { model: Categoria, as: "categoria" },
+            }
 					}
 				];
 				// // Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido
@@ -200,6 +205,12 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 
       res.send(pagina.render());
     } else {
+      let usu = req.session;
+      if (!usu.usuario) {
+        let pagina = SinPermisos(usu, "No está logueado");
+        res.send(pagina.render());
+        return;
+      }
       // * Nueva pregunta.
       let pagina = PantallaNuevaPregunta(req.path, req.session);
       res.send(pagina.render());
@@ -261,7 +272,13 @@ router.get("/etiqueta/:id/preguntas", async (req, res) => {
           where: {
             etiquetumID: req.params.id,
           },
-          include: EtiquetaDAO,
+          include: {
+            model:EtiquetaDAO,
+            include:{
+              model: Categoria,
+              as: 'categoria'
+            }
+          },
         },
       ],
     }).then((preguntas) => {
@@ -495,6 +512,42 @@ router.get("/administracion/parametros", async (req, res) => {
   res.send(pagina.render());
 });
 
+router.get("/administracion/categorias", async (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+
+  const p = await ParametroDAO.findByPk(1);
+  let pagina = PantallaAdministracionCategorias(req.path, req.session);
+  pagina.globales.parametros = p;
+  res.send(pagina.render());
+});
+
+router.get("/administracion/etiquetas", async (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+
+  const p = await ParametroDAO.findByPk(1);
+  let pagina = PantallaAdministracionEtiquetas(req.path, req.session);
+  pagina.globales.parametros = p;
+  res.send(pagina.render());
+});
+
 router.get("/administracion/perfiles", async (req, res) => {
   let usu = req.session;
   if (!usu.usuario) {
@@ -508,7 +561,7 @@ router.get("/administracion/perfiles", async (req, res) => {
   }
 
   const p = await ParametroDAO.findByPk(1);
-  let pagina = PantallaAdministracionPerfiles(req.path, req.session, p);
+  let pagina = PantallaAdministracionPerfiles(req.path, req.session);
   res.send(pagina.render());
 });
 

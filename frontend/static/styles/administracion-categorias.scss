@@ -1,4 +1,4 @@
-#moderacion-usuarios{
+#administrar-categorias{
 	width: calc(100% - 6rem);
   margin: 1rem 3rem;
 
@@ -6,7 +6,7 @@
 		background: #ECECEC;
 
 		th:first-child{
-			width: 40%;
+			width: 35%;
 		}
 	}
 
@@ -25,8 +25,20 @@
 		justify-content: center;
 		gap: 1rem;
 	}
+	.categoria{
+		display: inline-block;
+		color: white;
+		border-radius: 16px;
+		padding: 4px 1.5rem;
+		margin-top: 10px;
+	}
+	.descripcion{
+		color:grey;
+		mix-blend-mode: multiply;
+	}
+
 }
 
 .switch[type="checkbox"]:checked + label::before{
-	background:#f04b4c !important;
+	background:#88f04b !important;
 }

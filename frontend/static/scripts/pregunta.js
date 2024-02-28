@@ -39,5 +39,8 @@ fetch('/api/etiqueta')
 					}]
 		));
 		
+		// TODO UX: No te deja subir cosas si el input que se usa para buscar etiquetas está vacío, como que es requerido a pesar de que nqv.
+		// TODO UX: Conciliar los estilos de las etiquetas con los que se definieron. Principalmente los colores de las categorías.
+		/* Añadir un style que haga `.tags-input .dropdown-content a[data-value=`${ID}}`],.tags-input > .tag{color:${etiqueta.color}}` */
 		BulmaTagsInput.attach();
 	})
