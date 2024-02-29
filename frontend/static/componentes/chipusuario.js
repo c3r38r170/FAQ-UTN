@@ -19,6 +19,7 @@ class ChipUsuario {
     this.#correo = correo;
     this.#createdAt = new Fecha(fecha_alta || createdAt);
     this.#esPerfil = esPerfil;
+    console.log(perfil);
     this.#tipo = perfil ? perfil.nombre : "Usuario";
     this.#color = perfil ? perfil.color : "#485fc7";
   }
