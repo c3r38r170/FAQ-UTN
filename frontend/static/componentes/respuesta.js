@@ -5,28 +5,28 @@ import { BotonReporte } from "./botonReporte.js";
 
 class Respuesta {
   #ID;
-  #valoracion = {
-    ID: this.#ID,
-    votos: [],
-    usuarioActual:null
-  }
-  #cuerpo;
-  #fecha;
-  #usuario;
-  etiquetas = [];
-  #instanciaModal;
-  #chipValoracion;
-  constructor({ ID, cuerpo, fecha, post},instanciaModal,usuarioActual) {
+  #valoracion = null;
+  #cuerpo='';
+  #fecha=null;
+  #duenio=null;
+  #usuarioActual=null;
+  #instanciaModal=null;
+  #chipValoracion=null;
+  constructor({ ID, cuerpo, fecha, post},instanciaModal,sesion) {
     this.#ID = ID;
-    this.#valoracion.ID = ID;
-    this.#valoracion.usuarioActual=usuarioActual;
-    this.#valoracion.votos=post.votos;
     this.#cuerpo = cuerpo;
     this.#fecha = new Fecha(fecha);
-    this.#usuario = post.duenio;
+    this.#duenio = post.duenio;
     this.#instanciaModal = instanciaModal;
-    this.#chipValoracion = new ChipValoracion(this.#valoracion);
-
+    this.#usuarioActual=sesion?.usuario;
+    
+    if(post.votos && sesion && this.#usuarioActual){
+      this.#chipValoracion = new ChipValoracion({
+        ID
+        ,votos:post.votos
+        ,usuarioActual: sesion
+      });
+    }
   }
 
 
@@ -34,14 +34,12 @@ class Respuesta {
   render() {
     return `
         <div class="respuesta">
-              ${this.#chipValoracion.render()}
+              ${this.#chipValoracion?this.#chipValoracion.render():''}
               <div class="cuerpo">
-                <div class="contenedor-reporte">
-                  ${ new BotonReporte(this.#ID, this.#instanciaModal).render()}
-                </div>
+                  ${(this.#instanciaModal && this.#usuarioActual)? '<div class="contenedor-reporte">'+new BotonReporte(this.#ID, this.#instanciaModal).render()+'</div>':''}
                 ${this.#cuerpo.replace(/\n/g, '<br>')}
                 <div class="usuario">
-                    ${new ChipUsuario(this.#usuario).render()}
+                    ${new ChipUsuario(this.#duenio).render()}
                     ${this.#fecha.render()}
                 </div>
             </div>

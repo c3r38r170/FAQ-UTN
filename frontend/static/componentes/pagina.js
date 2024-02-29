@@ -10,6 +10,9 @@ import { ChipUsuario,DesplazamientoInfinito,Titulo } from './todos.js'
 // TODO Feature: Tirar errores en los constructores con parámetros necesarios 
 // TODO Refactor: Cambiar a Pantalla. Colisiona con el concepto de página de los modelos.
 class Pagina {
+	/* Idealmente, quizá la página podría serializarse, incluirse en las globales, y deserializarse en el frontend. Un ejemplo de algo que nos permitiría esto sería https://github.com/erossignon/serialijse (aunque no parece soportar las propiedades privadas)
+	De esta manera nos ahorramos la carpeta pantallas, y el archivo de visibilizar-clases. */
+
 	// TODO Refactor: ¿No debería ser un string?
   #ruta=''/*  = {
 	ruta: ""
@@ -81,13 +84,15 @@ class Pagina {
 		<link rel="stylesheet" href="/styles${rutaRecursos + ".css"}">
 		
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-switch@2.0.4/dist/css/bulma-switch.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tagsinput@1.0.3/dist/css/bulma-tagsinput.min.css">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
 	</head>
 	<body>
 		${this.#encabezado.render()}
 		<div id="contenedor-principal" class="columns">
 			<div  id="columna-1" class="column is-3">
-				${new Navegacion(this.#sesion?.usuario).render()}
+				${new Navegacion(this.#sesion?.usuario, this.#ruta).render()}
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
@@ -114,6 +119,7 @@ class Pagina {
 				</div>
 			</div>
 		</footer>
+		<!-- TODO Refactor: Meter esto en su propio archivo, por mantenibilidad. -->
 		<script>
 		document.addEventListener('DOMContentLoaded', () => {
 			// Funciones para abrir y cerrar el modal
@@ -198,47 +204,64 @@ class Pagina {
 }
 
 class Encabezado {
-	#modal;
-  #posibleUsuario;
-  #posibleForm
-  #sesion;
-  constructor(sesion) {
-	this.#sesion = sesion;
-    if (sesion && sesion.usuario) {
-      	this.#posibleUsuario = new ChipUsuario(sesion.usuario);
-		this.#posibleForm = new Formulario(
-			'formularioCerrarSesion'
-			, '/api/sesion'
-			, []
-			,this.procesarRespuesta.bind(this)
-			,  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE',clasesBoton:'is-link is-light is-small'}
-		);
+	#modalLogin;
+	#modalRegistro;
+	#posibleUsuario;
+	#posibleForm
+	#sesion;
+	constructor(sesion) {
+		this.#sesion = sesion;
+		if (sesion && sesion.usuario) {
+			this.#posibleUsuario = new ChipUsuario(sesion.usuario);
+			this.#posibleForm = new Formulario(
+				'formularioCerrarSesion'
+				, '/api/sesion'
+				, []
+				,this.procesarRespuesta
+				,  {textoEnviar:'Cerrar Sesion',verbo: 'DELETE',clasesBoton:'is-link is-light is-small'}
+			);
 
-    }else{ 
-		this.#modal = new Modal('Ingresar','modal-login');
-		let form = new Formulario(
-			'formularioSesion'
-			, '/api/sesion'
-			, [
-				{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
-				{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
-			]
-			, this.procesarRespuesta.bind(this)
-			,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-link is-rounded mt-3'}
-		);
-		this.#modal.contenido.push(form);
+		}else{ 
+			this.#modalLogin = new Modal('Ingresar','modal-login');
+			this.#modalRegistro = new Modal('Registrarse', 'modal-registro');
+			let formLogin = new Formulario(
+				'formularioSesion'
+				, '/api/sesion'
+				, [
+					{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
+					{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
+				]
+				, this.procesarRespuesta
+				,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-link is-rounded mt-3'}
+			);
+			let formRegistro = new Formulario(
+				'formularioRegistro'
+				, '/api/usuario'
+				, [
+					{ name:'nombre', textoEtiqueta:'Nombre', type: 'text' },
+					{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
+					{ name:'correo', textoEtiqueta:'Correo electrónico', type: 'email' },
+					{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
+				]
+				, this.procesarRegistro
+				,  {textoEnviar:'Ingresar',verbo: 'POST',clasesBoton:'is-link is-rounded mt-3'}
+			);
+			this.#modalLogin.contenido.push(formLogin);
+			this.#modalRegistro.contenido.push(formRegistro);
+			}
 	}
 
+  procesarRespuesta() {
+	// TODO Feature: Mostrar errores.
+	location.reload();
   }
 
-  procesarRespuesta(respuesta) {
-		// TODO Feature: Mostrar errores.
-	console.log('Respuesta:', JSON.stringify(respuesta));
+  procesarRegistro(){
+	
 	location.reload();
   }
   
-
-  
+ 
   render() {
     return `<div id="encabezado">
 	<div id=encabezado-izquierdo>
@@ -255,9 +278,10 @@ class Encabezado {
 			//+ new Boton({titulo: 'Cerrar Sesión', classes: 'button is-link is-inverted is-small'}).render()
 		    + this.#posibleForm.render()
 			): (
-       	new Boton({titulo:'Ingresar', classes: 'button is-link is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
-		+ this.#modal.render() 
-		+ new Boton({titulo:'Registrarse', classes: 'button is-link'}).render() 
+       	 new Boton({titulo:'Ingresar', classes: 'button is-link is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
+		+ new Boton({titulo:'Registrarse', classes: 'button is-link js-modal-trigger', dataTarget:'modal-registro'}).render() 
+		+ this.#modalLogin.render() + ' '
+		+ this.#modalRegistro.render() + ' '
 		)}
 	</div>
 </div>`;

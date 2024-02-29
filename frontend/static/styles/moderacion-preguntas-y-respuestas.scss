@@ -1,0 +1,70 @@
+#moderar-posts{
+
+
+	// TODO Refactor: Convertir en un import para reutilizar en varias paginas y mejorar el mantenimiento. El fieldset incluso es bien específico del footer de la tabla, de los controles de navegación, asi que ¿incluir con el componente tabla??
+	width: calc(100% - 6rem);
+  margin: 1rem 3rem;
+
+	thead{
+		background: #ECECEC;
+	}
+
+	thead th,tbody td{
+		padding: 5px 1rem;
+		vertical-align: middle;
+		
+		&.centrado{
+			text-align: center;
+		}
+	}
+
+	fieldset{
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+	}
+
+
+	th:first-child{
+		width: 65%;
+	}
+
+	tbody {
+
+		td:first-child {
+			border: solid 1px !important;
+			padding: 5px !important;
+			border-radius: 10px;
+			display: block;
+			margin: 5px;
+	
+			.pregunta, .respuesta{
+				font-size: smaller !important;
+				padding: 0;
+				margin: 0;
+	
+				&>*{
+					padding: 0;
+					margin: 0;
+				}
+	
+				.cuerpo{
+					font-size: 1rem !important;
+				}
+			}
+	
+			.pregunta .titulo{
+				display: inline;
+			}
+	
+			.respuesta{
+				border:none;
+				justify-content: initial;
+	
+				.usuario{
+					margin: 0 !important;
+				}
+			}
+		}
+	}
+}

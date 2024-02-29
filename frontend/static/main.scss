@@ -1,4 +1,5 @@
 // TODO Refactor: usar imports para separar en archivos si se vuelve innavegable. Ponerlos en una carpetita y cambiar
+// TODO Refactor: ¿Meter en scripts y styles? ¿Por qué sí, por qué no?
 
 $p-central: 3rem;
 $text-hover: #485fc7;;
@@ -106,6 +107,9 @@ div#columna-principal{
 	padding-left: 0;
 	padding-right: 0;
 
+	&>form{
+		padding: 0 3rem;
+	}
 }
 
 
@@ -148,6 +152,12 @@ div #navegacion-container{
 					color: $text-hover;
 				}
 			}
+			
+			ul.subnavegacion {
+				margin-top: 5px; 
+				padding-left: 2rem;
+			}
+
 		}
 	}
 }
@@ -166,10 +176,47 @@ div.notificacion{
     margin-bottom: 0.5rem;
 	border-radius: 10px;
     // border-bottom: 1px solid lightgray;
-
+	position: relative;
 
 	&.noti-no-vista{
 		background-color: $paleta-4;
+
+		margin-top: 3rem;
+
+		&::before{
+			content: 'Nuevas';
+			display: block;
+			position: absolute;
+			top: -2rem;
+			font-weight: bold;
+		}
+
+		& ~ .noti-no-vista{
+			margin-top: 0;
+			
+			&::before{
+				content: '';
+			}
+		}
+	}
+	&:not(.noti-no-vista){
+		margin-top: 3rem;
+
+		&::before{
+			content: 'Anteriores';
+			display: block;
+			position: absolute;
+			top: -2rem;
+			font-weight: bold;
+		}
+		
+		& ~ div{
+			margin-top: 0;
+			
+			&::before{
+				content: '';
+			}
+		}
 	}
 	div.img-container{
 		min-width: 60px;
@@ -218,10 +265,17 @@ div.notificacion{
 	}
 	.tipo-usuario{
 		margin-left: 0.4rem;
-		color: gray;
 		font-size: 0.9rem;
 		font-weight: 300;
 		display: inline-block;
+
+		color: white;
+		border-radius: 16px;
+		padding: 2px 0.5rem;
+	}
+	.descripcion{
+		color:grey;
+		mix-blend-mode: multiply;
 	}
 	
 	.img-usuario{
@@ -253,6 +307,10 @@ div.notificacion{
 		padding: 4px 1.5rem;
 		margin-top: 10px;
 	}
+	.descripcion{
+		color:grey;
+		mix-blend-mode: multiply;
+	}
 }
 
 .pregunta{
@@ -274,6 +332,7 @@ div.notificacion{
 		align-items: center;
 		margin-bottom: 1.3rem;
 		flex-wrap: wrap;
+		
 
 	}
 	.fecha{
@@ -290,6 +349,8 @@ div.notificacion{
 		line-height: 2;
 		font-weight: 700;
 		display:block;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
 		&:hover{
 			color: $paleta-1;
 		}
@@ -299,7 +360,8 @@ div.notificacion{
 		color: $text;
 		font-size: 1.2rem;
 		font-weight: 500;
-		display: inline-block;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
 	}
 	
 	.cantRespuestas{
@@ -318,7 +380,7 @@ div.notificacion{
 		flex-wrap: wrap;
 	}
 
-  }
+}
 
 
 .etiquetas{
@@ -326,18 +388,24 @@ div.notificacion{
 	justify-content: start;
 	margin-top: 0.8rem;
 	flex-wrap: wrap;
-	.etiqueta{
-		line-height: 2.4;
-		margin-left: 1rem;
-		margin-right: 1.2rem;
+	gap: 1rem;
+	clear: both;
+
+	.tag{
+		line-height: 1.6;
 		color: gray;
 		font-size: 1rem;
-		font-weight: 300;
-		display: inline-block;
 		text-transform: capitalize;
+		border-radius: 16px;
+		padding: 1px 1rem;
+		
 		&:hover{
 			color: $text-hover;
 		}
+	}
+	.descripcion{
+		color:grey;
+		mix-blend-mode: multiply;
 	}
 }
 
@@ -388,6 +456,7 @@ footer#footer{
     align-items: center;
 	text-align: center;
 	width: 10%;
+	float: left;
 
 	button{
 		// border-radius: 50%;
@@ -467,6 +536,8 @@ footer#footer{
 	}
 	.cuerpo{
 		min-width: 85%;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
 		.usuario{
 			margin-top: 1.5rem;
 			display: flex;

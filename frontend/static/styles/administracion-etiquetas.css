@@ -1,0 +1,37 @@
+#administrar-etiquetas {
+  width: calc(100% - 6rem);
+  margin: 1rem 3rem;
+}
+#administrar-etiquetas thead {
+  background: #ECECEC;
+}
+#administrar-etiquetas thead th:first-child {
+  width: 35%;
+}
+#administrar-etiquetas thead th, #administrar-etiquetas tbody td {
+  padding: 5px 1rem;
+  vertical-align: middle;
+}
+#administrar-etiquetas thead th.centrado, #administrar-etiquetas tbody td.centrado {
+  text-align: center;
+}
+#administrar-etiquetas fieldset {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+#administrar-etiquetas .categoria {
+  display: inline-block;
+  color: white;
+  border-radius: 16px;
+  padding: 4px 1.5rem;
+  margin-top: 10px;
+}
+#administrar-etiquetas .descripcion {
+  color: grey;
+  mix-blend-mode: multiply;
+}
+
+.switch[type=checkbox]:checked + label::before {
+  background: #88f04b !important;
+}/*# sourceMappingURL=administracion-etiquetas.css.map */
