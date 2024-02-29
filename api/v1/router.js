@@ -1441,10 +1441,13 @@ router.get("/etiqueta", function (req, res) {
 	.then((etiquetas,categorias)=>{
 		res.status(200).send({etiquetas,categorias}); */
   // console.log('aaaaa');
+  let pagina = req.query.pagina ? req.query.pagina : 0;
   Etiqueta.findAll({
     raw: true,
     nest: true,
     include: [{ model: Categoria, as: "categoria" }],
+    limit: PAGINACION.resultadosPorPagina,
+		offset: (+pagina) * PAGINACION.resultadosPorPagina,
   })
     .then((etiquetas) => {
       // console.log('bbbbb',etiquetas);

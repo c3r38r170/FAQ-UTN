@@ -8,6 +8,7 @@ let pagina = PantallaAdministracionEtiquetas(location.pathname, {
 });
 let modal = pagina.partes[0];
 let tabla = pagina.partes[1];
+
 tabla /* ! Tabla */
   .iniciar();
 

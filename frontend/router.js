@@ -115,7 +115,8 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 								include: [
 									{
 										model: UsuarioDAO,
-										as: 'duenio'
+										as: 'duenio',
+                    include:PerfilDAO
 									},
 									{
 										model: VotoDAO,
