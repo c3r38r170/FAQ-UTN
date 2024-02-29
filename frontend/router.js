@@ -39,7 +39,7 @@ import {
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
 
 // TODO Refactor: Usar todas.js
-import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts } from './static/pantallas/todas.js';
+import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta } from './static/pantallas/todas.js';
 import { PaginaPerfil } from "./static/pantallas/perfil.js";
 import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
 import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
@@ -372,6 +372,57 @@ router.get("/perfil/preguntas", (req, res) => {
     res.status(500).send("Error interno del servidor");
   }
 });
+
+
+router.get("/perfil/preguntas/:id/editar", (req, res)=>{
+  try{
+    let usu = req.session;
+    if(!usu.usuario){
+      let pagina = SinPermisos(usu, "No está logueado");
+      res.send(pagina.render());
+      return;
+    }
+
+    const include = [
+      {
+        model: PostDAO,
+        as: 'post',
+        where: {
+          duenioDNI: req.session.usuario.DNI
+        },
+        include: [
+          {
+            model: UsuarioDAO,
+            as: 'duenio'
+          }
+        ]
+      },
+      {
+        model: EtiquetasPreguntaDAO,
+        as: 'etiquetas',
+        include: {
+          model: EtiquetaDAO,
+          include: { model: Categoria, as: "categoria" },
+        }
+      }
+    ];
+
+    PreguntaDAO.findByPk(req.params.id, { include })
+    .then((pre)=>{
+      // * Editar pregunta.
+      let pagina = PantallaEditarPregunta(req.path, req.session, pre);
+      res.send(pagina.render());
+    }).catch((error) => {
+      console.error('Error:', error);
+      res.status(409).send('Error al buscar la pregunta');
+    });
+
+
+  }catch(error){
+    console.error(error);
+    res.status(500).send("Error interno del servidor");
+  }
+})
 
 // TODO Refactor: Ver si se puede unificar el algoritmo de prefil/preguntas y perfil/respuestas
 router.get("/perfil/respuestas", (req, res) => {

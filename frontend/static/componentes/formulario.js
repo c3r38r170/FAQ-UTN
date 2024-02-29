@@ -117,8 +117,9 @@ class Campo{
 	#value;
 	#clases;
 	#extra = null;
+	#placeholder='';
 
-	constructor({name,textoEtiqueta,type,required=true,value,extra,clasesBoton}){
+	constructor({name,textoEtiqueta,type,required=true,value,extra,clasesBoton,placeholder}){
 		// TODO Feature: Tirar error si no estan los necesarios.
 		this.#name=name;
 		this.#textoEtiqueta=textoEtiqueta;
@@ -127,6 +128,7 @@ class Campo{
 		this.#type=type;
 		this.#clases = clasesBoton||"";
 		this.#extra = extra;
+		this.#placeholder = placeholder;
 	}
 	render(){
 		let html=`<label class="label">${this.#textoEtiqueta}<input class="input ${this.#clases}" name="${this.#name}"`
@@ -137,7 +139,7 @@ class Campo{
 			case 'textarea':
 				// TODO Feature: Usar extra para ponerle rows y cols. rows=4 por default. O CSS, porque por lo que vi, rows=4 no anda por Bulma.
 				html=html.replaceAll('input','textarea');
-				endTag='></textarea>';
+				endTag=`>${this.#value}</textarea>`;
 				break;
 			case 'select':
 				html=html.replace('input','select');
@@ -160,6 +162,9 @@ class Campo{
 			html+=` required`;
 		if(this.#value)
 			html+=` value="${this.#value}"`;
+		if(this.#placeholder){
+			html+=` placeholder="${this.#placeholder}"`;
+		}
 			
 		return html+endTag+'</label>';
 	}
