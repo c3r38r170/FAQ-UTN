@@ -698,7 +698,8 @@ router.get('/suscripciones', function(req,res){
 				include: [
 					{
 						model: Usuario,
-						as: 'duenio'
+						as: 'duenio',
+            include:{model:Perfil}
 					}
 				]
 			},
