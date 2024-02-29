@@ -446,6 +446,10 @@ router.get("/pregunta", (req, res) => {
   if (req.query.searchInput) {
     filtros.filtrar.texto = req.query.searchInput;
   }
+  if(req.query.etiquetaID){
+    filtros.filtrar.etiquetaID=req.query.etiquetaID;
+    filtros.filtrar.etiquetas=true;
+  }
 
   Pregunta.pagina(filtros)
     .then((preguntas) => {
@@ -686,6 +690,7 @@ router.get('/suscripciones', function(req,res){
 
 	// TODO Feature Poner en Pregunta.pagina para tener también las suscripciones (aca hace falta?? sabemos que todas estas lo incluyen, quizá poner en el frontend. Esto haría un parámetro de si hacen falta los votos o no)
 	// TODO Feature Usar Pregunta.pagina para tener todos los datos unificados, como los votos
+  // TODO Feature faltan la cantidad de respuestas
 
 	const pagina = req.query.pagina || 0;
 	Pregunta.findAll({

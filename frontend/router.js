@@ -50,6 +50,7 @@ import { SinPermisos } from "./static/pantallas/sin-permisos.js";
 import { PantallaAdministracionPerfiles } from "./static/pantallas/administracion-perfiles.js";
 import { PantallaAdministracionCategorias } from "./static/pantallas/administracion-categorias.js";
 import { PantallaAdministracionEtiquetas } from "./static/pantallas/administracion-etiquetas.js";
+import { PantallaEtiquetaPreguntas } from "./static/pantallas/pantalla-etiquetas-pregunta.js";
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -253,54 +254,16 @@ router.get("/etiqueta/:id/preguntas", async (req, res) => {
       return;
     }
 
-    let modal = new Modal("General", "modal-general");
-    PreguntaDAO.findAll({
-      // TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
-      // TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta
-      include: [
-        {
-          model: PostDAO,
-          as: "post",
-          include: [
-            {
-              model: UsuarioDAO,
-              as: "duenio",
-            },
-          ],
-        },
-        {
-          model: EtiquetasPreguntaDAO,
-          as: "etiquetas",
-          where: {
-            etiquetumID: req.params.id,
-          },
-          include: {
-            model:EtiquetaDAO,
-            include:{
-              model: Categoria,
-              as: 'categoria'
-            }
-          },
-        },
-      ],
-    }).then((preguntas) => {
-      let pagina = new Pagina({
-        ruta: req.path,
-        titulo: "Etiqueta #" + e.descripcion,
-        sesion: req.session,
-        // TODO Feature: endpoint de preguntas por suscripción
-        partes: [
-          modal,
-          new DesplazamientoInfinito(
-            "suscripciones-desplinf",
-            "/preguntas?suscritas",
-            // TODO Feature: Indicar que acá es con la primera respuesta. Quizá buscar con el DAO con o sin Respuestas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
-            (p) => new Pregunta(p, modal, req.session).render(),
-            preguntas
-          ),
-        ],
-      });
+    let filtro = [];
+    filtro.etiquetas = true;
+    filtro.etiquetaID = req.params.id;
+    let filtros = { filtrar: filtro };
 
+    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+    PreguntaDAO.pagina(filtros).then((preguntas) => {
+      let pagina = new PantallaEtiquetaPreguntas(req.path, req.session, "?etiquetas=true&etiquetaID="+req.params.id);
+      pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
+      pagina.titulo = "Etiqueta # "+e.descripcion;
       res.send(pagina.render());
     });
   } catch (error) {
