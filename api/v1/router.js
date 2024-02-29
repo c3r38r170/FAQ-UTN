@@ -20,6 +20,7 @@ import {
   Carrera,
   Bloqueo,
   Parametro,
+  TipoReporte,
 } from "./model.js";
 import { Sequelize } from "sequelize";
 import { moderar, moderarWithRetry } from "./ia.js";
@@ -569,7 +570,7 @@ function crearPregunta(req,res,respuestaIA=null){
         attributes: ['suscriptoDNI'],
         where: {
           etiquetaID: {
-          [Sequelize.Op.in]: etiquetasIDs
+            [Sequelize.Op.in]: etiquetasIDs
           },
           fecha_baja: null
         },
@@ -1021,12 +1022,14 @@ router.get('/post/reporte',function(req, res){
 			// * Datos resumen de los reportes.
 			,[Sequelize.fn('max',Sequelize.col('reportePost.fecha')),'fecha']
 			,[Sequelize.fn('count',Sequelize.col('*')),'cantidad']
-		]
-		,nest:true,raw:true
+      // TODO Refactor: Es horrible que tengamos que buscar en un string en vez de un array.
+			,[Sequelize.fn('group_concat',Sequelize.fn('distinct',Sequelize.col('reportePost.tipoID'))),'tiposIDs']
+		],
+    nest:true,raw:true
+    // ? Supuestamente hay que agrupar por todos los datos atómicos, pero esto funciona ya. Considerar si nos debemos basar en la teoría o en la práctica.
+    /* cuerpo,fecha,DNI,nombre,perfilID,perfilNombre,perfilColor */
 		,group:[
 			'reportado.ID'
-			// ? Supuestamente hay que agrupar por todos los datos atómicos, pero esto funciona ya. Considerar si nos debemos basar en la teoría o en la práctica.
-			/* cuerpo,fecha,DNI,nombre,perfilID,perfilNombre,perfilColor */
 		]
 		,order:[
 			['fecha','DESC']
@@ -1174,6 +1177,36 @@ router.post("/post/:reportadoID/reporte", reportarPost);
 
 // TODO Refactor: Moderación de preguntas y respuestas deberían estar repartidas en router.patch('/pregunta') (la unificación) y router.delete('/(pregunta|respuesta))') (eliminación). Para esto hace falta meter bien el tema de los permisos.
 
+router.delete('/post/:ID',(req,res) => {
+  if (!req.session.usuario) {
+    res
+      .status(401)
+      .send("No se posee sesión válida activa");
+    return;
+  } else if (req.session.usuario.perfil.permiso.ID < 2) {
+    res
+      .status(403)
+      .send("No se poseen permisos de moderación");
+    return;
+  }
+
+  Post.findByPk(req.params.ID,{
+    include:{model:Usuario,as:'eliminador'}
+  })
+    .then((post) => {
+      if (!post) {
+        res.status(404).send("Pregunta no encontrada/disponible");
+        return;
+      }
+
+      post.setEliminador(req.session.usuario.DNI)
+        .then((post)=>post.save())
+        .then(()=>{
+          res.status(200).send("Estado del post consistente con interfaz");
+        })
+    })
+})
+
 //moderación de preguntas y respuestas
 
 router.post("moderacion_pregunta", function (req, res) {
@@ -1188,6 +1221,7 @@ router.post("moderacion_pregunta", function (req, res) {
       .send("No se poseen permisos de moderación o sesión válida activa");
     return;
   }
+
   Post.findAll({
     where: { ID: req.body.IDPost },
     raw: true,
@@ -1206,7 +1240,7 @@ router.post("moderacion_pregunta", function (req, res) {
         } else if (req.body.accion == "unificar") {
           //TODO Feature: que hacemos aca?
         } else {
-          // TODO Feature: Los reportes no se eliminan. Solo se actua sobre ellos (eliminando o unificando) o se ignoran.
+          // TODO Feature: Los reportes no se eliminan. Solo se actua sobre ellos (eliminando o unificando) o se ignoran. Esta ignoración podría ser interesante de implementar.
           //Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
           ReportePost.findAll({
             where: { ID: req.body.IDReporte },

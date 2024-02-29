@@ -20,7 +20,7 @@ class Boton {
         <button class="${this.#classes} is-rounded" data-target="${
       this.#dataTarget
     }" onclick="${this.#onClick}" type="${this.#type}" ${
-      this.#id == "" ? "" : "id='" + this.#id + "'"
+      (this.#id == "") ? "" : "id='" + this.#id + "'"
     }>
           ${this.#titulo}
         </button>

@@ -6,9 +6,10 @@ function crearPantalla(ruta,sesion){
 			nombre:'Post'
 			,celda:({reportado})=>[
 				new ChipUsuario(reportado.duenio)
-				,new ComponenteLiteral(()=>`<span class="pregunta">${reportado.respuestaID?'Respuesta a ':''}<a href="/pregunta/${reportado.preguntaID}" class="titulo">${reportado.titulo}</a></span>`
+				,new ComponenteLiteral(()=>`<span class="pregunta">${reportado.respuestaID?'Respuesta a ':''}<a target="_blank" href="/pregunta/${reportado.preguntaID}" class="titulo">${reportado.titulo}</a></span>`
 					+`<div class="cuerpo">${reportado.cuerpo}</div>`)
 			].reduce((acc,el)=>acc+el.render(),'')
+			,clases:['preguntas-o-respuestas']
 		}
 		,{
 			nombre:'Reportes'
@@ -17,7 +18,24 @@ function crearPantalla(ruta,sesion){
 		}
 		,{
 			nombre:'Acciones'
-			,celda:(rep)=>'<button>Eliminar</button><button>Unificar</button>'
+			,celda:(rep)=>{
+				let html=''
+					,tipos=rep.tiposIDs.split(',')
+					// ,reportadoID=rep.reportado.respuestaID||rep.reportado.preguntaID
+					// TODO Refactor: Expandir boton.js para que sea util en este caso.
+					,crearBoton=(claseColor,clasePropia,texto)=>`<button class="button ${claseColor} ${clasePropia}" value="${rep.reportado.respuestaID||rep.reportado.preguntaID}">${texto}</button>`;
+				
+					// TODO Refactor: Estaría bueno poder comparar números... pero bueno, depende de que el endpoint devuelva números en vez de letras.
+				if(tipos.includes('1')){
+					html+=crearBoton('is-danger','eliminar','Eliminar');
+				}
+				if(tipos.includes('2')){
+					html+=crearBoton('is-link','unificar','Unificar');
+				}
+
+				return html;
+			}
+			,clases:['botones']
 		}
 	]);
 
@@ -29,7 +47,7 @@ function crearPantalla(ruta,sesion){
 			// TODO Feature: Considerar poner una barra de búsqueda.
 			tabla
 			// TODO Feature: Modal para buscar con qué unificar. En sí, falta todo el mecanismo de unificación, y eliminado.
-			// ,new Modal()
+			,new Modal('Moderar preguntas y respuestas','moderacion-posts-modal') // * El título se va cambiando.
 		]
   });
 	return pagina;

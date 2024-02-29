@@ -26,12 +26,12 @@
 
 
 	th:first-child{
-		width: 65%;
+		width: 60%;
 	}
 
 	tbody {
 
-		td:first-child {
+		td.preguntas-o-respuestas {
 			border: solid 1px !important;
 			padding: 5px !important;
 			border-radius: 10px;
@@ -64,6 +64,13 @@
 				.usuario{
 					margin: 0 !important;
 				}
+			}
+		}
+
+		td.botones{
+			button{
+				display: block;
+				margin: .5rem auto;
 			}
 		}
 	}

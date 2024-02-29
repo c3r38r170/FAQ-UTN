@@ -38,7 +38,6 @@ gEt("moderacion-usuarios").onchange = (e) => {
     // * Se desea desbloquear
     modal.titulo = "Desbloquear a " + usuarioElegido.nombre;
     modal.contenido = [
-      // TODO Feature: Mostrar razón del desbloqueo, preguntar si se está seguro.
       new ComponenteLiteral(
         () =>
           `<big><b><p>¿Estás seguro?</p></b></big> <p><i>${usuarioElegido.nombre} fue bloqueado con el siguiente motivo:</i><br/>${usuarioElegido.bloqueosRecibidos[0].motivo}</p><br/>`
