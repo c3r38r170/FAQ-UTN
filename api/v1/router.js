@@ -646,9 +646,7 @@ router.post("/pregunta/:preguntaID/suscripcion", function (req, res) {
           where: {
             preguntaID: IDpregunta,
             suscriptoDNI: req.session.usuario.DNI,
-            fecha_baja: {
-              [Sequelize.Op.is]: null,
-            },
+            fecha_baja: null,
           },
           nest: true,
           plain: true,
