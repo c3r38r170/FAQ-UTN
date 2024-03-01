@@ -1,1 +1,51 @@
-#moderar-posts{width:calc(100% - 6rem);margin:1rem 3rem}#moderar-posts thead{background:#ececec}#moderar-posts thead th,#moderar-posts tbody td{padding:5px 1rem;vertical-align:middle}#moderar-posts thead th.centrado,#moderar-posts tbody td.centrado{text-align:center}#moderar-posts fieldset{display:flex;justify-content:center;gap:1rem}#moderar-posts th:first-child{width:65%}#moderar-posts tbody td:first-child{border:solid 1px !important;padding:5px !important;border-radius:10px;display:block;margin:5px}#moderar-posts tbody td:first-child .pregunta,#moderar-posts tbody td:first-child .respuesta{font-size:smaller !important;padding:0;margin:0}#moderar-posts tbody td:first-child .pregunta>*,#moderar-posts tbody td:first-child .respuesta>*{padding:0;margin:0}#moderar-posts tbody td:first-child .pregunta .cuerpo,#moderar-posts tbody td:first-child .respuesta .cuerpo{font-size:1rem !important}#moderar-posts tbody td:first-child .pregunta .titulo{display:inline}#moderar-posts tbody td:first-child .respuesta{border:none;justify-content:initial}#moderar-posts tbody td:first-child .respuesta .usuario{margin:0 !important}/*# sourceMappingURL=moderacion-preguntas-y-respuestas.css.map */
+#moderar-posts {
+  width: calc(100% - 6rem);
+  margin: 1rem 3rem;
+}
+#moderar-posts thead {
+  background: #ECECEC;
+}
+#moderar-posts thead th, #moderar-posts tbody td {
+  padding: 5px 1rem;
+  vertical-align: middle;
+}
+#moderar-posts thead th.centrado, #moderar-posts tbody td.centrado {
+  text-align: center;
+}
+#moderar-posts fieldset {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+#moderar-posts th:first-child {
+  width: 65%;
+}
+#moderar-posts tbody td:first-child {
+  border: solid 1px !important;
+  padding: 5px !important;
+  border-radius: 10px;
+  display: block;
+  margin: 5px;
+}
+#moderar-posts tbody td:first-child .pregunta, #moderar-posts tbody td:first-child .respuesta {
+  font-size: smaller !important;
+  padding: 0;
+  margin: 0;
+}
+#moderar-posts tbody td:first-child .pregunta > *, #moderar-posts tbody td:first-child .respuesta > * {
+  padding: 0;
+  margin: 0;
+}
+#moderar-posts tbody td:first-child .pregunta .cuerpo, #moderar-posts tbody td:first-child .respuesta .cuerpo {
+  font-size: 1rem !important;
+}
+#moderar-posts tbody td:first-child .pregunta .titulo {
+  display: inline;
+}
+#moderar-posts tbody td:first-child .respuesta {
+  border: none;
+  justify-content: initial;
+}
+#moderar-posts tbody td:first-child .respuesta .usuario {
+  margin: 0 !important;
+}/*# sourceMappingURL=moderacion-preguntas-y-respuestas.css.map */

@@ -150,7 +150,6 @@ gEt("administrar-etiquetas").onclick = (e) => {
             // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
             //TODO: cambiar los datos
             let tab = document.getElementById("administrar-etiquetas");
-            console.log(JSON.parse(txt).categoria.descripcion);
             tab.rows[
               indiceEtiquetaElegida + 1
             ].cells[1].innerHTML = `<div class="categoria" style="background-color: ${

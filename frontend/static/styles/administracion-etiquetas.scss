@@ -42,3 +42,9 @@
 .switch[type="checkbox"]:checked + label::before{
 	background:#88f04b !important;
 }
+
+.botonAgregar{
+	margin-top: 20px;
+	left:50%;
+	transform: translate(-50%, -50%);
+}
