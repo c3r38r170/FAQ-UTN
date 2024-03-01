@@ -10,7 +10,7 @@ function crearPagina(ruta,sesion, pregunta){
 				'editando-pregunta'
 				,'/api/pregunta'
 				,[
-					{name:'ID',textoEtiqueta:'ID',value:pregunta.ID}
+					{name:'ID',textoEtiqueta:'ID',value:pregunta.ID, clasesLabel: 'noMostrar'}
 					,{name:'titulo',textoEtiqueta:'Título',value:pregunta.titulo}
 					,{name:'cuerpo',textoEtiqueta:'Detalles',type:'textarea',value:pregunta.cuerpo}
 				]

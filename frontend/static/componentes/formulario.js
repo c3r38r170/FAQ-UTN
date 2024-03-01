@@ -115,23 +115,25 @@ class Campo{
 	#type;
 	#required=true;
 	#value;
-	#clases;
+	#clasesInput;
+	#clasesLabel;
 	#extra = null;
 	#placeholder='';
 
-	constructor({name,textoEtiqueta,type,required=true,value,extra,clasesBoton,placeholder}){
+	constructor({name,textoEtiqueta,type,required=true,value='',extra,placeholder, clasesInput, clasesLabel}){
 		// TODO Feature: Tirar error si no estan los necesarios.
 		this.#name=name;
 		this.#textoEtiqueta=textoEtiqueta;
 		this.#required=required;
 		this.#value=value;
 		this.#type=type;
-		this.#clases = clasesBoton||"";
+		this.#clasesInput = clasesInput||"";
+		this.#clasesLabel = clasesLabel||"";
 		this.#extra = extra;
 		this.#placeholder = placeholder;
 	}
 	render(){
-		let html=`<label class="label">${this.#textoEtiqueta}<input class="input ${this.#clases}" name="${this.#name}"`
+		let html=`<label class="label ${this.#clasesLabel}">${this.#textoEtiqueta}<input class="input ${this.#clasesInput}" name="${this.#name}"`
 			,endTag='/>';
 		
 		if(this.#type){
