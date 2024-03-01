@@ -1442,7 +1442,7 @@ router.get("/etiqueta", function (req, res) {
 		res.status(200).send({etiquetas,categorias}); */
   // console.log('aaaaa');
   let pagina = req.query.pagina ? req.query.pagina : 0;
-  Etiqueta.findAll({
+  Etiqueta.findAndCountAll({
     raw: true,
     nest: true,
     include: [{ model: Categoria, as: "categoria" }],
@@ -1450,8 +1450,8 @@ router.get("/etiqueta", function (req, res) {
 		offset: (+pagina) * PAGINACION.resultadosPorPagina,
   })
     .then((etiquetas) => {
-      // console.log('bbbbb',etiquetas);
-      res.status(200).send(etiquetas);
+      res.setHeader('untfaq-cantidad-paginas', Math.ceil(etiquetas.count/PAGINACION.resultadosPorPagina));
+      res.status(200).send(etiquetas.rows);
     })
     .catch((err) => {
       res.status(500).send(err);
@@ -1770,14 +1770,15 @@ router.patch("/parametros/:ID", function (req, res) {
 
 router.get("/perfiles", async (req, res) => {
   try {
-    const perfiles = await Perfil.findAll({
+    let pagina = req.query.pagina ? req.query.pagina : 0;
+    const perfiles = await Perfil.findAndCountAll({
       include: Permiso,
       limit: PAGINACION.resultadosPorPagina,
       offset:
-        (+req.query.pagina * PAGINACION.resultadosPorPagina || 0) *
-        PAGINACION.resultadosPorPagina,
+        (+pagina * PAGINACION.resultadosPorPagina)
     });
-    res.json(perfiles);
+    res.setHeader('untfaq-cantidad-paginas', Math.ceil(perfiles.count/parseInt(PAGINACION.resultadosPorPagina)));
+    res.status(200).send(perfiles.rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

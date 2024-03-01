@@ -44,7 +44,7 @@ gEt("administrar-parametros").onclick = (e) => {
   if(parametroElegido.ID==1){
     //Resultados por página
     campo.type = "number";
-    campo.extra = 'max="20", min="1"'
+    campo.extra = 'max="20", min="4"'
   }else if(parametroElegido.ID==2){
     //Moderar por IA
     campo.type = "select";

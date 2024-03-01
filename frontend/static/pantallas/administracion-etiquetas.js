@@ -10,6 +10,10 @@ import {
 } from "../componentes/todos.js";
 
 function crearPantalla(ruta, sesion) {
+
+  //simula fetch
+  let cantidadEtiquetas =11;
+
   let tabla = new Tabla("administrar-etiquetas", "/api/etiqueta", [
     {
       nombre: "Etiqueta",

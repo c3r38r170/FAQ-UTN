@@ -36,10 +36,9 @@ class Tabla{
 			credentials:'include',
 			method:'GET'
 		})
-			.then(res=>res.json())
-		/* new Promise((resolve, reject)=>{
-			resolve(new Array(3).fill(null).map((n,i)=>(3*(this.#pagina-1)+i)));
-		}) */
+			.then(res=>{
+			this.cantidadDePaginas = res.headers.get('untfaq-cantidad-paginas') ? res.headers.get('untfaq-cantidad-paginas') : 1;
+			res.json()
 			.then((nuevasEntidades)=>{
 				this.entidades=nuevasEntidades;
 				
@@ -52,7 +51,7 @@ class Tabla{
 			// TODO Feature: catch
 			.finally(()=>{
 				fieldset.disabled=false;
-			})
+			})})
 	}
 
 	navegar(e){
