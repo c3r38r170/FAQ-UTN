@@ -51,6 +51,7 @@ import { PantallaAdministracionPerfiles } from "./static/pantallas/administracio
 import { PantallaAdministracionCategorias } from "./static/pantallas/administracion-categorias.js";
 import { PantallaAdministracionEtiquetas } from "./static/pantallas/administracion-etiquetas.js";
 import { PantallaEtiquetaPreguntas } from "./static/pantallas/pantalla-etiquetas-pregunta.js";
+import { PantallaAdministracionUsuarios } from "./static/pantallas/administracion-usuarios.js";
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -495,9 +496,7 @@ router.get("/administracion/categorias", async (req, res) => {
     return;
   }
 
-  const p = await ParametroDAO.findByPk(1);
   let pagina = PantallaAdministracionCategorias(req.path, req.session);
-  pagina.globales.parametros = p;
   res.send(pagina.render());
 });
 
@@ -513,9 +512,7 @@ router.get("/administracion/etiquetas", async (req, res) => {
     return;
   }
 
-  const p = await ParametroDAO.findByPk(1);
   let pagina = PantallaAdministracionEtiquetas(req.path, req.session);
-  pagina.globales.parametros = p;
   res.send(pagina.render());
 });
 
@@ -531,11 +528,26 @@ router.get("/administracion/perfiles", async (req, res) => {
     return;
   }
 
-  const p = await ParametroDAO.findByPk(1);
   let pagina = PantallaAdministracionPerfiles(req.path, req.session);
   res.send(pagina.render());
 });
 
+
+router.get("/administracion/usuarios", async (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+
+  let pagina = PantallaAdministracionUsuarios(req.path, req.session);
+  res.send(pagina.render());
+});
 // Ruta Para búsqueda
 // Solo muestra el formulario de búsqueda
 // ToDo Feature

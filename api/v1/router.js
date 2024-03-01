@@ -137,6 +137,26 @@ router.get("/usuario", function (req, res) {
       }
     );
     order.push([Sequelize.col("reportesRecibidos.fecha"), "DESC"]);
+  }else{
+    include.push(
+      {
+        model: Bloqueo,
+        as: "bloqueosRecibidos",
+        // TODO Feature: Traer quién bloqueó y razón.
+        attributes: ["motivo"],
+        where: {
+          fecha_desbloqueo: { [Sequelize.Op.is]: null },
+        },
+        required: false,
+      },
+      {
+        model: ReportesUsuario,
+        as: "reportesRecibidos",
+        attributes: ["fecha"],
+        required: false,
+      }
+    );
+    order.push([Sequelize.col("reportesRecibidos.fecha"), "DESC"]);
   }
   let filtro = req.query.filtro;
   if (filtro) {
@@ -154,12 +174,13 @@ router.get("/usuario", function (req, res) {
   }
   opciones.order = [...order, ["DNI", "ASC"]];
 
-  Usuario.findAll(opciones)
+  Usuario.findAndCountAll(opciones)
     .then((usuarios) => {
       if (usuarios.length == 0 && filtro) {
         res.status(404).send("No se encontraron usuarios");
       } else {
-        res.status(200).send(usuarios);
+        res.setHeader('untfaq-cantidad-paginas', Math.ceil(usuarios.count/PAGINACION.resultadosPorPagina));
+      res.status(200).send(usuarios.rows);
       }
     })
     .catch((err) => {
@@ -214,6 +235,7 @@ router.get("/usuario/:DNI/respuestas", function (req, res) {
 });
 
 router.post("/usuario", (req, res) => {
+  let perfilID = req.body.perfilID ? req.body.perfilID : 1;
   Usuario.findAll({
     where: { DNI: req.body.DNI },
     raw: true,
@@ -227,14 +249,15 @@ router.post("/usuario", (req, res) => {
           DNI: req.body.DNI,
           correo: req.body.correo,
           contrasenia: req.body.contrasenia,
-          perfilID: 1
+          perfilID: perfilID
         }).then(usu=>Usuario.findByPk(usu.DNI,{
             include:{
               model: Perfil,
               include:Permiso
             }
         })).then(usuarioConPerfilYPermisos=>{
-          req.session.usuario=usuarioConPerfilYPermisos;
+          if(!req.session.usuario)
+            req.session.usuario=usuarioConPerfilYPermisos;
           res.status(200).send("Registro exitoso");
         });
         return;
@@ -412,6 +435,31 @@ router.patch("/usuario", function (req, res) {
       res.status(500).send(err);
     });
 });
+
+router.patch("/usuario/:DNI", function (req, res) {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
+  Usuario.findByPk(req.params.DNI)
+    .then((usuario) => {
+      //TODO Feature: definir que mas puede cambiar y que constituye datos inválidos
+      usuario.nombre = req.body.nombre;
+      usuario.correo = req.body.correo;
+      usuario.perfilID= req.body.perfilID;
+      usuario.save();
+      res.status(200).send("Datos actualizados exitosamente");
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+});
+
+
 
 // posts
 //preguntas
@@ -1738,6 +1786,13 @@ router.patch("/parametros/:ID", function (req, res) {
 
 router.get("/perfiles", async (req, res) => {
   try {
+    if(req.query.todos){
+      const perfiles = await Perfil.findAll({
+        include: Permiso,
+      });
+      res.status(200).send(perfiles);
+      return;
+    }
     let pagina = req.query.pagina ? req.query.pagina : 0;
     const perfiles = await Perfil.findAndCountAll({
       include: Permiso,

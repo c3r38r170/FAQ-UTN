@@ -124,7 +124,8 @@ class Navegacion {
           ruta == "/administracion/perfiles" ||
           ruta == "/administracion/categorias" ||
           ruta == "/administracion/etiquetas" ||
-          ruta == "/administracion/parametros"
+          ruta == "/administracion/parametros"||
+          ruta == "/administracion/usuarios"
         ) {
           administracion = new EnlaceNavegacion(
             "Administración",
@@ -136,6 +137,10 @@ class Navegacion {
                   "Perfiles",
                   { tipo: "solid", nombre: "circle" },
                   "/administracion/perfiles"
+                ),new EnlaceNavegacion(
+                  "Usuarios",
+                  { tipo: "solid", nombre: "circle" },
+                  "/administracion/usuarios"
                 ),
                 new EnlaceNavegacion(
                   "Categorías",
@@ -151,7 +156,7 @@ class Navegacion {
                   "Parámetros",
                   { tipo: "solid", nombre: "circle" },
                   "/administracion/parametros"
-                ),
+                )
               ],
             },
             "/administracion/perfiles"
