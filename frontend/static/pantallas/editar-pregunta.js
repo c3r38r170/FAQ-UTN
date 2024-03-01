@@ -10,19 +10,18 @@ function crearPagina(ruta,sesion, pregunta){
 				'editando-pregunta'
 				,'/api/pregunta'
 				,[
-					{name:'titulo',textoEtiqueta:'Título',value:pregunta.titulo}
-					// TODO UX: Detalles? ¿O Cuerpo? ¿O algo...? Ver algún ejemplo. Also, mostrar más grande (rows) y limitar texto (max?)
+					{name:'ID',textoEtiqueta:'ID',value:pregunta.ID}
+					,{name:'titulo',textoEtiqueta:'Título',value:pregunta.titulo}
 					,{name:'cuerpo',textoEtiqueta:'Detalles',type:'textarea',value:pregunta.cuerpo}
 				]
-				,(respuesta,info)=>{
-					if(info.ok){
-						let preguntaID=+respuesta
-						window.location.replace('/pregunta/'+preguntaID);
-						// TODO UX: Mejores alertas.
-					}else alert(`Error ${info.codigo}: ${respuesta}`);
+				,(res)=>{
+					setTimeout(function() {
+						window.location.reload();
+					  }, 1000);
+					
 				}
 				,{
-					textoEnviar:'Editar Pregunta', verbo: 'patch', clasesBoton:'is-link is-rounded mt-3'
+					textoEnviar:'Editar Pregunta', verbo: 'PATCH', clasesBoton:'is-link is-rounded mt-3'
 				}
 			)
 			// TODO Feature: Formulario de creación de preguntas 

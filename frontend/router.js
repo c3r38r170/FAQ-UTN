@@ -389,13 +389,7 @@ router.get("/perfil/preguntas/:id/editar", (req, res)=>{
         as: 'post',
         where: {
           duenioDNI: req.session.usuario.DNI
-        },
-        include: [
-          {
-            model: UsuarioDAO,
-            as: 'duenio'
-          }
-        ]
+        }
       },
       {
         model: EtiquetasPreguntaDAO,
