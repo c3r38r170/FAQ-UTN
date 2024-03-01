@@ -14,8 +14,6 @@ class Busqueda{
     manejoBusqueda(event) {
         event.preventDefault();
         const searchTerm = event.target.elements.searchInput.value;
-        // IMPLEMENTAR BUSQUEDA
-        console.log('Búsqueda:', searchTerm);
     }
 
 

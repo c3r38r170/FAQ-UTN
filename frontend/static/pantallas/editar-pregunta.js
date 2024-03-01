@@ -24,12 +24,6 @@ function crearPagina(ruta,sesion, pregunta){
 					textoEnviar:'Editar Pregunta', verbo: 'PATCH', clasesBoton:'is-link is-rounded mt-3'
 				}
 			)
-			// TODO Feature: Formulario de creación de preguntas 
-			// Campo de Título. Tiene que sugerir preguntar relacionadas. 
-			// ✅ Campo de etiquetas. Se deben obtener las etiquetas, mostrarlas, permitir elegirlas.
-			// ✅ Campo de cuerpo. Texto largo con un máximo y ya.
-			// Las sugerencias pueden ser un panel abajo, o abajo del título... que se vaya actualizando a medida que se escribe el cuerpo.
-			// Botón de crear pregunta. Se bloquea, si hay un error salta cartel (como por moderación), si no lleva a la página de la pregunta. Reemplaza, así volver para atrás va al inicio y no a la creación de preguntas.
 		]
 	});
 	return pagina;

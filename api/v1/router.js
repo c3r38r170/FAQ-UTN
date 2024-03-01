@@ -460,13 +460,10 @@ router.patch("/pregunta", function (req, res) {
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa.");
   }
-  console.log('ENTRA ACA1');
   Pregunta.findByPk(req.body.ID, {
     include: Post,
   })
     .then((pregunta) => {
-      console.log('ENTRA ACA2');
-      console.log('preguntaaA: ',pregunta);
       if (!pregunta) {
         res.status(404).send("Pregunta no encontrada");
         return;
@@ -477,7 +474,6 @@ router.patch("/pregunta", function (req, res) {
         } else {
           // TODO Refactor: DRY en este if
           if (modera) {
-            console.log('ENTRA ACA');
             moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 50).then(
               (respuesta) => {
                 if (respuesta.apropiado < rechazaPost) {
@@ -844,7 +840,6 @@ router.post("/respuesta", function (req, res) {
                         },
                       },
                     }).then((suscripciones) => {
-                      console.log("Suscripciones:", suscripciones);
                       suscripciones.forEach((suscripcion) => {
                         Notificacion.create({
                           postNotificadoID: post.ID,
@@ -901,7 +896,6 @@ router.post("/respuesta", function (req, res) {
                     },
                   },
                 }).then((suscripciones) => {
-                  console.log("Suscripciones:", suscripciones);
                   suscripciones.forEach((suscripcion) => {
                     Notificacion.create({
                       postNotificadoID: post.ID,
