@@ -60,7 +60,7 @@ async function moderar(post) {
     const response = await axiosInstance.post('/chat/completions', requestData);
     const stream = response.data;
 
-    console.log(requestData.messages[0].content);
+    
 
     return new Promise((resolve, reject) => {
       stream.on('data', (data) => {
@@ -71,23 +71,20 @@ async function moderar(post) {
       stream.on('end', () => {
         try {
           message = "{" + message.split('undefined')[0].split('{')[1]; // Remove trailing 'undefined'
-          console.log(message);
           const parsedResult = JSON.parse(message.trim());
-          console.log(parsedResult);
           resolve(parsedResult);
         } catch (parseError) {
-          //console.error('JSON Parse Error:', parseError);
           reject(parseError);
         }
       });
 
       stream.on('error', (error) => {
-        //console.error('Stream Error:', error);
+        
         reject(error);
       });
     });
   } catch (error) {
-    //console.error('API Error:', error.response ? error.response.data : error.message);
+    
     throw error; // Re-throw the error to indicate the failure of the asynchronous operation
   }
 }
@@ -101,7 +98,7 @@ async function moderarWithRetry(post, maxRetries = 3, retryDelay = 1000) {
       const result = await moderar(post);
       return result;
     } catch (error) {
-      console.error(`Attempt ${retries + 1} failed. Retrying in ${retryDelay / 1000} seconds. Error:`, error);
+     
       retries++;
 
       // Wait for a specified delay before retrying

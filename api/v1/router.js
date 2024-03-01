@@ -156,7 +156,6 @@ router.get("/usuario", function (req, res) {
 
   Usuario.findAll(opciones)
     .then((usuarios) => {
-      // console.log(usuarios);
       if (usuarios.length == 0 && filtro) {
         res.status(404).send("No se encontraron usuarios");
       } else {
@@ -172,14 +171,13 @@ router.get("/usuario/:DNI/preguntas", function(req, res){
 	let filtros={pagina:null,duenioID:null};
 		filtros.duenioID=req.params.DNI
 		filtros.pagina=req.query.pagina
-		// console.log(filtros);
 		Pregunta.pagina(filtros)
 		// Pregunta.findAll(opciones)
 			.then(preguntas=>{
 				res.status(200).send(preguntas)
 			})
 			.catch(err=>{
-				console.log(err)
+				res.status(500).send(err)
 			});
 	// }
 	return;
@@ -194,8 +192,7 @@ router.get("/usuario/:DNI/preguntas", function (req, res) {
       res.status(200).send(preguntas);
     })
     .catch((err) => {
-      console.log(err);
-      res.status(400).send(err)
+      res.status(500).send(err)
     });
 });
 
@@ -296,8 +293,6 @@ router.post("/usuario/:DNI/reporte", function (req, res) {
       }
     })
     .catch((err) => {
-      // TODO Refactor: Sacar todos estos console log.
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -351,7 +346,6 @@ router.post("/usuario/:DNI/bloqueo", function (req, res) {
       } else res.status(200).send(mensaje);
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -448,7 +442,7 @@ router.get("/pregunta", (req, res) => {
       res.status(200).send(preguntas);
     })
     .catch((err) => {
-      console.log(err);
+      res.status(500).send(err)
     });
 });
 
@@ -515,7 +509,6 @@ router.patch("/pregunta", function (req, res) {
       }
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -590,7 +583,6 @@ function crearPregunta(req,res,respuestaIA=null){
       })
   })
   .catch(err=>{
-    console.log(err);
     res.status(500).send(err);
   })
 }
@@ -614,7 +606,6 @@ router.post("/pregunta", function (req, res) {
         crearPregunta(req,res,respuesta.apropiado)
       })
       .catch((err) => {
-        console.log(err);
         res.status(500).send(err);
       });
   } else crearPregunta(req,res)
@@ -660,13 +651,11 @@ router.post("/pregunta/:preguntaID/suscripcion", function (req, res) {
             }
           })
           .catch((err) => {
-            console.log(err);
             res.status(500).send(err);
           });
       }
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
   // TODO Refactor: ahorrar el callback hell, acá y en todos lados.
@@ -773,13 +762,11 @@ router.delete("/pregunta/:preguntaID/suscripcion", function (req, res) {
             }
           })
           .catch((err) => {
-            console.log(err);
             res.status(500).send(err);
           });
       }
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -836,7 +823,6 @@ router.post("/respuesta", function (req, res) {
                         },
                       },
                     }).then((suscripciones) => {
-                      console.log("Suscripciones:", suscripciones);
                       suscripciones.forEach((suscripcion) => {
                         Notificacion.create({
                           postNotificadoID: post.ID,
@@ -849,12 +835,10 @@ router.post("/respuesta", function (req, res) {
                     res.status(201).send(post.ID + "");
                   })
                   .catch((err) => {
-                    console.log(err);
                     res.status(500).send(err);
                   });
               })
               .catch((err) => {
-                console.log(err);
                 res.status(500).send(err);
               });
           }
@@ -893,7 +877,6 @@ router.post("/respuesta", function (req, res) {
                     },
                   },
                 }).then((suscripciones) => {
-                  console.log("Suscripciones:", suscripciones);
                   suscripciones.forEach((suscripcion) => {
                     Notificacion.create({
                       postNotificadoID: post.ID,
@@ -906,12 +889,10 @@ router.post("/respuesta", function (req, res) {
                 res.status(201).send(post.ID + "");
               })
               .catch((err) => {
-                console.log(err);
                 res.status(500).send(err);
               });
           })
           .catch((err) => {
-            console.log(err);
             res.status(500).send(err);
           });
       }
@@ -1143,7 +1124,6 @@ const reportarPost = function (req, res) {
   }
 
   let reportadoID = req.params.reportadoID;
-  console.log(reportadoID);
   Post.findByPk(reportadoID)
     .then((pregunta) => {
       if (!pregunta) {
@@ -1432,7 +1412,6 @@ router.get("/etiqueta", function (req, res) {
 	)
 	.then((etiquetas,categorias)=>{
 		res.status(200).send({etiquetas,categorias}); */
-  // console.log('aaaaa');
   let pagina = req.query.pagina ? req.query.pagina : 0;
   Etiqueta.findAndCountAll({
     raw: true,
@@ -1545,7 +1524,6 @@ router.post("/etiqueta/:etiquetaID/suscripcion", function (req, res) {
       }
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -1590,7 +1568,6 @@ router.delete("/etiqueta/:etiquetaID/suscripcion", function (req, res) {
       }
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -1674,7 +1651,6 @@ router.get('/notificacion', function(req,res){
 	}).then(notificaciones=>{
 		res.status(200).send(notificaciones);
 	}).catch(err=>{
-		console.log(err);
 		res.status(500).send(err);
 	});
 });
