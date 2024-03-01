@@ -195,9 +195,8 @@ router.get("/usuario/:DNI/preguntas", function (req, res) {
     })
     .catch((err) => {
       console.log(err);
+      res.status(400).send(err)
     });
-    // TODO Refactor: ¿Este return hace algo? Chequear en el resto de los routers.
-  // return;
 });
 
 router.get("/usuario/:DNI/posts", function (req, res) {
@@ -213,15 +212,8 @@ router.get("/usuario/:DNI/respuestas", function (req, res) {
   }
 
   Respuesta.pagina(filtros).then((posts) =>
-    res.send(
-      // TODO Refactor: Documentar por qué hay que hacer esto...
-      posts.slice(
-        +pagina * PAGINACION.resultadosPorPagina,
-        (1 + pagina) * PAGINACION.resultadosPorPagina
-      )
-    )
+    res.send(posts)
   );
-  //Respuesta.pagina(filtros).then(respuestas=>res.send(respuestas))
 });
 
 router.post("/usuario", (req, res) => {

@@ -895,8 +895,10 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     where: {
       "$respuestas.post.duenio.DNI$": DNI,
     },
+    subQuery: false,
     order: [[Post, "fecha", "DESC"]],
-    // ,raw:true,nest:true
+    limit: PAGINACION.resultadosPorPagina,
+    offset: +pagina * PAGINACION.resultadosPorPagina,
   });
 };
 
