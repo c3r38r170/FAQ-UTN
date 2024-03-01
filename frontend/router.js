@@ -308,8 +308,16 @@ router.get("/moderacion/usuarios", (req, res) => {
 });
 
 router.get('/moderacion/preguntas-y-respuestas',(req,res)=>{
-	// let usu=req.session.usuario;
-	// TODO Security: Permisos. Acá y en todos lados.
+	let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 2) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
 
   let pagina=PantallaModeracionPosts(req.path,req.session);
   res.send(pagina.render());
@@ -362,10 +370,7 @@ router.get("/perfil/respuestas", (req, res) => {
 });
 
 router.get("/perfil/:id?", async (req, res) => {
-  // TODO Security: Permisos. Acá y en todos lados.
-  // TODO Feature: Ordenar posts por fecha
-  /* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
-  // TODO Refactor: ver si es posible simplificar casos.
+  // TODO Security: Permisos. Acá y en todos lados. aca?
   // TODO Refactor: DNI en vez de id
 	// TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
   try {
