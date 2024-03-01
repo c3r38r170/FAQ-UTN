@@ -15,44 +15,48 @@ class Pregunta{
     #estaSuscripto = false ;
     constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, usuariosSuscriptos},instanciaModal, sesion){
         // TODO Feature: Pensar condiciones de fallo de creación. Considerar que puede venir sin cuerpo (formato corto) o sin título (/pregunta, quitado "artificialmente")
-        
+
         this.#ID = ID;
         this.#titulo = titulo;
-        this.#cuerpo = cuerpo;
-        this.#fecha = new Fecha(fecha)
-        this.#duenio = post.duenio;
-        this.#respuestas = respuestas;
-        this.#respuestasCount = respuestasCount;
-        this.#etiquetas = etiquetas;
-        this.#instanciaModal = instanciaModal;
-        this.#usuarioActual=sesion?.usuario;
-
-        // ! El post viene sin votos cuando se trata de una representación sin interacciones en la moderación (ni controles de votación, ni de suscripción).
-        if(post.votos && this.#usuarioActual){
-            this.#chipValoracion=new ChipValoracion({
-                ID
-                ,votos:post.votos
-                ,usuarioActual:sesion
-            });
-            this.#estaSuscripto=usuariosSuscriptos.some(usuario=>usuario.DNI == this.#usuarioActual.DNI && usuario.suscripcionesPregunta.fecha_baja == null);
-            // TODO Refactor: Que ni vengan las suscripciones que estén dadas de baja (no chequear que fecha_baja == null). fecha_baja es una eliminación suave.
+        
+        if(post){ // * Formato largo.
+            this.#cuerpo = cuerpo;
+            this.#fecha = new Fecha(fecha)
+            this.#duenio = post.duenio;
+            this.#respuestas = respuestas;
+            this.#respuestasCount = respuestasCount;
+            this.#etiquetas = etiquetas;
+            this.#instanciaModal = instanciaModal;
+            this.#usuarioActual=sesion?.usuario;
+    
+            // ! El post viene sin votos cuando se trata de una representación sin interacciones en la moderación (ni controles de votación, ni de suscripción).
+            if(post.votos && this.#usuarioActual){
+                this.#chipValoracion=new ChipValoracion({
+                    ID
+                    ,votos:post.votos
+                    ,usuarioActual:sesion
+                });
+                this.#estaSuscripto=usuariosSuscriptos.some(usuario=>usuario.DNI == this.#usuarioActual.DNI && usuario.suscripcionesPregunta.fecha_baja == null);
+                // TODO Refactor: Que ni vengan las suscripciones que estén dadas de baja (no chequear que fecha_baja == null). fecha_baja es una eliminación suave.
+            }
         }
+
 	}
 
 	render(){
-        // TODO Feature: Votación para preguntas.
         // TODO Feature: Permitir texto enriquecido. Tanto acá como en respuestas. Empecemos detectando y convirtiendo links, podemos seguir con ** para negrita y **** para subrayado... eventualmente meteríamos un motor de markdown.
-        return`
-            <div class="pregunta">
+        
+        return this.#duenio? // * Formato largo
+            `<div class="pregunta">
                 <div class="encabezado">
                     ${new ChipUsuario(this.#duenio).render()}
                     <div class="pl-0 py-0">
                         ${this.#fecha.render()}
                     </div>
-                    ${ this.#usuarioActual == undefined ? '' : new BotonSuscripcion(this.#ID,'/api/pregunta/'+this.#ID+'/suscripcion', this.#estaSuscripto).render() }
-                    ${ (this.#instanciaModal && this.#usuarioActual)?new BotonReporte(this.#ID, this.#instanciaModal).render():'' }
+                    ${ this.#usuarioActual ? new BotonSuscripcion(this.#ID,'/api/pregunta/'+this.#ID+'/suscripcion', this.#estaSuscripto).render() : '' }
+                    ${ (this.#instanciaModal && this.#usuarioActual) ? new BotonReporte(this.#ID, this.#instanciaModal).render() : '' }
                 </div>
-                ${this.#chipValoracion?this.#chipValoracion.render():''}
+                ${this.#chipValoracion ? this.#chipValoracion.render() : ''}
                 <a href="/pregunta/${this.#ID}">
                     <div class="titulo">${this.#titulo}</div>
                 </a>
@@ -63,9 +67,8 @@ class Pregunta{
                 <div class="cantRespuestas">${this.#respuestasCount > 0 ? this.#respuestasCount + ' Respuestas' : ''}</div>
                 <!-- ! Las respuestas están dentro de la pregunta por la posibilidad (descartada) de poner la respuesta destacada en los listados de preguntas. -->
                 ${ this.#respuestas ? this.#respuestas.map((r) => new Respuesta(r,this.#instanciaModal,this.#usuarioActual?{usuario:this.#usuarioActual}:null).render()).join("") : ''}
-            </div>
-
-            `;
+            </div>`
+            :`<a href="/pregunta/${this.#ID}" class="pregunta" target="_blank"> <div class="titulo">${this.#titulo}</div> </a>`;
 
     }
         

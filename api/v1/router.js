@@ -438,12 +438,8 @@ router.get("/pregunta", (req, res) => {
 
   // TODO Feature: Aceptar etiquetas.
 
-  let filtros = { pagina: null, filtrar: [] };
+  let filtros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto!==undefined };
 
-  // TODO Refactor: pagina es obligatorio; y si no está, sería 0. `pagina:req.query.pagina||0`
-  if (req.query.pagina) {
-    filtros.pagina = req.query.pagina;
-  }
   if (req.query.searchInput) {
     filtros.filtrar.texto = req.query.searchInput;
   }

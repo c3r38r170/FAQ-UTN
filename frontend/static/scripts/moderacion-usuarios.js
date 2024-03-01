@@ -73,6 +73,7 @@ gEt("moderacion-usuarios").onchange = (e) => {
           verbo: "DELETE",
           textoEnviar: "Registrar motivo y desbloquear",
           clasesBoton: "is-link is-rounded mt-3",
+          // TODO Refactor: DRY
           alEnviar: () => (checkbox.disabled = true),
         }
       ),
@@ -117,6 +118,7 @@ gEt("moderacion-usuarios").onchange = (e) => {
         {
           verbo: "POST",
           textoEnviar: "Registrar motivo y bloquear",
+          // TODO Refactor: ¿Hacen falta estas clases?
           clasesBoton: "is-link is-rounded mt-3",
           alEnviar: () => (checkbox.disabled = true),
         }

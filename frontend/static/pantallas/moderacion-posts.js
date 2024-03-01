@@ -23,7 +23,7 @@ function crearPantalla(ruta,sesion){
 					,tipos=rep.tiposIDs.split(',')
 					// ,reportadoID=rep.reportado.respuestaID||rep.reportado.preguntaID
 					// TODO Refactor: Expandir boton.js para que sea util en este caso.
-					,crearBoton=(claseColor,clasePropia,texto)=>`<button class="button ${claseColor} ${clasePropia}" value="${rep.reportado.respuestaID||rep.reportado.preguntaID}">${texto}</button>`;
+					,crearBoton=(claseColor,clasePropia,texto)=>`<fieldset><button class="button ${claseColor} ${clasePropia}" value="${rep.reportado.respuestaID||rep.reportado.preguntaID}">${texto}</button></fieldset>`;
 				
 					// TODO Refactor: Estaría bueno poder comparar números... pero bueno, depende de que el endpoint devuelva números en vez de letras.
 				if(tipos.includes('1')){
@@ -35,7 +35,7 @@ function crearPantalla(ruta,sesion){
 
 				return html;
 			}
-			,clases:['botones']
+			,clases:['botones','centrado']
 		}
 	]);
 

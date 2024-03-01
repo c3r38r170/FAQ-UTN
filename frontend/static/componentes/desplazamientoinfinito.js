@@ -7,6 +7,13 @@ class DesplazamientoInfinito{
 	static instancias={};
 
 	#endpoint='';
+	set endpoint(valor){
+		this.#endpoint=valor+(valor.includes('?')?'&':'?');
+	};
+	// TODO Refactor: Ver si hace falta el setter
+	get endpoint(){
+		return this.#endpoint;
+	}
 	pagina=1;
 	#id='';
 	#generadorDeComponentes=null;
@@ -16,18 +23,25 @@ class DesplazamientoInfinito{
  	constructor(id,endpoint,transformarRespuestaEnComponente,primerasEntidades=[]){
 		// TODO Feature: fallar si no se proveen los parámetros obligatorios. Aplicar a todfas las clases.
 		this.#id=id;
-		this.#endpoint=endpoint+(endpoint.includes('?')?'&':'?');
+		this.endpoint=endpoint;
 		this.#generadorDeComponentes=transformarRespuestaEnComponente;
 		// * Las primeras entidades solo se usan desde el servidor y sirven para servir contenido generado y así mejorar el SEO de la página. Si solamente se generara el contenido dinámico desde el frontend, no podría ser analizado.
 		this.entidadesIniciales=primerasEntidades;
+
 		DesplazamientoInfinito.instancias[this.#id]=this;
+	}
+
+	reiniciar(nuevoEndpoint){
+		this.endpoint=nuevoEndpoint;
+		this.pagina=1
+		document.getElementById(this.#id).innerHTML=this.#generarUltimoComponente(-1);
 	}
 
 	navegar(e){
 		let imagenAlcahuete=e.target;
 		let contenedor=imagenAlcahuete.closest('.desplazamiento-infinito');
 		// TODO Feature: Ver si tiene o no "?", y entonces poner "?" o "&". Quizá hacerlo en el constructor y tener algo como un this.#parametroPagina.  Mejor solución (aplicar a tabla): poner en el constructor de manera inteligente uno u otro, guardar la url con el parametro página, y simplemente hacer +(this.#pagina...);
-		let url=this.#endpoint+(this.#endpoint.includes('?')?"&":"?")+`pagina=${this.pagina-1}`;
+		let url=this.endpoint+`pagina=${this.pagina-1}`;
 		this.pagina++;
 
 		fetch(url,{
@@ -35,9 +49,6 @@ class DesplazamientoInfinito{
 			method:'GET'
 		})
 			.then(res=>res.json())
-		/* new Promise((resolve, reject)=>{
-			resolve(new Array(3).fill(null).map((n,i)=>(3*(this.#pagina-1)+i)));
-		}) */
 			.then((nuevasEntidades)=>{
 				let html='';
 				

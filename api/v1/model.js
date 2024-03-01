@@ -638,17 +638,6 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
     let opciones = {
       include: [
         Post
-        // TODO Refactor: Solo hace falta si hay una sesión, y solo hace falta mandar para saber si el usuario está suscrito o no. Ver ejemplo en votos.
-        ,{
-          model:Usuario
-          ,as: 'usuariosSuscriptos'
-          ,through: {
-            model: SuscripcionesPregunta,
-            where: {
-              fecha_baja: null // Condición para que la fecha de baja sea nula
-            }
-          }
-        }
       ],
       limit: PAGINACION.resultadosPorPagina,
       offset: (+pagina) * PAGINACION.resultadosPorPagina,
@@ -729,6 +718,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
     if(formatoCorto){
         // TODO Feature: Ver qué más trae esto, eliminar lo que no haga falta. Ideas: Agregar raw, manipular array conseguido para mandar objetos reducidos
         opciones.attributes=['ID','titulo'];
+        opciones.raw=true;
     }else{
 			// * Datos propios
 			opciones.include[0]={ // ! include[0] es Post por default
@@ -751,6 +741,18 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 				]
 			};
 
+      // TODO Refactor: Solo hace falta si hay una sesión, y solo hace falta mandar para saber si el usuario está suscrito o no. Ver ejemplo en votos.
+      opciones.include.push({
+        model:Usuario
+        ,as: 'usuariosSuscriptos'
+        ,through: {
+          model: SuscripcionesPregunta,
+          where: {
+            fecha_baja: null // Condición para que la fecha de baja sea nula
+          }
+        }
+      });
+
 			if(!filtraEtiquetas){
 				opciones.include.push({
           model:EtiquetasPregunta
@@ -767,8 +769,10 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       }
     }
 
-        return Pregunta.findAll(opciones);
-    }
+    console.log(opciones);
+
+    return Pregunta.findAll(opciones);
+  }
 }
 
 Post.pagina = ({ pagina = 0, DNI } = {}) => {
