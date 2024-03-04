@@ -544,8 +544,8 @@ router.get("/administracion/usuarios", async (req, res) => {
     res.send(pagina.render());
     return;
   }
-
-  let pagina = PantallaAdministracionUsuarios(req.path, req.session);
+  const query = req.query.searchInput;
+  let pagina = PantallaAdministracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
 });
 // Ruta Para búsqueda

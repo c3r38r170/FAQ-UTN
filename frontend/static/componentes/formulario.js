@@ -33,25 +33,34 @@ class Formulario{
 			this.#alEnviar();
 		}
 
+		
 		// Crear un objeto FormData para facilitar la obtención de datos del formulario
 		const formData = new FormData(e.target);
+		
+		const fileInput = document.querySelector(`#${this.#id} input[type="file"]`);
+		let datos;
+		if(fileInput){
+			datos = formData;
+			
+
+		}else{
 
 		// Crear un objeto para almacenar los datos
-		const datos = {};
-	
-		// Iterar sobre las entradas de FormData y asignarlas al objeto de datos
-		formData.forEach((value, key) => {
-			// Reflect.has in favor of: object.hasOwnProperty(key)
-			if(!Reflect.has(datos, key)){
-					datos[key] = value;
-					return;
-			}
-			if(!Array.isArray(datos[key])){
-					datos[key] = [datos[key]];
-			}
-			datos[key].push(value);
-		});
-
+			datos = {};
+		
+			// Iterar sobre las entradas de FormData y asignarlas al objeto de datos
+			formData.forEach((value, key) => {
+				// Reflect.has in favor of: object.hasOwnProperty(key)
+				if(!Reflect.has(datos, key)){
+						datos[key] = value;
+						return;
+				}
+				if(!Array.isArray(datos[key])){
+						datos[key] = [datos[key]];
+				}
+				datos[key].push(value);
+			});
+		}
 		let ok,codigo;
 		superFetch(this.#endpoint,datos,{ method: this.verbo})
 			.then(res=>{
@@ -63,7 +72,7 @@ class Formulario{
 	}
 
 	render(){
-        return `<form id=${this.#id} class="" onsubmit="Formulario.instancias['${this.#id}'].enviar(event)">`
+        return `<form id=${this.#id} style="padding-top:32px;"class="" onsubmit="Formulario.instancias['${this.#id}'].enviar(event)" enctype="multipart/form-data"  >`
             + this.campos.reduce((html,c)=>html+(new Campo(c)).render(),'') 
             // TODO Refactor: new Boton ??
             +`<input class="button ${this.#clasesBotonEnviar}" type=submit value="${this.#textoEnviar}">`
@@ -148,6 +157,8 @@ class Campo{
 				html=html.replace('<label class="label">'+this.#textoEtiqueta,'');
 				html+=` type="${this.#type}"`;
 				break;
+			case 'file':
+				html+=' '+this.#extra;
 			case 'number':
 				// * min, max, step...
 				html+=' '+this.#extra;
@@ -158,8 +169,9 @@ class Campo{
 		}
 		if(this.#required)
 			html+=` required`;
-		if(this.#value)
+		if(this.#value){
 			html+=` value="${this.#value}"`;
+		}
 			
 		return html+endTag+'</label>';
 	}
