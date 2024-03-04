@@ -460,6 +460,7 @@ router.delete("/usuario/:DNI/bloqueo", function (req, res) {
 
 router.patch("/usuario", upload.single("image"), function (req, res) {
   //req.file tiene la imagen
+  //TODO feature que se pueda cambiar contraseña o imagen
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa");
     return;
