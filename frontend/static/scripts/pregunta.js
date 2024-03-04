@@ -57,5 +57,8 @@ fetch('/api/categorias?etiquetas=1')
 
 		// TODO UX: Conciliar los estilos de las etiquetas con los que se definieron.
 		BulmaTagsInput.attach();
-		SqS('.tags-input.is-filter > input').required=false;
+		let filtroDeEtiquetas=SqS('.tags-input.is-filter > input');
+		filtroDeEtiquetas.required=false;
+		
+		SqS('[name="etiquetasIDs"]').style.display='block';
 	})
