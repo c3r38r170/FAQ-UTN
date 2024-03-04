@@ -50,7 +50,7 @@ class Pregunta{
                         ${this.#fecha.render()}
                     </div>
                     ${ this.#usuarioActual == undefined ? '' : new BotonSuscripcion(this.#ID,'/api/pregunta/'+this.#ID+'/suscripcion', this.#estaSuscripto).render() }
-                    ${ (this.#instanciaModal && this.#usuarioActual)?new BotonReporte(this.#ID, this.#instanciaModal).render():'' }
+                    ${ (this.#instanciaModal && this.#usuarioActual && (this.#usuarioActual.DNI != this.#duenio.DNI))?new BotonReporte(this.#ID, this.#instanciaModal).render():'' }
                 </div>
                 ${this.#chipValoracion?this.#chipValoracion.render():''}
                 <a href="/pregunta/${this.#ID}">

@@ -36,7 +36,7 @@ class Respuesta {
         <div class="respuesta">
               ${this.#chipValoracion?this.#chipValoracion.render():''}
               <div class="cuerpo">
-                  ${(this.#instanciaModal && this.#usuarioActual)? '<div class="contenedor-reporte">'+new BotonReporte(this.#ID, this.#instanciaModal).render()+'</div>':''}
+                  ${(this.#instanciaModal && this.#usuarioActual && this.#duenio.DNI != this.#usuarioActual.DNI)? '<div class="contenedor-reporte">'+new BotonReporte(this.#ID, this.#instanciaModal).render()+'</div>':''}
                 ${this.#cuerpo.replace(/\n/g, '<br>')}
                 <div class="usuario">
                     ${new ChipUsuario(this.#duenio).render()}
