@@ -1007,6 +1007,7 @@ const Categoria = sequelize.define("categoria", {
 Categoria.hasMany(Etiqueta, {
   constraints: false,
   foreignKey: "categoriaID",
+  as:'etiquetas'
 });
 
 Etiqueta.belongsTo(Categoria, {

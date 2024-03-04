@@ -1269,9 +1269,17 @@ router.delete('/post/:ID',(req,res) => {
 
 //categorias
 
+// TODO Refactor: Los endpoint son en singular.
 router.get("/categorias", async (req, res) => {
   try {
-    const categorias = await Categoria.findAll();
+    let categorias;
+    // TODO Refactor: raw? nest?
+    console.log(req.query);
+    if(!!+req.query.etiquetas){
+      categorias=await Categoria.findAll({include:/* Etiqueta */{model:Etiqueta, as:'etiquetas'}})
+    }else{
+      categorias = await Categoria.findAll();
+    }
     res.json(categorias);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -1389,6 +1397,7 @@ router.post("/etiqueta", function (req, res) {
   });
 });
 
+// TODO Refactor: cambiar este endpoint a categoría. Hacer que categoría acepte un parámetro de con o sin etiquetas.
 router.get("/etiqueta", function (req, res) {
   //* sin paginación porque no deberían ser tantas
 
@@ -1419,6 +1428,8 @@ router.get("/etiqueta", function (req, res) {
     });
 });
 
+// TODO Refactor: Cambiar endpoint a etiqueta, los nombres son en singular.
+// TODO Refactor: Cambiar todas las funciones async a sincrónicas. Usar then en los cuerpos, y funciones de Premises, en todo caso.
 router.patch("/etiquetas/:id/activado", async (req, res) => {
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa");

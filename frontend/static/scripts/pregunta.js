@@ -1,46 +1,61 @@
 import { PantallaNuevaPregunta} from '../pantallas/nueva-pregunta.js';
-import {SqS,gEt,createElement} from '../libs/c3tools.js';
+import {SqS,gEt,createElement,addElement} from '../libs/c3tools.js';
 // TODO Refactor: RIP Desplegable?
 import { Desplegable } from '../componentes/desplegable.js';
 import BulmaTagsInput from 'https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tagsinput@1.0.3/+esm';
 
 let pagina=PantallaNuevaPregunta(location.pathname,{usuario:window.usuarioActual});
 
-// TODO Feature: logica de frontend y etiquetas.
-fetch('/api/etiqueta')
+fetch('/api/categorias?etiquetas=1')
 	.then(res=>res.json())
-	.then(etiquetas=>{
-		let etiquetasIndexadasPorCategoria={};
-		for(let eti of etiquetas){
-			if(!etiquetasIndexadasPorCategoria[eti.categoriaID]){
-				etiquetasIndexadasPorCategoria[eti.categoriaID]={...eti.categoria,etiquetas:[eti]}
-			}else{
-				etiquetasIndexadasPorCategoria[eti.categoriaID].etiquetas.push(eti);
+	.then(categorias=>{
+		let optionsEtiquetas=[];
+		let htmlStyle='';
+
+		for(let cat of categorias){
+			htmlStyle+=`[data-text^="${cat.descripcion}"]`;
+
+			for(let eti of cat.etiquetas){
+				optionsEtiquetas.push(['OPTION',{
+					value:eti.ID
+					,dataset:{
+						categoriaID:cat.ID
+					}
+					,innerText:`${cat.descripcion} - ${eti.descripcion}`
+				}]);
+
+				htmlStyle+=`, .tag.is-rounded[data-value="${eti.ID}"]`;
 			}
+			
+			htmlStyle+=`{background-color:${cat.color}}`;
 		}
 
 		let botonCrear=SqS('[type="submit"]',{from:gEt('nueva-pregunta')});
-
-		// TODO UX: Label, que se vea como los demás.
 		botonCrear.before(createElement(
-					['SELECT',{
-						dataset:{
-							type:'tags'
-							,placeholder:'Etiquetas'
-							,selectable:"false"
-						}
-						,name:'etiquetasIDs'
-						,multiple:true
-						,required:true
-						,children:etiquetas.map(({ID,descripcion,categoria:{categoriaID,descripcion:categoriaDescripcion}})=>['OPTION',{
-							value:ID
-							,innerText:`${categoriaDescripcion} - ${descripcion}`
-						}])
-					}]
+			[
+				'LABEL',{
+					class:'label',
+					children: [
+						['SPAN',{innerText:'Etiquetas'}],
+						['SELECT',{
+							dataset:{
+								type:'tags'
+								,placeholder:'Etiquetas'
+								,selectable:"false"
+							}
+							,name:'etiquetasIDs'
+							,multiple:true
+							,required:true
+							,children:optionsEtiquetas
+						}]
+					]
+				}
+			]
 		));
 		
-		// TODO UX: No te deja subir cosas si el input que se usa para buscar etiquetas está vacío, como que es requerido a pesar de que nqv.
-		// TODO UX: Conciliar los estilos de las etiquetas con los que se definieron. Principalmente los colores de las categorías.
-		/* Añadir un style que haga `.tags-input .dropdown-content a[data-value=`${ID}}`],.tags-input > .tag{color:${etiqueta.color}}` */
+		addElement(SqS('head'),['STYLE',{innerHTML:htmlStyle}]);
+
+		// TODO UX: Conciliar los estilos de las etiquetas con los que se definieron.
 		BulmaTagsInput.attach();
+		SqS('.tags-input.is-filter > input').required=false;
 	})
