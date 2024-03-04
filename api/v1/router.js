@@ -1213,7 +1213,29 @@ const reportarPost = function (req, res) {
 
 router.post("/post/:reportadoID/reporte", reportarPost);
 
-// TODO Refactor: Moderación de preguntas y respuestas deberían estar repartidas en router.patch('/pregunta') (la unificación) y router.delete('/(pregunta|respuesta))') (eliminación). Para esto hace falta meter bien el tema de los permisos.
+// TODO Feature: Los reportes no se eliminan. Solo se actua sobre ellos (eliminando o unificando) o se ignoran. Esta ignoración podría ser interesante de implementar.
+//Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
+/* ReportePost.findAll({
+  where: { ID: req.body.IDReporte },
+  raw: true,
+  nest: true,
+  plain: true,
+})
+  .then((reporte) => {
+    if (!reporte) {
+      res.status(404).send("Reporte no encontrado");
+      return;
+    } else {
+      reporte.destroy();
+      res
+        .status(200)
+        .send("Estado del post consistente con interfaz");
+      return;
+    }
+  })
+  .catch((err) => {
+    res.status(500).send(err);
+  }); */
 
 router.delete('/post/:ID',(req,res) => {
   if (!req.session.usuario) {
@@ -1244,130 +1266,6 @@ router.delete('/post/:ID',(req,res) => {
         })
     })
 })
-
-//moderación de preguntas y respuestas
-
-router.post("moderacion_pregunta", function (req, res) {
-  if (!req.session.usuario) {
-    res
-      .status(403)
-      .send("No se poseen permisos de moderación o sesión válida activa");
-    return;
-  } else if (req.session.usuario.perfil.permiso.ID < 2) {
-    res
-      .status(403)
-      .send("No se poseen permisos de moderación o sesión válida activa");
-    return;
-  }
-
-  Post.findAll({
-    where: { ID: req.body.IDPost },
-    raw: true,
-    nest: true,
-    plain: true,
-  })
-    .then((post) => {
-      if (!post) {
-        res.status(404).send("Pregunta no encontrada/disponible");
-        return;
-      } else {
-        if (req.body.accion == "eliminar") {
-          post.setDataValue("eliminadorID", usu.ID);
-          res.status(200).send("Estado del post consistente con interfaz");
-          return;
-        } else if (req.body.accion == "unificar") {
-          //TODO Feature: que hacemos aca?
-        } else {
-          // TODO Feature: Los reportes no se eliminan. Solo se actua sobre ellos (eliminando o unificando) o se ignoran. Esta ignoración podría ser interesante de implementar.
-          //Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
-          ReportePost.findAll({
-            where: { ID: req.body.IDReporte },
-            raw: true,
-            nest: true,
-            plain: true,
-          })
-            .then((reporte) => {
-              if (!reporte) {
-                res.status(404).send("Reporte no encontrado");
-                return;
-              } else {
-                reporte.destroy();
-                res
-                  .status(200)
-                  .send("Estado del post consistente con interfaz");
-                return;
-              }
-            })
-            .catch((err) => {
-              res.status(500).send(err);
-            });
-        }
-      }
-    })
-    .catch((err) => {
-      res.status(500).send(err);
-    });
-});
-
-//moderación respuestas
-
-router.post("moderacion_respuesta", function (req, res) {
-  if (!req.session.usuario) {
-    res
-      .status(403)
-      .send("No se poseen permisos de moderación o sesión válida activa");
-    return;
-  } else if (req.session.usuario.perfil.permiso.ID < 2) {
-    res
-      .status(403)
-      .send("No se poseen permisos de moderación o sesión válida activa");
-    return;
-  }
-  Post.findAll({
-    where: { ID: req.body.IDPost },
-    raw: true,
-    nest: true,
-    plain: true,
-  })
-    .then((post) => {
-      if (!post) {
-        res.status(404).send("Respuesta no encontrada/disponible");
-        return;
-      } else {
-        if (req.body.accion == "eliminar") {
-          post.setDataValue("eliminadorID", usu.ID);
-          res.status(200).send("Estado del post consistente con interfaz");
-          return;
-        } else {
-          //Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
-          ReportePost.findAll({
-            where: { ID: req.body.IDReporte },
-            raw: true,
-            nest: true,
-            plain: true,
-          })
-            .then((reporte) => {
-              if (!reporte) {
-                res.status(404).send("Reporte no encontrado");
-                return;
-              } else {
-                reporte.destroy();
-                res
-                  .status(200)
-                  .send("Estado del post consistente con interfaz");
-                return;
-              }
-            })
-            .catch((err) => {
-              res.status(500).send(err);
-            });
-        }
-      }
-    })
-    .catch((err) => {
-      res.status(500).send(err);
-    });
-});
 
 //categorias
 
