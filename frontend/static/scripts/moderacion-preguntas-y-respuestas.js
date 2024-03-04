@@ -73,9 +73,10 @@ gEt('moderar-posts').onclick=(e)=>{
     }
 
     if(t.classList.contains('unificar')){
-      modal.titulo=`Unificar la pregunta "${reportado.cuerpo}".`;
+      modal.titulo=`Unificar la pregunta "${reportado.titulo}".`;
       modal.contenido=[
-        // TODO Refactor: Estaría bueno usar Búsqueda... o eliminarlo
+        new ComponenteLiteral(()=>'<p>Asegúrese que las respuestas de la pregunta actual, sean <b>perfectamente</b> válidas en la pregunta con las que se reemplace.</p><br>'),
+        // TODO Refactor: Estaría bueno usar Búsqueda... o eliminar ese componente si no tiene valor.
         new Formulario(
           'moderacion-preguntas-unificar'
           ,`/api/pregunta/${reportadoID}`
@@ -83,7 +84,7 @@ gEt('moderar-posts').onclick=(e)=>{
             {
               name: "unificar-busqueda",
               textoEtiqueta: "Buscar preguntas",
-              value:reportado.cuerpo
+              value:reportado.titulo
             }
           ]
           // TODO Refactor: DRY
@@ -96,7 +97,7 @@ gEt('moderar-posts').onclick=(e)=>{
               alert(`Error ${info.codigo}: ${txt}`);
             }
           },{
-            verbo:'PATCH'
+            verbo:'PUT'
             ,textoEnviar: 'Unificar'
             ,clasesBoton:'is-link is-rounded mt-3'
             ,alEnviar
@@ -104,7 +105,7 @@ gEt('moderar-posts').onclick=(e)=>{
         )
       ];
 
-      let endpointInicial='/api/pregunta/?formatoCorto&searchInput='+reportado.cuerpo;
+      let endpointInicial='/api/pregunta/?formatoCorto&searchInput='+reportado.titulo;
       fetch(endpointInicial)
         .then(res=>res.json())
         .then(preguntas=>{
@@ -117,10 +118,16 @@ gEt('moderar-posts').onclick=(e)=>{
 
             let divFantasma=createElement('DIV');
             campoBusqueda.parentNode/* * `label` */.after(divFantasma);
-            divFantasma.outerHTML=new DesplazamientoInfinito('moderacion-pregunta-unificar-desplinf',endpointInicial/* * Se actualiza */,(pre)=>{
+            let desplinf=new DesplazamientoInfinito('moderacion-pregunta-unificar-desplinf',endpointInicial/* * Se actualiza */,(pre)=>{
+              if(pre.ID==reportadoID){
+                return;
+              }
+
               let pregunta=new Pregunta(pre).render();
-              return `<div class="moderacion-preguntas-unificar-desplinf-pregunta"> ${pregunta} <input type="radio" name="duplicadoID"> </div>`
-            },preguntas).render()
+              return `<div class="moderacion-preguntas-unificar-desplinf-pregunta"> ${pregunta} <input type="radio" name="duplicadaID" required value="${pre.ID}"> </div>`
+            },preguntas);
+            desplinf.pagina=2;
+            divFantasma.outerHTML=desplinf.render()
           }
           intentarAgregarLasPreguntas();
         })

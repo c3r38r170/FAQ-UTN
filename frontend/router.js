@@ -492,7 +492,7 @@ router.get("/usuario/:id?", async (req, res) => {
     let usuario = new Usuario(u);
     let chipusuario = new ChipUsuario(usuario.dataValues);
 
-    res.send(console.log(usuario.dataValues));
+    res.send();
   });
 });
 

@@ -53,7 +53,7 @@ class DesplazamientoInfinito{
 				let html='';
 				
 				for(let ent of nuevasEntidades){
-					html+=this.#generadorDeComponentes(ent);
+					html+=this.#generadorDeComponentes(ent)||''; // * El `||''` es para permitir que la función saltee resultados.
 				}
 
 				imagenAlcahuete.closest('.loading').remove();

@@ -621,6 +621,48 @@ router.post("/pregunta", function (req, res) {
   } else crearPregunta(req,res)
 })
 
+router.put('/pregunta/:ID',function(req,res){
+  let usuarioActual=req.session.usuario;
+  if (!usuarioActual) {
+    res
+      .status(401)
+      .send("No se posee sesión válida activa");
+    return;
+  } else if (usuarioActual.perfil.permiso.ID < 2) {
+    res
+      .status(403)
+      .send("No se poseen permisos de moderación");
+    return;
+  }
+
+  Pregunta.findByPk(req.params.ID,{
+    include:[
+      {model:Post,include:{model:Usuario,as:'eliminador'}},
+      {model:Respuesta,as:'respuestas',include:Post},
+    ]
+  })
+    .then(pre=>{
+      if(!pre){
+        // TODO Refactor: DRY en todos los "no se posee sesion", "no se poseen permisos", etc.
+        res.status(404).send("Pregunta no encontrada");
+        return;
+      }
+
+      // TODO Refactor: Ver si es posible simplificar
+      let esperarA=[], preguntaReemplazoID=req.body.duplicadaID;
+
+      if(pre.respuestas.length){
+        esperarA.push(...pre.respuestas.map(resp=>resp.setPregunta(preguntaReemplazoID).then(r=>r.save())));
+      }
+
+      esperarA.push(pre.post.setEliminador(usuarioActual.DNI).then(p=>p.save()));
+
+      Promise.all(esperarA).then(()=>{
+        res.send();
+      })
+    })
+})
+
 //Suscripción / desuscripción a pregunta
 
 router.post("/pregunta/:preguntaID/suscripcion", function (req, res) {
@@ -1191,7 +1233,7 @@ router.delete('/post/:ID',(req,res) => {
   })
     .then((post) => {
       if (!post) {
-        res.status(404).send("Pregunta no encontrada/disponible");
+        res.status(404).send("Pregunta no encontrada");
         return;
       }
 
@@ -1466,14 +1508,12 @@ router.get("/etiqueta", function (req, res) {
 	)
 	.then((etiquetas,categorias)=>{
 		res.status(200).send({etiquetas,categorias}); */
-  // console.log('aaaaa');
   Etiqueta.findAll({
     raw: true,
     nest: true,
     include: [{ model: Categoria, as: "categoria" }],
   })
     .then((etiquetas) => {
-      // console.log('bbbbb',etiquetas);
       res.status(200).send(etiquetas);
     })
     .catch((err) => {

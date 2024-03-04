@@ -204,6 +204,65 @@ const Post = sequelize.define(
   }
 );
 
+Post.pagina = ({ pagina = 0, DNI } = {}) => {
+  return Post.findAll({
+    include: [
+      { model: Usuario, as: "duenio" },
+      {
+        model: Respuesta,
+        as: "respuesta",
+        include: [
+          {
+            model: Pregunta,
+            as: "pregunta",
+            attributes: ["ID", "titulo"],
+            include: [
+              {
+                model: EtiquetasPregunta,
+                required: true,
+                as: "etiquetas",
+                include: {
+                  model: Etiqueta,
+                  include: {
+                    model: Categoria,
+                    as: "categoria",
+                  },
+                },
+                separate: true,
+              },
+            ],
+          }, // *Include Pregunta in Respuesta
+        ],
+        required: false,
+        attributes: ["ID", "preguntaID"],
+      },
+      {
+        model: Pregunta,
+        as: "pregunta",
+        required: false,
+        attributes: ["ID", "titulo"],
+        include: [
+          {
+            model: EtiquetasPregunta,
+            required: true,
+            as: "etiquetas",
+            include: {
+              model: Etiqueta,
+            },
+            separate: true,
+          },
+        ],
+      },
+    ],
+    where: {
+      "$post.duenioDNI$": +DNI,
+    },
+    order: [["fecha", "DESC"]],
+    limit: PAGINACION.resultadosPorPagina,
+    offset: +pagina * PAGINACION.resultadosPorPagina,
+  });
+};
+
 Usuario.hasMany(Post, {
   constraints: false,
   foreignKey: "duenioDNI",
@@ -460,6 +519,77 @@ Post.belongsTo(Respuesta, {
   as: "respuesta",
   foreignKey: "ID",
 });
+
+Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
+  return Pregunta.findAll({
+    // TODO Feature: try subQUery:false again and separate: true
+    include: [
+      {
+        model: Post,
+        include: [
+          {
+            model: Usuario,
+            as: "duenio",
+            include: {
+              model: Perfil,
+            },
+          },
+        ],
+      },
+      {
+        model: Respuesta,
+        as: "respuestas",
+        required: true,
+        include: {
+          model: Post,
+          include: [
+            {
+              model: Usuario,
+              as: "duenio",
+              include: {
+                model: Perfil,
+              },
+            },
+            {
+              model: Voto,
+              separate: true,
+              include: { model: Usuario, as: "votante" },
+            },
+          ],
+        },
+      },
+      {
+        model: EtiquetasPregunta,
+        required: true,
+        as: "etiquetas",
+        include: {
+          model: Etiqueta,
+          include: {
+            model: Categoria,
+            as: "categoria",
+          },
+        },
+        separate: true,
+      },
+    ], //TODO Refactor: aplicar dry
+    attributes: {
+      include: [
+        [
+          sequelize.literal(
+            "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+          ),
+          "respuestasCount",
+        ],
+      ],
+    },
+    separate: true,
+    where: {
+      "$respuestas.post.duenio.DNI$": DNI,
+    },
+    order: [[Post, "fecha", "DESC"]],
+    // ,raw:true,nest:true
+  });
+};
 
 const Pregunta = sequelize.define(
   "pregunta",
@@ -769,141 +899,9 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       }
     }
 
-    console.log(opciones);
-
     return Pregunta.findAll(opciones);
   }
 }
-
-Post.pagina = ({ pagina = 0, DNI } = {}) => {
-  return Post.findAll({
-    include: [
-      { model: Usuario, as: "duenio" },
-      {
-        model: Respuesta,
-        as: "respuesta",
-        include: [
-          {
-            model: Pregunta,
-            as: "pregunta",
-            attributes: ["ID", "titulo"],
-            include: [
-              {
-                model: EtiquetasPregunta,
-                required: true,
-                as: "etiquetas",
-                include: {
-                  model: Etiqueta,
-                  include: {
-                    model: Categoria,
-                    as: "categoria",
-                  },
-                },
-                separate: true,
-              },
-            ],
-          }, // *Include Pregunta in Respuesta
-        ],
-        required: false,
-        attributes: ["ID", "preguntaID"],
-      },
-      {
-        model: Pregunta,
-        as: "pregunta",
-        required: false,
-        attributes: ["ID", "titulo"],
-        include: [
-          {
-            model: EtiquetasPregunta,
-            required: true,
-            as: "etiquetas",
-            include: {
-              model: Etiqueta,
-            },
-            separate: true,
-          },
-        ],
-      },
-    ],
-    where: {
-      "$post.duenioDNI$": +DNI,
-    },
-    order: [["fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina,
-  });
-};
-
-Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
-  return Pregunta.findAll({
-    // TODO Feature: try subQUery:false again and separate: true
-    include: [
-      {
-        model: Post,
-        include: [
-          {
-            model: Usuario,
-            as: "duenio",
-            include: {
-              model: Perfil,
-            },
-          },
-        ],
-      },
-      {
-        model: Respuesta,
-        as: "respuestas",
-        required: true,
-        include: {
-          model: Post,
-          include: [
-            {
-              model: Usuario,
-              as: "duenio",
-              include: {
-                model: Perfil,
-              },
-            },
-            {
-              model: Voto,
-              separate: true,
-              include: { model: Usuario, as: "votante" },
-            },
-          ],
-        },
-      },
-      {
-        model: EtiquetasPregunta,
-        required: true,
-        as: "etiquetas",
-        include: {
-          model: Etiqueta,
-          include: {
-            model: Categoria,
-            as: "categoria",
-          },
-        },
-        separate: true,
-      },
-    ], //TODO Refactor: aplicar dry
-    attributes: {
-      include: [
-        [
-          sequelize.literal(
-            "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-          ),
-          "respuestasCount",
-        ],
-      ],
-    },
-    separate: true,
-    where: {
-      "$respuestas.post.duenio.DNI$": DNI,
-    },
-    order: [[Post, "fecha", "DESC"]],
-    // ,raw:true,nest:true
-  });
-};
 
 Pregunta.hasOne(Post, {
   constraints: false,

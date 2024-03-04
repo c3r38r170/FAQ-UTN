@@ -86,7 +86,8 @@
 	}
 	
 	&#moderacion-preguntas-unificar{
-		height: 100%;
+		// TODO Refactor: El formulario no respeta el límite de altura del elemento superior.
+		height: 90%;
 
 		.moderacion-preguntas-unificar-desplinf-pregunta{
 			display: flex;justify-content: space-between;
