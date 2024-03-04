@@ -15,7 +15,7 @@ function crearPagina(ruta, sesion){
             new DesplazamientoInfinito(
                 'perfil-desplinf'
         ,`/api/usuario/${sesion.usuario.DNI}/preguntas`
-        ,p=>(new Pregunta(p, modal, sesion.usuario)).render()
+        ,p=>(new Pregunta(p, modal, sesion.usuario, true)).render()
             )
         ]
     });
