@@ -1,4 +1,4 @@
-import { Pagina, Formulario } from "../componentes/todos.js";
+import { Pagina, Formulario, ListaEtiquetas } from "../componentes/todos.js";
 
 function crearPagina(ruta,sesion, pregunta){
 	let pagina=new Pagina({
@@ -23,7 +23,9 @@ function crearPagina(ruta,sesion, pregunta){
 				,{
 					textoEnviar:'Editar Pregunta', verbo: 'PATCH', clasesBoton:'is-link is-rounded mt-3'
 				}
-			)
+			),
+			new ListaEtiquetas('editando-pregunta')
+
 		]
 	});
 	return pagina;
