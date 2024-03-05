@@ -56,7 +56,9 @@ class Pregunta{
                         ${this.#fecha.render()}
                     </div>
                     ${ this.#usuarioActual ? new BotonSuscripcion(this.#ID,'/api/pregunta/'+this.#ID+'/suscripcion', this.#estaSuscripto).render() : '' }
-                    ${ (this.#instanciaModal && this.#usuarioActual && (this.#usuarioActual.DNI != this.#duenio.DNI))? new BotonReporte(this.#ID, this.#instanciaModal).render() : ((this.#esMiPerfil)? '<div class="ml-auto"> <a href="/perfil/preguntas/'+this.#ID+'/editar"><i class="fa-solid fa-pen-to-square"></i></a> <a><i class="fa-solid fa-trash ml-2"></i></a></div>' : '')}
+                    ${ (this.#instanciaModal && this.#usuarioActual) ? 
+                         ((this.#usuarioActual.DNI != this.#duenio.DNI) ? new BotonReporte(this.#ID, this.#instanciaModal).render() : '<div class="ml-auto"> <a href="/pregunta/'+this.#ID+'/editar"><i class="fa-solid fa-pen-to-square"></i></a> <a><i class="fa-solid fa-trash ml-2"></i></a></div>' ) 
+                        : '' }
                 </div>
                 ${this.#chipValoracion ? this.#chipValoracion.render() : ''}
                 <a href="/pregunta/${this.#ID}">

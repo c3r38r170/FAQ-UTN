@@ -5,6 +5,7 @@ import BulmaTagsInput from '../libs/bulmaTagsInput+esm.js'
 class ListaEtiquetas {
     #etiquetas;
     #formID;
+    
   constructor(formID) {
     this.#formID = formID;
     this.crearLista();

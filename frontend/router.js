@@ -375,7 +375,7 @@ router.get("/perfil/preguntas", (req, res) => {
 });
 
 
-router.get("/perfil/preguntas/:id/editar", (req, res)=>{
+router.get("/pregunta/:id/editar", (req, res)=>{
   try{
     let usu = req.session;
     if(!usu.usuario){
@@ -401,11 +401,10 @@ router.get("/perfil/preguntas/:id/editar", (req, res)=>{
         }
       }
     ];
-
-    PreguntaDAO.findByPk(req.params.id, { include })
-    .then((pre)=>{
+    Promise.all( [PreguntaDAO.findByPk(req.params.id, { include }) , Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}})])
+    .then(([pre, categorias])=>{
       // * Editar pregunta.
-      let pagina = PantallaEditarPregunta(req.path, req.session, pre);
+      let pagina = PantallaEditarPregunta(req.path, req.session, pre, categorias);
       res.send(pagina.render());
     }).catch((error) => {
       console.error('Error:', error);

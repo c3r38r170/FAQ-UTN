@@ -1,5 +1,7 @@
 import { Pagina, Formulario } from "../componentes/todos.js";
 
+
+// TODO refactor: Usar campo de Lista
 function crearPagina(ruta,sesion){
 	let pagina=new Pagina({
 		ruta:ruta

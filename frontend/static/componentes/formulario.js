@@ -116,11 +116,10 @@ class Campo{
 	#required=true;
 	#value;
 	#clasesInput;
-	#clasesLabel;
 	#extra = null;
 	#placeholder='';
 
-	constructor({name,textoEtiqueta,type,required=true,value='',extra,placeholder, clasesInput, clasesLabel}){
+	constructor({name,textoEtiqueta,type,required=true,value='',extra,placeholder, clasesInput}){
 		// TODO Feature: Tirar error si no estan los necesarios.
 		this.#name=name;
 		this.#textoEtiqueta=textoEtiqueta;
@@ -128,12 +127,13 @@ class Campo{
 		this.#value=value;
 		this.#type=type;
 		this.#clasesInput = clasesInput||"";
-		this.#clasesLabel = clasesLabel||"";
 		this.#extra = extra;
 		this.#placeholder = placeholder;
 	}
+
+
 	render(){
-		let html=`<label class="label ${this.#clasesLabel}">${this.#textoEtiqueta}<input class="input ${this.#clasesInput}" name="${this.#name}"`
+		let html=`<label class="label">${this.#textoEtiqueta}<input class="input ${this.#clasesInput}" name="${this.#name}"`
 			,endTag='/>';
 		
 		if(this.#type){
@@ -143,6 +143,8 @@ class Campo{
 				html=html.replaceAll('input','textarea');
 				endTag=`>${this.#value}</textarea>`;
 				break;
+			case 'lista-etiquetas':
+				html+=' data-type = "tags" data-placeholder="Etiquetas" data-selectable="false" multiple '
 			case 'select':
 				html=html.replace('input','select');
 				endTag=`>${this.#extra}</select>`;

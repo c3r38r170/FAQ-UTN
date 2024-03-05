@@ -542,4 +542,11 @@ textarea {
 
 .desplazamiento-infinito {
   overflow: auto;
+}
+
+select[data-type=tags] {
+  height: 0;
+  overflow: hidden;
+  border: none;
+  padding: 0;
 }/*# sourceMappingURL=main.css.map */

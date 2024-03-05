@@ -454,11 +454,18 @@ router.get("/pregunta", (req, res) => {
 });
 
 router.patch("/pregunta", function (req, res) {
+  // console.log(req.body);
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa.");
   }
   Pregunta.findByPk(req.body.ID, {
-    include: Post,
+    include: [
+      Post
+      , {
+        model: EtiquetasPregunta,
+        as:'etiquetas',
+      }
+    ],
   })
     .then((pregunta) => {
       if (!pregunta) {
@@ -473,6 +480,7 @@ router.patch("/pregunta", function (req, res) {
           if (modera) {
             moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 50).then(
               (respuesta) => {
+                let esperarA = []
                 if (respuesta.apropiado < rechazaPost) {
                   res
                     .status(400)
@@ -481,27 +489,64 @@ router.patch("/pregunta", function (req, res) {
                 } else if (respuesta.apropiado < reportaPost) {
                   //Crear reporte
                   //TODO Feature: definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front (Santiago: Yo digo dejarlo NULL y que se encargue el frontend.)
-                  ReportePost.create({
+                  esperarA.push(ReportePost.create({
                     reportadoID: pregunta.ID,
-                  });
+                  }))
+  
                 }
                 //si pasa el filtro
                 pregunta.post.cuerpo = req.body.cuerpo;
                 pregunta.titulo = req.body.titulo;
-                //etiquetas vienen los id en array
-                pregunta.setEtiquetas(
-                  req.body.etiquetasIDs.map(
-                    (ID) => new EtiquetasPregunta({ etiquetumID: ID })
+                // !no se porque pero asi anda pregunta.save() no
+                esperarA.push(
+                  pregunta.post.save()
+                  .then( () =>
+                    pregunta.setEtiquetas([])
                   )
-                );
-                //no se porque pero asi anda pregunta.save() no
-                pregunta.post.save();
-                res.status(200).send("Pregunta actualizada exitosamente");
+                  .then( pre => pre.save())
+                  .then( () =>
+                    Promise.all(req.body.etiquetas.map(
+                      (ID) =>  EtiquetasPregunta.create({ etiquetumID: ID , preguntumID: pregunta.post.ID})
+                    ))
+                  )
+                  // .then(ep => pregunta.setEtiquetas(req.body.etiquetas.map(
+                  //   (ID) =>({ preguntumID : pregunta.post.ID , etiquetumID: ID })
+                  // )))
+                )
+                Promise.all(esperarA)
+                .then( () =>
+                  res.status(200).send("Pregunta actualizada exitosamente")
+                )
+             
               }
             );
           } else {
+            let esperarA = []
             pregunta.post.cuerpo = req.body.cuerpo;
             pregunta.titulo = req.body.titulo;
+
+
+            const etiquetas = Array.isArray(req.body.etiquetas) ? req.body.etiquetas : [req.body.etiquetas]; 
+             // !no se porque pero asi anda pregunta.save() no
+             esperarA.push(
+              pregunta.post.save()
+              .then( () =>
+                pregunta.setEtiquetas([])
+              )
+              .then( pre => pre.save())
+              .then( () =>
+                Promise.all(etiquetas.map(
+                  (ID) =>  EtiquetasPregunta.create({ etiquetumID: ID , preguntumID: pregunta.post.ID})
+                ))
+              )
+              // .then(ep => pregunta.setEtiquetas(req.body.etiquetas.map(
+              //   (ID) =>({ preguntumID : pregunta.post.ID , etiquetumID: ID })
+              // )))
+            )
+            Promise.all(esperarA)
+            .then( () =>
+              res.status(200).send("Pregunta actualizada exitosamente")
+            )
             //etiquetas vienen los id en array
             // pregunta.setEtiquetas(
             //   req.body.etiquetasIDs.map(
@@ -509,8 +554,8 @@ router.patch("/pregunta", function (req, res) {
             //   )
             // );
             //no se porque pero asi anda pregunta.save() no
-            pregunta.post.save();
-            res.status(200).send("Pregunta actualizada exitosamente");
+            // pregunta.post.save();
+            // res.status(200).send("Pregunta actualizada exitosamente");
           }
         }
       }

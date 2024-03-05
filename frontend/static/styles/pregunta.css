@@ -1,1 +1,9 @@
-#nueva-pregunta{padding:0 3rem}#nueva-pregunta-etiquetas{display:flex;justify-content:start;gap:2rem}select{height:0;overflow:hidden;border:none;padding:0}/*# sourceMappingURL=pregunta.css.map */
+#nueva-pregunta {
+  padding: 0 3rem;
+}
+
+#nueva-pregunta-etiquetas {
+  display: flex;
+  justify-content: start;
+  gap: 2rem;
+}/*# sourceMappingURL=pregunta.css.map */
