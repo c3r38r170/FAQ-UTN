@@ -35,7 +35,6 @@ class Notificacion{
 			this.#ID=id;
 		this.#tituloPregunta = titulo;
 		this.#fecha=new Fecha(createdAt);
-		// console.log(usuarioActualDNI)
 		if(preguntaID){
 			this.#idPregunta =preguntaID
 			if(propia){

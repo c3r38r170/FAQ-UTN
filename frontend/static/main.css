@@ -89,9 +89,6 @@ div#columna-principal {
   padding-left: 0;
   padding-right: 0;
 }
-div#columna-principal > form {
-  padding: 0 3rem;
-}
 
 div#breadcrumbs {
   padding: 0 2rem;
@@ -277,12 +274,8 @@ div.notificacion div.noti-container .fecha {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  padding: 2rem 3rem 1rem 3rem;
-  border-top: 1px solid lightgray;
-}
-.pregunta:first-child {
-  border-top: none;
-  padding-top: 3rem;
+  padding: 2rem 3rem;
+  border-bottom: 1px solid lightgray;
 }
 .pregunta .encabezado {
   display: flex;
@@ -515,10 +508,14 @@ button.mi-boton {
 .modal .modal-content .box {
   padding: 3rem;
   border-radius: 20px;
+  display: grid;
 }
 .modal .modal-content .box h2 {
   font-size: 1.2rem;
   font-weight: 700;
+}
+.modal .modal-content .box .contenido {
+  max-height: 70vh;
 }
 
 .loading {
@@ -532,7 +529,6 @@ button.mi-boton {
 
 #nueva-respuesta {
   padding: 3rem 3rem;
-  border-top: 1px solid lightgray;
   border-bottom: 1px solid lightgray;
 }
 
@@ -542,4 +538,8 @@ textarea {
 
 .noMostrar {
   display: none !important;
+}
+
+.desplazamiento-infinito {
+  overflow: auto;
 }/*# sourceMappingURL=main.css.map */

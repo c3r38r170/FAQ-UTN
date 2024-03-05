@@ -38,7 +38,6 @@ gEt("moderacion-usuarios").onchange = (e) => {
     // * Se desea desbloquear
     modal.titulo = "Desbloquear a " + usuarioElegido.nombre;
     modal.contenido = [
-      // TODO Feature: Mostrar razón del desbloqueo, preguntar si se está seguro.
       new ComponenteLiteral(
         () =>
           `<big><b><p>¿Estás seguro?</p></b></big> <p><i>${usuarioElegido.nombre} fue bloqueado con el siguiente motivo:</i><br/>${usuarioElegido.bloqueosRecibidos[0].motivo}</p><br/>`
@@ -74,6 +73,7 @@ gEt("moderacion-usuarios").onchange = (e) => {
           verbo: "DELETE",
           textoEnviar: "Registrar motivo y desbloquear",
           clasesBoton: "is-link is-rounded mt-3",
+          // TODO Refactor: DRY
           alEnviar: () => (checkbox.disabled = true),
         }
       ),
@@ -118,6 +118,7 @@ gEt("moderacion-usuarios").onchange = (e) => {
         {
           verbo: "POST",
           textoEnviar: "Registrar motivo y bloquear",
+          // TODO Refactor: ¿Hacen falta estas clases?
           clasesBoton: "is-link is-rounded mt-3",
           alEnviar: () => (checkbox.disabled = true),
         }

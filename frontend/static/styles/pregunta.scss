@@ -7,3 +7,11 @@
 	justify-content: start;
 	gap: 2rem;
 }
+
+// TODO UX: Alguien que use Chrome o similar vea si puede ver o notar esta lista desplegable.
+select{
+	height: 0;
+  overflow: hidden;
+	border: none;
+	padding: 0;
+}

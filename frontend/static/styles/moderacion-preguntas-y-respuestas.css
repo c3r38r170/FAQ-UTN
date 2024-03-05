@@ -18,34 +18,63 @@
   gap: 1rem;
 }
 #moderar-posts th:first-child {
-  width: 65%;
+  width: 60%;
 }
-#moderar-posts tbody td:first-child {
+#moderar-posts tbody td.preguntas-o-respuestas {
   border: solid 1px !important;
   padding: 5px !important;
   border-radius: 10px;
   display: block;
   margin: 5px;
 }
-#moderar-posts tbody td:first-child .pregunta, #moderar-posts tbody td:first-child .respuesta {
+#moderar-posts tbody td.preguntas-o-respuestas .pregunta, #moderar-posts tbody td.preguntas-o-respuestas .respuesta {
   font-size: smaller !important;
   padding: 0;
   margin: 0;
 }
-#moderar-posts tbody td:first-child .pregunta > *, #moderar-posts tbody td:first-child .respuesta > * {
+#moderar-posts tbody td.preguntas-o-respuestas .pregunta > *, #moderar-posts tbody td.preguntas-o-respuestas .respuesta > * {
   padding: 0;
   margin: 0;
 }
-#moderar-posts tbody td:first-child .pregunta .cuerpo, #moderar-posts tbody td:first-child .respuesta .cuerpo {
+#moderar-posts tbody td.preguntas-o-respuestas .pregunta .cuerpo, #moderar-posts tbody td.preguntas-o-respuestas .respuesta .cuerpo {
   font-size: 1rem !important;
 }
-#moderar-posts tbody td:first-child .pregunta .titulo {
+#moderar-posts tbody td.preguntas-o-respuestas .pregunta .titulo {
   display: inline;
 }
-#moderar-posts tbody td:first-child .respuesta {
+#moderar-posts tbody td.preguntas-o-respuestas .respuesta {
   border: none;
   justify-content: initial;
 }
-#moderar-posts tbody td:first-child .respuesta .usuario {
+#moderar-posts tbody td.preguntas-o-respuestas .respuesta .usuario {
   margin: 0 !important;
+}
+#moderar-posts tbody td.botones button {
+  display: block;
+  margin: 0.5rem auto;
+}
+
+#moderacion-posts-modal form {
+  display: flex;
+  flex-direction: column;
+}
+#moderacion-posts-modal form > input[type=submit] {
+  margin: auto;
+}
+#moderacion-posts-modal form#moderacion-preguntas-unificar {
+  height: 90%;
+}
+#moderacion-posts-modal form#moderacion-preguntas-unificar .moderacion-preguntas-unificar-desplinf-pregunta {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+}
+#moderacion-posts-modal form#moderacion-preguntas-unificar .moderacion-preguntas-unificar-desplinf-pregunta .pregunta {
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+#moderacion-posts-modal form#moderacion-preguntas-unificar .moderacion-preguntas-unificar-desplinf-pregunta [type=radio] {
+  width: 1.5rem;
+  height: 1.5rem;
 }/*# sourceMappingURL=moderacion-preguntas-y-respuestas.css.map */

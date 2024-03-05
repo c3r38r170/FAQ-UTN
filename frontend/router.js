@@ -196,6 +196,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
         return b.dataValues.sumValoracion - a.dataValues.sumValoracion;
       });
 
+      // TODO UX: Esto no se ve muy lindo. Alternativa: Alguna forma de que la pregunta no renderice el link, y sí renderice un título h-
       let preguntaID = p.ID;
       let pagina = PaginaPregunta(req.path, req.session, preguntaID);
       pagina.titulo = p.titulo;
@@ -536,7 +537,7 @@ router.get("/usuario/:id?", async (req, res) => {
     let usuario = new Usuario(u);
     let chipusuario = new ChipUsuario(usuario.dataValues);
 
-    res.send(console.log(usuario.dataValues));
+    res.send();
   });
 });
 

@@ -20,6 +20,7 @@ import {
   Carrera,
   Bloqueo,
   Parametro,
+  TipoReporte,
 } from "./model.js";
 import { Sequelize } from "sequelize";
 import { moderar, moderarWithRetry } from "./ia.js";
@@ -437,12 +438,8 @@ router.get("/pregunta", (req, res) => {
 
   // TODO Feature: Aceptar etiquetas.
 
-  let filtros = { pagina: null, filtrar: [] };
+  let filtros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto!==undefined };
 
-  // TODO Refactor: pagina es obligatorio; y si no está, sería 0. `pagina:req.query.pagina||0`
-  if (req.query.pagina) {
-    filtros.pagina = req.query.pagina;
-  }
   if (req.query.searchInput) {
     filtros.filtrar.texto = req.query.searchInput;
   }
@@ -569,7 +566,7 @@ function crearPregunta(req,res,respuestaIA=null){
         attributes: ['suscriptoDNI'],
         where: {
           etiquetaID: {
-          [Sequelize.Op.in]: etiquetasIDs
+            [Sequelize.Op.in]: etiquetasIDs
           },
           fecha_baja: null
         },
@@ -622,6 +619,48 @@ router.post("/pregunta", function (req, res) {
         res.status(500).send(err);
       });
   } else crearPregunta(req,res)
+})
+
+router.put('/pregunta/:ID',function(req,res){
+  let usuarioActual=req.session.usuario;
+  if (!usuarioActual) {
+    res
+      .status(401)
+      .send("No se posee sesión válida activa");
+    return;
+  } else if (usuarioActual.perfil.permiso.ID < 2) {
+    res
+      .status(403)
+      .send("No se poseen permisos de moderación");
+    return;
+  }
+
+  Pregunta.findByPk(req.params.ID,{
+    include:[
+      {model:Post,include:{model:Usuario,as:'eliminador'}},
+      {model:Respuesta,as:'respuestas',include:Post},
+    ]
+  })
+    .then(pre=>{
+      if(!pre){
+        // TODO Refactor: DRY en todos los "no se posee sesion", "no se poseen permisos", etc.
+        res.status(404).send("Pregunta no encontrada");
+        return;
+      }
+
+      // TODO Refactor: Ver si es posible simplificar
+      let esperarA=[], preguntaReemplazoID=req.body.duplicadaID;
+
+      if(pre.respuestas.length){
+        esperarA.push(...pre.respuestas.map(resp=>resp.setPregunta(preguntaReemplazoID).then(r=>r.save())));
+      }
+
+      esperarA.push(pre.post.setEliminador(usuarioActual.DNI).then(p=>p.save()));
+
+      Promise.all(esperarA).then(()=>{
+        res.send();
+      })
+    })
 })
 
 //Suscripción / desuscripción a pregunta
@@ -1019,12 +1058,14 @@ router.get('/post/reporte',function(req, res){
 			// * Datos resumen de los reportes.
 			,[Sequelize.fn('max',Sequelize.col('reportePost.fecha')),'fecha']
 			,[Sequelize.fn('count',Sequelize.col('*')),'cantidad']
-		]
-		,nest:true,raw:true
+      // TODO Refactor: Es horrible que tengamos que buscar en un string en vez de un array.
+			,[Sequelize.fn('group_concat',Sequelize.fn('distinct',Sequelize.col('reportePost.tipoID'))),'tiposIDs']
+		],
+    nest:true,raw:true
+    // ? Supuestamente hay que agrupar por todos los datos atómicos, pero esto funciona ya. Considerar si nos debemos basar en la teoría o en la práctica.
+    /* cuerpo,fecha,DNI,nombre,perfilID,perfilNombre,perfilColor */
 		,group:[
 			'reportado.ID'
-			// ? Supuestamente hay que agrupar por todos los datos atómicos, pero esto funciona ya. Considerar si nos debemos basar en la teoría o en la práctica.
-			/* cuerpo,fecha,DNI,nombre,perfilID,perfilNombre,perfilColor */
 		]
 		,order:[
 			['fecha','DESC']
@@ -1170,136 +1211,73 @@ const reportarPost = function (req, res) {
 
 router.post("/post/:reportadoID/reporte", reportarPost);
 
-// TODO Refactor: Moderación de preguntas y respuestas deberían estar repartidas en router.patch('/pregunta') (la unificación) y router.delete('/(pregunta|respuesta))') (eliminación). Para esto hace falta meter bien el tema de los permisos.
+// TODO Feature: Los reportes no se eliminan. Solo se actua sobre ellos (eliminando o unificando) o se ignoran. Esta ignoración podría ser interesante de implementar.
+//Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
+/* ReportePost.findAll({
+  where: { ID: req.body.IDReporte },
+  raw: true,
+  nest: true,
+  plain: true,
+})
+  .then((reporte) => {
+    if (!reporte) {
+      res.status(404).send("Reporte no encontrado");
+      return;
+    } else {
+      reporte.destroy();
+      res
+        .status(200)
+        .send("Estado del post consistente con interfaz");
+      return;
+    }
+  })
+  .catch((err) => {
+    res.status(500).send(err);
+  }); */
 
-//moderación de preguntas y respuestas
-
-router.post("moderacion_pregunta", function (req, res) {
+router.delete('/post/:ID',(req,res) => {
   if (!req.session.usuario) {
     res
-      .status(403)
-      .send("No se poseen permisos de moderación o sesión válida activa");
+      .status(401)
+      .send("No se posee sesión válida activa");
     return;
   } else if (req.session.usuario.perfil.permiso.ID < 2) {
     res
       .status(403)
-      .send("No se poseen permisos de moderación o sesión válida activa");
+      .send("No se poseen permisos de moderación");
     return;
   }
-  Post.findAll({
-    where: { ID: req.body.IDPost },
-    raw: true,
-    nest: true,
-    plain: true,
+
+  Post.findByPk(req.params.ID,{
+    include:{model:Usuario,as:'eliminador'}
   })
     .then((post) => {
       if (!post) {
-        res.status(404).send("Pregunta no encontrada/disponible");
+        res.status(404).send("Pregunta no encontrada");
         return;
-      } else {
-        if (req.body.accion == "eliminar") {
-          post.setDataValue("eliminadorID", usu.ID);
-          res.status(200).send("Estado del post consistente con interfaz");
-          return;
-        } else if (req.body.accion == "unificar") {
-          //TODO Feature: que hacemos aca?
-        } else {
-          // TODO Feature: Los reportes no se eliminan. Solo se actua sobre ellos (eliminando o unificando) o se ignoran.
-          //Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
-          ReportePost.findAll({
-            where: { ID: req.body.IDReporte },
-            raw: true,
-            nest: true,
-            plain: true,
-          })
-            .then((reporte) => {
-              if (!reporte) {
-                res.status(404).send("Reporte no encontrado");
-                return;
-              } else {
-                reporte.destroy();
-                res
-                  .status(200)
-                  .send("Estado del post consistente con interfaz");
-                return;
-              }
-            })
-            .catch((err) => {
-              res.status(500).send(err);
-            });
-        }
       }
-    })
-    .catch((err) => {
-      res.status(500).send(err);
-    });
-});
 
-//moderación respuestas
-
-router.post("moderacion_respuesta", function (req, res) {
-  if (!req.session.usuario) {
-    res
-      .status(403)
-      .send("No se poseen permisos de moderación o sesión válida activa");
-    return;
-  } else if (req.session.usuario.perfil.permiso.ID < 2) {
-    res
-      .status(403)
-      .send("No se poseen permisos de moderación o sesión válida activa");
-    return;
-  }
-  Post.findAll({
-    where: { ID: req.body.IDPost },
-    raw: true,
-    nest: true,
-    plain: true,
-  })
-    .then((post) => {
-      if (!post) {
-        res.status(404).send("Respuesta no encontrada/disponible");
-        return;
-      } else {
-        if (req.body.accion == "eliminar") {
-          post.setDataValue("eliminadorID", usu.ID);
+      post.setEliminador(req.session.usuario.DNI)
+        .then((post)=>post.save())
+        .then(()=>{
           res.status(200).send("Estado del post consistente con interfaz");
-          return;
-        } else {
-          //Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
-          ReportePost.findAll({
-            where: { ID: req.body.IDReporte },
-            raw: true,
-            nest: true,
-            plain: true,
-          })
-            .then((reporte) => {
-              if (!reporte) {
-                res.status(404).send("Reporte no encontrado");
-                return;
-              } else {
-                reporte.destroy();
-                res
-                  .status(200)
-                  .send("Estado del post consistente con interfaz");
-                return;
-              }
-            })
-            .catch((err) => {
-              res.status(500).send(err);
-            });
-        }
-      }
+        })
     })
-    .catch((err) => {
-      res.status(500).send(err);
-    });
-});
+})
 
 //categorias
 
+// TODO Refactor: Los endpoint son en singular.
 router.get("/categorias", async (req, res) => {
   try {
-    const categorias = await Categoria.findAll();
+    let categorias;
+    // TODO Refactor: raw? nest?
+    console.log(req.query);
+    if(!!+req.query.etiquetas){
+      categorias=await Categoria.findAll({include:/* Etiqueta */{model:Etiqueta, as:'etiquetas'}})
+    }else{
+      categorias = await Categoria.findAll();
+    }
     res.json(categorias);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -1417,6 +1395,7 @@ router.post("/etiqueta", function (req, res) {
   });
 });
 
+// TODO Refactor: cambiar este endpoint a categoría. Hacer que categoría acepte un parámetro de con o sin etiquetas.
 router.get("/etiqueta", function (req, res) {
   //* sin paginación porque no deberían ser tantas
 
@@ -1434,14 +1413,12 @@ router.get("/etiqueta", function (req, res) {
 	)
 	.then((etiquetas,categorias)=>{
 		res.status(200).send({etiquetas,categorias}); */
-  // console.log('aaaaa');
   Etiqueta.findAll({
     raw: true,
     nest: true,
     include: [{ model: Categoria, as: "categoria" }],
   })
     .then((etiquetas) => {
-      // console.log('bbbbb',etiquetas);
       res.status(200).send(etiquetas);
     })
     .catch((err) => {
@@ -1449,6 +1426,8 @@ router.get("/etiqueta", function (req, res) {
     });
 });
 
+// TODO Refactor: Cambiar endpoint a etiqueta, los nombres son en singular.
+// TODO Refactor: Cambiar todas las funciones async a sincrónicas. Usar then en los cuerpos, y funciones de Premises, en todo caso.
 router.patch("/etiquetas/:id/activado", async (req, res) => {
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa");
