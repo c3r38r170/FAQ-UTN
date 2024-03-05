@@ -5,7 +5,7 @@ import { Desplegable } from '../componentes/desplegable.js';
 import BulmaTagsInput from 'https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tagsinput@1.0.3/+esm';
 
 let pagina=PantallaNuevaPregunta(location.pathname,{usuario:window.usuarioActual});
-
+// TODO refactor: Usar directamente campo en formulario?
 fetch('/api/categorias?etiquetas=1')
 	.then(res=>res.json())
 	.then(categorias=>{
