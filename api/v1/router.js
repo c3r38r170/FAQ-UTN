@@ -64,6 +64,8 @@ Parametro.findAll().then((ps) => {
   });
 });
 
+// TODO Refactor: Separar este archivo de más de 2k líneas de código en diferentes archivos segpun la entidad accedida. Ejemplo: https://github.com/c3r38r170/tp-fullstack/blob/master/backend/rutas/todas.js
+
 // sesiones
 
 router.post("/sesion", function (req, res) {
@@ -474,13 +476,14 @@ router.patch("/usuario", upload.single("image"), function (req, res) {
   }
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
-      if(bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)){
-        usuario.contrasenia = req.body.contraseniaNueva;
-        usuario.save();
-        res.status(200).send("Datos actualizados exitosamente");
+      if(!bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)){
+        res.status(401).send("Contraseña anterior no válida")
         return;
       }
-      res.status(402).send("Contraseña anterior no válida")
+
+      usuario.contrasenia = req.body.contraseniaNueva;
+      usuario.save();
+      res.status(200).send("Datos actualizados exitosamente");
       })
     .catch((err) => {
       res.status(500).send(err);
@@ -1780,7 +1783,7 @@ router.get('/notificacion', function(req,res){
 
 router.patch("/notificacion", function (req, res) {
   if (!req.session.usuario) {
-    res.status(402).send();
+    res.status(401).send();
     return;
   }
 
