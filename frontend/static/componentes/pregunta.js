@@ -13,8 +13,8 @@ class Pregunta{
     #respuestasCount=0;
     #chipValoracion=null;
     #estaSuscripto = false ;
-    #esMiPerfil = false;
-    constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, usuariosSuscriptos},instanciaModal, sesion, esMiPerfil){
+    #botonEditar;
+    constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, usuariosSuscriptos},instanciaModal, sesion){
         // TODO Feature: Pensar condiciones de fallo de creación. Considerar que puede venir sin cuerpo (formato corto) o sin título (/pregunta, quitado "artificialmente")
 
         this.#ID = ID;
@@ -29,8 +29,6 @@ class Pregunta{
             this.#etiquetas = etiquetas;
             this.#instanciaModal = instanciaModal;
             this.#usuarioActual=sesion?.usuario;
-        this.#esMiPerfil = esMiPerfil;
-    
             // ! El post viene sin votos cuando se trata de una representación sin interacciones en la moderación (ni controles de votación, ni de suscripción).
             if(post.votos && this.#usuarioActual){
                 this.#chipValoracion=new ChipValoracion({
@@ -41,6 +39,8 @@ class Pregunta{
                 this.#estaSuscripto=usuariosSuscriptos.some(usuario=>usuario.DNI == this.#usuarioActual.DNI && usuario.suscripcionesPregunta.fecha_baja == null);
                 // TODO Refactor: Que ni vengan las suscripciones que estén dadas de baja (no chequear que fecha_baja == null). fecha_baja es una eliminación suave.
             }
+            this.#botonEditar = `<div class="ml-auto"> <a href="/pregunta/`+this.#ID+`/editar"><i class="fa-solid fa-pen-to-square"></i></a>`;
+
         }
 
 	}
@@ -57,8 +57,12 @@ class Pregunta{
                     </div>
                     ${ this.#usuarioActual ? new BotonSuscripcion(this.#ID,'/api/pregunta/'+this.#ID+'/suscripcion', this.#estaSuscripto).render() : '' }
                     ${ (this.#instanciaModal && this.#usuarioActual) ? 
-                         ((this.#usuarioActual.DNI != this.#duenio.DNI) ? new BotonReporte(this.#ID, this.#instanciaModal).render() : '<div class="ml-auto"> <a href="/pregunta/'+this.#ID+'/editar"><i class="fa-solid fa-pen-to-square"></i></a> <a><i class="fa-solid fa-trash ml-2"></i></a></div>' ) 
-                        : '' }
+                         (
+                            (this.#usuarioActual.DNI != this.#duenio.DNI) ? 
+                                new BotonReporte(this.#ID, this.#instanciaModal).render() 
+                                : this.#botonEditar + '<a><i class="fa-solid fa-trash ml-2"></i></a></div>'
+                         ) 
+                         : this.#botonEditar + '<a><i class="fa-solid fa-trash ml-2"></i></a></div>' }
                 </div>
                 ${this.#chipValoracion ? this.#chipValoracion.render() : ''}
                 <a href="/pregunta/${this.#ID}">

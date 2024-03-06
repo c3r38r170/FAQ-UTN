@@ -175,13 +175,14 @@ class Campo{
 		}
 		if(this.#required)
 			html+=` required`;
-		if(this.#value){
+		if(this.#value)
 			html+=` value="${this.#value}"`;
-		if(this.#placeholder){
+		if(this.#placeholder)
 			html+=` placeholder="${this.#placeholder}"`;
-		}
+		
 			
 		return html+endTag+'</label>';
+		
 	}
 }
 
