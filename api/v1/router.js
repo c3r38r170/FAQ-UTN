@@ -1317,9 +1317,8 @@ router.get("/categorias", async (req, res) => {
   try {
     let categorias;
     // TODO Refactor: raw? nest?
-    console.log(req.query);
     if(!!+req.query.etiquetas){
-      categorias=await Categoria.findAll({include:/* Etiqueta */{model:Etiqueta, as:'etiquetas'}})
+      categorias=await Categoria.findAll({include:{model:Etiqueta, as:'etiquetas'}})
     }else{
       categorias = await Categoria.findAll();
     }

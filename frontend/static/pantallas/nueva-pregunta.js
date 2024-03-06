@@ -2,7 +2,7 @@ import { Pagina, Formulario } from "../componentes/todos.js";
 
 
 // TODO refactor: Usar campo de Lista
-function crearPagina(ruta,sesion){
+function crearPagina(ruta,sesion,categorias){
 	let pagina=new Pagina({
 		ruta:ruta
 		,titulo:'Nueva Pregunta'
@@ -12,10 +12,11 @@ function crearPagina(ruta,sesion){
 				'nueva-pregunta'
 				,'/api/pregunta'
 				,[
-					/* {name,textoEtiqueta,type,required=true,value,extra,clasesBoton} */
 					{name:'titulo',textoEtiqueta:'Título'}
 					// TODO UX: Detalles? ¿O Cuerpo? ¿O algo...? Ver algún ejemplo. Also, mostrar más grande (rows) y limitar texto (max?)
 					,{name:'cuerpo',textoEtiqueta:'Detalles',type:'textarea'}
+					// TODO Refactor: DRY en el extra de options? encontrar la forma de no repetir ese map largo... ¿quizá hacer Categorias.render?  Considerar todas las funciones, hay 2 sin valor predeterminado (nueva pregunta y busqueda sin hacer) y 2 con (busqueda hecha y editar pregunta)
+					,{name:'etiquetasIDs',textoEtiqueta:'Etiquetas',type:'lista-etiquetas', extra:categorias.map(cat => cat.etiquetas.map(eti => `<option value=${eti.ID} data-color="${cat.color}" data-categoria="${cat.descripcion}">${cat.descripcion} - ${eti.descripcion}</option>`)).flat().join('')}
 				]
 				,(respuesta,info)=>{
 					if(info.ok){
