@@ -4,3 +4,4 @@ package-lock.json
 .personal
 /storage/img/*
 !/storage/img/user.webp
+.env

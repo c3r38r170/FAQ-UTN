@@ -2,16 +2,18 @@ import * as express from "express";
 import * as bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path"
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './storage/img')
-  },
-  filename: function (req, file, cb) {
-    cb(null, "imagenPerfil-" + req.session.usuario.DNI+".jpg")
-  },
-  
-})
-var upload = multer({storage:storage,
+import nodemailer from "nodemailer";
+
+const upload = multer({
+  storage:multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, './storage/img')
+    },
+    filename: function (req, file, cb) {
+      cb(null, "imagenPerfil-" + req.session.usuario.DNI+".jpg")
+    },
+    
+  }),
   fileFilter: function(req, file, cb){
     const allowedExtensions = ['.jpg', '.png']; // Add more extensions as needed
     const fileExtension = path.extname(file.originalname).toLowerCase();
@@ -20,7 +22,8 @@ var upload = multer({storage:storage,
     } else {
         cb(null, false); // Reject the file
     }
-  }})
+  }
+})
 const router = express.Router();
 import {
   Usuario,
@@ -329,11 +332,31 @@ router.post("/usuario/:DNI/contrasenia", function (req, res) {
       res.status(404).send("DNI inexistente");
       return;
     }
+
     let contraseniaNueva = generarContrasenia();
     usu.contrasenia = contraseniaNueva;
 
-    //TODO Feature: mandar mail
-    usu.save().then(res.status(200).send("DNI encontrado, correo enviado"));
+    Promise.all([
+      nodemailer
+        .createTransport({
+          host: process.env.CORREO_HOST,
+          port: process.env.CORREO_PORT,
+          secure: true, // Use `true` for port 465, `false` for all other ports
+          auth: {
+            user: process.env.CORREO_USER,
+            pass: process.env.CORREO_PASS,
+          },
+        })
+        .sendMail({
+          from: '"UTN FAQ - Recuperación de contraseña" <maddison53@ethereal.email>', // sender address
+          to: usu.correo, // list of receivers
+          subject: "UTN FAQ - Recuperación de contraseña", // Subject line
+          text: `¡Saludos, ${usu.nombre}! Tu contraseña temporal es "${contraseniaNueva}" (sin comillas).`, // plain text body
+          html: `<big>¡Saludos, ${usu.nombre}!</big><br/><p>Se ha reestablecido tu contraseña, tu nueva contraseña temporal es:</p><pre>${contraseniaNueva}}</pre><p>No olvides cambiarla por otra / personalizarla cuando entres.</p><p><a href=${process.env.DIRECCION}>¡Te esperamos!</a></p>`, // html body
+        })
+      ,usu.save()
+    ])
+      .then(res.status(200).send("Se ha reestablecido la contraseña. Revise su correo electrónico para poder acceder."));
   });
 });
 
