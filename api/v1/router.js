@@ -1,5 +1,26 @@
 import * as express from "express";
 import * as bcrypt from "bcrypt";
+import multer from "multer";
+import path from "path"
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './storage/img')
+  },
+  filename: function (req, file, cb) {
+    cb(null, "imagenPerfil-" + req.session.usuario.DNI+".jpg")
+  },
+  
+})
+var upload = multer({storage:storage,
+  fileFilter: function(req, file, cb){
+    const allowedExtensions = ['.jpg', '.png']; // Add more extensions as needed
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    if (allowedExtensions.includes(fileExtension)) {
+        cb(null, true); // Accept the file
+    } else {
+        cb(null, false); // Reject the file
+    }
+  }})
 const router = express.Router();
 import {
   Usuario,
@@ -85,6 +106,14 @@ router.delete("/sesion", function (req, res) {
 
 // usuario
 
+router.get("/usuario/:DNI/foto", function(req, res){
+  res.sendFile("imagenPerfil-"+req.params.DNI+".jpg", {'root': './storage/img'}, (err)=>{
+    if (err) {
+      res.sendFile("user.webp", {'root': './storage/img'})
+    }
+  });
+});
+
 router.get("/usuario", function (req, res) {
   if (!req.session.usuario) {
     res.status(401).send("No se posee sesión válida activa");
@@ -165,6 +194,16 @@ router.get("/usuario", function (req, res) {
     where.nombre = { [Sequelize.Op.substring]: filtro };
     include.push(Carrera);
     where["$carrera.legajo$"] = { [Sequelize.Op.substring]: filtro };
+  }else if( req.query.searchInput){
+    
+    where = {
+      [Sequelize.Op.or]: [
+        { DNI: { [Sequelize.Op.substring]: req.query.searchInput } },
+        { nombre: { [Sequelize.Op.substring]: req.query.searchInput } },
+        { '$perfil.nombre$': { [Sequelize.Op.startsWith]: req.query.searchInput } }
+      ]
+    };
+    opciones.where = where;
   }
 
   if (include.length) {
@@ -420,18 +459,29 @@ router.delete("/usuario/:DNI/bloqueo", function (req, res) {
   });
 });
 
-router.patch("/usuario", function (req, res) {
+router.patch("/usuario", upload.single("image"), function (req, res) {
+  //req.file tiene la imagen
+  //TODO feature que se pueda cambiar contraseña o imagen
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa");
     return;
   }
+
+  if(!req.file){
+    //req.file solo existe si la imagen cumple con los formatos de arriba
+    //TODO esto no funcionaría si solo manda la contraseña
+    res.status(400).send("Petición mal formada")
+  }
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
-      //TODO Feature: definir que mas puede cambiar y que constituye datos inválidos
-      usuario.contrasenia = req.body.contrasenia;
-      usuario.save();
-      res.status(200).send("Datos actualizados exitosamente");
-    })
+      if(bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)){
+        usuario.contrasenia = req.body.contraseniaNueva;
+        usuario.save();
+        res.status(200).send("Datos actualizados exitosamente");
+        return;
+      }
+      res.status(402).send("Contraseña anterior no válida")
+      })
     .catch((err) => {
       res.status(500).send(err);
     });

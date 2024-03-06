@@ -7,10 +7,11 @@ import {
     Fecha,
     ChipUsuario,
     Modal,
+    Busqueda
   } from "../componentes/todos.js";
   
-  function crearPantalla(ruta, sesion) {
-    let tabla = new Tabla("administrar-usuarios", "/api/usuario", [
+  function crearPantalla(ruta, sesion, query="") {
+    let tabla = new Tabla("administrar-usuarios", "/api/usuario?searchInput="+query, [
       {
         nombre: "DNI",
         celda: (usuario) =>
@@ -47,6 +48,7 @@ import {
       sesion: sesion,
       partes: [
         new Modal("Eliminar Usuario", "modal-eliminar-usuario"),
+        new Busqueda(),
         tabla,
         new Boton({
           titulo: "Agregar",
