@@ -50,6 +50,8 @@ import { SinPermisos } from "./static/pantallas/sin-permisos.js";
 import { PantallaAdministracionPerfiles } from "./static/pantallas/administracion-perfiles.js";
 import { PantallaAdministracionCategorias } from "./static/pantallas/administracion-categorias.js";
 import { PantallaAdministracionEtiquetas } from "./static/pantallas/administracion-etiquetas.js";
+import { PantallaEtiquetaPreguntas } from "./static/pantallas/pantalla-etiquetas-pregunta.js";
+import { PantallaAdministracionUsuarios } from "./static/pantallas/administracion-usuarios.js";
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -94,7 +96,8 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 						include: [
 							{
 								model: UsuarioDAO,
-								as: 'duenio'
+								as: 'duenio',
+                include:PerfilDAO
 							}
 							,{
 								model:VotoDAO
@@ -113,7 +116,8 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 								include: [
 									{
 										model: UsuarioDAO,
-										as: 'duenio'
+										as: 'duenio',
+                    include:PerfilDAO
 									},
 									{
 										model: VotoDAO,
@@ -253,54 +257,16 @@ router.get("/etiqueta/:id/preguntas", async (req, res) => {
       return;
     }
 
-    let modal = new Modal("General", "modal-general");
-    PreguntaDAO.findAll({
-      // TODO Feature: limitar, pagina 0, hacer función de filtroPorSuscripciones (getBySuscripciones??)
-      // TODO Refactor: Actualizar cuando se cambie la forma de asociación entre Pregunta y Respuesta
-      include: [
-        {
-          model: PostDAO,
-          as: "post",
-          include: [
-            {
-              model: UsuarioDAO,
-              as: "duenio",
-            },
-          ],
-        },
-        {
-          model: EtiquetasPreguntaDAO,
-          as: "etiquetas",
-          where: {
-            etiquetumID: req.params.id,
-          },
-          include: {
-            model:EtiquetaDAO,
-            include:{
-              model: Categoria,
-              as: 'categoria'
-            }
-          },
-        },
-      ],
-    }).then((preguntas) => {
-      let pagina = new Pagina({
-        ruta: req.path,
-        titulo: "Etiqueta #" + e.descripcion,
-        sesion: req.session,
-        // TODO Feature: endpoint de preguntas por suscripción
-        partes: [
-          modal,
-          new DesplazamientoInfinito(
-            "suscripciones-desplinf",
-            "/preguntas?suscritas",
-            // TODO Feature: Indicar que acá es con la primera respuesta. Quizá buscar con el DAO con o sin Respuestas y que el componente vea si hay o no para poner la más relevante a la vista; es buena esa.
-            (p) => new Pregunta(p, modal, req.session).render(),
-            preguntas
-          ),
-        ],
-      });
+    let filtro = [];
+    filtro.etiquetas = true;
+    filtro.etiquetaID = req.params.id;
+    let filtros = { filtrar: filtro };
 
+    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+    PreguntaDAO.pagina(filtros).then((preguntas) => {
+      let pagina = new PantallaEtiquetaPreguntas(req.path, req.session, "?etiquetas=true&etiquetaID="+req.params.id);
+      pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
+      pagina.titulo = "Etiqueta # "+e.descripcion;
       res.send(pagina.render());
     });
   } catch (error) {
@@ -344,8 +310,16 @@ router.get("/moderacion/usuarios", (req, res) => {
 });
 
 router.get('/moderacion/preguntas-y-respuestas',(req,res)=>{
-	// let usu=req.session.usuario;
-	// TODO Security: Permisos. Acá y en todos lados.
+	let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 2) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
 
   let pagina=PantallaModeracionPosts(req.path,req.session);
   res.send(pagina.render());
@@ -442,10 +416,7 @@ router.get("/perfil/respuestas", (req, res) => {
 });
 
 router.get("/perfil/:id?", async (req, res) => {
-  // TODO Security: Permisos. Acá y en todos lados.
-  // TODO Feature: Ordenar posts por fecha
-  /* TODO Feature: si no hay ID, es el propio; si hay ID, solo lectura y posts */
-  // TODO Refactor: ver si es posible simplificar casos.
+  // TODO Security: Permisos. Acá y en todos lados. aca?
   // TODO Refactor: DNI en vez de id
 	// TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
   try {
@@ -570,9 +541,7 @@ router.get("/administracion/categorias", async (req, res) => {
     return;
   }
 
-  const p = await ParametroDAO.findByPk(1);
   let pagina = PantallaAdministracionCategorias(req.path, req.session);
-  pagina.globales.parametros = p;
   res.send(pagina.render());
 });
 
@@ -588,9 +557,7 @@ router.get("/administracion/etiquetas", async (req, res) => {
     return;
   }
 
-  const p = await ParametroDAO.findByPk(1);
   let pagina = PantallaAdministracionEtiquetas(req.path, req.session);
-  pagina.globales.parametros = p;
   res.send(pagina.render());
 });
 
@@ -606,11 +573,26 @@ router.get("/administracion/perfiles", async (req, res) => {
     return;
   }
 
-  const p = await ParametroDAO.findByPk(1);
   let pagina = PantallaAdministracionPerfiles(req.path, req.session);
   res.send(pagina.render());
 });
 
+
+router.get("/administracion/usuarios", async (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+  const query = req.query.searchInput;
+  let pagina = PantallaAdministracionUsuarios(req.path, req.session, query);
+  res.send(pagina.render());
+});
 // Ruta Para búsqueda
 // Solo muestra el formulario de búsqueda
 // ToDo Feature

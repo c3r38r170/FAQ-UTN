@@ -806,20 +806,19 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
         // TODO Feature: Ver cómo traer las otras etiqeutas, además de las usadas en el filtro
         opciones.include.push({
           model: EtiquetasPregunta,
-          required: true,
           as: "etiquetas",
+          where:{
+            etiquetumID:filtrar.etiquetaID
+          },
           include: {
             model: Etiqueta,
-            as: "etiquetas",
-            where: {
-              ID: filtrar.etiquetas,
-            },
             include: {
               model: Categoria,
               as: "categoria",
             },
           },
-          separate: true,
+          //separate: true,
+          
         });
         filtraEtiquetas = true;
       }
@@ -902,6 +901,138 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
     return Pregunta.findAll(opciones);
   }
 }
+
+Post.pagina = ({ pagina = 0, DNI } = {}) => {
+  return Post.findAll({
+    include: [
+      { model: Usuario, as: "duenio" },
+      {
+        model: Respuesta,
+        as: "respuesta",
+        include: [
+          {
+            model: Pregunta,
+            as: "pregunta",
+            attributes: ["ID", "titulo"],
+            include: [
+              {
+                model: EtiquetasPregunta,
+                required: true,
+                as: "etiquetas",
+                include: {
+                  model: Etiqueta,
+                  include: {
+                    model: Categoria,
+                    as: "categoria",
+                  },
+                },
+                separate: true,
+              },
+            ],
+          }, // *Include Pregunta in Respuesta
+        ],
+        required: false,
+        attributes: ["ID", "preguntaID"],
+      },
+      {
+        model: Pregunta,
+        as: "pregunta",
+        required: false,
+        attributes: ["ID", "titulo"],
+        include: [
+          {
+            model: EtiquetasPregunta,
+            required: true,
+            as: "etiquetas",
+            include: {
+              model: Etiqueta,
+            },
+            separate: true,
+          },
+        ],
+      },
+    ],
+    where: {
+      "$post.duenioDNI$": +DNI,
+    },
+    order: [["fecha", "DESC"]],
+    limit: PAGINACION.resultadosPorPagina,
+    offset: +pagina * PAGINACION.resultadosPorPagina,
+  });
+};
+
+Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
+  return Pregunta.findAll({
+    // TODO Feature: try subQUery:false again and separate: true
+    include: [
+      {
+        model: Post,
+        include: [
+          {
+            model: Usuario,
+            as: "duenio",
+            include: {
+              model: Perfil,
+            },
+          },
+        ],
+      },
+      {
+        model: Respuesta,
+        as: "respuestas",
+        required: true,
+        include: {
+          model: Post,
+          include: [
+            {
+              model: Usuario,
+              as: "duenio",
+              include: {
+                model: Perfil,
+              },
+            },
+            {
+              model: Voto,
+              separate: true,
+              include: { model: Usuario, as: "votante" },
+            },
+          ],
+        },
+      },
+      {
+        model: EtiquetasPregunta,
+        required: true,
+        as: "etiquetas",
+        include: {
+          model: Etiqueta,
+          include: {
+            model: Categoria,
+            as: "categoria",
+          },
+        },
+        separate: true,
+      },
+    ], //TODO Refactor: aplicar dry
+    attributes: {
+      include: [
+        [
+          sequelize.literal(
+            "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+          ),
+          "respuestasCount",
+        ],
+      ],
+    },
+    separate: true,
+    where: {
+      "$respuestas.post.duenio.DNI$": DNI,
+    },
+    subQuery: false,
+    order: [[Post, "fecha", "DESC"]],
+    limit: PAGINACION.resultadosPorPagina,
+    offset: +pagina * PAGINACION.resultadosPorPagina,
+  });
+};
 
 Pregunta.hasOne(Post, {
   constraints: false,

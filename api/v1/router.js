@@ -1,5 +1,26 @@
 import * as express from "express";
 import * as bcrypt from "bcrypt";
+import multer from "multer";
+import path from "path"
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './storage/img')
+  },
+  filename: function (req, file, cb) {
+    cb(null, "imagenPerfil-" + req.session.usuario.DNI+".jpg")
+  },
+  
+})
+var upload = multer({storage:storage,
+  fileFilter: function(req, file, cb){
+    const allowedExtensions = ['.jpg', '.png']; // Add more extensions as needed
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    if (allowedExtensions.includes(fileExtension)) {
+        cb(null, true); // Accept the file
+    } else {
+        cb(null, false); // Reject the file
+    }
+  }})
 const router = express.Router();
 import {
   Usuario,
@@ -85,6 +106,14 @@ router.delete("/sesion", function (req, res) {
 
 // usuario
 
+router.get("/usuario/:DNI/foto", function(req, res){
+  res.sendFile("imagenPerfil-"+req.params.DNI+".jpg", {'root': './storage/img'}, (err)=>{
+    if (err) {
+      res.sendFile("user.webp", {'root': './storage/img'})
+    }
+  });
+});
+
 router.get("/usuario", function (req, res) {
   if (!req.session.usuario) {
     res.status(401).send("No se posee sesión válida activa");
@@ -138,6 +167,26 @@ router.get("/usuario", function (req, res) {
       }
     );
     order.push([Sequelize.col("reportesRecibidos.fecha"), "DESC"]);
+  }else{
+    include.push(
+      {
+        model: Bloqueo,
+        as: "bloqueosRecibidos",
+        // TODO Feature: Traer quién bloqueó y razón.
+        attributes: ["motivo"],
+        where: {
+          fecha_desbloqueo: { [Sequelize.Op.is]: null },
+        },
+        required: false,
+      },
+      {
+        model: ReportesUsuario,
+        as: "reportesRecibidos",
+        attributes: ["fecha"],
+        required: false,
+      }
+    );
+    order.push([Sequelize.col("reportesRecibidos.fecha"), "DESC"]);
   }
   let filtro = req.query.filtro;
   if (filtro) {
@@ -145,6 +194,16 @@ router.get("/usuario", function (req, res) {
     where.nombre = { [Sequelize.Op.substring]: filtro };
     include.push(Carrera);
     where["$carrera.legajo$"] = { [Sequelize.Op.substring]: filtro };
+  }else if( req.query.searchInput){
+    
+    where = {
+      [Sequelize.Op.or]: [
+        { DNI: { [Sequelize.Op.substring]: req.query.searchInput } },
+        { nombre: { [Sequelize.Op.substring]: req.query.searchInput } },
+        { '$perfil.nombre$': { [Sequelize.Op.startsWith]: req.query.searchInput } }
+      ]
+    };
+    opciones.where = where;
   }
 
   if (include.length) {
@@ -155,13 +214,13 @@ router.get("/usuario", function (req, res) {
   }
   opciones.order = [...order, ["DNI", "ASC"]];
 
-  Usuario.findAll(opciones)
+  Usuario.findAndCountAll(opciones)
     .then((usuarios) => {
-      // console.log(usuarios);
       if (usuarios.length == 0 && filtro) {
         res.status(404).send("No se encontraron usuarios");
       } else {
-        res.status(200).send(usuarios);
+        res.setHeader('untfaq-cantidad-paginas', Math.ceil(usuarios.count/PAGINACION.resultadosPorPagina));
+      res.status(200).send(usuarios.rows);
       }
     })
     .catch((err) => {
@@ -173,14 +232,13 @@ router.get("/usuario/:DNI/preguntas", function(req, res){
 	let filtros={pagina:null,duenioID:null};
 		filtros.duenioID=req.params.DNI
 		filtros.pagina=req.query.pagina
-		// console.log(filtros);
 		Pregunta.pagina(filtros)
 		// Pregunta.findAll(opciones)
 			.then(preguntas=>{
 				res.status(200).send(preguntas)
 			})
 			.catch(err=>{
-				console.log(err)
+				res.status(500).send(err)
 			});
 	// }
 	return;
@@ -195,10 +253,8 @@ router.get("/usuario/:DNI/preguntas", function (req, res) {
       res.status(200).send(preguntas);
     })
     .catch((err) => {
-      console.log(err);
+      res.status(500).send(err)
     });
-    // TODO Refactor: ¿Este return hace algo? Chequear en el resto de los routers.
-  // return;
 });
 
 router.get("/usuario/:DNI/posts", function (req, res) {
@@ -214,18 +270,12 @@ router.get("/usuario/:DNI/respuestas", function (req, res) {
   }
 
   Respuesta.pagina(filtros).then((posts) =>
-    res.send(
-      // TODO Refactor: Documentar por qué hay que hacer esto...
-      posts.slice(
-        +pagina * PAGINACION.resultadosPorPagina,
-        (1 + pagina) * PAGINACION.resultadosPorPagina
-      )
-    )
+    res.send(posts)
   );
-  //Respuesta.pagina(filtros).then(respuestas=>res.send(respuestas))
 });
 
 router.post("/usuario", (req, res) => {
+  let perfilID = req.body.perfilID ? req.body.perfilID : 1;
   Usuario.findAll({
     where: { DNI: req.body.DNI },
     raw: true,
@@ -239,14 +289,15 @@ router.post("/usuario", (req, res) => {
           DNI: req.body.DNI,
           correo: req.body.correo,
           contrasenia: req.body.contrasenia,
-          perfilID: 1
+          perfilID: perfilID
         }).then(usu=>Usuario.findByPk(usu.DNI,{
             include:{
               model: Perfil,
               include:Permiso
             }
         })).then(usuarioConPerfilYPermisos=>{
-          req.session.usuario=usuarioConPerfilYPermisos;
+          if(!req.session.usuario)
+            req.session.usuario=usuarioConPerfilYPermisos;
           res.status(200).send("Registro exitoso");
         });
         return;
@@ -305,8 +356,6 @@ router.post("/usuario/:DNI/reporte", function (req, res) {
       }
     })
     .catch((err) => {
-      // TODO Refactor: Sacar todos estos console log.
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -360,7 +409,6 @@ router.post("/usuario/:DNI/bloqueo", function (req, res) {
       } else res.status(200).send(mensaje);
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -411,15 +459,49 @@ router.delete("/usuario/:DNI/bloqueo", function (req, res) {
   });
 });
 
-router.patch("/usuario", function (req, res) {
+router.patch("/usuario", upload.single("image"), function (req, res) {
+  //req.file tiene la imagen
+  //TODO feature que se pueda cambiar contraseña o imagen
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa");
     return;
   }
+
+  if(!req.file){
+    //req.file solo existe si la imagen cumple con los formatos de arriba
+    //TODO esto no funcionaría si solo manda la contraseña
+    res.status(400).send("Petición mal formada")
+  }
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
+      if(bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)){
+        usuario.contrasenia = req.body.contraseniaNueva;
+        usuario.save();
+        res.status(200).send("Datos actualizados exitosamente");
+        return;
+      }
+      res.status(402).send("Contraseña anterior no válida")
+      })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+});
+
+router.patch("/usuario/:DNI", function (req, res) {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send("Usuario no posee permisos");
+    return;
+  }
+  Usuario.findByPk(req.params.DNI)
+    .then((usuario) => {
       //TODO Feature: definir que mas puede cambiar y que constituye datos inválidos
-      usuario.contrasenia = req.body.contrasenia;
+      usuario.nombre = req.body.nombre;
+      usuario.correo = req.body.correo;
+      usuario.perfilID= req.body.perfilID;
       usuario.save();
       res.status(200).send("Datos actualizados exitosamente");
     })
@@ -427,6 +509,8 @@ router.patch("/usuario", function (req, res) {
       res.status(500).send(err);
     });
 });
+
+
 
 // posts
 //preguntas
@@ -443,13 +527,17 @@ router.get("/pregunta", (req, res) => {
   if (req.query.searchInput) {
     filtros.filtrar.texto = req.query.searchInput;
   }
+  if(req.query.etiquetaID){
+    filtros.filtrar.etiquetaID=req.query.etiquetaID;
+    filtros.filtrar.etiquetas=true;
+  }
 
   Pregunta.pagina(filtros)
     .then((preguntas) => {
       res.status(200).send(preguntas);
     })
     .catch((err) => {
-      console.log(err);
+      res.status(500).send(err)
     });
 });
 
@@ -561,7 +649,6 @@ router.patch("/pregunta", function (req, res) {
       }
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -636,7 +723,6 @@ function crearPregunta(req,res,respuestaIA=null){
       })
   })
   .catch(err=>{
-    console.log(err);
     res.status(500).send(err);
   })
 }
@@ -660,7 +746,6 @@ router.post("/pregunta", function (req, res) {
         crearPregunta(req,res,respuesta.apropiado)
       })
       .catch((err) => {
-        console.log(err);
         res.status(500).send(err);
       });
   } else crearPregunta(req,res)
@@ -730,9 +815,7 @@ router.post("/pregunta/:preguntaID/suscripcion", function (req, res) {
           where: {
             preguntaID: IDpregunta,
             suscriptoDNI: req.session.usuario.DNI,
-            fecha_baja: {
-              [Sequelize.Op.is]: null,
-            },
+            fecha_baja: null,
           },
           nest: true,
           plain: true,
@@ -750,13 +833,11 @@ router.post("/pregunta/:preguntaID/suscripcion", function (req, res) {
             }
           })
           .catch((err) => {
-            console.log(err);
             res.status(500).send(err);
           });
       }
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
   // TODO Refactor: ahorrar el callback hell, acá y en todos lados.
@@ -772,6 +853,7 @@ router.get('/suscripciones', function(req,res){
 
 	// TODO Feature Poner en Pregunta.pagina para tener también las suscripciones (aca hace falta?? sabemos que todas estas lo incluyen, quizá poner en el frontend. Esto haría un parámetro de si hacen falta los votos o no)
 	// TODO Feature Usar Pregunta.pagina para tener todos los datos unificados, como los votos
+  // TODO Feature faltan la cantidad de respuestas
 
 	const pagina = req.query.pagina || 0;
 	Pregunta.findAll({
@@ -782,7 +864,8 @@ router.get('/suscripciones', function(req,res){
 				include: [
 					{
 						model: Usuario,
-						as: 'duenio'
+						as: 'duenio',
+            include:{model:Perfil}
 					}
 				]
 			},
@@ -861,13 +944,11 @@ router.delete("/pregunta/:preguntaID/suscripcion", function (req, res) {
             }
           })
           .catch((err) => {
-            console.log(err);
             res.status(500).send(err);
           });
       }
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -936,12 +1017,10 @@ router.post("/respuesta", function (req, res) {
                     res.status(201).send(post.ID + "");
                   })
                   .catch((err) => {
-                    console.log(err);
                     res.status(500).send(err);
                   });
               })
               .catch((err) => {
-                console.log(err);
                 res.status(500).send(err);
               });
           }
@@ -992,12 +1071,10 @@ router.post("/respuesta", function (req, res) {
                 res.status(201).send(post.ID + "");
               })
               .catch((err) => {
-                console.log(err);
                 res.status(500).send(err);
               });
           })
           .catch((err) => {
-            console.log(err);
             res.status(500).send(err);
           });
       }
@@ -1231,7 +1308,6 @@ const reportarPost = function (req, res) {
   }
 
   let reportadoID = req.params.reportadoID;
-  console.log(reportadoID);
   Post.findByPk(reportadoID)
     .then((pregunta) => {
       if (!pregunta) {
@@ -1458,13 +1534,17 @@ router.get("/etiqueta", function (req, res) {
 	)
 	.then((etiquetas,categorias)=>{
 		res.status(200).send({etiquetas,categorias}); */
-  Etiqueta.findAll({
+  let pagina = req.query.pagina ? req.query.pagina : 0;
+  Etiqueta.findAndCountAll({
     raw: true,
     nest: true,
     include: [{ model: Categoria, as: "categoria" }],
+    limit: PAGINACION.resultadosPorPagina,
+		offset: (+pagina) * PAGINACION.resultadosPorPagina,
   })
     .then((etiquetas) => {
-      res.status(200).send(etiquetas);
+      res.setHeader('untfaq-cantidad-paginas', Math.ceil(etiquetas.count/PAGINACION.resultadosPorPagina));
+      res.status(200).send(etiquetas.rows);
     })
     .catch((err) => {
       res.status(500).send(err);
@@ -1568,7 +1648,6 @@ router.post("/etiqueta/:etiquetaID/suscripcion", function (req, res) {
       }
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -1613,7 +1692,6 @@ router.delete("/etiqueta/:etiquetaID/suscripcion", function (req, res) {
       }
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
 });
@@ -1697,7 +1775,6 @@ router.get('/notificacion', function(req,res){
 	}).then(notificaciones=>{
 		res.status(200).send(notificaciones);
 	}).catch(err=>{
-		console.log(err);
 		res.status(500).send(err);
 	});
 });
@@ -1785,14 +1862,22 @@ router.patch("/parametros/:ID", function (req, res) {
 
 router.get("/perfiles", async (req, res) => {
   try {
-    const perfiles = await Perfil.findAll({
+    if(req.query.todos){
+      const perfiles = await Perfil.findAll({
+        include: Permiso,
+      });
+      res.status(200).send(perfiles);
+      return;
+    }
+    let pagina = req.query.pagina ? req.query.pagina : 0;
+    const perfiles = await Perfil.findAndCountAll({
       include: Permiso,
       limit: PAGINACION.resultadosPorPagina,
       offset:
-        (+req.query.pagina * PAGINACION.resultadosPorPagina || 0) *
-        PAGINACION.resultadosPorPagina,
+        (+pagina * PAGINACION.resultadosPorPagina)
     });
-    res.json(perfiles);
+    res.setHeader('untfaq-cantidad-paginas', Math.ceil(perfiles.count/parseInt(PAGINACION.resultadosPorPagina)));
+    res.status(200).send(perfiles.rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

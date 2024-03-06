@@ -1,0 +1,43 @@
+#administrar-usuarios {
+  width: calc(100% - 6rem);
+  margin: 1rem 3rem;
+}
+#administrar-usuarios thead {
+  background: #ECECEC;
+}
+#administrar-usuarios thead th:first-child {
+  width: 35%;
+}
+#administrar-usuarios thead th, #administrar-usuarios tbody td {
+  padding: 5px 1rem;
+  vertical-align: middle;
+}
+#administrar-usuarios thead th.centrado, #administrar-usuarios tbody td.centrado {
+  text-align: center;
+}
+#administrar-usuarios fieldset {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+#administrar-usuarios .perfil {
+  display: inline-block;
+  color: white;
+  border-radius: 16px;
+  padding: 4px 1.5rem;
+  margin-top: 10px;
+}
+#administrar-usuarios .descripcion {
+  color: grey;
+  mix-blend-mode: multiply;
+}
+
+.botonAgregar {
+  margin-top: 20px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.switch[type=checkbox]:checked + label::before {
+  background: #f04b4c !important;
+}/*# sourceMappingURL=administracion-usuarios.css.map */

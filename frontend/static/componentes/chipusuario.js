@@ -19,7 +19,6 @@ class ChipUsuario {
     this.#correo = correo;
     this.#createdAt = new Fecha(fecha_alta || createdAt);
     this.#esPerfil = esPerfil;
-    // console.log(perfil);
     this.#tipo = perfil ? perfil.nombre : "Usuario";
     this.#color = perfil ? perfil.color : "#485fc7";
   }
@@ -29,7 +28,7 @@ class ChipUsuario {
     if (this.#esPerfil) {
       return `
             <div class="chip-usuario-perfil">
-                <img class="mr-3 img-usuario" src="../user.webp" ></img>
+                <img class="mr-3 img-usuario" src="/api/usuario/${this.#DNI}/foto" ></img>
                 <div class="contenido-perfil">
                     <div>DNI: <span>${this.#DNI}</span></div>
                     <div>Nombre: <span>${this.#nombreusuario}</span></div>
@@ -44,7 +43,7 @@ class ChipUsuario {
     } else {
       return `
             <div class="chip-usuario is-vcentered">
-                <img class="mr-3 img-usuario" src="../user.webp" ></img>
+            <img class="mr-3 img-usuario" src="/api/usuario/${this.#DNI}/foto" ></img>
                 <a class="nombre-usuario" href="/perfil/${this.#DNI}">${
         this.#nombreusuario
       }</a>
