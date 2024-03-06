@@ -789,6 +789,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 
     if (filtrar) {
       if (filtrar.texto) {
+        // TODO Security: cadena literal en consulta
         opciones.where = Sequelize.or(
           Sequelize.literal(
             'match(post.cuerpo) against ("' +

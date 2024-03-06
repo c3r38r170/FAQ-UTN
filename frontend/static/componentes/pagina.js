@@ -75,7 +75,6 @@ class Pagina {
 		<script>${Object.entries(this.globales)
       .map(([k, v]) => `var ${k} = ${JSON.stringify(v)}`)
       .join(";")}</script>
-		<!-- <script src="https://unpkg.com/@c3r38r170/c3tools@1.1.0" type="module"></script> -->
 
 		<script src="/main.js" type=module></script>
 		<link rel="stylesheet" href="/main.css">

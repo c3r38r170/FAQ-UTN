@@ -1,4 +1,4 @@
-import { Pagina, Formulario } from "../componentes/todos.js";
+import { Pagina, Formulario, ComponenteLiteral } from "../componentes/todos.js";
 
 
 // TODO refactor: Usar campo de Lista
@@ -29,8 +29,9 @@ function crearPagina(ruta,sesion,categorias){
 					textoEnviar:'Crear Pregunta', clasesBoton:'is-link is-rounded mt-3'
 				}
 			)
+			// ,new ComponenteLiteral(()=>'<label class=label>Sugerencias basadas en el título:</label>')
 			// TODO Feature: Formulario de creación de preguntas 
-			// Campo de Título. Tiene que sugerir preguntar relacionadas. 
+			// ✅ Campo de Título. Tiene que sugerir preguntar relacionadas. 
 			// ✅ Campo de etiquetas. Se deben obtener las etiquetas, mostrarlas, permitir elegirlas.
 			// ✅ Campo de cuerpo. Texto largo con un máximo y ya.
 			// Las sugerencias pueden ser un panel abajo, o abajo del título... que se vaya actualizando a medida que se escribe el cuerpo.
