@@ -10,6 +10,10 @@ import {
 } from "../componentes/todos.js";
 
 function crearPantalla(ruta, sesion) {
+
+  //simula fetch
+  let cantidadEtiquetas =11;
+
   let tabla = new Tabla("administrar-etiquetas", "/api/etiqueta", [
     {
       nombre: "Etiqueta",
@@ -48,7 +52,7 @@ function crearPantalla(ruta, sesion) {
       tabla,
       new Boton({
         titulo: "Agregar",
-        classes: "is-link is-rounded mt-3",
+        classes: "button is-link is-small is-rounded botonAgregar",
         dataTarget: "modal-agregar-etiqueta",
         type: "button",
         id: "botonAgregar",

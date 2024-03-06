@@ -5,7 +5,7 @@ class Etiqueta{
   #categoria;
 
 	constructor({
-    ID, descripcion, enlazar, categoria
+    ID, descripcion, enlazar=true, categoria
   }){
     this.#ID = ID;
 		this.#descripcion = descripcion;

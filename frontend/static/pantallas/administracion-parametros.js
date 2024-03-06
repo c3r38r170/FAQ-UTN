@@ -11,7 +11,7 @@ function crearPantalla(ruta, sesion, p) {
     {
       nombre: "Valor",
       clases: ["centrado"],
-      celda: (parametro) => parametro.valor,
+      celda: (parametro) => parametro.ID==2?parametro.valor==1?"Sí":"No":parametro.valor,
     },
     {
       nombre: "Editar",

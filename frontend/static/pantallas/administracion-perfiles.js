@@ -54,7 +54,7 @@ function crearPantalla(ruta, sesion) {
       tabla,
       new Boton({
         titulo: "Agregar",
-        classes: "is-link is-rounded mt-3",
+        classes: "button is-link is-small is-rounded botonAgregar",
         dataTarget: "modal-agregar-perfil",
         type: "button",
         id: "botonAgregar",

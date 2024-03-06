@@ -586,8 +586,10 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     where: {
       "$respuestas.post.duenio.DNI$": DNI,
     },
+    subQuery: false,
     order: [[Post, "fecha", "DESC"]],
-    // ,raw:true,nest:true
+    limit: PAGINACION.resultadosPorPagina,
+    offset: +pagina * PAGINACION.resultadosPorPagina
   });
 };
 
@@ -807,20 +809,19 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
         // TODO Feature: Ver cómo traer las otras etiqeutas, además de las usadas en el filtro
         opciones.include.push({
           model: EtiquetasPregunta,
-          required: true,
           as: "etiquetas",
+          where:{
+            etiquetumID:filtrar.etiquetaID
+          },
           include: {
             model: Etiqueta,
-            as: "etiquetas",
-            where: {
-              ID: filtrar.etiquetas,
-            },
             include: {
               model: Categoria,
               as: "categoria",
             },
           },
-          separate: true,
+          //separate: true,
+          
         });
         filtraEtiquetas = true;
       }
