@@ -30,7 +30,15 @@ class ChipUsuario {
     if (this.#esPerfil) {
       return `
             <div class="chip-usuario-perfil">
-                ${this.#propio ? '<input class="mr-3 img-usuario"  id="botonCambiarFoto" type="image" src="/api/usuario/'+this.#DNI+'/foto"></input>': '<img class="mr-3 img-usuario" src="/api/usuario/'+this.#DNI+'/foto" ></img>'}
+                ${this.#propio ? `
+                  <div id="contenedorImagen">
+                    <input class="mr-3 img-usuario"  id="fotoPerfil" type="image" src="/api/usuario/${this.#DNI}/foto"></input>
+                    <div id="divImagenHover">
+                      <img id="cambiarFoto" class="mr-3 img-usuario" src="../imagenCambiarFoto.png"></img>
+                    </div>
+                  </div>
+                    `: 
+                  '<img class="mr-3 img-usuario" src="/api/usuario/'+this.#DNI+'/foto" ></img>'}
                 <div class="contenido-perfil">
                     <div>DNI: <span>${this.#DNI}</span></div>
                     <div>Nombre: <span>${this.#nombreusuario}</span></div>

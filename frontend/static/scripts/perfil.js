@@ -106,40 +106,29 @@ gEt("botonCambiarContraseña").onclick = (e) => {
     modalElemento.classList.add("is-active");
   };
 
-  gEt("botonCambiarFoto").onclick = (e) => {
-    modal.titulo = "Cambiar Foto de Perfil";
-    modal.contenido = [
-        new Formulario(
-            "administracion-perfil-editar",
-            `/api/usuario/imagen`,
-            [
-                {
-                    name: "image",
-                    textoEtiqueta: "Imagen de Perfil: ",
-                    type: "file",
-                    extra: 'accept="image/jpeg, image/png'
-              },
-            ],
-            (txt, info) => {
-              if (info.ok) {
-                
+  gEt("cambiarFoto").onclick = (e) => {
+
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/jpeg, image/png';
+    input.onchange = function(event) {
+        var file = event.target.files[0];
+        var formData = new FormData();
+        formData.append('image', file);
+        fetch('/api/usuario/imagen', {
+            method: 'PATCH',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
                 window.location.reload();
-      
-              } else {
-                // TODO UX: Mejores alertas
-                alert(`Error ${info.codigo}: ${txt}`);
-              }
-            },
-            {
-              verbo: "PATCH",
-              textoEnviar: "Editar usuario",
-              clasesBoton: "is-link is-rounded mt-3",
+            } else {
+                alert(`Error al actualizar la imagen`);
             }
-          )
-    ];
-  
-    modal.redibujar();
-  
-  
-    modalElemento.classList.add("is-active");
+        })
+        .catch(error => {
+            console.error('Error de red:', error);
+        });
+    }
+    input.click();
   };
