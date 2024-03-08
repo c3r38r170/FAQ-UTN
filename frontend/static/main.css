@@ -549,4 +549,14 @@ select[data-type=tags] {
   overflow: hidden;
   border: none;
   padding: 0;
+}
+
+.opcionesPost {
+  border: none;
+}
+.opcionesPost .button {
+  border: none !important;
+}
+.opcionesPost .button span.icon {
+  display: none;
 }/*# sourceMappingURL=main.css.map */

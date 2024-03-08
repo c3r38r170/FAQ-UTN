@@ -629,3 +629,14 @@ select[data-type="tags"]{
 	border: none;
 	padding: 0;
 }
+
+.opcionesPost{
+	border: none;
+	.button{
+		border:none!important;
+		
+		span.icon{
+			display: none
+		}
+	}
+}

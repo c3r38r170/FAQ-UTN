@@ -1,4 +1,4 @@
-import { ChipUsuario, ChipValoracion, Etiqueta, Respuesta, Boton, Fecha, BotonReporte, Formulario, BotonSuscripcion } from "./todos.js";
+import { ChipUsuario, ChipValoracion, Etiqueta, Respuesta, Boton, Fecha, BotonReporte, Formulario, BotonSuscripcion, Desplegable } from "./todos.js";
 
 class Pregunta{
     #ID;
@@ -14,6 +14,7 @@ class Pregunta{
     #chipValoracion=null;
     #estaSuscripto = false ;
     #botonEditar;
+    #desplegable;
     constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, usuariosSuscriptos},instanciaModal, sesion){
         // TODO Feature: Pensar condiciones de fallo de creación. Considerar que puede venir sin cuerpo (formato corto) o sin título (/pregunta, quitado "artificialmente")
 
@@ -43,26 +44,50 @@ class Pregunta{
 
         }
 
+        if(this.#usuarioActual){
+            this.#desplegable = new Desplegable('opcionesPregunta'+this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>',undefined,undefined,'opcionesPost');
+            if(this.#usuarioActual.DNI == this.#duenio.DNI){
+                let form = new Formulario('eliminadorPregunta'+this.#ID, '/api/post/'+this.#ID, [],(res)=>{alert(res)},{textoEnviar:'Eliminar',verbo: 'DELETE' ,clasesBoton: 'mx-auto is-danger is-outlined'}).render()
+                let opciones = [
+                {
+                    descripcion: "Editar",
+                    tipo: "link",
+                    href: "/pregunta/"+this.#ID+"/editar",
+                },
+                {
+                    tipo: "form",
+                    render: form
+                },
+                ];
+                this.#desplegable.opciones = opciones;
+            }else{
+                let opciones = [
+                    {
+                        descripcion: "Reportar",
+                        tipo: "link",
+                        href: "#",
+                    }
+                    ];
+                this.#desplegable.opciones = opciones;
+            }
+        }else{
+            this.#desplegable=undefined;
+        }
+
 	}
 
 	render(){
         // TODO Feature: Permitir texto enriquecido. Tanto acá como en respuestas. Empecemos detectando y convirtiendo links, podemos seguir con ** para negrita y **** para subrayado... eventualmente meteríamos un motor de markdown.
         
         return this.#duenio? // * Formato largo
-            `<div class="pregunta">
+            `<div class="pregunta" data-post-id="${this.#ID}">
                 <div class="encabezado">
                     ${new ChipUsuario(this.#duenio).render()}
                     <div class="pl-0 py-0">
                         ${this.#fecha.render()}
                     </div>
                     ${ this.#usuarioActual ? new BotonSuscripcion(this.#ID,'/api/pregunta/'+this.#ID+'/suscripcion', this.#estaSuscripto).render() : '' }
-                    ${ (this.#instanciaModal && this.#usuarioActual) ? 
-                         (
-                            (this.#usuarioActual.DNI != this.#duenio.DNI) ? 
-                                new BotonReporte(this.#ID, this.#instanciaModal).render() 
-                                : this.#botonEditar + '<a><i class="fa-solid fa-trash ml-2"></i></a></div>'
-                         ) 
-                         : this.#botonEditar + '<a><i class="fa-solid fa-trash ml-2"></i></a></div>' }
+                    ${ this.#usuarioActual ?  '<div class="ml-auto">'+this.#desplegable.render()+'</div>' : '' }
                 </div>
                 ${this.#chipValoracion ? this.#chipValoracion.render() : ''}
                 <a href="/pregunta/${this.#ID}">

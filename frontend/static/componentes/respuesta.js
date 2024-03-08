@@ -2,6 +2,7 @@ import { ChipUsuario } from "./chipusuario.js";
 import { ChipValoracion } from "./chipvaloracion.js";
 import { Fecha } from "./fecha.js";
 import { BotonReporte } from "./botonReporte.js";
+import { Desplegable } from "./desplegable.js";
 
 class Respuesta {
   #ID;
@@ -12,6 +13,7 @@ class Respuesta {
   #usuarioActual=null;
   #instanciaModal=null;
   #chipValoracion=null;
+  #desplegable;
   constructor({ ID, cuerpo, fecha, post},instanciaModal,sesion) {
     this.#ID = ID;
     this.#cuerpo = cuerpo;
@@ -27,16 +29,50 @@ class Respuesta {
         ,usuarioActual: sesion
       });
     }
+
+    if(this.#usuarioActual){
+      this.#desplegable = new Desplegable('opcionesRespuesta'+this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>',undefined,undefined,'opcionesPost');
+      if(this.#usuarioActual && this.#usuarioActual.DNI == this.#duenio.DNI){
+        let form = new Formulario('eliminadorRespuesta'+this.#ID, '/api/post/'+this.#ID, [],(res)=>{alert(res)},{textoEnviar:'Eliminar',verbo: 'DELETE' ,clasesBoton: 'mx-auto is-danger is-outlined'}).render()
+        let opciones = [
+        {
+            descripcion: "Editar",
+            tipo: "link",
+            href: "#",
+        },
+        {
+            tipo: "form",
+            render: form
+        },
+        ];
+        this.#desplegable.opciones = opciones;
+      }else{
+        let opciones = [
+          {
+              descripcion: "Reportar",
+              tipo: "link",
+              href: "#",
+          }
+          ];
+          this.#desplegable.opciones = opciones;
+      }
+    }else{
+      this.#desplegable = undefined;
+    }
+    
+
+
   }
 
 
+  // ${(this.#instanciaModal && this.#usuarioActual && this.#duenio.DNI != this.#usuarioActual.DNI)? '<div class="contenedor-reporte">'+new BotonReporte(this.#ID, this.#instanciaModal).render()+'</div>':''}
 
   render() {
     return `
         <div class="respuesta">
               ${this.#chipValoracion?this.#chipValoracion.render():''}
               <div class="cuerpo">
-                  ${(this.#instanciaModal && this.#usuarioActual && this.#duenio.DNI != this.#usuarioActual.DNI)? '<div class="contenedor-reporte">'+new BotonReporte(this.#ID, this.#instanciaModal).render()+'</div>':''}
+                ${ this.#usuarioActual ?  '<div class="contenedor-reporte">'+this.#desplegable.render()+'</div>' : '' }
                 ${this.#cuerpo.replace(/\n/g, '<br>')}
                 <div class="usuario">
                     ${new ChipUsuario(this.#duenio).render()}

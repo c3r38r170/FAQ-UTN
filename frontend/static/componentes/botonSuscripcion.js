@@ -33,9 +33,19 @@ class BotonSuscripcion{
 
       }
 
-      procesarSuscripcion(){ console.log('Suscripcion'); }
+      procesarSuscripcion(){ 
+        setTimeout(() => {
+            location.reload()
+            console.log('Suscripcion')
+        }, 1000);
+    }
 
-      procesarDesuscripcion(){ console.log('Desuscripcion'); }
+      procesarDesuscripcion(){ 
+        setTimeout(() => {
+            location.reload()
+            console.log('Desuscripcion')
+        }, 1000);
+    }
 		
     render(){
         return`
