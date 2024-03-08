@@ -390,7 +390,7 @@ router.get("/perfil/:id?", async (req, res) => {
       return;
       }
 
-      let pagina = PaginaPerfilPropioInfo(req.path, req.session);
+      let pagina = PaginaPerfil(req.path, req.session, usu);
       res.send(pagina.render());
       return;
     } else if (req.params.id) {
