@@ -17,9 +17,10 @@ function crearPagina(ruta,sesion, pregunta, categorias){
 					,{name:'etiquetas',textoEtiqueta:'Etiquetas',type:'lista-etiquetas',value:pregunta.etiquetas , extra:categorias.map(cat => cat.etiquetas.map(eti => `<option value=${eti.ID} data-color="${cat.color}" data-categoria="${cat.descripcion}" ${pregunta.etiquetas.some(({etiquetum: {ID}})=>ID==eti.ID) ? 'selected' : ''}>${cat.descripcion} - ${eti.descripcion}</option>`)).flat().join('')}
 				]
 				,(res)=>{
+					console.log(res)
 					setTimeout(function() {
-						window.location.reload();
-					  }, 1000);
+						window.location.replace('/pregunta/'+res);
+						}, 1000);
 					
 				}
 				,{

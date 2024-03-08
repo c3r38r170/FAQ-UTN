@@ -633,7 +633,7 @@ router.patch("/pregunta", function (req, res) {
             )
             Promise.all(esperarA)
             .then( () =>
-              res.status(200).send("Pregunta actualizada exitosamente")
+              res.status(200).send(req.body.ID+"")
             )
             //etiquetas vienen los id en array
             // pregunta.setEtiquetas(
