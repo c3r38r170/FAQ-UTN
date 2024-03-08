@@ -375,7 +375,7 @@ router.get("/perfil/:id?", async (req, res) => {
   // TODO Refactor: DNI en vez de id
 	// TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
   try {
-    let usu;
+    let usu = req.session;
     if (
       req.params.id &&
       req.session.usuario &&
@@ -385,8 +385,9 @@ router.get("/perfil/:id?", async (req, res) => {
       usu = req.session.usuario;
 
       if (!usu) {
-        res.status(404).send("Error con el perfil propio");
-        return;
+        let pagina = SinPermisos(usu, "Error");
+      res.send(pagina.render());
+      return;
       }
 
       let pagina = PaginaPerfilPropioInfo(req.path, req.session);
@@ -398,8 +399,9 @@ router.get("/perfil/:id?", async (req, res) => {
         include: PerfilDAO,
       });
       if (!usu) {
-        res.status(404).send("Error con el perfil del otro usuario");
-        return;
+        let pagina = SinPermisos(usu, "Error");
+      res.send(pagina.render());
+      return;
       }
 
       let filtro = { duenioID: null };
@@ -416,8 +418,9 @@ router.get("/perfil/:id?", async (req, res) => {
       //  NO LOGUEADO BUSCANDO OTRO USUARIO
       usu = await UsuarioDAO.findByPk(req.params.id);
       if (!usu) {
-        res.status(404).send("Error al acceder a un perfil");
-        return;
+        let pagina = SinPermisos(usu, "Error");
+      res.send(pagina.render());
+      return;
       }
 
       let filtro = { duenioID: null };
@@ -433,19 +436,23 @@ router.get("/perfil/:id?", async (req, res) => {
     } else if (req.session.usuario && !req.params.id) {
       usu = req.session.usuario;
       if (!usu) {
-        res.status(404).send("Estas logueado?");
-        return;
+        let pagina = SinPermisos(usu, "Error");
+      res.send(pagina.render());
+      return;
       }
       let pagina = PaginaPerfilPropioInfo(req.path, req.session);
       res.send(pagina.render());
       return;
     } else {
-      res.status(404).send("No se encuentra autorizado para ver esta pagina");
+      let pagina = SinPermisos(usu, "Error");
+      res.send(pagina.render());
       return;
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error interno del servidor");
+    let pagina = SinPermisos(usu, "Error");
+      res.send(pagina.render());
+      return;
   }
 });
 

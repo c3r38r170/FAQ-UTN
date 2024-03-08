@@ -22,6 +22,9 @@ const sequelize = new Sequelize(
     dialect: 'mariadb'
   }); */
 
+
+
+
 sequelize
   .authenticate()
   .then(() => {
@@ -1167,7 +1170,7 @@ Pregunta.create({
 
 //sequelize.sync({ alter: true });
 
-sequelize.sync();
+//sequelize.sync();
 
 export {
   Parametro,

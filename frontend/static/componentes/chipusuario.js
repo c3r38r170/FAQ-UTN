@@ -9,10 +9,11 @@ class ChipUsuario {
   #esPerfil;
   #tipo;
   #color;
+  #propio;
 
   constructor(
-    { DNI, nombre, correo, createdAt, fecha_alta, perfil },
-    esPerfil = false
+    { DNI, nombre, correo, createdAt, fecha_alta, perfil},
+    esPerfil = false, propio=false
   ) {
     this.#DNI = DNI;
     this.#nombreusuario = nombre;
@@ -21,6 +22,7 @@ class ChipUsuario {
     this.#esPerfil = esPerfil;
     this.#tipo = perfil ? perfil.nombre : "Usuario";
     this.#color = perfil ? perfil.color : "#485fc7";
+    this.#propio = propio;
   }
   render() {
     //TODO Feature Tipo de Usuario
@@ -28,11 +30,11 @@ class ChipUsuario {
     if (this.#esPerfil) {
       return `
             <div class="chip-usuario-perfil">
-                <img class="mr-3 img-usuario" src="/api/usuario/${this.#DNI}/foto" ></img>
+                ${this.#propio ? '<input class="mr-3 img-usuario"  id="botonCambiarFoto" type="image" src="/api/usuario/'+this.#DNI+'/foto"></input>': '<img class="mr-3 img-usuario" src="/api/usuario/'+this.#DNI+'/foto" ></img>'}
                 <div class="contenido-perfil">
                     <div>DNI: <span>${this.#DNI}</span></div>
                     <div>Nombre: <span>${this.#nombreusuario}</span></div>
-                    <div>Correo electrónico: <span>${this.#correo}</span></div>
+                    <div>Correo electrónico: <span>${this.#correo}</span> ${this.#propio ? '<button id="botonCambiarMail" type="button" class="button is-link is-small is-rounded">Modificar</button>':''}  </div>
                     <div>Miembro desde: <span>${this.#createdAt.render()}</span></div>
                     <div class="tipo-usuario" style="background-color: ${
                       this.#color

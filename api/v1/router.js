@@ -458,23 +458,47 @@ router.delete("/usuario/:DNI/bloqueo", function (req, res) {
   });
 });
 
-router.patch("/usuario", upload.single("image"), function (req, res) {
+router.patch("/usuario/imagen", upload.single("image"), function (req, res) {
   //req.file tiene la imagen
-  //TODO feature que se pueda cambiar contraseña o imagen
+  if(!req.file){
+    //req.file solo existe si la imagen cumple con los formatos de arriba
+    res.status(400).send("Petición mal formada");
+    return;
+  }
+  res.status(200).send("Imagen Actualizada");
+});
+
+router.patch("/usuario/contrasenia", function (req, res) {
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa");
     return;
-  }
-
-  if(!req.file){
-    //req.file solo existe si la imagen cumple con los formatos de arriba
-    //TODO esto no funcionaría si solo manda la contraseña
-    res.status(400).send("Petición mal formada")
   }
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
       if(bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)){
         usuario.contrasenia = req.body.contraseniaNueva;
+        req.session.usuario.contrasenia=req.body.contraseniaNueva;
+        usuario.save();
+        res.status(200).send("Datos actualizados exitosamente");
+        return;
+      }
+      res.status(402).send("Contraseña anterior no válida")
+      })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+});
+
+router.patch("/usuario/mail", function (req, res) {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
+  }
+  Usuario.findByPk(req.session.usuario.DNI)
+    .then((usuario) => {
+      if(bcrypt.compare(req.body.contrasenia, usuario.contrasenia)){
+        usuario.correo = req.body.correo;
+        req.session.usuario.correo=req.body.correo;
         usuario.save();
         res.status(200).send("Datos actualizados exitosamente");
         return;
