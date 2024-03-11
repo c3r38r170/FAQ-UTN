@@ -573,9 +573,17 @@ select[data-type=tags] {
 div.dropdown-content {
   text-align: center;
   padding: 0.5rem;
+  min-width: min(50%, 220px);
 }
 
 a.dropdown-item {
   text-align: center !important;
   padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
+.radio-label {
+  text-align: left !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
 }/*# sourceMappingURL=main.css.map */

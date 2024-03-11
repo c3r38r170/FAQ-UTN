@@ -169,6 +169,11 @@ class Campo{
 			case 'number':
 				// * min, max, step...
 				html+=' '+this.#extra;
+			case 'radio':
+				html=html.replace(this.#textoEtiqueta,'');
+				html=html.replace('<input class="input','<input type="radio" required value="'+this.#value+'" class="mr-2 ')
+				html=html.replace('<label class="label"','<label class="label radio-label"')
+				return html+endTag+this.#textoEtiqueta+'</label>'
 			// ! no break;
 			default:
 				html+=` type="${this.#type}"`;

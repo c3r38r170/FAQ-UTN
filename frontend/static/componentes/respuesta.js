@@ -3,6 +3,7 @@ import { ChipValoracion } from "./chipvaloracion.js";
 import { Fecha } from "./fecha.js";
 import { BotonReporte } from "./botonReporte.js";
 import { Desplegable } from "./desplegable.js";
+import { Formulario } from "./formulario.js"
 
 class Respuesta {
   #ID;
@@ -33,7 +34,7 @@ class Respuesta {
     if(this.#usuarioActual){
       this.#desplegable = new Desplegable('opcionesRespuesta'+this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>',undefined,undefined,'opcionesPost');
       if(this.#usuarioActual && this.#usuarioActual.DNI == this.#duenio.DNI){
-        let form = new Formulario('eliminadorRespuesta'+this.#ID, '/api/post/'+this.#ID, [],(res)=>{alert(res)},{textoEnviar:'Eliminar',verbo: 'DELETE' ,clasesBoton: 'mx-auto is-danger is-outlined'}).render()
+        let form = new Formulario('eliminadorRespuesta'+this.#ID, '/api/post/'+this.#ID, [],(res)=>{alert(res)},{textoEnviar:'Eliminar',verbo: 'DELETE' ,clasesBoton: 'mx-auto is-danger w-100'}).render()
         let opciones = [
         {
             descripcion: "Editar",
@@ -47,14 +48,33 @@ class Respuesta {
         ];
         this.#desplegable.opciones = opciones;
       }else{
-        let opciones = [
+        // {name,textoEtiqueta,type,required=true,value=''/* TODO Refactor: null? */,extra,placeholder, clasesInput}){
+          let form = new Formulario(
+            'reportadorPost'+this.#ID,
+            '/api/post/'+this.#ID+'/reporte',
+            [{
+            name: "tipoID",
+            textoEtiqueta: "Lenguaje Vulgar",
+            value: '1',
+            type: "radio"
+          },
           {
-              descripcion: "Reportar",
-              tipo: "link",
-              href: "#",
-          }
-          ];
-          this.#desplegable.opciones = opciones;
+            name: "tipoID",
+            textoEtiqueta: "Post repetido",
+            value: '2',
+            type: "radio"
+          }],
+          (res)=>{alert(res)},
+          {textoEnviar:'Reportar',verbo: 'POST' ,clasesBoton: 'mx-auto is-link w-100'}
+          ).render()
+        let opciones = [
+            {
+                tipo: "form",
+                render: form
+                
+            }
+            ];
+        this.#desplegable.opciones = opciones;
       }
     }else{
       this.#desplegable = undefined;
