@@ -3,18 +3,18 @@ import { Sequelize, DataTypes } from "sequelize";
 import * as bcrypt from "bcrypt";
 
 const sequelize = new Sequelize(
-  "faqutn",
-  "vj6h6slqojgkqj8l6upf",
-  "pscale_pw_KXyc9Io7oS063MsqgHyxpk4ob4iJoV6eu5EK2fwOjxj",
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASS,
   {
-    host: "aws.connect.psdb.cloud",
+    host: process.env.DB_HOST,
     dialect: "mysql",
     dialectOptions: {
       ssl: {
         rejectUnauthorized: true,
       },
     },
-    logging: false,
+    logging: true,
   }
 );
 /* new Sequelize('faqutn', 'root', 'password', {
@@ -522,7 +522,6 @@ Post.belongsTo(Respuesta, {
 
 Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
   return Pregunta.findAll({
-    // TODO Feature: try subQUery:false again and separate: true
     include: [
       {
         model: Post,
@@ -714,15 +713,19 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 		}
 	*/
 
-  if (duenioID) {
+  // TODO Refactor: DRY en todo lo que se pueda
+
+  if (duenioID) { // * Esto es para los perfiles.
     return Pregunta.findAll({
+      raw:true,
       // TODO Feature: try subQUery:false again and separate: true
       include: [
         {
           model: Post,
+          required:true,
           include: [
             {
-              // TODO Feature: Votos no??
+              // TODO Feature: Votos no?? Yo diría que sí.
               model: Usuario,
               as: "duenio",
               include: {
@@ -768,8 +771,9 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
     });
   } else {
     let opciones = {
+      // raw:true,
       include: [
-        Post
+        {model:Post,required:true}
       ],
       limit: PAGINACION.resultadosPorPagina,
       offset: (+pagina) * PAGINACION.resultadosPorPagina,
@@ -786,7 +790,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       }
     };
 
-    let filtraEtiquetas = false,
+    let filtrarEtiquetas = false,
       filtrarTexto = false;
 
     if (filtrar) {
@@ -806,24 +810,49 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       }
 
       if (filtrar.etiquetas) {
-        // TODO Feature: Ver cómo traer las otras etiqeutas, además de las usadas en el filtro
-        opciones.include.push({
-          model: EtiquetasPregunta,
-          as: "etiquetas",
-          where:{
-            etiquetumID:filtrar.etiquetaID
-          },
-          include: {
-            model: Etiqueta,
+        opciones.include.push(
+          {
+            model: EtiquetasPregunta,
+            as: "etiquetas",
             include: {
-              model: Categoria,
-              as: "categoria",
+              model: Etiqueta,
+              // TODO Refactor: Quizá Categoría no sirva de nada acá. Ver bien (colores).
+              include: {
+                model: Categoria,
+                as: "categoria",
+              },
             },
-          },
-          //separate: true,
-          
-        });
-        filtraEtiquetas = true;
+            separate: true,
+          }
+          ,{
+            model: EtiquetasPregunta,
+            as: "filtroEtiquetas",
+            required:true
+            ,where:{
+              etiquetumID:filtrar.etiquetas
+            }
+          }
+        );
+        opciones.attributes.include.push(
+          [
+            sequelize.literal(
+              `(SELECT COUNT(*) FROM etiquetasPregunta WHERE etiquetasPregunta.preguntumID = pregunta.ID AND etiquetasPregunta.etiquetumID IN(${filtrar.etiquetas}))`
+            ),
+            "coincidencias",
+          ]
+        )
+        /* for(let e of filtrar.etiquetas){
+          opciones.include.push({
+            model: EtiquetasPregunta,
+            as: "filtroEtiquetas",
+            where:{
+              etiquetumID:e//filtrar.etiquetas // ! Es un array. Siempre.
+            }
+            ,required:true
+          })
+        } */
+
+        filtrarEtiquetas = true;
       }
     }
 
@@ -835,17 +864,30 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
         opciones.order=[[Post,'fecha','DESC']];
     } */
     // ? ¿Agregar las etiquetas al ranking / relevancia?
-    if (filtrarTexto) {
-      opciones.order = [
-        Sequelize.literal(
-          '(match(post.cuerpo) against ("' +
-            filtrar.texto +
-            '*"  IN BOOLEAN MODE)+ match(titulo) against ("' +
-            filtrar.texto +
-            '*"  IN BOOLEAN MODE)) desc, fecha desc'
-        ),
-      ];
-    } else opciones.order = [[Post, "fecha", "DESC"]];
+    /* 
+      etiquetas: 1...n
+      texto: 0...2
+      votaciones: 0...n
+      respuestas: 0...n
+      ¿Meter los votos de la respuesta más votada / de las respuestas?
+    */
+   let ordenadoPorFecha=[[Post, "fecha", "DESC"]];
+   if(filtrar){
+      let ranking=[];
+      if(filtrarTexto){
+        ranking.push(`(match(post.cuerpo) against ("${filtrar.texto}*"  IN BOOLEAN MODE) + match(titulo) against ("${filtrar.texto}*"  IN BOOLEAN MODE))`);
+      }
+      if(filtrarEtiquetas){
+        ranking.push(`coincidencias/${filtrar.etiquetas.length}`) // * 0..1
+      }
+
+      opciones.order=[
+        Sequelize.literal(ranking.join(' * ')+' desc') // ! Si hay uno sono, no se multiplica nada.
+        ,ordenadoPorFecha
+      ]
+    }else{
+      opciones.order = [ordenadoPorFecha];
+    }
 
     if(formatoCorto){
         // TODO Feature: Ver qué más trae esto, eliminar lo que no haga falta. Ideas: Agregar raw, manipular array conseguido para mandar objetos reducidos
@@ -853,39 +895,37 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
         opciones.raw=true;
     }else{
 			// * Datos propios
-			opciones.include[0]={ // ! include[0] es Post por default
-				model:Post
-				,include:[
-					{
-						model:Voto
-                        ,separate:true
-						,include:{model:Usuario,as:'votante'}
-					}
-					,{
-						model:Usuario
-						,as:'duenio'
-						,include:{
-							model:Perfil
-							,attributes:['ID','nombre', 'color']
-						}
-						,attributes:['DNI','nombre']
-					}
-				]
-			};
+      
+      // ! include[0] es Post por default
+			opciones.include[0].include=[
+        {
+          model:Voto
+          ,separate:true
+          ,include:{model:Usuario,as:'votante'}
+        }
+        ,{
+          model:Usuario
+          ,as:'duenio'
+          ,include:{
+            model:Perfil
+            ,attributes:['ID','nombre', 'color']
+          }
+          ,attributes:['DNI','nombre']
+        }
+      ];
 
       // TODO Refactor: Solo hace falta si hay una sesión, y solo hace falta mandar para saber si el usuario está suscrito o no. Ver ejemplo en votos.
       opciones.include.push({
-        model:Usuario
-        ,as: 'usuariosSuscriptos'
-        ,through: {
-          model: SuscripcionesPregunta,
-          where: {
-            fecha_baja: null // Condición para que la fecha de baja sea nula
-          }
+        model:SuscripcionesPregunta
+        ,as: 'suscripciones'
+        ,include:{model:Usuario,as:'suscripto'}
+        ,where: {
+          fecha_baja: null // * Vigentes
         }
+        ,separate:true
       });
 
-			if(!filtraEtiquetas){
+			if(!filtrarEtiquetas){
 				opciones.include.push({
           model:EtiquetasPregunta
           ,include:{
@@ -956,6 +996,12 @@ Pregunta.hasMany(EtiquetasPregunta, {
   as: "etiquetas",
   constraints: false,
 });
+
+// ! Esta asociación es para filtrar las etiquetas, la otra, para recibirlas. De no usar esto, solo se podrían conseguir las etiquetas por las que se filtran.
+Pregunta.hasMany(EtiquetasPregunta, {
+  as: "filtroEtiquetas",
+  constraints: false,
+});
 /*
 Etiqueta.hasMany(EtiquetasPregunta,{
     // as:'etiqueta',
@@ -1005,6 +1051,10 @@ const Categoria = sequelize.define("categoria", {
     allowNull: false,
   },
 });
+
+Categoria.todasConEtiquetas=()=>{
+
+}
 
 Categoria.hasMany(Etiqueta, {
   constraints: false,
@@ -1075,6 +1125,16 @@ const SuscripcionesPregunta = sequelize.define("suscripcionesPregunta", {
     type: DataTypes.DATE,
   },
 });
+
+Pregunta.hasMany(SuscripcionesPregunta, {
+  as: "suscripciones",
+  constraints: false,
+  foreignKey:'preguntaID'
+});
+
+SuscripcionesPregunta.belongsTo(Usuario, { constraints: false, as: 'suscripto',foreignKey:'suscriptoDNI'});
+
+
 
 Usuario.belongsToMany(Pregunta, { 
     through: SuscripcionesPregunta,
@@ -1171,7 +1231,7 @@ Pregunta.create({
 
 //sequelize.sync({ alter: true });
 
-sequelize.sync();
+// sequelize.sync();
 
 export {
   Parametro,

@@ -548,22 +548,24 @@ router.get("/pregunta", (req, res) => {
 
   // TODO Feature: Aceptar etiquetas.
 
-  let filtros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto!==undefined };
+  let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto!==undefined };
 
+  // TODO Refactor: DRY
   if (req.query.searchInput) {
-    filtros.filtrar.texto = req.query.searchInput;
+    parametros.filtrar.texto = req.query.searchInput;
   }
-  if(req.query.etiquetaID){
-    filtros.filtrar.etiquetaID=req.query.etiquetaID;
-    filtros.filtrar.etiquetas=true;
+  
+  if(req.query.etiquetas){
+    parametros.filtrar.etiquetas=Array.isArray(req.query.etiquetas)?req.query.etiquetas:[req.query.etiquetas];
   }
 
-  Pregunta.pagina(filtros)
+  // console.log(filtros);
+  Pregunta.pagina(parametros)
     .then((preguntas) => {
-      res.status(200).send(preguntas);
+        res.status(200).send(preguntas);
     })
     .catch((err) => {
-      res.status(500).send(err)
+      res.status(500).send(err.message);
     });
 });
 

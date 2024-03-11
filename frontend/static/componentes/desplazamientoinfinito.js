@@ -44,6 +44,7 @@ class DesplazamientoInfinito{
 		let url=this.endpoint+`pagina=${this.pagina-1}`;
 		this.pagina++;
 
+		// TODO Fearure: Reaccionar a errores, como en formulario
 		fetch(url,{
 			credentials:'include',
 			method:'GET'

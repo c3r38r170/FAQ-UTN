@@ -55,30 +55,75 @@ import { PantallaAdministracionUsuarios } from "./static/pantallas/administracio
 
 router.get("/", (req, res) => {
   // ! req.path es ''
-  // TODO Feature: query vs body
-  if (req.query.searchInput) {
-    // TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
+  let consultaCategorias = Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}});
+  // console.log(req.query);
+  let etiquetas=req.query.etiquetas;
+  let texto=req.query.searchInput;
+  if (texto || etiquetas) {
     let queryString = req.url.substring(req.url.indexOf("?"));
+
+    let parametrosBusqueda = { filtrar:{}};
+    if(texto){
+      parametrosBusqueda.filtrar.texto=texto;
+    }
+    if(etiquetas){
+      parametrosBusqueda.filtrar.etiquetas=Array.isArray(etiquetas)?etiquetas:[etiquetas];
+    }
+
+    Promise.all([
+      // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+      PreguntaDAO.pagina(parametrosBusqueda)
+      ,consultaCategorias
+    ])
+      .then(([preguntas,categorias]) => {
+        let pagina = PaginaInicio(req.session, queryString,categorias);
+        pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
+
+        res.send(pagina.render());
+      });
+  } else {
+    // * Inicio regular.
+    Promise.all(
+      [
+        PreguntaDAO.pagina()
+        ,Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}})
+      ]
+    )
+      .then(([pre,categorias]) => {
+        let pagina = PaginaInicio(req.session,'',categorias);
+        pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
+
+        res.send(pagina.render());
+      });
+    // TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
+  }
+});
+
+router.get("/etiqueta/:id/preguntas", async (req, res) => {
+  try {
+    const e = await EtiquetaDAO.findByPk(req.params.id);
+
+    if (!e) {
+      res.status(404).send("ID de etiqueta inválida");
+      return;
+    }
+
     let filtro = [];
-    filtro.texto = req.query.searchInput;
+    filtro.etiquetas = true;
+    filtro.etiquetaID = req.params.id;
     let filtros = { filtrar: filtro };
 
     // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    PreguntaDAO.pagina(filtros).then((pre) => {
-      let pagina = PaginaInicio(req.session, queryString);
-      pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
-
+    PreguntaDAO.pagina(filtros).then((preguntas) => {
+      let pagina = new PantallaEtiquetaPreguntas(req.path, req.session, "?etiquetas=true&etiquetaID="+req.params.id);
+      pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
+      // TODO UX: Mejor título
+      pagina.titulo = "Etiqueta # "+e.descripcion;
       res.send(pagina.render());
     });
-  } else {
-    // * Inicio regular.
-    PreguntaDAO.pagina().then((pre) => {
-      let pagina = PaginaInicio(req.session);
-      pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
-
-      res.send(pagina.render());
-    });
-    // TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error interno del servidor");
   }
 });
 
@@ -246,33 +291,6 @@ router.get("/suscripciones", (req, res) => {
     // pagina.partes[1]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
     res.send(pagina.render());
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error interno del servidor");
-  }
-});
-
-router.get("/etiqueta/:id/preguntas", async (req, res) => {
-  try {
-    const e = await EtiquetaDAO.findByPk(req.params.id);
-
-    if (!e) {
-      res.status(404).send("ID de etiqueta inválida");
-      return;
-    }
-
-    let filtro = [];
-    filtro.etiquetas = true;
-    filtro.etiquetaID = req.params.id;
-    let filtros = { filtrar: filtro };
-
-    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    PreguntaDAO.pagina(filtros).then((preguntas) => {
-      let pagina = new PantallaEtiquetaPreguntas(req.path, req.session, "?etiquetas=true&etiquetaID="+req.params.id);
-      pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
-      pagina.titulo = "Etiqueta # "+e.descripcion;
-      res.send(pagina.render());
-    });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error interno del servidor");
@@ -596,36 +614,6 @@ router.get("/administracion/usuarios", async (req, res) => {
   const query = req.query.searchInput;
   let pagina = PantallaAdministracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
-});
-// Ruta Para búsqueda
-// Solo muestra el formulario de búsqueda
-// ToDo Feature
-// Se puede implementar que se muestren preguntas recientes... etc
-router.get("/explorar", (req, res) => {
-  if (req.query.searchInput) {
-    // TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
-    let queryString = req.url.substring(req.url.indexOf("?"));
-    let filtro = [];
-    filtro.texto = req.query.searchInput;
-    let filtros = { filtrar: filtro };
-
-    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    PreguntaDAO.pagina(filtros).then((pre) => {
-      let pagina = PaginaInicio(req.session, queryString);
-      pagina.titulo = "Explorar";
-      pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
-
-      res.send(pagina.render());
-    });
-  } else {
-    let pagina = new Pagina({
-      ruta: req.path,
-      titulo: "Explorar",
-      sesion: req.session,
-    });
-    pagina.partes.push(new Busqueda());
-    res.send(pagina.render());
-  }
 });
 
 // RUTA DE PRUEBA PARA PROBAR
