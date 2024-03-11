@@ -719,6 +719,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
     if (filtrarTexto) {
       opciones.order = [
         Sequelize.literal(
+          //boolean mode porque hace busqueda booleana(busca las palabras, en natural languaje usa conceptos pero me parece que está en ingles), el * supuestamente busca substrings, da un resultado entre 0 y 1
           '(match(post.cuerpo) against ("' +
             filtrar.texto +
             '*"  IN BOOLEAN MODE)+ match(titulo) against ("' +
