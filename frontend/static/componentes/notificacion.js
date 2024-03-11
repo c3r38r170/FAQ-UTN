@@ -8,18 +8,17 @@ class Notificacion{
 	#fecha;
 	#idPregunta;
 	#ID;
-	//ppregunta ajena es notificacion por etiqueta suscripta 
+	//pregunta ajena es notificacion por etiqueta suscripta 
 	//respuesta ajena es notificacion por respuesta a pregunta propia o suscripta
 	//respuesta o pregunta propia es notificación por valoración
 
-	/*
+	/* TODO Docs: Actualizar estos comentarios.
 	notificacion
 	post
 		usuario
 		respuesta
 			pregunta
 		pregunta
-
 	*/
 
 	constructor(id,{
@@ -50,27 +49,6 @@ class Notificacion{
 				this.#texto = 'Nuevas respuestas en la pregunta'
 			}
 		}
-
-		
-			/*
-		// TODO Refactor: Preguntar una sola vez.
-		
-		if(post.pregunta.ID){ // * Es una notificación de una pregunta
-			this.#tituloPregunta=post.pregunta.titulo;
-		}else{ // * Es una notificación de una respuesta
-			// TODO UX: Considerar mostrar algo de texto de la respuesta o no.
-			this.#tituloPregunta=post.respuesta.pregunta.titulo;
-		}
-
-		if(post.duenio.DNI==usuarioActualDNI){
-			this.#texto='Recibiste un nuevo voto positivo: ';
-		}else{
-			if(post.pregunta.ID){ // * Es una notificación de una pregunta
-				this.#texto='Nueva pregunta que te puede interesar: ';
-			}else{ // * Es una notificación de una respuesta
-				this.#texto='Nuevas respuestas en la pregunta ';
-			}
-		}*/
 	}
 
 	static verNotificacion(e){
@@ -82,6 +60,7 @@ class Notificacion{
 	
 	
 	const url= `http://localhost:8080/api/notificacion`;
+	// TODO Refactor: Ver si esto choca o es equivalente al hecho de que las notificaciones se ven al entrar en la página.
 	fetch(url, {
 		method: 'PATCH',
 		headers: {
@@ -97,9 +76,7 @@ class Notificacion{
 	}
 
 	render(){
-		// TODO UX: Estilos, visto no visto, al enlace, etc. (.notificacion)
-		// TODO Feature: Implementar registro de visto. onclick
-		// TODO Feature: Marcar como visto.  onclick="Notificacion.verNotificacion()"
+		// TODO Feature: Matar el user.webp viejo, meter acá el endpoint de imagen de usuario.
 		return`
 		<div class="chip-notificacion notificacion ${this.visto==0? 'noti-no-vista': ''}" id='chip-notificacion-${this.#ID}' data-id='${this.#ID}' data-idPregunta='${this.#idPregunta}'>
 			<div class="img-container">

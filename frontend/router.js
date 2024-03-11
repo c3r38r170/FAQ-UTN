@@ -211,16 +211,20 @@ router.get("/pregunta/:id?", async (req, res) =>  {
       pagina.globales.preguntaID = preguntaID;
 
       res.send(pagina.render());
-    } else {
-      let usu = req.session;
-      if (!usu.usuario) {
-        let pagina = SinPermisos(usu, "No está logueado");
+    } else { 
+      let sesion=req.session;
+      if (!sesion.usuario) {
+        let pagina = SinPermisos(sesion, "No está logueado");
         res.send(pagina.render());
         return;
       }
+
       // * Nueva pregunta.
-      let pagina = PantallaNuevaPregunta(req.path, req.session);
-      res.send(pagina.render());
+      Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}})
+        .then(categorias=>{
+          let pagina = PantallaNuevaPregunta(req.path, sesion,categorias);
+          res.send(pagina.render());
+        })
     }
   } catch (error) {
     console.error(error);

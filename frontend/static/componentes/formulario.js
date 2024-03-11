@@ -128,7 +128,7 @@ class Campo{
 	#extra = null;
 	#placeholder='';
 
-	constructor({name,textoEtiqueta,type,required=true,value='',extra,placeholder, clasesInput}){
+	constructor({name,textoEtiqueta,type,required=true,value=''/* TODO Refactor: null? */,extra,placeholder, clasesInput}){
 		// TODO Feature: Tirar error si no estan los necesarios.
 		this.#name=name;
 		this.#textoEtiqueta=textoEtiqueta;
@@ -154,6 +154,7 @@ class Campo{
 				break;
 			case 'lista-etiquetas':
 				html+=' data-type = "tags" data-placeholder="Etiquetas" data-selectable="false" multiple '
+				// ! no break;
 			case 'select':
 				html=html.replace('input','select');
 				endTag=`>${this.#extra}</select>`;
@@ -175,11 +176,11 @@ class Campo{
 		}
 		if(this.#required)
 			html+=` required`;
-		if(this.#value)
+		if(this.#value) // * Este no aplica en caso de lista-etiqueta o select.
 			html+=` value="${this.#value}"`;
-		if(this.#placeholder)
+		if(this.#placeholder){
 			html+=` placeholder="${this.#placeholder}"`;
-		
+		}
 			
 		return html+endTag+'</label>';
 		

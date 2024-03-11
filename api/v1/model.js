@@ -586,8 +586,10 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     where: {
       "$respuestas.post.duenio.DNI$": DNI,
     },
+    subQuery: false,
     order: [[Post, "fecha", "DESC"]],
-    // ,raw:true,nest:true
+    limit: PAGINACION.resultadosPorPagina,
+    offset: +pagina * PAGINACION.resultadosPorPagina
   });
 };
 
@@ -789,6 +791,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 
     if (filtrar) {
       if (filtrar.texto) {
+        // TODO Security: cadena literal en consulta
         opciones.where = Sequelize.or(
           Sequelize.literal(
             'match(post.cuerpo) against ("' +

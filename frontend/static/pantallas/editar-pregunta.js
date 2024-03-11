@@ -26,9 +26,7 @@ function crearPagina(ruta,sesion, pregunta, categorias){
 				,{
 					textoEnviar:'Editar Pregunta', verbo: 'PATCH', clasesBoton:'is-link is-rounded mt-3'
 				}
-			),
-			// new ListaEtiquetas('editando-pregunta')
-
+			)
 		]
 	});
 	return pagina;
