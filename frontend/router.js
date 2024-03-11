@@ -370,93 +370,76 @@ router.get("/perfil/respuestas", (req, res) => {
   }
 });
 
-router.get("/perfil/:id?", async (req, res) => {
+router.get("/perfil/:DNI?", async (req, res) => {
   // TODO Security: Permisos. Acá y en todos lados. aca?
   // TODO Refactor: DNI en vez de id
 	// TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
-  try {
-    let usu = req.session;
-    if (
-      req.params.id &&
-      req.session.usuario &&
-      req.params.id == req.session.usuario.DNI
-    ) {
-      //PERFIL PROPIO DE USUARIO LOGUEADO
-      usu = req.session.usuario;
 
-      if (!usu) {
-        let pagina = SinPermisos(usu, "Error");
-      res.send(pagina.render());
-      return;
+  //
+
+  //pagina error
+  let paginaError = SinPermisos(req.session, "Algo ha malido sal.")
+  if(req.params.DNI){
+    if(req.session.usuario){
+      if(req.session.usuario.DNI==req.params.DNI){
+        //perfil propio
+        let pagina = PaginaPerfilPropioInfo(req.path, req.session);
+        res.send(pagina.render());
+        return;
       }
-
-      let pagina = PaginaPerfil(req.path, req.session, usu);
-      res.send(pagina.render());
-      return;
-    } else if (req.params.id) {
-      // LOGUEADO BUSCANDO OTRO USUARIO
-      usu = await UsuarioDAO.findByPk(req.params.id, {
+      let usu = await UsuarioDAO.findByPk(req.params.DNI, {
         include: PerfilDAO,
       });
       if (!usu) {
-        let pagina = SinPermisos(usu, "Error");
-      res.send(pagina.render());
-      return;
+        //no existe el usuario buscado
+        res.send(paginaError.render());
+        return;
       }
-
+      //Perfil ajeno
       let filtro = { duenioID: null };
       filtro.duenioID = usu.DNI;
       // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-      PreguntaDAO.pagina(filtro).then((pre) => {
-        let pagina = PaginaPerfil(req.path, req.session, usu);
-        pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales =
-          pre;
-
-        res.send(pagina.render());
-      });
-    } else if (req.params.id && !req.session.usuario) {
-      //  NO LOGUEADO BUSCANDO OTRO USUARIO
-      usu = await UsuarioDAO.findByPk(req.params.id);
-      if (!usu) {
-        let pagina = SinPermisos(usu, "Error");
-      res.send(pagina.render());
-      return;
-      }
-
-      let filtro = { duenioID: null };
-      filtro.duenioID = usu.DNI;
-      // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-      PreguntaDAO.pagina(filtro).then((pre) => {
-        let pagina = PaginaPerfil(req.path, req.session, usu);
-        pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales =
-          pre;
-
-        res.send(pagina.render());
-      });
-    } else if (req.session.usuario && !req.params.id) {
-      usu = req.session.usuario;
-      if (!usu) {
-        let pagina = SinPermisos(usu, "Error");
-      res.send(pagina.render());
-      return;
-      }
-      let pagina = PaginaPerfilPropioInfo(req.path, req.session);
-      res.send(pagina.render());
-      return;
-    } else {
-      let pagina = SinPermisos(usu, "Error");
+      let pre = await PreguntaDAO.pagina(filtro);
+      let pagina = PaginaPerfil(req.path, req.session, usu);
+      pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales =
+      pre;
       res.send(pagina.render());
       return;
     }
-  } catch (error) {
-    console.error(error);
-    let pagina = SinPermisos(usu, "Error");
+    //Perfil ajeno
+    let usu = await UsuarioDAO.findByPk(req.params.DNI, {
+      include: PerfilDAO,
+    });
+    if (!usu) {
+      //no existe el usuario buscado
+      res.send(paginaError.render());
+      return;
+    }
+    let filtro = { duenioID: null };
+    filtro.duenioID = usu.DNI;
+    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+    let pre = await PreguntaDAO.pagina(filtro);
+    let pagina = PaginaPerfil(req.path, req.session, usu);
+    pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales =
+    pre;
+    res.send(pagina.render());
+    return;
+  }else{
+    if(req.session.usuario){
+      //perfil propio
+      let pagina = PaginaPerfilPropioInfo(req.path, req.session);
       res.send(pagina.render());
       return;
+    }
+    //error no hay id ni sesion
+    res.send(paginaError.render());
+    return;
   }
+
 });
 
 router.get("/usuario/:id?", async (req, res) => {
+  //??
   UsuarioDAO.findByPk(req.params.id, {
     raw: true,
     plain: true,
