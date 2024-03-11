@@ -36,7 +36,7 @@ import {
 } from "../api/v1/model.js";
 
 // TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
-// PreguntaDAO.siemprePlain=true; // Y usarlo a discresión.
+// PreguntaDAO.siemprePlain=true; // Y usarlo a discresión. //Para?
 
 // TODO Refactor: Usar todas.js
 import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts } from './static/pantallas/todas.js';
@@ -225,7 +225,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
     res.status(500).send("Error interno del servidor");
   }
 });
-// TODO UX: ¿Qué habría en /administración? ¿Algunas stats con links? (reportes nuevos, usuarios nuevos, qsy)  Estaría bueno.
+
 
 router.get("/suscripciones", (req, res) => {
   try {
@@ -371,8 +371,6 @@ router.get("/perfil/respuestas", (req, res) => {
 });
 
 router.get("/perfil/:DNI?", async (req, res) => {
-  // TODO Security: Permisos. Acá y en todos lados. aca?
-  // TODO Refactor: DNI en vez de id
 	// TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
 
   //
@@ -455,6 +453,9 @@ router.get("/usuario/:id?", async (req, res) => {
     res.send(console.log(usuario.dataValues));
   });
 });
+
+// TODO UX: ¿Qué habría en /administración? ¿Algunas stats con links? (reportes nuevos, usuarios nuevos, qsy)  Estaría bueno.
+// Actualmente te manda a parametros, podríamos definir algo y lo mismo para /moderación
 
 router.get("/administracion/parametros", async (req, res) => {
   let usu = req.session;

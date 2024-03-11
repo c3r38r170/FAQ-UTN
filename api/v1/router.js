@@ -46,6 +46,7 @@ import { Sequelize } from "sequelize";
 import { moderar, moderarWithRetry } from "./ia.js";
 
 // TODO Refactor: ¿Sacar y poner en models.js? Así el modelo se encarga de la paginación, y a los controladores no les importa.
+// Ahora viene de la bd, hay que hacer que también lo tenga en cuenta post.pagina si es que nos interesa que esa parte sea parametrizada (si no que funcione solo en las tablas)
 let PAGINACION = {
   resultadosPorPagina: 10,
 };
