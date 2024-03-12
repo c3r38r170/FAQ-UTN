@@ -15,7 +15,7 @@ class Pregunta{
     #estaSuscripto = false ;
     #botonEditar;
     #desplegable;
-    constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, usuariosSuscriptos},instanciaModal, sesion){
+    constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, suscripciones},instanciaModal, sesion){
         // TODO Feature: Pensar condiciones de fallo de creación. Considerar que puede venir sin cuerpo (formato corto) o sin título (/pregunta, quitado "artificialmente")
 
         this.#ID = ID;
@@ -37,10 +37,9 @@ class Pregunta{
                     ,votos:post.votos
                     ,usuarioActual:sesion
                 });
-                
-                if(usuariosSuscriptos){
-                    if(!Array.isArray(usuariosSuscriptos)) usuariosSuscriptos=[usuariosSuscriptos]
-                    this.#estaSuscripto=usuariosSuscriptos.some(usuario=>usuario.DNI == this.#usuarioActual.DNI && usuario.suscripcionesPregunta.fecha_baja == null);
+                if(suscripciones){
+                    if(!Array.isArray(suscripciones)) suscripciones=[suscripciones]
+                    this.#estaSuscripto=suscripciones.some(sus=>sus.suscripto.DNI == this.#usuarioActual.DNI);
             }
                 // TODO Refactor: Que ni vengan las suscripciones que estén dadas de baja (no chequear que fecha_baja == null). fecha_baja es una eliminación suave.
             }
