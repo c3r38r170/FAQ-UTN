@@ -36,8 +36,7 @@ import {
   Categoria,
 } from "../api/v1/model.js";
 
-// TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
-// PreguntaDAO.siemprePlain=true; // Y usarlo a discresión. //Para?
+// TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
 // TODO Refactor: Usar todas.js
 import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta } from './static/pantallas/todas.js';
@@ -288,8 +287,6 @@ router.get("/suscripciones", (req, res) => {
     }
 
     let pagina = PaginaSuscripciones(req.path, req.session);
-    // TODO Feature -- Hacer paginacion de suscripciones en api
-    // pagina.partes[1]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
     res.send(pagina.render());
   } catch (error) {
@@ -521,9 +518,6 @@ router.get("/usuario/:id?", async (req, res) => {
     res.send();
   });
 });
-
-// TODO UX: ¿Qué habría en /administración? ¿Algunas stats con links? (reportes nuevos, usuarios nuevos, qsy)  Estaría bueno.
-// Actualmente te manda a parametros, podríamos definir algo y lo mismo para /moderación
 
 router.get("/administracion/parametros", async (req, res) => {
   let usu = req.session;

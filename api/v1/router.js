@@ -158,7 +158,7 @@ router.get("/usuario", function (req, res) {
       {
         model: Bloqueo,
         as: "bloqueosRecibidos",
-        // TODO Feature: Traer quién bloqueó y razón.
+        // TODO Feature: Traer quién bloqueó.
         attributes: ["motivo"],
         where: {
           fecha_desbloqueo: { [Sequelize.Op.is]: null },
@@ -392,10 +392,10 @@ router.post("/usuario/:DNI/bloqueo", function (req, res) {
     return;
   }
   if (req.session.usuario.perfil.permiso.ID < 2) {
-    res.status(401).send("Usuario no posee permisos");
+    res.status(403).send("Usuario no posee permisos");
     return;
   }
-  // TODO Security: Chequear permisos
+  
   // TODO Feature: Comprobar que exista req.body.motivo
 
   Usuario.findByPk(req.params.DNI, {
@@ -569,8 +569,6 @@ router.patch("/usuario/:DNI", function (req, res) {
 router.get("/pregunta", (req, res) => {
   // TODO Refactor: Mandar este comentario a Pregunta.pagina
   // ! Siempre pedir el Post, por más que no se consulten los datos.
-
-  // TODO Feature: Aceptar etiquetas.
 
   let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto!==undefined };
 
@@ -848,7 +846,6 @@ router.put('/pregunta/:ID',function(req,res){
 //Suscripción / desuscripción a pregunta
 
 router.post("/pregunta/:preguntaID/suscripcion", function (req, res) {
-  //TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa");
     return;
@@ -897,15 +894,12 @@ router.post("/pregunta/:preguntaID/suscripcion", function (req, res) {
 
 // TODO Refactor: "suscripcion"? Todos los demás endpoints están en singular.
 router.get('/suscripciones', function(req,res){
-	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja. fecha_baja, ver si conviene volver a las relaciones como antes...
 	if(!req.session.usuario){
 		res.status(401).send("Usuario no tiene sesión válida activa");
 		return;
 	}
 
-	// TODO Feature Poner en Pregunta.pagina para tener también las suscripciones (aca hace falta?? sabemos que todas estas lo incluyen, quizá poner en el frontend. Esto haría un parámetro de si hacen falta los votos o no)
-	// TODO Feature Usar Pregunta.pagina para tener todos los datos unificados, como los votos
-  // TODO Feature faltan la cantidad de respuestas
+	// TODO Feature Usar Pregunta.pagina para tener todos los datos unificados, como los votos y faltan la cantidad de respuestas
 
 	const pagina = req.query.pagina || 0;
 	Pregunta.findAll({
@@ -1017,7 +1011,6 @@ router.post("/respuesta", function (req, res) {
     moderarWithRetry(req.body.cuerpo, 10)
       .then((respuesta) => {
         if (respuesta.apropiado < rechazaPost) {
-          // TODO Feature: ¿Devolver razón? Si se decidió que no, está bien.
           res.status(400).send("Texto rechazo por moderación automática");
           return;
         }
@@ -1368,9 +1361,8 @@ const reportarPost = function (req, res) {
       } else {
         // TODO Feature: ver si ya se reportó, y prohibir
         // Se podría hacer un get a los reportes y si ya existe que aparezca mensajito de ya está reportado y directamente no te aparezca el form
-        // TODO Feature: determinar tipos
         ReportePost.create({
-          tipoID: req.body.tipoID || 1,
+          tipoID: req.body.tipoID || 1, // TODO Feature: ¿Por que un default? ¿No permitir?
           reportanteDNI: req.session.usuario.DNI,
           reportadoID: reportadoID,
         }).then((r) => 
@@ -1752,7 +1744,6 @@ router.delete("/etiqueta/:etiquetaID/suscripcion", function (req, res) {
 //notificaciones
 
 // TODO Refactor: Minimizar datos que envia este endpoint.
-// TODO Feature: Hacer que se devuelvan una sola notificacion por pregunta (sí, pregunta)
 router.get('/notificacion', function(req,res){
 	// pregunta
 	// 	propia

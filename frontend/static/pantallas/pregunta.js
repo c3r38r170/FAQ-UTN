@@ -21,7 +21,6 @@ function PaginaPregunta(ruta, sesion, idPregunta){
                 {name:'IDPregunta', textoEtiqueta:'idPregunta', type:'hidden', value:idPregunta}
             ]
             ,respuestaID=>{
-                // TODO Feature: ¿o solo agregar la respuesta??
                 window.location.replace(ruta);
             }
             ,{

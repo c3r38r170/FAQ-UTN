@@ -48,7 +48,6 @@ class ChipValoracion{
                 })
             }).then(response=>{
                 if(response.status==201){
-                    //TODO Feature: cambiar flechita
                     let nuevaValoracion= valoracion+(valor-estado);
                     document.getElementById("chip-valoracion-"+id+"-numero").innerHTML=nuevaValoracion;
                     divChipvaloracion.dataset.valoracion=nuevaValoracion;
@@ -67,7 +66,6 @@ class ChipValoracion{
                 method: 'DELETE'
             }).then(response=>{
                 if(response.status==201){
-                    //TODO Feature: cambiar flechita
                     let nuevaValoracion= valoracion-estado;
                     document.getElementById("chip-valoracion-"+id+"-numero").innerHTML=nuevaValoracion;
                     divChipvaloracion.dataset.valoracion=nuevaValoracion;

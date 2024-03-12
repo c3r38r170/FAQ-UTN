@@ -721,7 +721,6 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
   if (duenioID) { // * Esto es para los perfiles.
     return Pregunta.findAll({
 
-      // TODO Feature: try subQUery:false again and separate: true
       include: [
         {
           model: Post,
@@ -1008,7 +1007,6 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
 
 Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
   return Pregunta.findAll({
-    // TODO Feature: try subQUery:false again and separate: true
     include: [
       {
         model: Post,
@@ -1215,21 +1213,6 @@ const SuscripcionesEtiqueta = sequelize.define("suscripcionesEtiqueta", {
     type: DataTypes.DATE,
   },
 });
-
-// TODO Feature: Ver si no se puede hacer algo como un Many to Many. Tanto acá como en otros como el voto, el reporte...
-/*
-Usuario.hasMany(SuscripcionesEtiqueta,{
-    as:'etiquetasSuscriptas',
-    constraints:false,
-    foreignKey:'suscriptoDNI'
-});
-
-Etiqueta.hasMany(SuscripcionesEtiqueta,{
-    as:'suscriptos',
-    constraints:false,
-    foreignKey:'etiquetaID'
-})
-*/
 
 Usuario.belongsToMany(Etiqueta, {
   through: SuscripcionesEtiqueta,

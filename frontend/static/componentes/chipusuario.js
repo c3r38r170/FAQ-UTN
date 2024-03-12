@@ -25,8 +25,6 @@ class ChipUsuario {
     this.#propio = propio;
   }
   render() {
-    //TODO Feature Tipo de Usuario
-
     if (this.#esPerfil) {
       return `
             <div class="chip-usuario-perfil">

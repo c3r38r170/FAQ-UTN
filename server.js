@@ -26,7 +26,7 @@ app.use(cors({
 			'/api/usuarios/' // Registro.
 			,'/api/usuarios/ingresar'
 			,'/api/usuarios/salir'
-			// TODO Feature: Restringir verbo tambien
+			// Restringir verbo tambien
 	].includes(req.path))
 			next();
 	else res.status(401).send('Inicie sesión.');

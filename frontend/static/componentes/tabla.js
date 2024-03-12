@@ -63,7 +63,6 @@ class Tabla{
 
 		this.pagina+=(+e.submitter.value);
 		let estaPagina=this.pagina;
-		// TODO Feature: Ver si tiene o no ?, y entonces poner ? o &. Quizá hacerlo en el constructor y tener algo como un this.#parametroPagina
 		let url=this.endpointPaginacion+`pagina=${this.pagina-1}`;
 
 		fetch(url,{
@@ -112,7 +111,6 @@ class Tabla{
 	}
 
 	render(){
-		// TODO UX: CSS de esto
 		let html=`<table id=${this.#id}><thead><tr>`;
 
 		for(let col of this.#columnas){
