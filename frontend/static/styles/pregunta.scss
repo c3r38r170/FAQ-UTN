@@ -1,9 +1,22 @@
 #nueva-pregunta{
 	padding: 0 3rem;
+
+	/* &~*{
+		margin-left: 3rem;
+	}  */
 }
 
-#nueva-pregunta-etiquetas{
+#nueva-pregunta-sugerencias{
 	display: flex;
-	justify-content: start;
-	gap: 2rem;
+  overflow: auto;
+
+	.pregunta{
+		min-width: max-content;
+		padding: .5rem 1rem;
+		margin: 0;
+
+		.titulo{
+			font-size: smaller;
+		}
+	}
 }

@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
-
+import 'dotenv/config';
 
 var app = express();
 
@@ -19,6 +19,7 @@ app.use(cors({
 	credentials: true
 }));
 
+// TODO Refactor: Hacer DRY en la búsqueda de sesión y permisos
 /* app.use((req,res,next) => {
 	if(req.session.usuarioID){
 	}else if([

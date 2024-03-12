@@ -39,7 +39,7 @@ import {
 // PreguntaDAO.siemprePlain=true; // Y usarlo a discresión. //Para?
 
 // TODO Refactor: Usar todas.js
-import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts } from './static/pantallas/todas.js';
+import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta } from './static/pantallas/todas.js';
 import { PaginaPerfil } from "./static/pantallas/perfil.js";
 import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
 import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
@@ -55,30 +55,75 @@ import { PantallaAdministracionUsuarios } from "./static/pantallas/administracio
 
 router.get("/", (req, res) => {
   // ! req.path es ''
-  // TODO Feature: query vs body
-  if (req.query.searchInput) {
-    // TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
+  let consultaCategorias = Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}});
+  // console.log(req.query);
+  let etiquetas=req.query.etiquetas;
+  let texto=req.query.searchInput;
+  if (texto || etiquetas) {
     let queryString = req.url.substring(req.url.indexOf("?"));
+
+    let parametrosBusqueda = { filtrar:{}};
+    if(texto){
+      parametrosBusqueda.filtrar.texto=texto;
+    }
+    if(etiquetas){
+      parametrosBusqueda.filtrar.etiquetas=Array.isArray(etiquetas)?etiquetas:[etiquetas];
+    }
+
+    Promise.all([
+      // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+      PreguntaDAO.pagina(parametrosBusqueda)
+      ,consultaCategorias
+    ])
+      .then(([preguntas,categorias]) => {
+        let pagina = PaginaInicio(req.session, queryString,categorias);
+        pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
+
+        res.send(pagina.render());
+      });
+  } else {
+    // * Inicio regular.
+    Promise.all(
+      [
+        PreguntaDAO.pagina()
+        ,Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}})
+      ]
+    )
+      .then(([pre,categorias]) => {
+        let pagina = PaginaInicio(req.session,'',categorias);
+        pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
+
+        res.send(pagina.render());
+      });
+    // TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
+  }
+});
+
+router.get("/etiqueta/:id/preguntas", async (req, res) => {
+  try {
+    const e = await EtiquetaDAO.findByPk(req.params.id);
+
+    if (!e) {
+      res.status(404).send("ID de etiqueta inválida");
+      return;
+    }
+
     let filtro = [];
-    filtro.texto = req.query.searchInput;
+    filtro.etiquetas = true;
+    filtro.etiquetaID = req.params.id;
     let filtros = { filtrar: filtro };
 
     // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    PreguntaDAO.pagina(filtros).then((pre) => {
-      let pagina = PaginaInicio(req.session, queryString);
-      pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
-
+    PreguntaDAO.pagina(filtros).then((preguntas) => {
+      let pagina = new PantallaEtiquetaPreguntas(req.path, req.session, "?etiquetas=true&etiquetaID="+req.params.id);
+      pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
+      // TODO UX: Mejor título
+      pagina.titulo = "Etiqueta # "+e.descripcion;
       res.send(pagina.render());
     });
-  } else {
-    // * Inicio regular.
-    PreguntaDAO.pagina().then((pre) => {
-      let pagina = PaginaInicio(req.session);
-      pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
-
-      res.send(pagina.render());
-    });
-    // TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error interno del servidor");
   }
 });
 
@@ -200,6 +245,7 @@ router.get("/pregunta/:id?", async (req, res) =>  {
         return b.dataValues.sumValoracion - a.dataValues.sumValoracion;
       });
 
+      // TODO UX: Esto no se ve muy lindo. Alternativa: Alguna forma de que la pregunta no renderice el link, y sí renderice un título h-
       let preguntaID = p.ID;
       let pagina = PaginaPregunta(req.path, req.session, preguntaID);
       pagina.titulo = p.titulo;
@@ -209,16 +255,20 @@ router.get("/pregunta/:id?", async (req, res) =>  {
       pagina.globales.preguntaID = preguntaID;
 
       res.send(pagina.render());
-    } else {
-      let usu = req.session;
-      if (!usu.usuario) {
-        let pagina = SinPermisos(usu, "No está logueado");
+    } else { 
+      let sesion=req.session;
+      if (!sesion.usuario) {
+        let pagina = SinPermisos(sesion, "No está logueado");
         res.send(pagina.render());
         return;
       }
+
       // * Nueva pregunta.
-      let pagina = PantallaNuevaPregunta(req.path, req.session);
-      res.send(pagina.render());
+      Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}})
+        .then(categorias=>{
+          let pagina = PantallaNuevaPregunta(req.path, sesion,categorias);
+          res.send(pagina.render());
+        })
     }
   } catch (error) {
     console.error(error);
@@ -241,33 +291,6 @@ router.get("/suscripciones", (req, res) => {
     // pagina.partes[1]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
     res.send(pagina.render());
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error interno del servidor");
-  }
-});
-
-router.get("/etiqueta/:id/preguntas", async (req, res) => {
-  try {
-    const e = await EtiquetaDAO.findByPk(req.params.id);
-
-    if (!e) {
-      res.status(404).send("ID de etiqueta inválida");
-      return;
-    }
-
-    let filtro = [];
-    filtro.etiquetas = true;
-    filtro.etiquetaID = req.params.id;
-    let filtros = { filtrar: filtro };
-
-    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    PreguntaDAO.pagina(filtros).then((preguntas) => {
-      let pagina = new PantallaEtiquetaPreguntas(req.path, req.session, "?etiquetas=true&etiquetaID="+req.params.id);
-      pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
-      pagina.titulo = "Etiqueta # "+e.descripcion;
-      res.send(pagina.render());
-    });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error interno del servidor");
@@ -346,6 +369,50 @@ router.get("/perfil/preguntas", (req, res) => {
     res.status(500).send("Error interno del servidor");
   }
 });
+
+
+router.get("/pregunta/:id/editar", (req, res)=>{
+  try{
+    let usu = req.session;
+    if(!usu.usuario){
+      let pagina = SinPermisos(usu, "No está logueado");
+      res.send(pagina.render());
+      return;
+    }
+
+    const include = [
+      {
+        model: PostDAO,
+        as: 'post',
+        where: {
+          duenioDNI: req.session.usuario.DNI
+        }
+      },
+      {
+        model: EtiquetasPreguntaDAO,
+        as: 'etiquetas',
+        include: {
+          model: EtiquetaDAO,
+          include: { model: Categoria, as: "categoria" },
+        }
+      }
+    ];
+    Promise.all( [PreguntaDAO.findByPk(req.params.id, { include }) , Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}})])
+    .then(([pre, categorias])=>{
+      // * Editar pregunta.
+      let pagina = PantallaEditarPregunta(req.path, req.session, pre, categorias);
+      res.send(pagina.render());
+    }).catch((error) => {
+      console.error('Error:', error);
+      res.status(409).send('Error al buscar la pregunta');
+    });
+
+
+  }catch(error){
+    console.error(error);
+    res.status(500).send("Error interno del servidor");
+  }
+})
 
 // TODO Refactor: Ver si se puede unificar el algoritmo de prefil/preguntas y perfil/respuestas
 router.get("/perfil/respuestas", (req, res) => {
@@ -450,7 +517,7 @@ router.get("/usuario/:id?", async (req, res) => {
     let usuario = new Usuario(u);
     let chipusuario = new ChipUsuario(usuario.dataValues);
 
-    res.send(console.log(usuario.dataValues));
+    res.send();
   });
 });
 
@@ -538,36 +605,6 @@ router.get("/administracion/usuarios", async (req, res) => {
   const query = req.query.searchInput;
   let pagina = PantallaAdministracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
-});
-// Ruta Para búsqueda
-// Solo muestra el formulario de búsqueda
-// ToDo Feature
-// Se puede implementar que se muestren preguntas recientes... etc
-router.get("/explorar", (req, res) => {
-  if (req.query.searchInput) {
-    // TODO Refactor: Ver si req.url es lo que esperamos (la dirección completa con parámetros)
-    let queryString = req.url.substring(req.url.indexOf("?"));
-    let filtro = [];
-    filtro.texto = req.query.searchInput;
-    let filtros = { filtrar: filtro };
-
-    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    PreguntaDAO.pagina(filtros).then((pre) => {
-      let pagina = PaginaInicio(req.session, queryString);
-      pagina.titulo = "Explorar";
-      pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
-
-      res.send(pagina.render());
-    });
-  } else {
-    let pagina = new Pagina({
-      ruta: req.path,
-      titulo: "Explorar",
-      sesion: req.session,
-    });
-    pagina.partes.push(new Busqueda());
-    res.send(pagina.render());
-  }
 });
 
 // RUTA DE PRUEBA PARA PROBAR

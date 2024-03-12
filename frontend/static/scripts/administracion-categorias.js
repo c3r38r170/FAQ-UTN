@@ -39,7 +39,6 @@ gEt("administrar-categorias").onchange = (e) => {
     // * Se desea desbloquear
     modal.titulo = "Deshabilitar " + categoriaElegida.descripcion;
     modal.contenido = [
-      // TODO Feature: Mostrar razón del desbloqueo, preguntar si se está seguro.
       new ComponenteLiteral(
         () => `<big><b><p>¿Estás seguro?</p></b></big><br/>`
       ),

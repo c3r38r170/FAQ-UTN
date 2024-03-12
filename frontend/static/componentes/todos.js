@@ -19,6 +19,7 @@ import { Pregunta } from "./pregunta.js";
 import { Respuesta } from './respuesta.js';
 import { Tabla } from "./tabla.js";
 import {Titulo} from "./titulo.js";
+import { ListaEtiquetas } from "./listaEtiquetas.js";
 
 export {
 	
@@ -44,4 +45,6 @@ export {
 	,Fecha
 	,Titulo
 	,MensajeInterfaz
+
+	,ListaEtiquetas
 };

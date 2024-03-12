@@ -13,7 +13,7 @@ class Tabla{
 	get endpointPaginacion(){
 		return this.#endpointPaginacion;
 	}
-	#pagina=1;
+	pagina=1;
 	cantidadDePaginas;
 	#id='';
 
@@ -61,9 +61,10 @@ class Tabla{
 		let fieldset=form.firstElementChild;
 		fieldset.disabled=true;
 
-		this.#pagina+=(+e.submitter.value);
+		this.pagina+=(+e.submitter.value);
+		let estaPagina=this.pagina;
 		// TODO Feature: Ver si tiene o no ?, y entonces poner ? o &. Quizá hacerlo en el constructor y tener algo como un this.#parametroPagina
-		let url=this.endpointPaginacion+`pagina=${this.#pagina-1}`;
+		let url=this.endpointPaginacion+`pagina=${this.pagina-1}`;
 
 		fetch(url,{
 			credentials:'include',
@@ -74,13 +75,15 @@ class Tabla{
 			resolve(new Array(3).fill(null).map((n,i)=>(3*(this.#pagina-1)+i)));
 		}) */
 			.then((nuevasEntidades)=>{
-				this.entidades=nuevasEntidades;
-				
-				let tabla=form.closest('table');
-				tabla.children[1] // body
-					.innerHTML=this.generarCuerpo();
-
-				fieldset.innerHTML=this.generarElementosPaginacion();
+				if(estaPagina==this.pagina){
+					this.entidades=nuevasEntidades;
+					
+					let tabla=form.closest('table');
+					tabla.children[1] // body
+						.innerHTML=this.generarCuerpo();
+	
+					fieldset.innerHTML=this.generarElementosPaginacion();
+				}
 			})
 			// TODO Feature: catch
 			.finally(()=>{
@@ -103,9 +106,9 @@ class Tabla{
 
 	generarElementosPaginacion(){
 		// TODO Refactor: Hacer new Boton() (y elemento texto?)
-		return`<button class="fa-solid fa-caret-left" name=accion value=-1 `+(this.#pagina==1?' disabled':'')+`></button>
-		<span>${this.#pagina} / ${this.cantidadDePaginas}</span>
-		<button class="fa-solid fa-caret-right" name=accion value=1 `+(this.#pagina==this.cantidadDePaginas?' disabled':'')+`></button>`;
+		return`<button class="fa-solid fa-caret-left" name=accion value=-1 `+(this.pagina==1?' disabled':'')+`></button>
+		<span>${this.pagina} / ${this.cantidadDePaginas}</span>
+		<button class="fa-solid fa-caret-right" name=accion value=1 `+(this.pagina==this.cantidadDePaginas?' disabled':'')+`></button>`;
 	}
 
 	render(){

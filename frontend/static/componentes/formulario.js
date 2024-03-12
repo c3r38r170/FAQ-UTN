@@ -26,12 +26,16 @@ class Formulario{
 	}
 
 	enviar(e){
+		if(this.#alEnviar){
+			this.#alEnviar(e);
+		}
+
+		if(!this.#endpoint){
+			return;
+		}
+
 		e.preventDefault();
 		// ! No funciona GET con FormData.
-
-		if(this.#alEnviar){
-			this.#alEnviar();
-		}
 
 		
 		// Crear un objeto FormData para facilitar la obtención de datos del formulario
@@ -72,7 +76,9 @@ class Formulario{
 	}
 
 	render(){
-        return `<form id=${this.#id} style="padding-top:32px;"class="" onsubmit="Formulario.instancias['${this.#id}'].enviar(event)" enctype="multipart/form-data"  >`
+		// TODO Refactor: Eliminar estilo en línea, eliminar el atributo clase si no hace falta.
+		// style="padding-top:32px;" class="" 
+        return `<form id=${this.#id} onsubmit="Formulario.instancias['${this.#id}'].enviar(event)" enctype="multipart/form-data"  >`
             + this.campos.reduce((html,c)=>html+(new Campo(c)).render(),'') 
             // TODO Refactor: new Boton ??
             +`<input class="button ${this.#clasesBotonEnviar}" type=submit value="${this.#textoEnviar}">`
@@ -93,11 +99,14 @@ class Formulario{
 					- Formato: function(){}
 					- Acción: Nada.
 			*/
-			let representacionDeLaFuncion=this.#funcionRetorno.toString();
-			let parteHastaPrimerParentesis=representacionDeLaFuncion.substring(0,representacionDeLaFuncion.indexOf('('));
-			if(parteHastaPrimerParentesis/* ! No es flecha. */ && parteHastaPrimerParentesis!='function' /* ! No es anónima. */){
-				representacionDeLaFuncion='function '+representacionDeLaFuncion;
-			}
+			let representacionDeLaFuncion;
+			if(this.#funcionRetorno){
+				representacionDeLaFuncion =this.#funcionRetorno.toString();
+				let parteHastaPrimerParentesis=representacionDeLaFuncion.substring(0,representacionDeLaFuncion.indexOf('('));
+				if(parteHastaPrimerParentesis/* ! No es flecha. */ && parteHastaPrimerParentesis!='function' /* ! No es anónima. */){
+					representacionDeLaFuncion='function '+representacionDeLaFuncion;
+				}
+			}else representacionDeLaFuncion='null';
 			// ! Queda terminantemente prohibido nombrar funciones con el prefijo `function`
 
         return '<script> addEventListener("load",()=> {'
@@ -105,7 +114,7 @@ class Formulario{
         // id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='button is-primary mt-3'}={}
             +    `Formulario.instancias['${this.#id}']=new Formulario(
                 '${this.#id}',
-                '${this.#endpoint}',
+                ${JSON.stringify(this.#endpoint)},
                 '${JSON.stringify(this.campos)}',
                 ${representacionDeLaFuncion},
                 {
@@ -124,21 +133,25 @@ class Campo{
 	#type;
 	#required=true;
 	#value;
-	#clases;
+	#clasesInput;
 	#extra = null;
+	#placeholder='';
 
-	constructor({name,textoEtiqueta,type,required=true,value,extra,clasesBoton}){
+	constructor({name,textoEtiqueta,type,required=true,value=''/* TODO Refactor: null? */,extra,placeholder, clasesInput}){
 		// TODO Feature: Tirar error si no estan los necesarios.
 		this.#name=name;
 		this.#textoEtiqueta=textoEtiqueta;
 		this.#required=required;
 		this.#value=value;
 		this.#type=type;
-		this.#clases = clasesBoton||"";
+		this.#clasesInput = clasesInput||"";
 		this.#extra = extra;
+		this.#placeholder = placeholder;
 	}
+
+
 	render(){
-		let html=`<label class="label">${this.#textoEtiqueta}<input class="input ${this.#clases}" name="${this.#name}"`
+		let html=`<label class="label">${this.#textoEtiqueta}<input class="input ${this.#clasesInput}" name="${this.#name}"`
 			,endTag='/>';
 		
 		if(this.#type){
@@ -146,8 +159,11 @@ class Campo{
 			case 'textarea':
 				// TODO Feature: Usar extra para ponerle rows y cols. rows=4 por default. O CSS, porque por lo que vi, rows=4 no anda por Bulma.
 				html=html.replaceAll('input','textarea');
-				endTag='></textarea>';
+				endTag=`>${this.#value}</textarea>`;
 				break;
+			case 'lista-etiquetas':
+				html+=' data-type = "tags" data-placeholder="Etiquetas" data-selectable="false" multiple '
+				// ! no break;
 			case 'select':
 				html=html.replace('input','select');
 				endTag=`>${this.#extra}</select>`;
@@ -169,8 +185,10 @@ class Campo{
 		}
 		if(this.#required)
 			html+=` required`;
-		if(this.#value){
+		if(this.#value) // * Este no aplica en caso de lista-etiqueta o select.
 			html+=` value="${this.#value}"`;
+		if(this.#placeholder){
+			html+=` placeholder="${this.#placeholder}"`;
 		}
 			
 		return html+endTag+'</label>';

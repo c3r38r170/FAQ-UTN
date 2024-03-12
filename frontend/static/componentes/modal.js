@@ -1,7 +1,7 @@
 class Modal {
+  ID='';
   titulo='';
   contenido = [];
-  ID='';
   
   constructor(titulo, modalID) {
     this.titulo = titulo;
@@ -10,6 +10,14 @@ class Modal {
 
   rellenar(){
     
+  }
+
+  abrir(){
+    document.getElementById(this.ID).classList.add('is-active');
+  }
+
+  cerrar(){
+    document.getElementById(this.ID).classList.remove('is-active');
   }
 
   // TODO Refactor: Cambiar el nombre de este método (a rellenar como el de arriba, o a otro más apropiado. No se para qué era el rellenar). Lo que hace es volver a renderizar el componente, volviendo a considerar el contenido.

@@ -75,7 +75,6 @@ class Pagina {
 		<script>${Object.entries(this.globales)
       .map(([k, v]) => `var ${k} = ${JSON.stringify(v)}`)
       .join(";")}</script>
-		<!-- <script src="https://unpkg.com/@c3r38r170/c3tools@1.1.0" type="module"></script> -->
 
 		<script src="/main.js" type=module></script>
 		<link rel="stylesheet" href="/main.css">
@@ -280,6 +279,7 @@ class Encabezado {
 			): (
        	 new Boton({titulo:'Ingresar', classes: 'button is-link is-outlined js-modal-trigger', dataTarget:'modal-login'}).render()
 		+ new Boton({titulo:'Registrarse', classes: 'button is-link js-modal-trigger', dataTarget:'modal-registro'}).render() 
+		// TODO Feature: Botón de olvidé la contraseña
 		+ this.#modalLogin.render() + ' '
 		+ this.#modalRegistro.render() + ' '
 		)}

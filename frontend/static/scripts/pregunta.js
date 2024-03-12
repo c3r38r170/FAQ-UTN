@@ -1,46 +1,37 @@
+import { SqS, addElement, createElement, gEt } from '../libs/c3tools.js';
 import { PantallaNuevaPregunta} from '../pantallas/nueva-pregunta.js';
-import {SqS,gEt,createElement} from '../libs/c3tools.js';
-// TODO Refactor: RIP Desplegable?
-import { Desplegable } from '../componentes/desplegable.js';
-import BulmaTagsInput from 'https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tagsinput@1.0.3/+esm';
 
-let pagina=PantallaNuevaPregunta(location.pathname,{usuario:window.usuarioActual});
+let pagina=PantallaNuevaPregunta(location.pathname,{usuario:window.usuarioActual},[]);
+import inicializarListas from './inicializar-listas.js';
 
-// TODO Feature: logica de frontend y etiquetas.
-fetch('/api/etiqueta')
-	.then(res=>res.json())
-	.then(etiquetas=>{
-		let etiquetasIndexadasPorCategoria={};
-		for(let eti of etiquetas){
-			if(!etiquetasIndexadasPorCategoria[eti.categoriaID]){
-				etiquetasIndexadasPorCategoria[eti.categoriaID]={...eti.categoria,etiquetas:[eti]}
-			}else{
-				etiquetasIndexadasPorCategoria[eti.categoriaID].etiquetas.push(eti);
-			}
+inicializarListas();
+
+let espacioSugerencias=createElement('DIV',{	id:'nueva-pregunta-sugerencias'});
+let dF=new DocumentFragment();
+// TODO Refactor: Sacar este estilo en línea.
+addElement(dF,['LABEL',{innerText:'Sugerencias basadas en lo escrito hasta el momento:',class:'label',style:{fontSize:'smaller'}}],espacioSugerencias);
+gEt('nueva-pregunta').firstElementChild/* Campo de título */.after(dF)
+
+let peticionID=0;
+function buscarSugerencias(valor){
+	let estaPeticionID=++peticionID;
+	setTimeout(()=>{
+		if(peticionID==estaPeticionID){
+			fetch('/api/pregunta?formatoCorto&searchInput='+valor)
+				.then(r=>r.json())
+				.then(sug=>{
+					if(peticionID==estaPeticionID){
+						espacioSugerencias.innerHTML=sug.reduce((acc,pre)=>acc+new Pregunta(pre).render(),'');
+					}
+				})
 		}
-
-		let botonCrear=SqS('[type="submit"]',{from:gEt('nueva-pregunta')});
-
-		// TODO UX: Label, que se vea como los demás.
-		botonCrear.before(createElement(
-					['SELECT',{
-						dataset:{
-							type:'tags'
-							,placeholder:'Etiquetas'
-							,selectable:"false"
-						}
-						,name:'etiquetasIDs'
-						,multiple:true
-						,required:true
-						,children:etiquetas.map(({ID,descripcion,categoria:{categoriaID,descripcion:categoriaDescripcion}})=>['OPTION',{
-							value:ID
-							,innerText:`${categoriaDescripcion} - ${descripcion}`
-						}])
-					}]
-		));
-		
-		// TODO UX: No te deja subir cosas si el input que se usa para buscar etiquetas está vacío, como que es requerido a pesar de que nqv.
-		// TODO UX: Conciliar los estilos de las etiquetas con los que se definieron. Principalmente los colores de las categorías.
-		/* Añadir un style que haga `.tags-input .dropdown-content a[data-value=`${ID}}`],.tags-input > .tag{color:${etiqueta.color}}` */
-		BulmaTagsInput.attach();
-	})
+	},400/* TODO Refactor: DRY? (scripts/moderacion-preguntas-y-respuestas.js) ¿parametrizar?*/)
+}
+let campoTitulo=SqS('[name="titulo"]')
+campoTitulo.oninput=function(){
+	buscarSugerencias(this.value+' '+campoCuerpo.value)
+};
+let campoCuerpo=SqS('[name="cuerpo"]');
+campoCuerpo.oninput=function(){
+	buscarSugerencias(campoTitulo.value+' '+this.value);
+}

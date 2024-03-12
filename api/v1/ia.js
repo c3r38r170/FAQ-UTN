@@ -1,7 +1,9 @@
+// TODO Refactor: Ver si se puede evitar axios. Si es estrictamente necesario, escribirlo en un comentario.
 import axios from 'axios'
 import event from 'events'
 event.EventEmitter.defaultMaxListeners=50;
 
+// TODO Security: Usar .env
 const apiKey = 'B0ayZrLmS19aqobZA2wsYToeSqDz9cTm';
 const base_url = 'https://api.deepinfra.com/v1/openai';
 

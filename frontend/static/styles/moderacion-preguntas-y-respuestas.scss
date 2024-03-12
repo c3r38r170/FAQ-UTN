@@ -26,12 +26,12 @@
 
 
 	th:first-child{
-		width: 65%;
+		width: 60%;
 	}
 
 	tbody {
 
-		td:first-child {
+		td.preguntas-o-respuestas {
 			border: solid 1px !important;
 			padding: 5px !important;
 			border-radius: 10px;
@@ -64,6 +64,44 @@
 				.usuario{
 					margin: 0 !important;
 				}
+			}
+		}
+
+		td.botones{
+			button{
+				display: block;
+				margin: .5rem auto;
+			}
+		}
+	}
+
+
+}
+
+#moderacion-posts-modal form{
+	display: flex;flex-direction: column;
+	
+	&>input[type="submit"]{
+		margin: auto;
+	}
+	
+	&#moderacion-preguntas-unificar{
+		// TODO Refactor: El formulario no respeta el límite de altura del elemento superior.
+		height: 90%;
+
+		.moderacion-preguntas-unificar-desplinf-pregunta{
+			display: flex;justify-content: space-between;
+			padding: 1rem 2rem;
+	
+			.pregunta{
+				padding: 0;
+				margin: 0;
+				border: none;
+			}
+
+			[type="radio"]{
+				width: 1.5rem;
+				height: 1.5rem;
 			}
 		}
 	}
