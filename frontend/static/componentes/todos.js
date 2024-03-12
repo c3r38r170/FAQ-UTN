@@ -20,6 +20,7 @@ import { Respuesta } from './respuesta.js';
 import { Tabla } from "./tabla.js";
 import {Titulo} from "./titulo.js";
 import { ListaEtiquetas } from "./listaEtiquetas.js";
+import { Desplegable } from "./desplegable.js";
 
 export {
 	
@@ -47,4 +48,5 @@ export {
 	,MensajeInterfaz
 
 	,ListaEtiquetas
+	,Desplegable
 };

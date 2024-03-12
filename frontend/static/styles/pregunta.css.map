@@ -1,1 +1,1 @@
-{"version":3,"sources":["pregunta.scss"],"names":[],"mappings":"AAAA,gBACC,cAAA,CAOD,4BACC,YAAA,CACC,aAAA,CAED,sCACC,0BAAA,CAAA,qBAAA,CACA,kBAAA,CACA,QAAA,CAEA,8CACC,iBAAA","file":"pregunta.css"}
+{"version":3,"sources":["pregunta.scss","pregunta.css"],"names":[],"mappings":"AAAA;EACC,eAAA;EAEA;;MAAA;ACED;;ADGA;EACC,aAAA;EACC,cAAA;ACAF;ADEC;EACC,2BAAA;EAAA,sBAAA;EACA,oBAAA;EACA,SAAA;ACAF;ADEE;EACC,kBAAA;ACAH","file":"pregunta.css"}

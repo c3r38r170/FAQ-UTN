@@ -685,7 +685,7 @@ router.patch("/pregunta", function (req, res) {
             )
             Promise.all(esperarA)
             .then( () =>
-              res.status(200).send("Pregunta actualizada exitosamente")
+              res.status(200).send(req.body.ID+"")
             )
             //etiquetas vienen los id en array
             // pregunta.setEtiquetas(
@@ -1370,10 +1370,12 @@ const reportarPost = function (req, res) {
         // Se podría hacer un get a los reportes y si ya existe que aparezca mensajito de ya está reportado y directamente no te aparezca el form
         // TODO Feature: determinar tipos
         ReportePost.create({
-          tipo: req.body.tipo,
-          reportante: req.session.usuario.DNI,
-          reportado: reportadoID,
-        }).then((r) => r.save());
+          tipoID: req.body.tipoID || 1,
+          reportanteDNI: req.session.usuario.DNI,
+          reportadoID: reportadoID,
+        }).then((r) => 
+        r.save()
+        );
         res.status(201).send("Reporte registrado");
       }
     })

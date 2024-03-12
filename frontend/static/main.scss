@@ -379,7 +379,7 @@ div.notificacion{
 .etiquetas{
 	display: flex;
 	justify-content: start;
-	margin-top: 0.8rem;
+	margin-top: 1.2rem;
 	flex-wrap: wrap;
 	gap: 1rem;
 	clear: both;
@@ -449,6 +449,7 @@ footer#footer{
 	text-align: center;
 	width: 10%;
 	float: left;
+	margin-bottom: 1.5rem;
 
 	button{
 		// border-radius: 50%;
@@ -629,7 +630,39 @@ select[data-type="tags"]{
 	padding: 0;
 }
 
-div.tags-input{
-	border-radius: 20px;
-  padding: 0 3px;
+.opcionesPost{
+	border: none;
+	.button{
+		border:none!important;
+		
+		span.icon{
+			display: none
+		}
+	}
+}
+.w-100{
+	width: 100%!important;
+}
+
+.dropdown-trigger{
+	.button{
+		border: 1px solid rgba(0,0,0,0.05)!important;
+	}
+}
+
+div.dropdown-content{
+	text-align: center;
+	padding: 0.5rem;
+	min-width: min(50%,220px);
+}
+a.dropdown-item{
+	text-align: center!important;
+	padding-right: 0!important;
+	padding-left: 0!important;
+}
+
+.radio-label{
+	text-align: left!important;
+	font-size: 0.9rem!important;
+	font-weight: 500!important;
 }

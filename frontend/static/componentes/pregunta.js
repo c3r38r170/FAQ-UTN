@@ -1,4 +1,4 @@
-import { ChipUsuario, ChipValoracion, Etiqueta, Respuesta, Boton, Fecha, BotonReporte, Formulario, BotonSuscripcion } from "./todos.js";
+import { ChipUsuario, ChipValoracion, Etiqueta, Respuesta, Boton, Fecha, BotonReporte, Formulario, BotonSuscripcion, Desplegable } from "./todos.js";
 
 class Pregunta{
     #ID;
@@ -13,8 +13,9 @@ class Pregunta{
     #respuestasCount=0;
     #chipValoracion=null;
     #estaSuscripto = false ;
-    #esMiPerfil = false;
-    constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, usuariosSuscriptos},instanciaModal, sesion, esMiPerfil){
+    #botonEditar;
+    #desplegable;
+    constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, usuariosSuscriptos},instanciaModal, sesion){
         // TODO Feature: Pensar condiciones de fallo de creación. Considerar que puede venir sin cuerpo (formato corto) o sin título (/pregunta, quitado "artificialmente")
 
         this.#ID = ID;
@@ -29,8 +30,6 @@ class Pregunta{
             this.#etiquetas = etiquetas;
             this.#instanciaModal = instanciaModal;
             this.#usuarioActual=sesion?.usuario;
-        this.#esMiPerfil = esMiPerfil;
-    
             // ! El post viene sin votos cuando se trata de una representación sin interacciones en la moderación (ni controles de votación, ni de suscripción).
             if(post.votos && this.#usuarioActual){
                 this.#chipValoracion=new ChipValoracion({
@@ -41,6 +40,59 @@ class Pregunta{
                 this.#estaSuscripto=usuariosSuscriptos.some(usuario=>usuario.DNI == this.#usuarioActual.DNI && usuario.suscripcionesPregunta.fecha_baja == null);
                 // TODO Refactor: Que ni vengan las suscripciones que estén dadas de baja (no chequear que fecha_baja == null). fecha_baja es una eliminación suave.
             }
+            this.#botonEditar = `<div class="ml-auto"> <a href="/pregunta/`+this.#ID+`/editar"><i class="fa-solid fa-pen-to-square"></i></a>`;
+
+        }
+
+        if(this.#usuarioActual){
+            this.#desplegable = new Desplegable('opcionesPregunta'+this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>',undefined,undefined,'opcionesPost');
+            if(this.#usuarioActual.DNI == this.#duenio.DNI){
+                let form = new Formulario('eliminadorPregunta'+this.#ID, '/api/post/'+this.#ID, [],(res)=>{alert(res)},{textoEnviar:'Eliminar',verbo: 'DELETE' ,clasesBoton: 'mx-auto is-danger w-100'}).render()
+                let opciones = [
+                {
+                    descripcion: "Editar",
+                    tipo: "link",
+                    href: "/pregunta/"+this.#ID+"/editar",
+                },
+                {
+                    tipo: "form",
+                    render: form
+                },
+                ];
+                this.#desplegable.opciones = opciones;
+            }else{
+                // "/post/:reportadoID/reporte"
+
+                // {name,textoEtiqueta,type,required=true,value=''/* TODO Refactor: null? */,extra,placeholder, clasesInput}){
+                let form = new Formulario(
+                    'reportadorPost'+this.#ID,
+                    '/api/post/'+this.#ID+'/reporte',
+                    [{
+                    name: "tipoID",
+                    textoEtiqueta: "Lenguaje Vulgar",
+                    value: '1',
+                    type: "radio"
+                  },
+                  {
+                    name: "tipoID",
+                    textoEtiqueta: "Post repetido",
+                    value: '2',
+                    type: "radio"
+                  }],
+                  (res)=>{alert(res)},
+                  {textoEnviar:'Reportar',verbo: 'POST' ,clasesBoton: 'mx-auto is-link w-100'}
+                  ).render()
+                let opciones = [
+                    {
+                        tipo: "form",
+                        render: form
+                        
+                    }
+                    ];
+                this.#desplegable.opciones = opciones;
+            }
+        }else{
+            this.#desplegable=undefined;
         }
 
 	}
@@ -49,16 +101,14 @@ class Pregunta{
         // TODO Feature: Permitir texto enriquecido. Tanto acá como en respuestas. Empecemos detectando y convirtiendo links, podemos seguir con ** para negrita y **** para subrayado... eventualmente meteríamos un motor de markdown.
         
         return this.#duenio? // * Formato largo
-            `<div class="pregunta">
+            `<div class="pregunta" data-post-id="${this.#ID}">
                 <div class="encabezado">
                     ${new ChipUsuario(this.#duenio).render()}
                     <div class="pl-0 py-0">
                         ${this.#fecha.render()}
                     </div>
                     ${ this.#usuarioActual ? new BotonSuscripcion(this.#ID,'/api/pregunta/'+this.#ID+'/suscripcion', this.#estaSuscripto).render() : '' }
-                    ${ (this.#instanciaModal && this.#usuarioActual) ? 
-                         ((this.#usuarioActual.DNI != this.#duenio.DNI) ? new BotonReporte(this.#ID, this.#instanciaModal).render() : '<div class="ml-auto"> <a href="/pregunta/'+this.#ID+'/editar"><i class="fa-solid fa-pen-to-square"></i></a> <a><i class="fa-solid fa-trash ml-2"></i></a></div>' ) 
-                        : '' }
+                    ${ this.#usuarioActual ?  '<div class="ml-auto">'+this.#desplegable.render()+'</div>' : '' }
                 </div>
                 ${this.#chipValoracion ? this.#chipValoracion.render() : ''}
                 <a href="/pregunta/${this.#ID}">
