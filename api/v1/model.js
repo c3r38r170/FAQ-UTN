@@ -875,7 +875,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       ¿Meter los votos de la respuesta más votada / de las respuestas?
     */
    let ordenadoPorFecha=[[Post, "fecha", "DESC"]];
-   if(filtrar){
+   if(filtrar){//filtrar siempre esta? viene como objeto vació tonces entra en el if
       let ranking=[];
       if(filtrarTexto){
         ranking.push(`(match(post.cuerpo) against ("${filtrar.texto}*"  IN BOOLEAN MODE) + match(titulo) against ("${filtrar.texto}*"  IN BOOLEAN MODE))`);
@@ -883,7 +883,6 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       if(filtrarEtiquetas){
         ranking.push(`coincidencias/${filtrar.etiquetas.length}`) // * 0..1
       }
-
       opciones.order=[
         Sequelize.literal(ranking.join(' * ')+' desc') // ! Si hay uno sono, no se multiplica nada.
         ,ordenadoPorFecha
