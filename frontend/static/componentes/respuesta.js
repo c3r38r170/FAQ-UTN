@@ -39,7 +39,7 @@ class Respuesta {
         {
             descripcion: "Editar",
             tipo: "link",
-            href: "#",
+            href: "/respuesta/"+this.#ID+"/editar",
         },
         {
             tipo: "form",
