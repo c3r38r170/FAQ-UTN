@@ -100,34 +100,6 @@ router.get("/", (req, res) => {
   }
 });
 
-router.get("/etiqueta/:id/preguntas", async (req, res) => {
-  try {
-    const e = await EtiquetaDAO.findByPk(req.params.id);
-
-    if (!e) {
-      res.status(404).send("ID de etiqueta inválida");
-      return;
-    }
-
-    let filtro = [];
-    filtro.etiquetas = true;
-    filtro.etiquetaID = req.params.id;
-    let filtros = { filtrar: filtro };
-
-    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    PreguntaDAO.pagina(filtros).then((preguntas) => {
-      let pagina = new PantallaEtiquetaPreguntas(req.path, req.session, "?etiquetas=true&etiquetaID="+req.params.id);
-      pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
-      // TODO UX: Mejor título
-      pagina.titulo = "Etiqueta # "+e.descripcion;
-      res.send(pagina.render());
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error interno del servidor");
-  }
-});
-
 // * Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) =>  {
 	

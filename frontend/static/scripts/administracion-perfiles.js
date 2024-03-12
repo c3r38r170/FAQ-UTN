@@ -44,7 +44,7 @@ gEt("administrar-perfiles").onchange = (e) => {
       ),
       new Formulario(
         "administracion-perfiles-deshabilitar",
-        `/api/perfiles/${ID}/activado`,
+        `/api/perfil/${ID}/activado`,
         [],
         (txt, info) => {
           if (info.ok) {
@@ -77,7 +77,7 @@ gEt("administrar-perfiles").onchange = (e) => {
     modal.contenido = [
       new Formulario(
         "administracion-perfiles-deshabilitar",
-        `/api/perfiles/${ID}/activado`,
+        `/api/perfil/${ID}/activado`,
         [],
         (txt, info) => {
           if (info.ok) {
@@ -127,7 +127,7 @@ gEt("administrar-perfiles").onclick = (e) => {
   modal.contenido = [
     new Formulario(
       "administracion-perfiles-editar",
-      `/api/perfiles/${ID}`,
+      `/api/perfil/${ID}`,
       [
         {
           name: "nombre",
@@ -223,7 +223,7 @@ gEt("botonAgregar").onclick = (e) => {
   modal.contenido = [
     new Formulario(
       "administracion-perfiles-agregar",
-      `/api/perfiles`,
+      `/api/perfil`,
       [
         {
           name: "nombre",

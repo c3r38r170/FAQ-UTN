@@ -10,7 +10,7 @@ import {
 } from "../componentes/todos.js";
 
 function crearPantalla(ruta, sesion) {
-  let tabla = new Tabla("administrar-perfiles", "/api/perfiles", [
+  let tabla = new Tabla("administrar-perfiles", "/api/perfil", [
     {
       nombre: "Perfil",
       celda: (perfil) =>

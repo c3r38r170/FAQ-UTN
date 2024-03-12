@@ -77,7 +77,7 @@ gEt("administrar-usuarios").onclick = (e) => {
 
   let select = document.getElementsByName("perfilID")[0];
 
-  fetch("/api/perfiles?todos=1").then((options) => {
+  fetch("/api/perfil?todos=1").then((options) => {
     options.json().then((options) => {
       options.forEach((option) => {
         var o = document.createElement("option");
@@ -152,7 +152,7 @@ gEt("botonAgregar").onclick = (e) => {
   
     let select = document.getElementsByName("perfilID")[0];
 
-  fetch("/api/perfiles?todos=1").then((options) => {
+  fetch("/api/perfil?todos=1").then((options) => {
     options.json().then((options) => {
       options.forEach((option) => {
         var o = document.createElement("option");

@@ -34,6 +34,16 @@ sequelize
     console.error("Unable to connect to the database: ", error);
   });
 
+  let PAGINACION = {
+    resultadosPorPagina: 10,
+  };
+  
+  let rechazaPost = 40;
+  let reportaPost = 70;
+  let modera = false;
+  
+ 
+
 const Parametro = sequelize.define("parametro", {
   ID: {
     type: DataTypes.INTEGER,
@@ -642,10 +652,6 @@ const Pregunta = sequelize.define(
   }
 );
 
-// TODO Refactor: Llevar arriba de todo si se define que va a quedar acá.
-const PAGINACION = {
-  resultadosPorPagina: 10,
-};
 
 /* *
 Ejemplo de filtro por asociación de la documentación:
@@ -1388,3 +1394,13 @@ export {
   Categoria,
   SuscripcionesEtiqueta,
 };
+
+
+Parametro.findAll().then((ps) => {
+  ps.forEach((p) => {
+    if (p.ID == 1) PAGINACION.resultadosPorPagina = parseInt(p.valor);
+    if (p.ID == 2) modera = p.valor == "1";
+    if (p.ID == 3) rechazaPost = parseInt(p.valor);
+    if (p.ID == 4) reportaPost = parseInt(p.valor);
+  });
+});
