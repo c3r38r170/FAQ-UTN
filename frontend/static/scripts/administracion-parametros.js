@@ -62,7 +62,7 @@ gEt("administrar-parametros").onclick = (e) => {
   modal.contenido = [
     new Formulario(
       "administracion-parametros-editar",
-      `/api/parametros/${ID}`,
+      `/api/parametro/${ID}`,
       [
         campo
       ],

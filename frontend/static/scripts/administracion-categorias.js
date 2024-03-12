@@ -127,7 +127,7 @@ gEt("administrar-categorias").onclick = (e) => {
   modal.contenido = [
     new Formulario(
       "administracion-categorias-editar",
-      `/api/categorias/${ID}`,
+      `/api/categoria/${ID}`,
       [
         {
           name: "descripcion",
@@ -181,7 +181,7 @@ gEt("botonAgregar").onclick = (e) => {
   modal.contenido = [
     new Formulario(
       "administracion-categorias-agregar",
-      `/api/categorias`,
+      `/api/categoria`,
       [
         {
           name: "descripcion",

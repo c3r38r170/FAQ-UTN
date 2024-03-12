@@ -9,7 +9,7 @@ import {
     Modal,
     Busqueda
   } from "../componentes/todos.js";
-  
+  //La primer pagina tiene un usuario menos ¿?
   function crearPantalla(ruta, sesion, query="") {
     let tabla = new Tabla("administrar-usuarios", "/api/usuario?searchInput="+query, [
       {
