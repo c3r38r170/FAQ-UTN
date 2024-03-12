@@ -26,6 +26,7 @@
   border-radius: 10px;
   display: block;
   margin: 5px;
+  word-break: break-all;
 }
 #moderar-posts tbody td.preguntas-o-respuestas .pregunta, #moderar-posts tbody td.preguntas-o-respuestas .respuesta {
   font-size: smaller !important;

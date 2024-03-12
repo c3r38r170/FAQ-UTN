@@ -37,7 +37,11 @@ class Pregunta{
                     ,votos:post.votos
                     ,usuarioActual:sesion
                 });
-                this.#estaSuscripto=usuariosSuscriptos.some(usuario=>usuario.DNI == this.#usuarioActual.DNI && usuario.suscripcionesPregunta.fecha_baja == null);
+                
+                if(usuariosSuscriptos){
+                    if(!Array.isArray(usuariosSuscriptos)) usuariosSuscriptos=[usuariosSuscriptos]
+                    this.#estaSuscripto=usuariosSuscriptos.some(usuario=>usuario.DNI == this.#usuarioActual.DNI && usuario.suscripcionesPregunta.fecha_baja == null);
+            }
                 // TODO Refactor: Que ni vengan las suscripciones que estén dadas de baja (no chequear que fecha_baja == null). fecha_baja es una eliminación suave.
             }
             this.#botonEditar = `<div class="ml-auto"> <a href="/pregunta/`+this.#ID+`/editar"><i class="fa-solid fa-pen-to-square"></i></a>`;

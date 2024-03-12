@@ -30,13 +30,15 @@
 	}
 
 	tbody {
-
+		
 		td.preguntas-o-respuestas {
 			border: solid 1px !important;
 			padding: 5px !important;
 			border-radius: 10px;
 			display: block;
 			margin: 5px;
+			
+			word-break: break-all;
 	
 			.pregunta, .respuesta{
 				font-size: smaller !important;
