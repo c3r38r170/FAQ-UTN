@@ -139,7 +139,8 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 									},
 									{
 										model: VotoDAO,
-										as: 'votos'
+										as: 'votos',
+                    required:false
 									}
 								]
 							}

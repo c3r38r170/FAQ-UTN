@@ -22,6 +22,7 @@ function PaginaPregunta(ruta, sesion, idPregunta){
             ]
             ,respuestaID=>{
                 // TODO Feature: ¿o solo agregar la respuesta??
+                //si rechaza que?
                 window.location.replace(ruta);
             }
             ,{

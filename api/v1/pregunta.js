@@ -74,7 +74,7 @@ router.get("/", (req, res) => {
           } else {
             // TODO Refactor: DRY en este if
             let modera = getModera();
-            if (modera) {
+            if (modera==1) {
               moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 50).then(
                 (respuesta) => {
                   let esperarA = []
@@ -244,7 +244,7 @@ router.get("/", (req, res) => {
       return;
     }
     let modera=getModera();
-    if (modera) {
+    if (modera==1) {
       moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10)
         .then((respuesta) => {
           let rechazaPost = getRechazaPost();

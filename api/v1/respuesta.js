@@ -23,7 +23,9 @@ router.post("/", function (req, res) {
     }
     // TODO Refactor: Unificar if y else. Ver cuál es la versión más reciente de cada parte.
     let modera= getModera();
-    if (modera) {
+    let rechazaPost = getRechazaPost();
+    let reportaPost = getReportaPost();
+    if (modera==1) {
       moderarWithRetry(req.body.cuerpo, 10)
         .then((respuesta) => {
           if (respuesta.apropiado < rechazaPost) {
@@ -164,7 +166,7 @@ router.post("/", function (req, res) {
             // TODO Refactor: DRY
             let modera= getModera();
             let reportaPost = getReportaPost();
-            if (modera) {
+            if (modera==1) {
               moderarWithRetry(req.body.cuerpo, 10).then((resp) => {
                 let rechazaPost = getRechazaPost();
                 if (resp.apropiado < rechazaPost) {
