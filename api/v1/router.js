@@ -50,6 +50,7 @@ import { Sequelize } from "sequelize";
 import { moderar, moderarWithRetry } from "./ia.js";
 
 // TODO Refactor: ¿Sacar y poner en models.js? Así el modelo se encarga de la paginación, y a los controladores no les importa.
+// Ahora viene de la bd, hay que hacer que también lo tenga en cuenta post.pagina si es que nos interesa que esa parte sea parametrizada (si no que funcione solo en las tablas)
 let PAGINACION = {
   resultadosPorPagina: 10,
 };
@@ -232,7 +233,7 @@ router.get("/usuario", function (req, res) {
       res.status(500).send(err);
     });
 });
-
+/*
 router.get("/usuario/:DNI/preguntas", function(req, res){
 	let filtros={pagina:null,duenioID:null};
 		filtros.duenioID=req.params.DNI
@@ -247,7 +248,7 @@ router.get("/usuario/:DNI/preguntas", function(req, res){
 			});
 	// }
 	return;
-})
+})*/
 
 router.get("/usuario/:DNI/preguntas", function (req, res) {
   Pregunta.pagina({
@@ -484,29 +485,52 @@ router.delete("/usuario/:DNI/bloqueo", function (req, res) {
   });
 });
 
-router.patch("/usuario", upload.single("image"), function (req, res) {
+router.patch("/usuario/imagen", upload.single("image"), function (req, res) {
   //req.file tiene la imagen
-  //TODO feature que se pueda cambiar contraseña o imagen
+  if(!req.file){
+    //req.file solo existe si la imagen cumple con los formatos de arriba
+    res.status(400).send("Petición mal formada");
+    return;
+  }
+  res.status(200).send("Imagen Actualizada");
+});
+
+router.patch("/usuario/contrasenia", function (req, res) {
   if (!req.session.usuario) {
     res.status(401).send("Usuario no tiene sesión válida activa");
     return;
   }
+  Usuario.findByPk(req.session.usuario.DNI)
+    .then((usuario) => {
+      if(bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)){
+        usuario.contrasenia = req.body.contraseniaNueva;
+        req.session.usuario.contrasenia=req.body.contraseniaNueva;
+        usuario.save();
+        res.status(200).send("Datos actualizados exitosamente");
+        return;
+      }
+      res.status(402).send("Contraseña anterior no válida")
+      })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+});
 
-  if(!req.file){
-    //req.file solo existe si la imagen cumple con los formatos de arriba
-    //TODO esto no funcionaría si solo manda la contraseña
-    res.status(400).send("Petición mal formada")
+router.patch("/usuario/mail", function (req, res) {
+  if (!req.session.usuario) {
+    res.status(401).send("Usuario no tiene sesión válida activa");
+    return;
   }
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
-      if(!bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)){
-        res.status(401).send("Contraseña anterior no válida")
+      if(bcrypt.compare(req.body.contrasenia, usuario.contrasenia)){
+        usuario.correo = req.body.correo;
+        req.session.usuario.correo=req.body.correo;
+        usuario.save();
+        res.status(200).send("Datos actualizados exitosamente");
         return;
       }
-
-      usuario.contrasenia = req.body.contraseniaNueva;
-      usuario.save();
-      res.status(200).send("Datos actualizados exitosamente");
+      res.status(402).send("Contraseña anterior no válida")
       })
     .catch((err) => {
       res.status(500).send(err);
@@ -548,22 +572,24 @@ router.get("/pregunta", (req, res) => {
 
   // TODO Feature: Aceptar etiquetas.
 
-  let filtros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto!==undefined };
+  let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto!==undefined };
 
+  // TODO Refactor: DRY
   if (req.query.searchInput) {
-    filtros.filtrar.texto = req.query.searchInput;
+    parametros.filtrar.texto = req.query.searchInput;
   }
-  if(req.query.etiquetaID){
-    filtros.filtrar.etiquetaID=req.query.etiquetaID;
-    filtros.filtrar.etiquetas=true;
+  
+  if(req.query.etiquetas){
+    parametros.filtrar.etiquetas=Array.isArray(req.query.etiquetas)?req.query.etiquetas:[req.query.etiquetas];
   }
 
-  Pregunta.pagina(filtros)
+  // console.log(filtros);
+  Pregunta.pagina(parametros)
     .then((preguntas) => {
-      res.status(200).send(preguntas);
+        res.status(200).send(preguntas);
     })
     .catch((err) => {
-      res.status(500).send(err)
+      res.status(500).send(err.message);
     });
 });
 

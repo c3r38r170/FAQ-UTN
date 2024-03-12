@@ -10,7 +10,7 @@ class Navegacion {
         new EnlaceNavegacion(
           "Buscar",
           { tipo: "solid", nombre: "magnifying-glass" },
-          "/explorar"
+          "/"
         ),
       ];
     } else {

@@ -26,12 +26,16 @@ class Formulario{
 	}
 
 	enviar(e){
+		if(this.#alEnviar){
+			this.#alEnviar(e);
+		}
+
+		if(!this.#endpoint){
+			return;
+		}
+
 		e.preventDefault();
 		// ! No funciona GET con FormData.
-
-		if(this.#alEnviar){
-			this.#alEnviar();
-		}
 
 		
 		// Crear un objeto FormData para facilitar la obtención de datos del formulario
@@ -72,7 +76,9 @@ class Formulario{
 	}
 
 	render(){
-        return `<form id=${this.#id} class="" onsubmit="Formulario.instancias['${this.#id}'].enviar(event)" enctype="multipart/form-data"  >`
+		// TODO Refactor: Eliminar estilo en línea, eliminar el atributo clase si no hace falta.
+		// style="padding-top:32px;" class="" 
+        return `<form id=${this.#id} onsubmit="Formulario.instancias['${this.#id}'].enviar(event)" enctype="multipart/form-data"  >`
             + this.campos.reduce((html,c)=>html+(new Campo(c)).render(),'') 
             // TODO Refactor: new Boton ??
             +`<input class="button ${this.#clasesBotonEnviar}" type=submit value="${this.#textoEnviar}">`
@@ -93,11 +99,14 @@ class Formulario{
 					- Formato: function(){}
 					- Acción: Nada.
 			*/
-			let representacionDeLaFuncion=this.#funcionRetorno.toString();
-			let parteHastaPrimerParentesis=representacionDeLaFuncion.substring(0,representacionDeLaFuncion.indexOf('('));
-			if(parteHastaPrimerParentesis/* ! No es flecha. */ && parteHastaPrimerParentesis!='function' /* ! No es anónima. */){
-				representacionDeLaFuncion='function '+representacionDeLaFuncion;
-			}
+			let representacionDeLaFuncion;
+			if(this.#funcionRetorno){
+				representacionDeLaFuncion =this.#funcionRetorno.toString();
+				let parteHastaPrimerParentesis=representacionDeLaFuncion.substring(0,representacionDeLaFuncion.indexOf('('));
+				if(parteHastaPrimerParentesis/* ! No es flecha. */ && parteHastaPrimerParentesis!='function' /* ! No es anónima. */){
+					representacionDeLaFuncion='function '+representacionDeLaFuncion;
+				}
+			}else representacionDeLaFuncion='null';
 			// ! Queda terminantemente prohibido nombrar funciones con el prefijo `function`
 
         return '<script> addEventListener("load",()=> {'
@@ -105,7 +114,7 @@ class Formulario{
         // id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='button is-primary mt-3'}={}
             +    `Formulario.instancias['${this.#id}']=new Formulario(
                 '${this.#id}',
-                '${this.#endpoint}',
+                ${JSON.stringify(this.#endpoint)},
                 '${JSON.stringify(this.campos)}',
                 ${representacionDeLaFuncion},
                 {
@@ -164,16 +173,17 @@ class Campo{
 				html=html.replace('<label class="label">'+this.#textoEtiqueta,'');
 				html+=` type="${this.#type}"`;
 				break;
-			case 'file':
-				html+=' '+this.#extra;
-			case 'number':
-				// * min, max, step...
-				html+=' '+this.#extra;
 			case 'radio':
 				html=html.replace(this.#textoEtiqueta,'');
 				html=html.replace('<input class="input','<input type="radio" required value="'+this.#value+'" class="mr-2 ')
 				html=html.replace('<label class="label"','<label class="label radio-label"')
 				return html+endTag+this.#textoEtiqueta+'</label>'
+			case 'file':
+				html+=' '+this.#extra;
+			case 'number':
+				// * min, max, step...
+				html+=' '+this.#extra;
+			
 			// ! no break;
 			default:
 				html+=` type="${this.#type}"`;

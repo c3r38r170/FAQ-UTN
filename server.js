@@ -19,6 +19,7 @@ app.use(cors({
 	credentials: true
 }));
 
+// TODO Refactor: Hacer DRY en la búsqueda de sesión y permisos
 /* app.use((req,res,next) => {
 	if(req.session.usuarioID){
 	}else if([

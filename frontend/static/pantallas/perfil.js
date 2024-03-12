@@ -12,7 +12,7 @@ function crearPagina(ruta, usuario, usu){
         sesion:usuario,
         partes:[
             modal,
-            new ChipUsuario(usu, true)
+            new ChipUsuario(usu, true, false)
             ,new DesplazamientoInfinito(
                 'perfil-desplinf'
         ,`/api/usuario/${usu.DNI}/preguntas`

@@ -414,9 +414,8 @@ div.buscador{
 		font-weight: 600;
 		margin-bottom: 1rem;
 	}
-	&  input{
+	& input{
 		border-radius: 20px;
-    	padding-left: 2rem;
 	}
 }
 
@@ -667,3 +666,6 @@ a.dropdown-item{
 	font-size: 0.9rem!important;
 	font-weight: 500!important;
 }
+div.tags-input{
+	border-radius: 20px;
+  padding: 0 3px;}
