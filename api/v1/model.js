@@ -1,7 +1,6 @@
 import { Sequelize, DataTypes } from "sequelize";
-
+import { setModera, setRechazaPost, setReportaPost, setResultadosPorPagina, getPaginacion } from "./parametros.js";
 import * as bcrypt from "bcrypt";
-
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -34,31 +33,24 @@ sequelize
     console.error("Unable to connect to the database: ", error);
   });
 
-  let PAGINACION = {
-    resultadosPorPagina: 10,
-  };
-  
-  let rechazaPost = 40;
-  let reportaPost = 70;
-  let modera = false;
   
  
 
-const Parametro = sequelize.define("parametro", {
-  ID: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  descripcion: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  valor: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
+  const Parametro = sequelize.define("parametro", {
+    ID: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    descripcion: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    valor: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  });
 
 const Usuario = sequelize.define("usuario", {
   DNI: {
@@ -271,8 +263,8 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
       "$post.duenioDNI$": +DNI,
     },
     order: [["fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina,
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina,
   });
 };
 
@@ -600,8 +592,8 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     },
     subQuery: false,
     order: [[Post, "fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina
   });
 };
 
@@ -773,8 +765,8 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
         "$post.duenio.DNI$": duenioID,
       },
       order: [[Post, "fecha", "DESC"]],
-      limit: PAGINACION.resultadosPorPagina,
-      offset: +pagina * PAGINACION.resultadosPorPagina,
+      limit: getPaginacion().resultadosPorPagina,
+      offset: +pagina * getPaginacion().resultadosPorPagina,
 
       // ,raw:true,nest:true
     });
@@ -784,8 +776,8 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       include: [
         {model:Post,required:true}
       ],
-      limit: PAGINACION.resultadosPorPagina,
-      offset: (+pagina) * PAGINACION.resultadosPorPagina,
+      limit: getPaginacion().resultadosPorPagina,
+      offset: (+pagina) * getPaginacion().resultadosPorPagina,
       subQuery: false,
       attributes : {
         include: [
@@ -1007,8 +999,8 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
       "$post.duenioDNI$": +DNI,
     },
     order: [["fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina,
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina,
   });
 };
 
@@ -1080,8 +1072,8 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     },
     subQuery: false,
     order: [[Post, "fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina,
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina,
   });
 };
 
@@ -1373,6 +1365,18 @@ Pregunta.create({
 
 // sequelize.sync();
 
+//inicializo parametros
+
+Parametro.findAll().then((parametros) => {
+ parametros.forEach((p)=>{
+    if (p.ID == 1)
+      setResultadosPorPagina(p.valor);
+    if (p.ID == 2) setModera(p.valor);
+    if (p.ID == 3) setRechazaPost(p.valor);
+    if (p.ID == 4) setReportaPost(p.valor);
+ });
+});
+
 export {
   Parametro,
   Carrera,
@@ -1395,12 +1399,3 @@ export {
   SuscripcionesEtiqueta,
 };
 
-
-Parametro.findAll().then((ps) => {
-  ps.forEach((p) => {
-    if (p.ID == 1) PAGINACION.resultadosPorPagina = parseInt(p.valor);
-    if (p.ID == 2) modera = p.valor == "1";
-    if (p.ID == 3) rechazaPost = parseInt(p.valor);
-    if (p.ID == 4) reportaPost = parseInt(p.valor);
-  });
-});

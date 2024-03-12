@@ -13,20 +13,12 @@ let PAGINACION = {
   let reportaPost = 70;
   let modera = false;
   
-  Parametro.findAll().then((ps) => {
-    ps.forEach((p) => {
-      if (p.ID == 1) PAGINACION.resultadosPorPagina = parseInt(p.valor);
-      if (p.ID == 2) modera = p.valor == "1";
-      if (p.ID == 3) rechazaPost = parseInt(p.valor);
-      if (p.ID == 4) reportaPost = parseInt(p.valor);
-    });
-  });
   function getPaginacion() {
     return PAGINACION;
   }
   
   function setResultadosPorPagina(nuevoValor) {
-    PAGINACION.resultadosPorPagina = nuevoValor;
+    PAGINACION.resultadosPorPagina = parseInt(nuevoValor);
   }
   
   // Funciones para obtener y establecer el valor de rechazaPost
