@@ -720,7 +720,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 
   if (duenioID) { // * Esto es para los perfiles.
     return Pregunta.findAll({
-      raw:true,
+
       // TODO Feature: try subQUery:false again and separate: true
       include: [
         {
@@ -875,7 +875,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       ¿Meter los votos de la respuesta más votada / de las respuestas?
     */
    let ordenadoPorFecha=[[Post, "fecha", "DESC"]];
-   if(filtrar){//filtrar siempre esta? viene como objeto vació tonces entra en el if
+   if(filtrarEtiquetas || filtrarTexto){//filtrar siempre esta? viene como objeto vació tonces entra en el if
       let ranking=[];
       if(filtrarTexto){
         ranking.push(`(match(post.cuerpo) against ("${filtrar.texto}*"  IN BOOLEAN MODE) + match(titulo) against ("${filtrar.texto}*"  IN BOOLEAN MODE))`);

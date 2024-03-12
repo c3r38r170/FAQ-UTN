@@ -233,7 +233,7 @@ router.get("/usuario", function (req, res) {
       res.status(500).send(err);
     });
 });
-
+/*
 router.get("/usuario/:DNI/preguntas", function(req, res){
 	let filtros={pagina:null,duenioID:null};
 		filtros.duenioID=req.params.DNI
@@ -248,7 +248,7 @@ router.get("/usuario/:DNI/preguntas", function(req, res){
 			});
 	// }
 	return;
-})
+})*/
 
 router.get("/usuario/:DNI/preguntas", function (req, res) {
   Pregunta.pagina({
