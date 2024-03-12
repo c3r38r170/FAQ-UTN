@@ -1,9 +1,4 @@
 //Para obtener los parametros
-import * as express from "express";
-import {
-    Parametro,
-  } from "./model.js";
-
 
 let PAGINACION = {
     resultadosPorPagina: 10,
