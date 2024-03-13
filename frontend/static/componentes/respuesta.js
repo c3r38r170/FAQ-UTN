@@ -34,6 +34,7 @@ class Respuesta {
     if(this.#usuarioActual){
       this.#desplegable = new Desplegable('opcionesRespuesta'+this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>',undefined,undefined,'opcionesPost');
       if(this.#usuarioActual && this.#usuarioActual.DNI == this.#duenio.DNI){
+        // TODO Refactor: No usar alert. Usar Swal.
         let form = new Formulario('eliminadorRespuesta'+this.#ID, '/api/post/'+this.#ID, [],(res)=>{alert(res)},{textoEnviar:'Eliminar',verbo: 'DELETE' ,clasesBoton: 'mx-auto is-danger w-100'}).render()
         let opciones = [
         {
@@ -64,6 +65,7 @@ class Respuesta {
             value: '2',
             type: "radio"
           }],
+          // TODO Refactor: No usar alert. Usar Swal.
           (res)=>{alert(res)},
           {textoEnviar:'Reportar',verbo: 'POST' ,clasesBoton: 'mx-auto is-link w-100'}
           ).render()

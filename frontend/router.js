@@ -612,13 +612,3 @@ router.get("/prueba/mensaje", async (req, res) => {
 });
 
 export { router };
-
-        // ,form:opcion=>  new Formulario(
-        //     opcion.formID
-        //     , opcion.endpoint
-        //     , []
-        //     ,this.procesarDesuscripcion
-        //     ,  {textoEnviar:opcion.textoAEnviar,verbo: opcion.verbo ,clasesBoton:opcion.clasesBotonForm}
-        // )   
-
-        

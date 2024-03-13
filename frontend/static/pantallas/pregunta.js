@@ -23,7 +23,7 @@ function PaginaPregunta(ruta, sesion, idPregunta){
             ,(respuesta,{ok,codigo})=>{
                 if(ok)
                     window.location.reload();
-                else alert(`Error ${codigo}: ${respuesta}`);
+                else Swal.error(`Error ${codigo}: ${respuesta}`);
             }
             ,{
                 textoEnviar:'Publicar Respuesta', clasesBoton:'is-link is-rounded mt-3'

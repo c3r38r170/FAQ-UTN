@@ -83,8 +83,7 @@ gEt("administrar-parametros").onclick = (e) => {
             parametroElegido.valor = JSON.parse(txt).valor;
           }
         } else {
-          // TODO UX: Mejores alertas
-          alert(`Error ${info.codigo}: ${txt}`);
+          Swal.error(`Error ${info.codigo}: ${txt}`);
         }
       },
       {

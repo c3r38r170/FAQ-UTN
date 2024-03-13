@@ -21,8 +21,7 @@ function crearPagina(ruta,sesion,categorias){
 					if(info.ok){
 						let preguntaID=+respuesta
 						window.location.replace('/pregunta/'+preguntaID);
-						// TODO UX: Mejores alertas.
-					}else alert(`Error ${info.codigo}: ${respuesta}`);
+					}else Swal.error(`Error ${info.codigo}: ${respuesta}`);
 				}
 				,{
 					textoEnviar:'Crear Pregunta', clasesBoton:'is-link is-rounded mt-3'

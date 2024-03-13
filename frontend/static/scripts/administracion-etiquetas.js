@@ -58,8 +58,7 @@ gEt("administrar-etiquetas").onchange = (e) => {
             }
           } else {
             checkbox.checked = true;
-            // TODO UX: Mejores alertas
-            alert(`Error ${info.codigo}: ${txt}`);
+            Swal.error(`Error ${info.codigo}: ${txt}`);
           }
 
           checkbox.disabled = false;
@@ -91,8 +90,7 @@ gEt("administrar-etiquetas").onchange = (e) => {
             }
           } else {
             checkbox.checked = false;
-            // TODO UX: Mejores alertas
-            alert(`Error ${info.codigo}: ${txt}`);
+            Swal.error(`Error ${info.codigo}: ${txt}`);
           }
 
           checkbox.disabled = false;
@@ -162,8 +160,7 @@ gEt("administrar-etiquetas").onclick = (e) => {
             etiquetaElegida.categoria = JSON.parse(txt).categoria;
           }
         } else {
-          // TODO UX: Mejores alertas
-          alert(`Error ${info.codigo}: ${txt}`);
+          Swal.error(`Error ${info.codigo}: ${txt}`);
         }
       },
       {
@@ -220,8 +217,7 @@ gEt("botonAgregar").onclick = (e) => {
           //TODO: cambiar los datos
           window.location.reload();
         } else {
-          // TODO UX: Mejores alertas
-          alert(`Error ${info.codigo}: ${txt}`);
+          Swal.error(`Error ${info.codigo}: ${txt}`);
         }
       },
       {

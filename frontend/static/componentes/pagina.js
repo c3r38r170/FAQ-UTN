@@ -81,10 +81,15 @@ class Pagina {
 		<script src="/scripts${rutaRecursos + ".js" }" type="module"></script>
 		<link rel="stylesheet" href="/styles${rutaRecursos + ".css"}">
 		
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		<script src="/scripts/alertas.js"></script>
+		<link rel="stylesheet" href="https://unpkg.com/@sweetalert2/theme-bulma@5.0.16/bulma.css"></link>
+
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-switch@2.0.4/dist/css/bulma-switch.min.css">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tagsinput@1.0.3/dist/css/bulma-tagsinput.min.css">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
+
 	</head>
 	<body>
 		${this.#encabezado.render()}
@@ -252,8 +257,7 @@ class Encabezado {
   procesarRespuesta(respuesta,{ok,codigo}) {
 		if(ok){
 			location.reload();
-			// TODO UX: Mejores alertas.
-		}else alert(`Error ${codigo}: ${respuesta}`);
+		}else Swal.error(respuesta);
   }
 
   procesarRegistro(respuesta,{ok,codigo}){
@@ -261,8 +265,7 @@ class Encabezado {
 			location.reload();
 			// TODO Refactor: replace, volver a entrar, con nueva info, con nuevas cookies
 			// location.replace(ruta);
-			// TODO UX: Mejores alertas.
-		}else alert(`Error ${codigo}: ${respuesta}`);
+		}else Swal.error(`Error ${codigo}: ${respuesta}`);
   }
   
  

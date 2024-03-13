@@ -63,8 +63,7 @@ gEt("moderacion-usuarios").onchange = (e) => {
             }
           } else {
             checkbox.checked = true;
-            // TODO UX: Mejores alertas
-            alert(`Error ${info.codigo}: ${txt}`);
+            Swal.error(`Error ${info.codigo}: ${txt}`);
           }
 
           checkbox.disabled = false;
@@ -109,8 +108,7 @@ gEt("moderacion-usuarios").onchange = (e) => {
             }
           } else {
             checkbox.checked = false;
-            // TODO UX: Mejores alertas
-            alert(`Error ${info.codigo}: ${txt}`);
+            Swal.error(`Error ${info.codigo}: ${txt}`);
           }
 
           checkbox.disabled = false;

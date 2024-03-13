@@ -58,8 +58,7 @@ gEt('moderar-posts').onclick=(e)=>{
               quitarReporte()
             } else {
               fieldset.disabled = false;
-              // TODO UX: Mejores alertas
-              alert(`Error ${info.codigo}: ${txt}`);
+              Swal.error(`Error ${info.codigo}: ${txt}`);
             }
           },
           {
@@ -93,8 +92,7 @@ gEt('moderar-posts').onclick=(e)=>{
               quitarReporte();
             } else {
               fieldset.disabled = false;
-              // TODO UX: Mejores alertas
-              alert(`Error ${info.codigo}: ${txt}`);
+              Swal.error(`Error ${info.codigo}: ${txt}`);
             }
           },{
             verbo:'PUT'
