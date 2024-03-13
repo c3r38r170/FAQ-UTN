@@ -238,7 +238,7 @@ class Encabezado {
 				, [
 					{ name:'nombre', textoEtiqueta:'Nombre', type: 'text' },
 					{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
-					{ name:'correo', textoEtiqueta:'Correo electrónico', type: 'email' },
+					{ name:'correo', textoEtiqueta:'Correo electrónico <br><small>(opcional, ignorar para usar el registrado en la UTN, se puede cambiar luego)</small>', type: 'email', required:false },
 					{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
 				]
 				, this.procesarRegistro
@@ -249,14 +249,20 @@ class Encabezado {
 			}
 	}
 
-  procesarRespuesta() {
-	// TODO Feature: Mostrar errores.
-	location.reload();
+  procesarRespuesta(respuesta,{ok,codigo}) {
+		if(ok){
+			location.reload();
+			// TODO UX: Mejores alertas.
+		}else alert(`Error ${codigo}: ${respuesta}`);
   }
 
-  procesarRegistro(){
-	
-	location.reload();
+  procesarRegistro(respuesta,{ok,codigo}){
+		if(ok){
+			location.reload();
+			// TODO Refactor: replace, volver a entrar, con nueva info, con nuevas cookies
+			// location.replace(ruta);
+			// TODO UX: Mejores alertas.
+		}else alert(`Error ${codigo}: ${respuesta}`);
   }
   
  
