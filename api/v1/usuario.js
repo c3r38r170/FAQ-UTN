@@ -193,6 +193,15 @@ const upload = multer({
   
   router.post("/", (req, res) => {
     let perfilID = req.body.perfilID ? req.body.perfilID : 1;
+    if (perfilID > 1){
+      if (req.session.usuario) {
+        if (req.session.usuario.perfil.permiso.ID < 3) {
+          perfilID=1;
+        }
+      }else{
+        perfilID=1;
+      }
+    }
     Usuario.findAll({
       where: { DNI: req.body.DNI },
       raw: true,
