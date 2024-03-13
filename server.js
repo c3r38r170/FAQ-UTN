@@ -7,9 +7,9 @@ var app = express();
 
 app.use(session({
 	secret:'👻',
-    resave:true,
+    resave:false,
     saveUninitialized: false,
-    cookie: { secure: true, sameSite: "none" }
+    cookie: {sameSite: "none", httpOnly: false },
 }));
 
 app.use(express.json());
