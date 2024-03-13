@@ -617,6 +617,54 @@ router.get("/prueba/mensaje", async (req, res) => {
   }
 });
 
+
+router.get("/:A?", (req, res) => {
+  // ! req.path es ''
+  let consultaCategorias = Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}});
+  // console.log(req.query);
+  let etiquetas=req.query.etiquetas;
+  let texto=req.query.searchInput;
+  if (texto || etiquetas) {
+    let queryString = req.url.substring(req.url.indexOf("?"));
+
+    let parametrosBusqueda = { filtrar:{}};
+    if(texto){
+      parametrosBusqueda.filtrar.texto=texto;
+    }
+    if(etiquetas){
+      parametrosBusqueda.filtrar.etiquetas=Array.isArray(etiquetas)?etiquetas:[etiquetas];
+    }
+
+    Promise.all([
+      // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+      PreguntaDAO.pagina(parametrosBusqueda)
+      ,consultaCategorias
+    ])
+      .then(([preguntas,categorias]) => {
+        let pagina = PaginaInicio(req.session, queryString,categorias);
+        pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
+
+        res.send(pagina.render());
+      });
+  } else {
+    // * Inicio regular.
+    Promise.all(
+      [
+        PreguntaDAO.pagina()
+        ,Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}})
+      ]
+    )
+      .then(([pre,categorias]) => {
+        let pagina = PaginaInicio(req.session,'',categorias);
+        pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
+
+        res.send(pagina.render());
+      });
+    // TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
+  }
+});
+
+
 export { router };
 
         // ,form:opcion=>  new Formulario(
