@@ -20,17 +20,17 @@ app.use(cors({
 }));
 
 // TODO Refactor: Hacer DRY en la búsqueda de sesión y permisos
-/* app.use((req,res,next) => {
+ app.use((req,res,next) => {
 	if(req.session.usuarioID){
 	}else if([
-			'/api/usuarios/' // Registro.
+			'/api/usuario/' // Registro.
 			,'/api/usuarios/ingresar'
 			,'/api/usuarios/salir'
 			// TODO Feature: Restringir verbo tambien
 	].includes(req.path))
 			next();
 	else res.status(401).send('Inicie sesión.');
-}) */
+}) 
 
 const rutas = express.Router();
 
