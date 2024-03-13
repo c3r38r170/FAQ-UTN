@@ -10,7 +10,7 @@ app.use(session({
 	secret:'👻',
     resave:false,
     saveUninitialized: false,
-    cookie: {secure: false, sameSite: "none", httpOnly: false },
+    cookie: {secure: false, sameSite: "none", maxAge: 1000 * 60 * 60 * 48, httpOnly: false },
     proxy:true
 }));
 
