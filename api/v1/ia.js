@@ -4,12 +4,12 @@ import event from 'events'
 event.EventEmitter.defaultMaxListeners=50;
 
 // TODO Security: Usar .env
-const apiKey = 'B0ayZrLmS19aqobZA2wsYToeSqDz9cTm';
-const base_url = 'https://api.deepinfra.com/v1/openai';
+const apiKey = process.env.IA_APIKEY;
+const base_url = process.env.IA_BASE_URL;
+const MODEL_DI = process.env.IA_MODEL_DI;
 
 const stream = true; // or false
 
-const MODEL_DI = 'mistralai/Mixtral-8x7B-Instruct-v0.1';
 
 
 
@@ -98,6 +98,7 @@ async function moderarWithRetry(post, maxRetries = 3, retryDelay = 1000) {
     try {
       // Attempt the operation
       const result = await moderar(post);
+      console.log(result)
       return result;
     } catch (error) {
      

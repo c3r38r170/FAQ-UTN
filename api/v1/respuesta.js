@@ -53,6 +53,7 @@ router.post("/", function (req, res) {
                     .then((resp) => {
                       if (respuesta.apropiado < reportaPost) {
                         ReportePost.create({
+                          tipoID :1,
                           reportadoID: post.ID,
                         });
                       }
@@ -174,8 +175,8 @@ router.post("/", function (req, res) {
                   return;
                 } else if (resp.apropiado < reportaPost) {
                   //Crear reporte
-                  //TODO Feature: definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front
                   ReportePost.create({
+                    tipoID :1,
                     reportadoID: respuesta.ID,
                   });
                 }
