@@ -45,7 +45,7 @@ gEt("administrar-etiquetas").onchange = (e) => {
       ),
       new Formulario(
         "administracion-etiquetas-deshabilitar",
-        `/api/etiquetas/${ID}/activado`,
+        `/api/etiqueta/${ID}/activado`,
         [],
         (txt, info) => {
           if (info.ok) {
@@ -78,7 +78,7 @@ gEt("administrar-etiquetas").onchange = (e) => {
     modal.contenido = [
       new Formulario(
         "administracion-etiqueta-deshabilitar",
-        `/api/etiquetas/${ID}/activado`,
+        `/api/etiqueta/${ID}/activado`,
         [],
         (txt, info) => {
           if (info.ok) {
@@ -128,7 +128,7 @@ gEt("administrar-etiquetas").onclick = (e) => {
   modal.contenido = [
     new Formulario(
       "administracion-etiquetas-editar",
-      `/api/etiquetas/${ID}`,
+      `/api/etiqueta/${ID}`,
       [
         {
           name: "descripcion",
@@ -178,7 +178,7 @@ gEt("administrar-etiquetas").onclick = (e) => {
 
   let select = document.getElementsByName("categoriaID")[0];
 
-  fetch("/api/categorias").then((options) => {
+  fetch("/api/categoria").then((options) => {
     options.json().then((options) => {
       options.forEach((option) => {
         var o = document.createElement("option");
@@ -236,7 +236,7 @@ gEt("botonAgregar").onclick = (e) => {
 
   let select = document.getElementsByName("categoriaID")[0];
 
-  fetch("/api/categorias").then((options) => {
+  fetch("/api/categoria").then((options) => {
     options.json().then((options) => {
       options.forEach((option) => {
         var o = document.createElement("option");

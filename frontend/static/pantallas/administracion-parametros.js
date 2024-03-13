@@ -3,7 +3,7 @@ import { Pagina, Formulario, Modal, Tabla } from "../componentes/todos.js";
 //TODO: Feature: cambiar campos por apropiados y validar
 //TODO: Feature: permisos
 function crearPantalla(ruta, sesion, p) {
-  let tabla = new Tabla("administrar-parametros", "/api/parametros", [
+  let tabla = new Tabla("administrar-parametros", "/api/parametro", [
     {
       nombre: "Parametros",
       celda: (parametro) => parametro.descripcion,

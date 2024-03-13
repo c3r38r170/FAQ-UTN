@@ -21,6 +21,7 @@ function PaginaPregunta(ruta, sesion, idPregunta){
                 {name:'IDPregunta', textoEtiqueta:'idPregunta', type:'hidden', value:idPregunta}
             ]
             ,respuestaID=>{
+                // TODO Feature: si rechaza que?
                 window.location.replace(ruta);
             }
             ,{

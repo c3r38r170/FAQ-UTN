@@ -1,7 +1,6 @@
 import { Sequelize, DataTypes } from "sequelize";
-
+import { setModera, setRechazaPost, setReportaPost, setResultadosPorPagina, getPaginacion } from "./parametros.js";
 import * as bcrypt from "bcrypt";
-
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -34,21 +33,24 @@ sequelize
     console.error("Unable to connect to the database: ", error);
   });
 
-const Parametro = sequelize.define("parametro", {
-  ID: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  descripcion: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  valor: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
+  
+ 
+
+  const Parametro = sequelize.define("parametro", {
+    ID: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    descripcion: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    valor: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  });
 
 const Usuario = sequelize.define("usuario", {
   DNI: {
@@ -261,8 +263,8 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
       "$post.duenioDNI$": +DNI,
     },
     order: [["fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina,
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina,
   });
 };
 
@@ -590,8 +592,8 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     },
     subQuery: false,
     order: [[Post, "fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina
   });
 };
 
@@ -642,10 +644,6 @@ const Pregunta = sequelize.define(
   }
 );
 
-// TODO Refactor: Llevar arriba de todo si se define que va a quedar acá.
-const PAGINACION = {
-  resultadosPorPagina: 10,
-};
 
 /* *
 Ejemplo de filtro por asociación de la documentación:
@@ -766,8 +764,8 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
         "$post.duenio.DNI$": duenioID,
       },
       order: [[Post, "fecha", "DESC"]],
-      limit: PAGINACION.resultadosPorPagina,
-      offset: +pagina * PAGINACION.resultadosPorPagina,
+      limit: getPaginacion().resultadosPorPagina,
+      offset: +pagina * getPaginacion().resultadosPorPagina,
 
       // ,raw:true,nest:true
     });
@@ -777,8 +775,8 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       include: [
         {model:Post,required:true}
       ],
-      limit: PAGINACION.resultadosPorPagina,
-      offset: (+pagina) * PAGINACION.resultadosPorPagina,
+      limit: getPaginacion().resultadosPorPagina,
+      offset: (+pagina) * getPaginacion().resultadosPorPagina,
       subQuery: false,
       attributes : {
         include: [
@@ -1000,8 +998,8 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
       "$post.duenioDNI$": +DNI,
     },
     order: [["fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina,
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina,
   });
 };
 
@@ -1072,8 +1070,8 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     },
     subQuery: false,
     order: [[Post, "fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina,
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina,
   });
 };
 
@@ -1350,6 +1348,18 @@ Pregunta.create({
 
 // sequelize.sync();
 
+//inicializo parametros
+
+Parametro.findAll().then((parametros) => {
+ parametros.forEach((p)=>{
+    if (p.ID == 1)
+      setResultadosPorPagina(p.valor);
+    if (p.ID == 2) setModera(p.valor);
+    if (p.ID == 3) setRechazaPost(p.valor);
+    if (p.ID == 4) setReportaPost(p.valor);
+ });
+});
+
 export {
   Parametro,
   Carrera,
@@ -1371,3 +1381,4 @@ export {
   Categoria,
   SuscripcionesEtiqueta,
 };
+
