@@ -156,11 +156,6 @@ class Campo{
 		
 		if(this.#type){
 			switch(this.#type){
-			case 'textarea':
-				// TODO Feature: Usar extra para ponerle rows y cols. rows=4 por default. O CSS, porque por lo que vi, rows=4 no anda por Bulma.
-				html=html.replaceAll('input','textarea');
-				endTag=`>${this.#value}</textarea>`;
-				break;
 			case 'lista-etiquetas':
 				html+=' data-type = "tags" data-placeholder="Etiquetas" data-selectable="false" multiple '
 				// ! no break;
@@ -178,8 +173,10 @@ class Campo{
 				html=html.replace('<input class="input','<input type="radio" required value="'+this.#value+'" class="mr-2 ')
 				html=html.replace('<label class="label"','<label class="label radio-label"')
 				return html+endTag+this.#textoEtiqueta+'</label>'
+			case 'textarea':
+				html=html.replaceAll('input','textarea');
+				endTag=`>${this.#value}</textarea>`;
 			case 'file':
-				html+=' '+this.#extra;
 			case 'number':
 				// * min, max, step...
 				html+=' '+this.#extra;
