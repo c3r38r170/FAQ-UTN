@@ -36,6 +36,7 @@ class Pregunta{
                     ID
                     ,votos:post.votos
                     ,usuarioActual:sesion
+                    ,duenio:post.duenio
                 });
                 if(suscripciones){
                     if(!Array.isArray(suscripciones)) suscripciones=[suscripciones]
