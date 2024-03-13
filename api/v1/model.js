@@ -525,6 +525,13 @@ Post.belongsTo(Respuesta, {
   foreignKey: "ID",
 });
 
+const respuestasCount = [
+  sequelize.literal(
+    "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+  ),
+  "respuestasCount",
+]
+
 Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
   return Pregunta.findAll({
     include: [
@@ -578,12 +585,7 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     ], //TODO Refactor: aplicar dry
     attributes: {
       include: [
-        [
-          sequelize.literal(
-            "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-          ),
-          "respuestasCount",
-        ],
+        respuestasCount,
       ],
     },
     separate: true,
@@ -753,12 +755,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       ], //TODO Refactor: aplicar dry
       attributes: {
         include: [
-          [
-            sequelize.literal(
-              "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-            ),
-            "respuestasCount",
-          ],
+          respuestasCount,
         ],
       },
       where: {
@@ -781,12 +778,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       subQuery: false,
       attributes : {
         include: [
-          [
-            sequelize.literal(
-              "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-            ),
-            "respuestasCount",
-          ],
+          respuestasCount,
         ],
       }
     };
@@ -1058,12 +1050,7 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     ], //TODO Refactor: aplicar dry
     attributes: {
       include: [
-        [
-          sequelize.literal(
-            "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-          ),
-          "respuestasCount",
-        ],
+        respuestasCount,
       ],
     },
     separate: true,
