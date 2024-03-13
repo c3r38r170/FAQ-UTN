@@ -1276,8 +1276,47 @@ const Carrera = sequelize.define("carrera", {
     allowNull: false,
   },
 });
+/* 
+				case 'IC':
+					carreraID=1;
+					break;
+				case 'IE':
+					carreraID=2;
+					break;
+				case 'IQ':
+					carreraID=3;
+					break;
+				case 'IM':
+					carreraID=4;
+					break;
+				case 'ISI':
+					carreraID=5;
+					break; */
+
+Carrera.upsert({
+    ID: 1,
+    nombre: "Ingeniería Civil"
+})
+Carrera.upsert({
+    ID: 2,
+    nombre: "Ingeniería Eléctrica"
+})
+Carrera.upsert({
+    ID: 3,
+    nombre: "Ingeniería Química"
+})
+Carrera.upsert({
+    ID: 4,
+    nombre: "Ingeniería Mecánica"
+})
+Carrera.upsert({
+    ID: 5,
+    nombre: "Ingeniería en Sistemas de Información"
+})
+        
 
 const CarrerasUsuario = sequelize.define("carrerasUsuario", {
+  // TODO Refactor: legajo, con minúscula
   Legajo: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -1363,6 +1402,7 @@ Parametro.findAll().then((parametros) => {
 export {
   Parametro,
   Carrera,
+  CarrerasUsuario,
   SuscripcionesPregunta,
   Usuario,
   Bloqueo,
