@@ -2,11 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
 import 'dotenv/config';
+import { CyclicSessionStore } from "@cyclic.sh/session-store";
 
 var app = express();
 
 app.set("trust proxy", 1);
 app.use(session({
+	store: new CyclicSessionStore({
+	  table: {
+	    name: process.env.CYCLIC_DB,
+	  }
+	}),
 	secret:'👻',
     resave:false,
     saveUninitialized: false,
