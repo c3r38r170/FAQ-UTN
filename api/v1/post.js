@@ -27,11 +27,6 @@ const valorarPost = function (req, res) {
     //el usuario viene con la sesión
     //TODO: Refactor en vez de borrar el voto ponerle un campo, asi creamos la noti solo si el voto es nuevo, no si te vuelve loco poniendo y sacando
   
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa.");
-      return;
-    }
-  
     // TODO Refactor: ver si es posible traer solo un si existe
     let IDvotado = req.params.votadoID;
   
@@ -124,10 +119,6 @@ const valorarPost = function (req, res) {
   
   const reportarPost = function (req, res) {
     // TODO Refactor: ocupar la sesión activa válida en el server.js así no hay que repetirlo a cada rato
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
   
     let reportadoID = req.params.reportadoID;
     Post.findByPk(reportadoID)
@@ -181,12 +172,7 @@ router.post("/:reportadoID/reporte", reportarPost);
     }); */
   
   router.delete('/:ID',(req,res) => {
-    if (!req.session.usuario) {
-      res
-        .status(401)
-        .send("No se posee sesión válida activa");
-      return;
-    } else if (req.session.usuario.perfil.permiso.ID < 2) {
+    if (req.session.usuario.perfil.permiso.ID < 2) {
       res
         .status(403)
         .send("No se poseen permisos de moderación");

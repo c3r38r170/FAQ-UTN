@@ -17,10 +17,6 @@ const router = express.Router();
 
 
 router.post("/", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     // TODO Refactor: Unificar if y else. Ver cuál es la versión más reciente de cada parte.
     let modera= getModera();
     if (modera) {
@@ -145,9 +141,6 @@ router.post("/", function (req, res) {
   });
   
   router.patch("/", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa.");
-    }
     Respuesta.findByPk(req.body.ID, {
       include: Post,
     })

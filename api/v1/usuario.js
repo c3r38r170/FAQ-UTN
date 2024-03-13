@@ -52,10 +52,7 @@ const upload = multer({
   });
   
   router.get("/", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("No se posee sesión válida activa");
-      return;
-    } else if (req.session.usuario.perfil.permiso.ID < 2) {
+    if (req.session.usuario.perfil.permiso.ID < 2) {
       res
         .status(403)
         .send("No se poseen permisos de moderación o sesión válida activa");
@@ -273,10 +270,6 @@ const upload = multer({
   });
   
   router.post("/:DNI/reporte", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     Usuario.findByPk(req.params.DNI)
       .then((usuario) => {
         if (!usuario) {
@@ -298,10 +291,6 @@ const upload = multer({
   });
   
   router.post("/:DNI/bloqueo", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 2) {
       res.status(401).send("Usuario no posee permisos");
       return;
@@ -351,10 +340,6 @@ const upload = multer({
   });
   
   router.delete("/:DNI/bloqueo", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 2) {
       res.status(401).send("Usuario no posee permisos");
       return;
@@ -407,10 +392,6 @@ const upload = multer({
   });
   
   router.patch("/contrasenia", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     Usuario.findByPk(req.session.usuario.DNI)
       .then((usuario) => {
         if(bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)){
@@ -428,10 +409,6 @@ const upload = multer({
   });
   
   router.patch("/mail", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     Usuario.findByPk(req.session.usuario.DNI)
       .then((usuario) => {
         if(bcrypt.compare(req.body.contrasenia, usuario.contrasenia)){
@@ -449,10 +426,6 @@ const upload = multer({
   });
   
   router.patch("/:DNI", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;

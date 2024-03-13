@@ -20,16 +20,37 @@ app.use(cors({
 }));
 
 // TODO Refactor: Hacer DRY en la búsqueda de sesión y permisos
+
+
  app.use((req,res,next) => {
-	if(req.session.usuarioID){
+	const userRegex = /^\/api\/usuario\/\d+\/(foto|preguntas|posts|respuestas|contrasenia)$/;
+	// * Esta exp. regular admite las /api/usuario/:DNI/... --> foto, preguntas, posts, respuestas o contrasenia
+	
+	if(req.session.usuario){
+		next();
 	}else if([
-			'/api/usuario/' // Registro.
-			,'/api/usuarios/ingresar'
-			,'/api/usuarios/salir'
-			// TODO Feature: Restringir verbo tambien
-	].includes(req.path))
+			'/',
+			'/api/perfil', // get
+			'/api/categoria', // get
+			'/api/etiqueta', // get
+			'/api/post/reporte', // get
+			'/api/pregunta', // get 
+			"/api/usuario/:DNI/foto",
+			req.path.match(userRegex), // Todas las rutas que matchean con la expresion regular
+			'/api/usuarios/ingresar',
+			'/api/usuarios/salir'
+		].some(route => route && req.method === 'GET')){
 			next();
-	else res.status(401).send('Inicie sesión.');
+		}
+	else if([
+		'/api/sesion',
+		'/api/usuario',
+		req.path.match(userRegex),
+	].includes(req.path) && req.method === 'POST'){
+		next();
+
+	}
+	else res.status(401).send("Usuario no tiene sesión válida activa");
 }) 
 
 const rutas = express.Router();

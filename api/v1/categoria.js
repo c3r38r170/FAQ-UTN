@@ -23,10 +23,6 @@ router.get("/", async (req, res) => {
   });
   
   router.patch("/:id/activado", async (req, res) => {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;
@@ -48,10 +44,7 @@ router.get("/", async (req, res) => {
   
   // Ruta para crear una nueva categoría
   router.post("/", async (req, res) => {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
+
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;
@@ -67,10 +60,6 @@ router.get("/", async (req, res) => {
   
   // Ruta para actualizar una categoría por su ID
   router.patch("/:id", async (req, res) => {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;
@@ -91,10 +80,6 @@ router.get("/", async (req, res) => {
   
   // Ruta para eliminar una categoría por su ID
   router.delete("/:id", async (req, res) => {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;
