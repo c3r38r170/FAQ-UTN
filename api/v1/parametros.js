@@ -1,5 +1,4 @@
 //Para obtener los parametros
-
 let PAGINACION = {
     resultadosPorPagina: 10,
   };

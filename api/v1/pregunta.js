@@ -87,8 +87,8 @@ router.get("/", (req, res) => {
                     return;
                   } else if (respuesta.apropiado < reportaPost) {
                     //Crear reporte
-                    //TODO Feature: definir tipo y definir si ponemos como reportanteID algo que represente al sistema o se encarga el front (Santiago: Yo digo dejarlo NULL y que se encargue el frontend.)
                     esperarA.push(ReportePost.create({
+                      tipoID :1,
                       reportadoID: pregunta.ID,
                     }))
     
@@ -178,9 +178,9 @@ router.get("/", (req, res) => {
       let esperarA = [];
       let reportaPost = getReportaPost();
       if (respuestaIA && respuestaIA < reportaPost) {
-        // TODO Feature testeado atado con alambre anda, habria que buscar un mensaje que caiga en esta
         esperarA.push(
           ReportePost.create({
+            tipoID :1,
             reportadoID: pregunta.ID,
           })
         );

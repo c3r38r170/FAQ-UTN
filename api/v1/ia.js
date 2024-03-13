@@ -1,51 +1,17 @@
-// TODO Refactor: Ver si se puede evitar axios. Si es estrictamente necesario, escribirlo en un comentario.
-import axios from 'axios'
-import event from 'events'
-event.EventEmitter.defaultMaxListeners=50;
+import event from 'events';
+event.EventEmitter.defaultMaxListeners = 50;
 
 // TODO Security: Usar .env
-const apiKey = 'B0ayZrLmS19aqobZA2wsYToeSqDz9cTm';
-const base_url = 'https://api.deepinfra.com/v1/openai';
+const apiKey = process.env.IA_APIKEY;
+const base_url = process.env.IA_BASE_URL;
+const MODEL_DI = process.env.IA_MODEL_DI;
 
-const stream = true; // or false
-
-const MODEL_DI = 'mistralai/Mixtral-8x7B-Instruct-v0.1';
-
-
+const stream = false; // Cambiado a false
 
 const headers = {
   'Content-Type': 'application/json',
   'Authorization': `Bearer ${apiKey}`,
 };
-
-const axiosInstance = axios.create({
-  baseURL: base_url,
-  headers: headers,
-  responseType: 'stream',
-});
-
-let dataBuffer = '';
-let message = "";
-const handleStreamData = (chunk) => {
-  dataBuffer += chunk.toString();
-
-  // Check if the buffer contains a complete JSON object
-  const jsonObjects = dataBuffer.substring(5,dataBuffer.length);
-  if (jsonObjects.length > 1) {
-    if(!jsonObjects.includes("DONE")){
-      try{
-      const event = JSON.parse(jsonObjects);
-      
-      message += event.choices[0].delta.content; //guarda cada parte de la respuesta
-      }catch(error){
-
-      }
-    }
-    dataBuffer = '';
-  }
-};
-
-
 
 async function moderar(post) {
   const requestData = {
@@ -57,37 +23,18 @@ async function moderar(post) {
     max_tokens: 1000,
   };
 
+  const requestOptions = {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify(requestData),
+  };
+
   try {
-    message="";
-    const response = await axiosInstance.post('/chat/completions', requestData);
-    const stream = response.data;
-
-    
-
-    return new Promise((resolve, reject) => {
-      stream.on('data', (data) => {
-        // Assuming `handleStreamData` is a function that updates the message variable
-        handleStreamData(data);
-      });
-
-      stream.on('end', () => {
-        try {
-          message = "{" + message.split('undefined')[0].split('{')[1]; // Remove trailing 'undefined'
-          const parsedResult = JSON.parse(message.trim());
-          resolve(parsedResult);
-        } catch (parseError) {
-          reject(parseError);
-        }
-      });
-
-      stream.on('error', (error) => {
-        
-        reject(error);
-      });
-    });
+    const response = await fetch(`${base_url}/chat/completions`, requestOptions);
+    const responseData = await response.json();
+    return JSON.parse(responseData.choices[0].message.content);
   } catch (error) {
-    
-    throw error; // Re-throw the error to indicate the failure of the asynchronous operation
+    throw error;
   }
 }
 
@@ -96,21 +43,19 @@ async function moderarWithRetry(post, maxRetries = 3, retryDelay = 1000) {
 
   while (retries < maxRetries) {
     try {
-      // Attempt the operation
+      // Intenta la operación
       const result = await moderar(post);
       return result;
     } catch (error) {
-     
       retries++;
 
-      // Wait for a specified delay before retrying
+      // Espera un retraso especificado antes de intentarlo de nuevo
       await new Promise(resolve => setTimeout(resolve, retryDelay));
     }
   }
 
-  // If all retries fail, throw the last error
+  // Si todos los intentos fallan, arroja el último error
   throw new Error(`Failed after ${maxRetries} attempts.`);
 }
 
-
-export {moderar, moderarWithRetry};
+export { moderarWithRetry };

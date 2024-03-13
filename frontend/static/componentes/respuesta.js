@@ -28,6 +28,7 @@ class Respuesta {
         ID
         ,votos:post.votos
         ,usuarioActual: sesion
+        ,duenio:post.duenio
       });
     }
 
