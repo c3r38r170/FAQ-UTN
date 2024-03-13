@@ -5,11 +5,13 @@ import 'dotenv/config';
 
 var app = express();
 
+app.set("trust proxy", 1);
 app.use(session({
 	secret:'👻',
     resave:false,
     saveUninitialized: false,
-    cookie: {sameSite: "none", httpOnly: false },
+    cookie: {secure: false, sameSite: "none", httpOnly: false },
+    proxy:true
 }));
 
 app.use(express.json());
