@@ -525,6 +525,13 @@ Post.belongsTo(Respuesta, {
   foreignKey: "ID",
 });
 
+const respuestasCount = [
+  sequelize.literal(
+    "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+  ),
+  "respuestasCount",
+]
+
 Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
   return Pregunta.findAll({
     include: [
@@ -575,15 +582,10 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         },
         separate: true,
       },
-    ], //TODO Refactor: aplicar dry
+    ],
     attributes: {
       include: [
-        [
-          sequelize.literal(
-            "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-          ),
-          "respuestasCount",
-        ],
+        respuestasCount,
       ],
     },
     separate: true,
@@ -714,8 +716,6 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 		}
 	*/
 
-  // TODO Refactor: DRY en todo lo que se pueda
-
   if (duenioID) { // * Esto es para los perfiles.
     return Pregunta.findAll({
 
@@ -749,15 +749,10 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
           },
           separate: true,
         },
-      ], //TODO Refactor: aplicar dry
+      ],
       attributes: {
         include: [
-          [
-            sequelize.literal(
-              "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-            ),
-            "respuestasCount",
-          ],
+          respuestasCount,
         ],
       },
       where: {
@@ -780,12 +775,7 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       subQuery: false,
       attributes : {
         include: [
-          [
-            sequelize.literal(
-              "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-            ),
-            "respuestasCount",
-          ],
+          respuestasCount,
         ],
       }
     };
@@ -1053,15 +1043,10 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         },
         separate: true,
       },
-    ], //TODO Refactor: aplicar dry
+    ],
     attributes: {
       include: [
-        [
-          sequelize.literal(
-            "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-          ),
-          "respuestasCount",
-        ],
+        respuestasCount,
       ],
     },
     separate: true,
@@ -1132,34 +1117,9 @@ Pregunta.hasMany(EtiquetasPregunta, {
   as: "filtroEtiquetas",
   constraints: false,
 });
-/*
-Etiqueta.hasMany(EtiquetasPregunta,{
-    // as:'etiqueta',
-    constraints:false
-    ,foreignKey:'etiquetumID'
-});*/
 
 EtiquetasPregunta.belongsTo(Etiqueta, { constraints: false});
 
-/* 
-Etiqueta.hasMany(EtiquetasPregunta,{
-    as:'preguntas'
-    ,constraints:false
-}) */
-
-
-/* Pregunta.belongsToMany(Etiqueta, {
-    as:'etiquetas',
-    through: EtiquetasPregunta,
-    constraints:false
-}); */
-
-/* // TODO Refactor: Quizá ni siquiera haga falta, es raro que se haga Etiqueta.pregunta/s
- Etiqueta.belongsToMany(Pregunta, {
-    as:'preguntas',
-    through: EtiquetasPregunta,
-    constraints:false 
-}); */
 
 const Categoria = sequelize.define("categoria", {
   ID: {
@@ -1334,60 +1294,7 @@ Carrera.belongsToMany(Usuario, {
   constraints: false,
 });
 
-//Post.sync({force:true});
-//Pregunta.sync({force:true});
 
-/*Post.create({
-    cuerpo:"hola"
-});
-Post.create({
-    cuerpo:"hola2"
-});
-Post.create({
-    cuerpo:"hola3"
-});
-Post.create({
-    cuerpo:"hola4"
-});
-Post.create({
-    cuerpo:"hola5"
-});
-*/
-/*
-Pregunta.create({
-    ID:1,
-    titulo:"chau"
-});
-Pregunta.create({
-    ID:2,
-    titulo:"chau2"
-});
-Pregunta.create({
-    ID:3,
-    titulo:"chau3"
-});
-Pregunta.create({
-    ID:4,
-    titulo:"chau4"
-});
-Pregunta.create({
-    ID:5,
-    titulo:"chau5"
-});
-*/
-
-/*sequelize.sync({}).then(()=>{
-    Pregunta.findAll({raw:true,
-        plain:true,
-        nest:true,
-    include:Post}).then(pregunta=>console.log(pregunta.cuerpo));
-})*/
-
-//sequelize.sync({ alter: true });
-
-// sequelize.sync();
-
-//inicializo parametros
 
 Parametro.findAll().then((parametros) => {
  parametros.forEach((p)=>{

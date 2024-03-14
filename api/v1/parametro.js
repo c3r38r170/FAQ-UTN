@@ -32,10 +32,6 @@ router.get("/", function (req, res) {
   });
   
   router.patch("/:ID", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;

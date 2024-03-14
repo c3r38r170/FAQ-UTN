@@ -52,6 +52,7 @@ import { PantallaAdministracionCategorias } from "./static/pantallas/administrac
 import { PantallaAdministracionEtiquetas } from "./static/pantallas/administracion-etiquetas.js";
 import { PantallaEtiquetaPreguntas } from "./static/pantallas/pantalla-etiquetas-pregunta.js";
 import { PantallaAdministracionUsuarios } from "./static/pantallas/administracion-usuarios.js";
+import { PantallaEditarRespuesta } from "./static/pantallas/editar-respuesta.js";
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -384,6 +385,56 @@ router.get("/pregunta/:id/editar", (req, res)=>{
     res.status(500).send("Error interno del servidor");
   }
 })
+
+
+router.get("/respuesta/:id/editar", (req, res)=>{
+  try{
+    let usu = req.session;
+    if(!usu.usuario){
+      let pagina = SinPermisos(usu, "No está logueado");
+      res.send(pagina.render());
+      return;
+    }
+
+    const include = [
+      {
+        model: PostDAO,
+        as: 'post',
+        where: {
+          duenioDNI: req.session.usuario.DNI
+        }
+      },
+      {
+        model: PreguntaDAO,
+        as: 'pregunta',
+        include: {
+          model: PostDAO,
+          as: 'post'
+        }
+      }
+    ];
+    RespuestaDAO.findByPk(req.params.id, { 
+      raw: true,
+      nest: true,
+      include })
+    .then((respuesta)=>{
+      console.log(respuesta);
+      // * Editar respuesta.
+      let pagina = PantallaEditarRespuesta(req.path, req.session, respuesta);
+      res.send(pagina.render());
+    }).catch((error) => {
+      console.error('Error:', error);
+      res.status(409).send('Error al buscar la respuesta');
+    });
+
+
+  }catch(error){
+    console.error(error);
+    res.status(500).send("Error interno del servidor");
+  }
+})
+
+
 
 // TODO Refactor: Ver si se puede unificar el algoritmo de prefil/preguntas y perfil/respuestas
 router.get("/perfil/respuestas", (req, res) => {

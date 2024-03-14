@@ -19,10 +19,6 @@ const router = express.Router();
 // TODO Refactor: "suscripcion"? Todos los demás endpoints están en singular.
 router.get('/', function(req,res){
 	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja. fecha_baja, ver si conviene volver a las relaciones como antes...
-	if(!req.session.usuario){
-		res.status(401).send("Usuario no tiene sesión válida activa");
-		return;
-	}
 
 	// TODO Feature Poner en Pregunta.pagina para tener también las suscripciones (aca hace falta?? sabemos que todas estas lo incluyen, quizá poner en el frontend. Esto haría un parámetro de si hacen falta los votos o no)
 	// TODO Feature Usar Pregunta.pagina para tener todos los datos unificados, como los votos

@@ -37,10 +37,6 @@ router.get('/', function(req,res){
 	//respuesta o pregunta propia es notificación por valoración
 		// nuevos votos en tu pregunta...
 		// nuevos votos en tu respuesta a ...
-	if(!req.session.usuario){
-		res.status(403).send("No se posee sesión válida activa");
-		return;
-	}
 	let PAGINACION = getPaginacion();
 	Notificacion.findAll({
 		attributes: ['ID', 'visto', 'createdAt'],
@@ -100,11 +96,6 @@ router.get('/', function(req,res){
 });
 
 router.patch("/", function (req, res) {
-  if (!req.session.usuario) {
-    res.status(401).send();
-    return;
-  }
-
   let notificacionID = req.body.ID;
 
   if (!notificacionID) {

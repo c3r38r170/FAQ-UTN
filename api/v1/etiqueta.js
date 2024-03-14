@@ -13,10 +13,6 @@ import { getPaginacion } from "./parametros.js";
 
 
 router.post("/", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;
@@ -69,10 +65,6 @@ router.post("/", function (req, res) {
   // TODO Refactor: Cambiar endpoint a etiqueta, los nombres son en singular.
   // TODO Refactor: Cambiar todas las funciones async a sincrónicas. Usar then en los cuerpos, y funciones de Premises, en todo caso.
   router.patch("/:id/activado", async (req, res) => {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;
@@ -93,10 +85,7 @@ router.post("/", function (req, res) {
   });
   
   router.patch("/:id", async (req, res) => {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
+
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;
@@ -121,12 +110,7 @@ router.post("/", function (req, res) {
     }
   });
   
-  router.post("/:etiquetaID/suscripcion", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
-  
+  router.post("/:etiquetaID/suscripcion", function (req, res) {  
     let IDetiqueta = req.params.etiquetaID;
   
     Etiqueta.findByPk(IDetiqueta)
@@ -168,10 +152,6 @@ router.post("/", function (req, res) {
   });
   
   router.delete("/:etiquetaID/suscripcion", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
   
     let IDetiqueta = req.params.etiquetaID;
   

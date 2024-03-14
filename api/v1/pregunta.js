@@ -51,9 +51,6 @@ router.get("/", (req, res) => {
   
   router.patch("/", function (req, res) {
     // console.log(req.body);
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa.");
-    }
     Pregunta.findByPk(req.body.ID, {
       include: [
         Post
@@ -239,10 +236,6 @@ router.get("/", (req, res) => {
   }
   
   router.post("/", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     let modera=getModera();
     if (modera==1) {
       moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10)
@@ -265,12 +258,7 @@ router.get("/", (req, res) => {
   
   router.put('/:ID',function(req,res){
     let usuarioActual=req.session.usuario;
-    if (!usuarioActual) {
-      res
-        .status(401)
-        .send("No se posee sesión válida activa");
-      return;
-    } else if (usuarioActual.perfil.permiso.ID < 2) {
+    if (usuarioActual.perfil.permiso.ID < 2) {
       res
         .status(403)
         .send("No se poseen permisos de moderación");
@@ -309,10 +297,6 @@ router.get("/", (req, res) => {
   
   router.post("/:preguntaID/suscripcion", function (req, res) {
     //TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
   
     let IDpregunta = req.params.preguntaID;
   
@@ -358,10 +342,7 @@ router.get("/", (req, res) => {
   
 
 router.delete("/:preguntaID/suscripcion", function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
+
   
     let IDpregunta = req.params.preguntaID;
   

@@ -53,10 +53,7 @@ router.get("/:DNI/foto", function(req, res){
 });
 
 router.get("/", function (req, res) {
-  if (!req.session.usuario) {
-    res.status(401).send("No se posee sesión válida activa");
-    return;
-  } else if (req.session.usuario.perfil.permiso.ID < 2) {
+  if (req.session.usuario.perfil.permiso.ID < 2) {
     res
       .status(403)
       .send("No se poseen permisos de moderación o sesión válida activa");
@@ -191,7 +188,7 @@ router.get("/:DNI/respuestas", function (req, res) {
     res.send(posts)
   );
 });
-
+  
 router.post("/", (req, res) => {
   let perfilID = req.body.perfilID ? req.body.perfilID : 1;
   // TODO Refactor: mucho texto
@@ -266,7 +263,7 @@ router.post("/", (req, res) => {
     });
 });
 
-//Te deja reinciar la contra de cualquiera lol
+// * Te deja reinciar la contra de cualquiera lol
 router.post("/:DNI/contrasenia", function (req, res) {
   function generarContrasenia() {
     var length = 8,
@@ -300,7 +297,7 @@ router.post("/:DNI/contrasenia", function (req, res) {
           },
         })
         .sendMail({
-          from: '"UTN FAQ - Recuperación de contraseña" <maddison53@ethereal.email>', // sender address
+          from: `"UTN FAQ - Recuperación de contraseña" <${process.env.CORREO_USER}>`, // sender address
           to: usu.correo, // list of receivers
           subject: "UTN FAQ - Recuperación de contraseña", // Subject line
           text: `¡Saludos, ${usu.nombre}! Tu contraseña temporal es "${contraseniaNueva}" (sin comillas).`, // plain text body
@@ -313,10 +310,6 @@ router.post("/:DNI/contrasenia", function (req, res) {
 });
 
 router.post("/:DNI/reporte", function (req, res) {
-  if (!req.session.usuario) {
-    res.status(401).send("Usuario no tiene sesión válida activa");
-    return;
-  }
   Usuario.findByPk(req.params.DNI)
     .then((usuario) => {
       if (!usuario) {
@@ -338,10 +331,6 @@ router.post("/:DNI/reporte", function (req, res) {
 });
 
 router.post("/:DNI/bloqueo", function (req, res) {
-  if (!req.session.usuario) {
-    res.status(401).send("Usuario no tiene sesión válida activa");
-    return;
-  }
   if (req.session.usuario.perfil.permiso.ID < 2) {
     res.status(401).send("Usuario no posee permisos");
     return;
@@ -391,10 +380,6 @@ router.post("/:DNI/bloqueo", function (req, res) {
 });
 
 router.delete("/:DNI/bloqueo", function (req, res) {
-  if (!req.session.usuario) {
-    res.status(401).send("Usuario no tiene sesión válida activa");
-    return;
-  }
   if (req.session.usuario.perfil.permiso.ID < 2) {
     res.status(401).send("Usuario no posee permisos");
     return;
@@ -447,10 +432,6 @@ router.patch("/imagen", upload.single("image"), function (req, res) {
 });
 
 router.patch("/contrasenia", function (req, res) {
-  if (!req.session.usuario) {
-    res.status(401).send("Usuario no tiene sesión válida activa");
-    return;
-  }
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
       if(bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)){
@@ -468,10 +449,6 @@ router.patch("/contrasenia", function (req, res) {
 });
 
 router.patch("/mail", function (req, res) {
-  if (!req.session.usuario) {
-    res.status(401).send("Usuario no tiene sesión válida activa");
-    return;
-  }
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
       if(bcrypt.compare(req.body.contrasenia, usuario.contrasenia)){
@@ -489,10 +466,6 @@ router.patch("/mail", function (req, res) {
 });
 
 router.patch("/:DNI", function (req, res) {
-  if (!req.session.usuario) {
-    res.status(401).send("Usuario no tiene sesión válida activa");
-    return;
-  }
   if (req.session.usuario.perfil.permiso.ID < 3) {
     res.status(401).send("Usuario no posee permisos");
     return;
@@ -510,6 +483,6 @@ router.patch("/:DNI", function (req, res) {
       res.status(500).send(err);
     });
 });
-
-
+  
+  
 export { router };

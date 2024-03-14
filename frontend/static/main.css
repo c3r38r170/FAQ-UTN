@@ -590,4 +590,8 @@ a.dropdown-item {
 div.tags-input {
   border-radius: 20px;
   padding: 0 3px;
+}
+
+form#nueva-pregunta, form#editando-pregunta {
+  padding: 0 3rem;
 }/*# sourceMappingURL=main.css.map */

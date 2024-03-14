@@ -8,10 +8,6 @@ const router = express.Router();
 
 // Ruta para crear un nuevo perfil
 router.post("/", async (req, res) => {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;
@@ -31,10 +27,6 @@ router.post("/", async (req, res) => {
   
   // Ruta para actualizar un perfil por su ID
   router.patch("/:id", async (req, res) => {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;
@@ -61,10 +53,6 @@ router.post("/", async (req, res) => {
   
   // Ruta para desactivar un perfil por su ID
   router.patch("/:id/activado", async (req, res) => {
-    if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa");
-      return;
-    }
     if (req.session.usuario.perfil.permiso.ID < 3) {
       res.status(401).send("Usuario no posee permisos");
       return;
