@@ -10,10 +10,16 @@ let espacioSugerencias=createElement('DIV',{	id:'nueva-pregunta-sugerencias'});
 let dF=new DocumentFragment();
 // TODO Refactor: Sacar este estilo en línea.
 addElement(dF,['LABEL',{innerText:'Sugerencias basadas en lo escrito hasta el momento:',class:'label',style:{fontSize:'smaller'}}],espacioSugerencias);
-gEt('nueva-pregunta').firstElementChild/* Campo de título */.after(dF)
+gEt('nueva-pregunta').firstElementChild/* Fieldset */.firstElementChild/* Campo de título */.after(dF)
 
 let peticionID=0;
 function buscarSugerencias(valor){
+	valor=valor.trim();
+	if(!valor || valor.length<10){
+		espacioSugerencias.innerHTML='';
+		return;
+	}
+	
 	let estaPeticionID=++peticionID;
 	setTimeout(()=>{
 		if(peticionID==estaPeticionID){

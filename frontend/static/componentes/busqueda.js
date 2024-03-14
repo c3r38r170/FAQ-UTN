@@ -28,6 +28,7 @@ class Busqueda{
 
         this.#formulario=new Formulario('searchForm',null,campos,null,{
             clasesBoton:'is-primary mt-3 fa fa-magnifying-glass'
+            ,textoEnviar:''
         })
 	}
 

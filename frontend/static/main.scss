@@ -414,7 +414,7 @@ div.buscador{
 		font-weight: 600;
 		margin-bottom: 1rem;
 	}
-	& input{
+	input, div.tags-input{
 		border-radius: 20px;
 	}
 }
@@ -667,11 +667,15 @@ a.dropdown-item{
 	font-weight: 500!important;
 }
 div.tags-input{
-	border-radius: 20px;
+	border-radius: 3px;
  	padding: 0 3px;
 }
 
 
 form#nueva-pregunta, form#editando-pregunta{
     padding: 0 3rem;
+}
+
+form > fieldset{
+	display: grid;
 }

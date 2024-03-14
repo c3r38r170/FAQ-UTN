@@ -1,4 +1,5 @@
 import { superFetch } from '../libs/c3tools.js'
+import { Boton } from './boton.js';
 
 class Formulario{
 	static instancias = {};
@@ -26,6 +27,8 @@ class Formulario{
 	}
 
 	enviar(e){
+		let form=e.target;
+
 		if(this.#alEnviar){
 			this.#alEnviar(e);
 		}
@@ -39,7 +42,7 @@ class Formulario{
 
 		
 		// Crear un objeto FormData para facilitar la obtención de datos del formulario
-		const formData = new FormData(e.target);
+		const formData = new FormData(form);
 		
 		const fileInput = document.querySelector(`#${this.#id} input[type="file"]`);
 		let datos;
@@ -66,9 +69,14 @@ class Formulario{
 			});
 		}
 		let ok,codigo;
+		let fieldset=form.firstElementChild;
+		fieldset.disabled=true;
 		superFetch(this.#endpoint,datos,{ method: this.verbo})
 			.then(res=>{
 				ok=res.ok;
+				if(!ok){
+					fieldset.disabled=false;
+				}
 				codigo=res.status;
 				return res.text();
 			})
@@ -78,11 +86,10 @@ class Formulario{
 	render(){
 		// TODO Refactor: Eliminar estilo en línea, eliminar el atributo clase si no hace falta.
 		// style="padding-top:32px;" class="" 
-        return `<form id=${this.#id} onsubmit="Formulario.instancias['${this.#id}'].enviar(event)" enctype="multipart/form-data"  >`
+        return `<form id=${this.#id} onsubmit="Formulario.instancias['${this.#id}'].enviar(event)" enctype="multipart/form-data"><fieldset>`
             + this.campos.reduce((html,c)=>html+(new Campo(c)).render(),'') 
-            // TODO Refactor: new Boton ??
-            +`<input class="button ${this.#clasesBotonEnviar}" type=submit value="${this.#textoEnviar}">`
-            +'</form>'
+						+new Boton({classes:this.#clasesBotonEnviar,titulo:this.#textoEnviar}).render()
+            +'</fieldset></form>'
             +this.instanciaAScript();
     }
 
