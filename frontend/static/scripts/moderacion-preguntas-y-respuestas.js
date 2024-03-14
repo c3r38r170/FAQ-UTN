@@ -32,10 +32,10 @@ gEt('moderar-posts').onclick=(e)=>{
         if(tabla.pagina==1){
           SqS(`tbody tr:nth-child(${reporteIndice+1})`).remove();
         }else{
-          SqS('footer [value="-1"]').click();
+          SqS('tfoot [value="-1"]').click();
           // !caso esquina de eliminar uno que esté solo en la última página
           if(tabla.entidades.length!=1)
-            SqS('footer [value="1"]').click();
+            SqS('tfoot [value="1"]').click();
         }
       }
     }
