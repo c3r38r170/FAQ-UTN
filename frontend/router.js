@@ -36,8 +36,7 @@ import {
   Categoria,
 } from "../api/v1/model.js";
 
-// TODO Feature: ¿Configuración del DAO para ser siempre plain o no?  No funcionaría con las llamadas crudas que hacemos acá. ¿Habrá alguna forma de hacer que Sequelize lo haga?
-// PreguntaDAO.siemprePlain=true; // Y usarlo a discresión. //Para?
+// TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
 // TODO Refactor: Usar todas.js
 import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta } from './static/pantallas/todas.js';
@@ -53,6 +52,7 @@ import { PantallaAdministracionCategorias } from "./static/pantallas/administrac
 import { PantallaAdministracionEtiquetas } from "./static/pantallas/administracion-etiquetas.js";
 import { PantallaEtiquetaPreguntas } from "./static/pantallas/pantalla-etiquetas-pregunta.js";
 import { PantallaAdministracionUsuarios } from "./static/pantallas/administracion-usuarios.js";
+import { PantallaEditarRespuesta } from "./static/pantallas/editar-respuesta.js";
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -100,34 +100,6 @@ router.get("/", (req, res) => {
   }
 });
 
-router.get("/etiqueta/:id/preguntas", async (req, res) => {
-  try {
-    const e = await EtiquetaDAO.findByPk(req.params.id);
-
-    if (!e) {
-      res.status(404).send("ID de etiqueta inválida");
-      return;
-    }
-
-    let filtro = [];
-    filtro.etiquetas = true;
-    filtro.etiquetaID = req.params.id;
-    let filtros = { filtrar: filtro };
-
-    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    PreguntaDAO.pagina(filtros).then((preguntas) => {
-      let pagina = new PantallaEtiquetaPreguntas(req.path, req.session, "?etiquetas=true&etiquetaID="+req.params.id);
-      pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
-      // TODO UX: Mejor título
-      pagina.titulo = "Etiqueta # "+e.descripcion;
-      res.send(pagina.render());
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error interno del servidor");
-  }
-});
-
 // * Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) =>  {
 	
@@ -167,7 +139,8 @@ router.get("/pregunta/:id?", async (req, res) =>  {
 									},
 									{
 										model: VotoDAO,
-										as: 'votos'
+										as: 'votos',
+                    required:false
 									}
 								]
 							}
@@ -288,8 +261,6 @@ router.get("/suscripciones", (req, res) => {
     }
 
     let pagina = PaginaSuscripciones(req.path, req.session);
-    // TODO Feature -- Hacer paginacion de suscripciones en api
-    // pagina.partes[1]/* ! DesplazamientoInfinito */.entidadesIniciales=pre;
 
     res.send(pagina.render());
   } catch (error) {
@@ -415,6 +386,56 @@ router.get("/pregunta/:id/editar", (req, res)=>{
   }
 })
 
+
+router.get("/respuesta/:id/editar", (req, res)=>{
+  try{
+    let usu = req.session;
+    if(!usu.usuario){
+      let pagina = SinPermisos(usu, "No está logueado");
+      res.send(pagina.render());
+      return;
+    }
+
+    const include = [
+      {
+        model: PostDAO,
+        as: 'post',
+        where: {
+          duenioDNI: req.session.usuario.DNI
+        }
+      },
+      {
+        model: PreguntaDAO,
+        as: 'pregunta',
+        include: {
+          model: PostDAO,
+          as: 'post'
+        }
+      }
+    ];
+    RespuestaDAO.findByPk(req.params.id, { 
+      raw: true,
+      nest: true,
+      include })
+    .then((respuesta)=>{
+      console.log(respuesta);
+      // * Editar respuesta.
+      let pagina = PantallaEditarRespuesta(req.path, req.session, respuesta);
+      res.send(pagina.render());
+    }).catch((error) => {
+      console.error('Error:', error);
+      res.status(409).send('Error al buscar la respuesta');
+    });
+
+
+  }catch(error){
+    console.error(error);
+    res.status(500).send("Error interno del servidor");
+  }
+})
+
+
+
 // TODO Refactor: Ver si se puede unificar el algoritmo de prefil/preguntas y perfil/respuestas
 router.get("/perfil/respuestas", (req, res) => {
   try {
@@ -521,9 +542,6 @@ router.get("/usuario/:id?", async (req, res) => {
     res.send();
   });
 });
-
-// TODO UX: ¿Qué habría en /administración? ¿Algunas stats con links? (reportes nuevos, usuarios nuevos, qsy)  Estaría bueno.
-// Actualmente te manda a parametros, podríamos definir algo y lo mismo para /moderación
 
 router.get("/administracion/parametros", async (req, res) => {
   let usu = req.session;
@@ -645,13 +663,3 @@ router.get("/prueba/mensaje", async (req, res) => {
 });
 
 export { router };
-
-        // ,form:opcion=>  new Formulario(
-        //     opcion.formID
-        //     , opcion.endpoint
-        //     , []
-        //     ,this.procesarDesuscripcion
-        //     ,  {textoEnviar:opcion.textoAEnviar,verbo: opcion.verbo ,clasesBoton:opcion.clasesBotonForm}
-        // )   
-
-        

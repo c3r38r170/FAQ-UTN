@@ -49,7 +49,6 @@ class Pagina {
 	
      if(sesion.usuario){
 			this.columnaNotificaciones=[
-				// TODO UX: Iconito de notificaciones. Ver los bocetos de las pantallas.
 				new Titulo(5,'<i class="fa-regular fa-bell mr-2"></i> Notificaciones')
 				,new DesplazamientoInfinito('notificaciones-di','/api/notificacion',n=>(new Notificacion(n.ID,n, sesion.usuario.DNI)).render())
 			];
@@ -82,10 +81,15 @@ class Pagina {
 		<script src="/scripts${rutaRecursos + ".js" }" type="module"></script>
 		<link rel="stylesheet" href="/styles${rutaRecursos + ".css"}">
 		
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		<script src="/scripts/alertas.js"></script>
+		<link rel="stylesheet" href="https://unpkg.com/@sweetalert2/theme-bulma@5.0.16/bulma.css"></link>
+
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-switch@2.0.4/dist/css/bulma-switch.min.css">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tagsinput@1.0.3/dist/css/bulma-tagsinput.min.css">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
+
 	</head>
 	<body>
 		${this.#encabezado.render()}
@@ -239,7 +243,7 @@ class Encabezado {
 				, [
 					{ name:'nombre', textoEtiqueta:'Nombre', type: 'text' },
 					{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
-					{ name:'correo', textoEtiqueta:'Correo electrónico', type: 'email' },
+					{ name:'correo', textoEtiqueta:'Correo electrónico <br><small>(opcional, ignorar para usar el registrado en la UTN, se puede cambiar luego)</small>', type: 'email', required:false },
 					{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
 				]
 				, this.procesarRegistro
@@ -250,14 +254,18 @@ class Encabezado {
 			}
 	}
 
-  procesarRespuesta() {
-	// TODO Feature: Mostrar errores.
-	location.reload();
+  procesarRespuesta(respuesta,{ok,codigo}) {
+		if(ok){
+			location.reload();
+		}else Swal.error(respuesta);
   }
 
-  procesarRegistro(){
-	
-	location.reload();
+  procesarRegistro(respuesta,{ok,codigo}){
+		if(ok){
+			location.reload();
+			// TODO Refactor: replace, volver a entrar, con nueva info, con nuevas cookies
+			// location.replace(ruta);
+		}else Swal.error(`Error ${codigo}: ${respuesta}`);
   }
   
  

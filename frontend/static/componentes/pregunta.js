@@ -15,7 +15,7 @@ class Pregunta{
     #estaSuscripto = false ;
     #botonEditar;
     #desplegable;
-    constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, usuariosSuscriptos},instanciaModal, sesion){
+    constructor({ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, suscripciones},instanciaModal, sesion){
         // TODO Feature: Pensar condiciones de fallo de creación. Considerar que puede venir sin cuerpo (formato corto) o sin título (/pregunta, quitado "artificialmente")
 
         this.#ID = ID;
@@ -36,11 +36,11 @@ class Pregunta{
                     ID
                     ,votos:post.votos
                     ,usuarioActual:sesion
+                    ,duenio:post.duenio
                 });
-                
-                if(usuariosSuscriptos){
-                    if(!Array.isArray(usuariosSuscriptos)) usuariosSuscriptos=[usuariosSuscriptos]
-                    this.#estaSuscripto=usuariosSuscriptos.some(usuario=>usuario.DNI == this.#usuarioActual.DNI && usuario.suscripcionesPregunta.fecha_baja == null);
+                if(suscripciones){
+                    if(!Array.isArray(suscripciones)) suscripciones=[suscripciones]
+                    this.#estaSuscripto=suscripciones.some(sus=>sus.suscripto.DNI == this.#usuarioActual.DNI);
             }
                 // TODO Refactor: Que ni vengan las suscripciones que estén dadas de baja (no chequear que fecha_baja == null). fecha_baja es una eliminación suave.
             }
@@ -51,6 +51,7 @@ class Pregunta{
         if(this.#usuarioActual){
             this.#desplegable = new Desplegable('opcionesPregunta'+this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>',undefined,undefined,'opcionesPost');
             if(this.#usuarioActual.DNI == this.#duenio.DNI){
+                // TODO Refactor: No usar alert. Usar Swal.
                 let form = new Formulario('eliminadorPregunta'+this.#ID, '/api/post/'+this.#ID, [],(res)=>{alert(res)},{textoEnviar:'Eliminar',verbo: 'DELETE' ,clasesBoton: 'mx-auto is-danger w-100'}).render()
                 let opciones = [
                 {
@@ -83,6 +84,7 @@ class Pregunta{
                     value: '2',
                     type: "radio"
                   }],
+                  // TODO Refactor: No usar alert. Usar Swal.
                   (res)=>{alert(res)},
                   {textoEnviar:'Reportar',verbo: 'POST' ,clasesBoton: 'mx-auto is-link w-100'}
                   ).render()

@@ -45,7 +45,7 @@ gEt("administrar-etiquetas").onchange = (e) => {
       ),
       new Formulario(
         "administracion-etiquetas-deshabilitar",
-        `/api/etiquetas/${ID}/activado`,
+        `/api/etiqueta/${ID}/activado`,
         [],
         (txt, info) => {
           if (info.ok) {
@@ -58,8 +58,7 @@ gEt("administrar-etiquetas").onchange = (e) => {
             }
           } else {
             checkbox.checked = true;
-            // TODO UX: Mejores alertas
-            alert(`Error ${info.codigo}: ${txt}`);
+            Swal.error(`Error ${info.codigo}: ${txt}`);
           }
 
           checkbox.disabled = false;
@@ -78,7 +77,7 @@ gEt("administrar-etiquetas").onchange = (e) => {
     modal.contenido = [
       new Formulario(
         "administracion-etiqueta-deshabilitar",
-        `/api/etiquetas/${ID}/activado`,
+        `/api/etiqueta/${ID}/activado`,
         [],
         (txt, info) => {
           if (info.ok) {
@@ -91,8 +90,7 @@ gEt("administrar-etiquetas").onchange = (e) => {
             }
           } else {
             checkbox.checked = false;
-            // TODO UX: Mejores alertas
-            alert(`Error ${info.codigo}: ${txt}`);
+            Swal.error(`Error ${info.codigo}: ${txt}`);
           }
 
           checkbox.disabled = false;
@@ -128,7 +126,7 @@ gEt("administrar-etiquetas").onclick = (e) => {
   modal.contenido = [
     new Formulario(
       "administracion-etiquetas-editar",
-      `/api/etiquetas/${ID}`,
+      `/api/etiqueta/${ID}`,
       [
         {
           name: "descripcion",
@@ -162,8 +160,7 @@ gEt("administrar-etiquetas").onclick = (e) => {
             etiquetaElegida.categoria = JSON.parse(txt).categoria;
           }
         } else {
-          // TODO UX: Mejores alertas
-          alert(`Error ${info.codigo}: ${txt}`);
+          Swal.error(`Error ${info.codigo}: ${txt}`);
         }
       },
       {
@@ -178,7 +175,7 @@ gEt("administrar-etiquetas").onclick = (e) => {
 
   let select = document.getElementsByName("categoriaID")[0];
 
-  fetch("/api/categorias").then((options) => {
+  fetch("/api/categoria").then((options) => {
     options.json().then((options) => {
       options.forEach((option) => {
         var o = document.createElement("option");
@@ -220,8 +217,7 @@ gEt("botonAgregar").onclick = (e) => {
           //TODO: cambiar los datos
           window.location.reload();
         } else {
-          // TODO UX: Mejores alertas
-          alert(`Error ${info.codigo}: ${txt}`);
+          Swal.error(`Error ${info.codigo}: ${txt}`);
         }
       },
       {
@@ -236,7 +232,7 @@ gEt("botonAgregar").onclick = (e) => {
 
   let select = document.getElementsByName("categoriaID")[0];
 
-  fetch("/api/categorias").then((options) => {
+  fetch("/api/categoria").then((options) => {
     options.json().then((options) => {
       options.forEach((option) => {
         var o = document.createElement("option");

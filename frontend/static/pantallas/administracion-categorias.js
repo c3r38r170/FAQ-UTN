@@ -10,7 +10,7 @@ import {
 } from "../componentes/todos.js";
 
 function crearPantalla(ruta, sesion) {
-  let tabla = new Tabla("administrar-categorias", "/api/categorias", [
+  let tabla = new Tabla("administrar-categorias", "/api/categoria", [
     {
       nombre: "Categoria",
       celda: (categoria) =>

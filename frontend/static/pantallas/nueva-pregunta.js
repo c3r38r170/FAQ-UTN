@@ -21,19 +21,13 @@ function crearPagina(ruta,sesion,categorias){
 					if(info.ok){
 						let preguntaID=+respuesta
 						window.location.replace('/pregunta/'+preguntaID);
-						// TODO UX: Mejores alertas.
-					}else alert(`Error ${info.codigo}: ${respuesta}`);
+					}else Swal.error(`Error ${info.codigo}: ${respuesta}`);
 				}
 				,{
 					textoEnviar:'Crear Pregunta', clasesBoton:'is-link is-rounded mt-3'
 				}
 			)
-			// TODO Feature: Formulario de creación de preguntas 
-			// ✅ Campo de Título. Tiene que sugerir preguntar relacionadas. 
-			// ✅ Campo de etiquetas. Se deben obtener las etiquetas, mostrarlas, permitir elegirlas.
-			// ✅ Campo de cuerpo. Texto largo con un máximo y ya.
-			// ✅ Las sugerencias pueden ser un panel abajo, o abajo del título... que se vaya actualizando a medida que se escribe el cuerpo.
-			// Botón de crear pregunta. Se bloquea, si hay un error salta cartel (como por moderación), si no lleva a la página de la pregunta. Reemplaza, así volver para atrás va al inicio y no a la creación de preguntas.
+			// TODO UX: Que se bloquee el formulario al enviar, si hay un error salta cartel (como por moderación), si no lleva a la página de la pregunta.
 		]
 	});
 	return pagina;

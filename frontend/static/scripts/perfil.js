@@ -42,8 +42,7 @@ gEt("botonCambiarContraseña").onclick = (e) => {
                 window.location.reload();
       
               } else {
-                // TODO UX: Mejores alertas
-                alert(`Error ${info.codigo}: ${txt}`);
+                Swal.error(`Error ${info.codigo}: ${txt}`);
               }
             },
             {
@@ -88,8 +87,7 @@ gEt("botonCambiarContraseña").onclick = (e) => {
                 window.location.reload();
       
               } else {
-                // TODO UX: Mejores alertas
-                alert(`Error ${info.codigo}: ${txt}`);
+                Swal.error(`Error ${info.codigo}: ${txt}`);
               }
             },
             {
@@ -123,7 +121,7 @@ gEt("botonCambiarContraseña").onclick = (e) => {
             if (response.ok) {
                 window.location.reload();
             } else {
-                alert(`Error al actualizar la imagen`);
+              Swal.error(`Error al actualizar la imagen. Reintente más tarde.`);
             }
         })
         .catch(error => {

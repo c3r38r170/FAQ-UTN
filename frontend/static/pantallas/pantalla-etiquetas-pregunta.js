@@ -7,7 +7,7 @@ function crearPagina(ruta,sesion, queryString=""){
         ruta: ruta,
         titulo: "Etiqueta",
         sesion: sesion,
-        // TODO Feature: endpoint de preguntas por suscripción
+        // TODO Refactor: Eliminar este archivo.
         partes: [
           modal,
           new DesplazamientoInfinito(

@@ -8,10 +8,12 @@ class ChipValoracion{
     #estado;
     #id; //id del post
     #usuarioActual;
+    #duenio
 	constructor({
         ID,
         votos,
-        usuarioActual: sesion
+        usuarioActual: sesion,
+        duenio:duenio
     }){
         this.#id = ID;
         // TODO Refactor: Simplificar el uso de sesiones a usuario y punto, y no sesion.usuario  Esto pasa en los chips, en pregunta y en respuesta, principalmente.
@@ -22,6 +24,7 @@ class ChipValoracion{
         }else{
             this.#estado=(votos.find(voto=>voto.votanteDNI==this.#usuarioActual.DNI))?.valoracion||0;
         }
+        this.#duenio=duenio
 
 	}
 
@@ -48,7 +51,6 @@ class ChipValoracion{
                 })
             }).then(response=>{
                 if(response.status==201){
-                    //TODO Feature: cambiar flechita
                     let nuevaValoracion= valoracion+(valor-estado);
                     document.getElementById("chip-valoracion-"+id+"-numero").innerHTML=nuevaValoracion;
                     divChipvaloracion.dataset.valoracion=nuevaValoracion;
@@ -67,7 +69,6 @@ class ChipValoracion{
                 method: 'DELETE'
             }).then(response=>{
                 if(response.status==201){
-                    //TODO Feature: cambiar flechita
                     let nuevaValoracion= valoracion-estado;
                     document.getElementById("chip-valoracion-"+id+"-numero").innerHTML=nuevaValoracion;
                     divChipvaloracion.dataset.valoracion=nuevaValoracion;
@@ -83,13 +84,13 @@ class ChipValoracion{
 	render(){
 		return`
         <div id="chip-valoracion-${this.#id}" data-id='${this.#id}' data-valoracion='${this.#valoracion}' data-estado='${this.#estado}' class="chip-valoracion">
-            <button class="positiva" value='1' onclick="ChipValoracion.votar(event)" ${this.#usuarioActual=== undefined?"disabled":''}>
+            <button class="positiva" value='1' onclick="ChipValoracion.votar(event)" ${this.#usuarioActual=== undefined || this.#usuarioActual.DNI ==this.#duenio.DNI?"disabled":''}>
                 <span>
                     <i id="iPos-${this.#id}" class="fa-solid fa-caret-up" ${this.#estado == 1 ? 'style="color: #B90E0A"':''}></i>
                 </span>
             </button>
             <div id="chip-valoracion-${this.#id}-numero" class="valoraciones" >${this.#valoracion}</div>
-            <button class="negativa" value ='-1' onclick="ChipValoracion.votar(event)" ${this.#usuarioActual=== undefined?"disabled":''}>
+            <button class="negativa" value ='-1' onclick="ChipValoracion.votar(event)" ${this.#usuarioActual=== undefined || this.#usuarioActual.DNI ==this.#duenio.DNI?"disabled":''}>
                 <span>
                     <i id="iNeg-${this.#id}" class="fa-solid fa-caret-down" ${this.#estado == -1 ? 'style="color: #B90E0A"':''}></i>
                 </span>

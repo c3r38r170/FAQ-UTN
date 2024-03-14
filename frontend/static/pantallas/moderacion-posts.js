@@ -46,7 +46,6 @@ function crearPantalla(ruta,sesion){
 		partes:[
 			// TODO Feature: Considerar poner una barra de búsqueda.
 			tabla
-			// TODO Feature: Modal para buscar con qué unificar. En sí, falta todo el mecanismo de unificación, y eliminado.
 			,new Modal('Moderar preguntas y respuestas','moderacion-posts-modal') // * El título se va cambiando.
 		]
   });

@@ -1,7 +1,6 @@
 import { Sequelize, DataTypes } from "sequelize";
-
+import { setModera, setRechazaPost, setReportaPost, setResultadosPorPagina, getPaginacion } from "./parametros.js";
 import * as bcrypt from "bcrypt";
-
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -34,21 +33,24 @@ sequelize
     console.error("Unable to connect to the database: ", error);
   });
 
-const Parametro = sequelize.define("parametro", {
-  ID: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  descripcion: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  valor: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
+  
+ 
+
+  const Parametro = sequelize.define("parametro", {
+    ID: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    descripcion: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    valor: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  });
 
 const Usuario = sequelize.define("usuario", {
   DNI: {
@@ -261,8 +263,8 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
       "$post.duenioDNI$": +DNI,
     },
     order: [["fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina,
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina,
   });
 };
 
@@ -523,6 +525,13 @@ Post.belongsTo(Respuesta, {
   foreignKey: "ID",
 });
 
+const respuestasCount = [
+  sequelize.literal(
+    "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+  ),
+  "respuestasCount",
+]
+
 Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
   return Pregunta.findAll({
     include: [
@@ -573,15 +582,10 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         },
         separate: true,
       },
-    ], //TODO Refactor: aplicar dry
+    ],
     attributes: {
       include: [
-        [
-          sequelize.literal(
-            "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-          ),
-          "respuestasCount",
-        ],
+        respuestasCount,
       ],
     },
     separate: true,
@@ -590,8 +594,8 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     },
     subQuery: false,
     order: [[Post, "fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina
   });
 };
 
@@ -642,10 +646,6 @@ const Pregunta = sequelize.define(
   }
 );
 
-// TODO Refactor: Llevar arriba de todo si se define que va a quedar acá.
-const PAGINACION = {
-  resultadosPorPagina: 10,
-};
 
 /* *
 Ejemplo de filtro por asociación de la documentación:
@@ -716,12 +716,9 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 		}
 	*/
 
-  // TODO Refactor: DRY en todo lo que se pueda
-
   if (duenioID) { // * Esto es para los perfiles.
     return Pregunta.findAll({
 
-      // TODO Feature: try subQUery:false again and separate: true
       include: [
         {
           model: Post,
@@ -752,23 +749,18 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
           },
           separate: true,
         },
-      ], //TODO Refactor: aplicar dry
+      ],
       attributes: {
         include: [
-          [
-            sequelize.literal(
-              "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-            ),
-            "respuestasCount",
-          ],
+          respuestasCount,
         ],
       },
       where: {
         "$post.duenio.DNI$": duenioID,
       },
       order: [[Post, "fecha", "DESC"]],
-      limit: PAGINACION.resultadosPorPagina,
-      offset: +pagina * PAGINACION.resultadosPorPagina,
+      limit: getPaginacion().resultadosPorPagina,
+      offset: +pagina * getPaginacion().resultadosPorPagina,
 
       // ,raw:true,nest:true
     });
@@ -778,17 +770,12 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       include: [
         {model:Post,required:true}
       ],
-      limit: PAGINACION.resultadosPorPagina,
-      offset: (+pagina) * PAGINACION.resultadosPorPagina,
+      limit: getPaginacion().resultadosPorPagina,
+      offset: (+pagina) * getPaginacion().resultadosPorPagina,
       subQuery: false,
       attributes : {
         include: [
-          [
-            sequelize.literal(
-              "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-            ),
-            "respuestasCount",
-          ],
+          respuestasCount,
         ],
       }
     };
@@ -1001,14 +988,13 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
       "$post.duenioDNI$": +DNI,
     },
     order: [["fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina,
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina,
   });
 };
 
 Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
   return Pregunta.findAll({
-    // TODO Feature: try subQUery:false again and separate: true
     include: [
       {
         model: Post,
@@ -1057,15 +1043,10 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         },
         separate: true,
       },
-    ], //TODO Refactor: aplicar dry
+    ],
     attributes: {
       include: [
-        [
-          sequelize.literal(
-            "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-          ),
-          "respuestasCount",
-        ],
+        respuestasCount,
       ],
     },
     separate: true,
@@ -1074,8 +1055,8 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     },
     subQuery: false,
     order: [[Post, "fecha", "DESC"]],
-    limit: PAGINACION.resultadosPorPagina,
-    offset: +pagina * PAGINACION.resultadosPorPagina,
+    limit: getPaginacion().resultadosPorPagina,
+    offset: +pagina * getPaginacion().resultadosPorPagina,
   });
 };
 
@@ -1136,34 +1117,9 @@ Pregunta.hasMany(EtiquetasPregunta, {
   as: "filtroEtiquetas",
   constraints: false,
 });
-/*
-Etiqueta.hasMany(EtiquetasPregunta,{
-    // as:'etiqueta',
-    constraints:false
-    ,foreignKey:'etiquetumID'
-});*/
 
 EtiquetasPregunta.belongsTo(Etiqueta, { constraints: false});
 
-/* 
-Etiqueta.hasMany(EtiquetasPregunta,{
-    as:'preguntas'
-    ,constraints:false
-}) */
-
-
-/* Pregunta.belongsToMany(Etiqueta, {
-    as:'etiquetas',
-    through: EtiquetasPregunta,
-    constraints:false
-}); */
-
-/* // TODO Refactor: Quizá ni siquiera haga falta, es raro que se haga Etiqueta.pregunta/s
- Etiqueta.belongsToMany(Pregunta, {
-    as:'preguntas',
-    through: EtiquetasPregunta,
-    constraints:false 
-}); */
 
 const Categoria = sequelize.define("categoria", {
   ID: {
@@ -1215,21 +1171,6 @@ const SuscripcionesEtiqueta = sequelize.define("suscripcionesEtiqueta", {
     type: DataTypes.DATE,
   },
 });
-
-// TODO Feature: Ver si no se puede hacer algo como un Many to Many. Tanto acá como en otros como el voto, el reporte...
-/*
-Usuario.hasMany(SuscripcionesEtiqueta,{
-    as:'etiquetasSuscriptas',
-    constraints:false,
-    foreignKey:'suscriptoDNI'
-});
-
-Etiqueta.hasMany(SuscripcionesEtiqueta,{
-    as:'suscriptos',
-    constraints:false,
-    foreignKey:'etiquetaID'
-})
-*/
 
 Usuario.belongsToMany(Etiqueta, {
   through: SuscripcionesEtiqueta,
@@ -1295,8 +1236,47 @@ const Carrera = sequelize.define("carrera", {
     allowNull: false,
   },
 });
+/* 
+				case 'IC':
+					carreraID=1;
+					break;
+				case 'IE':
+					carreraID=2;
+					break;
+				case 'IQ':
+					carreraID=3;
+					break;
+				case 'IM':
+					carreraID=4;
+					break;
+				case 'ISI':
+					carreraID=5;
+					break; */
+
+Carrera.upsert({
+    ID: 1,
+    nombre: "Ingeniería Civil"
+})
+Carrera.upsert({
+    ID: 2,
+    nombre: "Ingeniería Eléctrica"
+})
+Carrera.upsert({
+    ID: 3,
+    nombre: "Ingeniería Química"
+})
+Carrera.upsert({
+    ID: 4,
+    nombre: "Ingeniería Mecánica"
+})
+Carrera.upsert({
+    ID: 5,
+    nombre: "Ingeniería en Sistemas de Información"
+})
+        
 
 const CarrerasUsuario = sequelize.define("carrerasUsuario", {
+  // TODO Refactor: legajo, con minúscula
   Legajo: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -1314,62 +1294,22 @@ Carrera.belongsToMany(Usuario, {
   constraints: false,
 });
 
-//Post.sync({force:true});
-//Pregunta.sync({force:true});
 
-/*Post.create({
-    cuerpo:"hola"
-});
-Post.create({
-    cuerpo:"hola2"
-});
-Post.create({
-    cuerpo:"hola3"
-});
-Post.create({
-    cuerpo:"hola4"
-});
-Post.create({
-    cuerpo:"hola5"
-});
-*/
-/*
-Pregunta.create({
-    ID:1,
-    titulo:"chau"
-});
-Pregunta.create({
-    ID:2,
-    titulo:"chau2"
-});
-Pregunta.create({
-    ID:3,
-    titulo:"chau3"
-});
-Pregunta.create({
-    ID:4,
-    titulo:"chau4"
-});
-Pregunta.create({
-    ID:5,
-    titulo:"chau5"
-});
-*/
 
-/*sequelize.sync({}).then(()=>{
-    Pregunta.findAll({raw:true,
-        plain:true,
-        nest:true,
-    include:Post}).then(pregunta=>console.log(pregunta.cuerpo));
-})*/
-
-//sequelize.sync({ alter: true });
-
-// sequelize.sync();
+Parametro.findAll().then((parametros) => {
+ parametros.forEach((p)=>{
+    if (p.ID == 1)
+      setResultadosPorPagina(p.valor);
+    if (p.ID == 2) setModera(p.valor);
+    if (p.ID == 3) setRechazaPost(p.valor);
+    if (p.ID == 4) setReportaPost(p.valor);
+ });
+});
 
 export {
   Parametro,
   Carrera,
+  CarrerasUsuario,
   SuscripcionesPregunta,
   Usuario,
   Bloqueo,
@@ -1388,3 +1328,4 @@ export {
   Categoria,
   SuscripcionesEtiqueta,
 };
+

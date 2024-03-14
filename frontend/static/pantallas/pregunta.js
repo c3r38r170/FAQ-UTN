@@ -20,9 +20,10 @@ function PaginaPregunta(ruta, sesion, idPregunta){
                 {name:'cuerpo',textoEtiqueta:'Tu respuesta:',type:'textarea'},
                 {name:'IDPregunta', textoEtiqueta:'idPregunta', type:'hidden', value:idPregunta}
             ]
-            ,respuestaID=>{
-                // TODO Feature: ¿o solo agregar la respuesta??
-                window.location.replace(ruta);
+            ,(respuesta,{ok,codigo})=>{
+                if(ok)
+                    window.location.reload();
+                else Swal.error(`Error ${codigo}: ${respuesta}`);
             }
             ,{
                 textoEnviar:'Publicar Respuesta', clasesBoton:'is-link is-rounded mt-3'
