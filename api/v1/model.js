@@ -208,38 +208,24 @@ const Post = sequelize.define(
     ],
   }
 );
-
+/*
 Post.pagina = ({ pagina = 0, DNI } = {}) => {
   return Post.findAll({
     include: [
       { model: Usuario, as: "duenio" },
       {
-        model: Respuesta,
-        as: "respuesta",
-        include: [
-          {
-            model: Pregunta,
-            as: "pregunta",
-            attributes: ["ID", "titulo"],
-            include: [
-              {
-                model: EtiquetasPregunta,
-                required: true,
-                as: "etiquetas",
-                include: {
-                  model: Etiqueta,
-                  include: {
-                    model: Categoria,
-                    as: "categoria",
-                  },
-                },
-                separate: true,
-              },
-            ],
-          }, // *Include Pregunta in Respuesta
-        ],
-        required: false,
-        attributes: ["ID", "preguntaID"],
+        model: Voto
+        , separate: true
+        , include: { model: Usuario, as: 'votante' }
+      }
+      , {
+        model: Usuario
+        , as: 'duenio'
+        , include: {
+          model: Perfil
+          , attributes: ['ID', 'nombre', 'color']
+        }
+        , attributes: ['DNI', 'nombre']
       },
       {
         model: Pregunta,
@@ -267,7 +253,7 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
     offset: +pagina * getPaginacion().resultadosPorPagina,
   });
 };
-
+*/
 Usuario.hasMany(Post, {
   constraints: false,
   foreignKey: "duenioDNI",
@@ -725,6 +711,20 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
           required: true,
           include: [
             {
+              model: Voto
+              , separate: true
+              , include: { model: Usuario, as: 'votante' }
+            }
+            , {
+              model: Usuario
+              , as: 'duenio'
+              , include: {
+                model: Perfil
+                , attributes: ['ID', 'nombre', 'color']
+              }
+              , attributes: ['DNI', 'nombre']
+            },
+            {
               // TODO Feature: Votos no?? Yo diría que sí.
               model: Usuario,
               as: "duenio",
@@ -935,59 +935,84 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
 }
 
 Post.pagina = ({ pagina = 0, DNI } = {}) => {
-  return Post.findAll({
+  return Pregunta.findAll({
     include: [
-      { model: Usuario, as: "duenio" },
+      {
+        model: Post,
+        include: [
+          {
+            model: Usuario,
+            as: "duenio",
+            include: {
+              model: Perfil,
+            },
+          },
+          {
+            model: Voto
+            , separate: true
+            , include: { model: Usuario, as: 'votante' }
+          }
+          , {
+            model: Usuario
+            , as: 'duenio'
+            , include: {
+              model: Perfil
+              , attributes: ['ID', 'nombre', 'color']
+            }
+            , attributes: ['DNI', 'nombre']
+          }
+        ],
+      },
       {
         model: Respuesta,
-        as: "respuesta",
-        include: [
-          {
-            model: Pregunta,
-            as: "pregunta",
-            attributes: ["ID", "titulo"],
-            include: [
-              {
-                model: EtiquetasPregunta,
-                required: true,
-                as: "etiquetas",
-                include: {
-                  model: Etiqueta,
-                  include: {
-                    model: Categoria,
-                    as: "categoria",
-                  },
-                },
-                separate: true,
-              },
-            ],
-          }, // *Include Pregunta in Respuesta
-        ],
+        as: "respuestas",
         required: false,
-        attributes: ["ID", "preguntaID"],
+        include: {
+          model: Post,
+          include: [
+            {
+              model: Usuario,
+              as: "duenio",
+              include: {
+                model: Perfil,
+              },
+            },
+            {
+              model: Voto,
+              separate: true,
+              include: { model: Usuario, as: "votante" },
+            },
+          ],
+        },
       },
       {
-        model: Pregunta,
-        as: "pregunta",
-        required: false,
-        attributes: ["ID", "titulo"],
-        include: [
-          {
-            model: EtiquetasPregunta,
-            required: true,
-            as: "etiquetas",
-            include: {
-              model: Etiqueta,
-            },
-            separate: true,
+        model: EtiquetasPregunta,
+        required: true,
+        as: "etiquetas",
+        include: {
+          model: Etiqueta,
+          include: {
+            model: Categoria,
+            as: "categoria",
           },
-        ],
+        },
+        separate: true,
       },
     ],
-    where: {
-      "$post.duenioDNI$": +DNI,
+    attributes: {
+      include: [
+        respuestasCount,
+      ],
     },
-    order: [["fecha", "DESC"]],
+    separate: true,
+    where: {
+      [Sequelize.Op.or]: [
+        { "$respuestas.post.duenio.DNI$": DNI, },
+        { "$post.duenio.DNI$": DNI, },
+      ]
+    },
+    subQuery: false,
+    order: [[Post, "fecha", "DESC"]],
     limit: getPaginacion().resultadosPorPagina,
     offset: +pagina * getPaginacion().resultadosPorPagina,
   });
@@ -1006,6 +1031,20 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
               model: Perfil,
             },
           },
+          {
+            model: Voto
+            , separate: true
+            , include: { model: Usuario, as: 'votante' }
+          }
+          , {
+            model: Usuario
+            , as: 'duenio'
+            , include: {
+              model: Perfil
+              , attributes: ['ID', 'nombre', 'color']
+            }
+            , attributes: ['DNI', 'nombre']
+          }
         ],
       },
       {

@@ -8,53 +8,53 @@ import { Formulario } from "./formulario.js"
 class Respuesta {
   #ID;
   #valoracion = null;
-  #cuerpo='';
-  #fecha=null;
-  #duenio=null;
-  #usuarioActual=null;
-  #instanciaModal=null;
-  #chipValoracion=null;
+  #cuerpo = '';
+  #fecha = null;
+  #duenio = null;
+  #usuarioActual = null;
+  #instanciaModal = null;
+  #chipValoracion = null;
   #desplegable;
-  constructor({ ID, cuerpo, fecha, post},instanciaModal,sesion) {
+  constructor({ ID, cuerpo, fecha, post }, instanciaModal, sesion) {
     this.#ID = ID;
     this.#cuerpo = cuerpo;
     this.#fecha = new Fecha(fecha);
     this.#duenio = post.duenio;
     this.#instanciaModal = instanciaModal;
-    this.#usuarioActual=sesion?.usuario;
-    
-    if(post.votos && sesion && this.#usuarioActual){
+    this.#usuarioActual = sesion?.usuario;
+
+    if ((post.votos && sesion && this.#usuarioActual) || !sesion?.usuario) {
       this.#chipValoracion = new ChipValoracion({
         ID
-        ,votos:post.votos
-        ,usuarioActual: sesion
-        ,duenio:post.duenio
+        , votos: post.votos
+        , usuarioActual: sesion
+        , duenio: post.duenio
       });
     }
 
-    if(this.#usuarioActual){
-      this.#desplegable = new Desplegable('opcionesRespuesta'+this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>',undefined,undefined,'opcionesPost');
-      if(this.#usuarioActual && this.#usuarioActual.DNI == this.#duenio.DNI){
+    if (this.#usuarioActual) {
+      this.#desplegable = new Desplegable('opcionesRespuesta' + this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>', undefined, undefined, 'opcionesPost');
+      if (this.#usuarioActual && this.#usuarioActual.DNI == this.#duenio.DNI) {
         // TODO Refactor: No usar alert. Usar Swal.
-        let form = new Formulario('eliminadorRespuesta'+this.#ID, '/api/post/'+this.#ID, [],(res)=>{alert(res)},{textoEnviar:'Eliminar',verbo: 'DELETE' ,clasesBoton: 'mx-auto is-danger w-100'}).render()
+        let form = new Formulario('eliminadorRespuesta' + this.#ID, '/api/post/' + this.#ID, [], (res) => { alert(res) }, { textoEnviar: 'Eliminar', verbo: 'DELETE', clasesBoton: 'mx-auto is-danger w-100' }).render()
         let opciones = [
-        {
+          {
             descripcion: "Editar",
             tipo: "link",
-            href: "/respuesta/"+this.#ID+"/editar",
-        },
-        {
+            href: "/respuesta/" + this.#ID + "/editar",
+          },
+          {
             tipo: "form",
             render: form
-        },
+          },
         ];
         this.#desplegable.opciones = opciones;
-      }else{
+      } else {
         // {name,textoEtiqueta,type,required=true,value=''/* TODO Refactor: null? */,extra,placeholder, clasesInput}){
-          let form = new Formulario(
-            'reportadorPost'+this.#ID,
-            '/api/post/'+this.#ID+'/reporte',
-            [{
+        let form = new Formulario(
+          'reportadorPost' + this.#ID,
+          '/api/post/' + this.#ID + '/reporte',
+          [{
             name: "tipoID",
             textoEtiqueta: "Lenguaje Vulgar",
             value: '1',
@@ -67,22 +67,22 @@ class Respuesta {
             type: "radio"
           }],
           // TODO Refactor: No usar alert. Usar Swal.
-          (res)=>{alert(res)},
-          {textoEnviar:'Reportar',verbo: 'POST' ,clasesBoton: 'mx-auto is-link w-100'}
-          ).render()
+          (res) => { alert(res) },
+          { textoEnviar: 'Reportar', verbo: 'POST', clasesBoton: 'mx-auto is-link w-100' }
+        ).render()
         let opciones = [
-            {
-                tipo: "form",
-                render: form
-                
-            }
-            ];
+          {
+            tipo: "form",
+            render: form
+
+          }
+        ];
         this.#desplegable.opciones = opciones;
       }
-    }else{
+    } else {
       this.#desplegable = undefined;
     }
-    
+
 
 
   }
@@ -93,9 +93,9 @@ class Respuesta {
   render() {
     return `
         <div class="respuesta">
-              ${this.#chipValoracion?this.#chipValoracion.render():''}
+              ${this.#chipValoracion ? this.#chipValoracion.render() : ''}
               <div class="cuerpo">
-                ${ this.#usuarioActual ?  '<div class="contenedor-reporte">'+this.#desplegable.render()+'</div>' : '' }
+                ${this.#usuarioActual ? '<div class="contenedor-reporte">' + this.#desplegable.render() + '</div>' : ''}
                 ${this.#cuerpo.replace(/\n/g, '<br>')}
                 <div class="usuario">
                     ${new ChipUsuario(this.#duenio).render()}
