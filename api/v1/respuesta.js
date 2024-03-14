@@ -26,7 +26,7 @@ router.post("/", function (req, res) {
         .then((respuesta) => {
           if (respuesta.apropiado < rechazaPost) {
             // TODO Feature: ¿Devolver razón? Si se decidió que no, está bien.
-            res.status(400).send("Texto rechazo por moderación automática");
+            res.status(400).send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
             return;
           }
   
@@ -163,8 +163,9 @@ router.post("/", function (req, res) {
             if (modera==1) {
               moderarWithRetry(req.body.cuerpo, 10).then((resp) => {
                 let rechazaPost = getRechazaPost();
+                // TODO Refactor: DRY
                 if (resp.apropiado < rechazaPost) {
-                  res.status(400).send("Texto rechazo por moderación automática");
+                  res.status(400).send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
                   return;
                 } else if (resp.apropiado < reportaPost) {
                   //Crear reporte

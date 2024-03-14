@@ -80,7 +80,7 @@ router.get("/", (req, res) => {
                   if (respuesta.apropiado < rechazaPost) {
                     res
                       .status(400)
-                      .send("Texto rechazo por moderación automática");
+                      .send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
                     return;
                   } else if (respuesta.apropiado < reportaPost) {
                     //Crear reporte
@@ -244,7 +244,7 @@ router.get("/", (req, res) => {
           if (respuesta.apropiado < rechazaPost) {
             //esto anda
             // TODO UX: ¿Mandar respuesta del bot?
-            res.status(400).send("Texto rechazo por moderación automática");
+            res.status(400).send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
             return;
           }
           //reporte en esta funcion
