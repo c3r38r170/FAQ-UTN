@@ -23,10 +23,15 @@ function PaginaPregunta(ruta, sesion, idPregunta){
             ,(respuesta,{ok,codigo})=>{
                 if(ok)
                     window.location.reload();
-                else Swal.error(`Error ${codigo}: ${respuesta}`);
+                else{
+                    Swal.error(`Error ${codigo}: ${respuesta}`);
+
+                }
             }
             ,{
-                textoEnviar:'Publicar Respuesta', clasesBoton:'is-link is-rounded mt-3'
+                textoEnviar:'Publicar Respuesta'
+                , clasesBoton:'is-link is-rounded mt-3'
+                // ,alEnviar:()=>document.getElementById()
             }
         )
         pagina.partes.push(form)

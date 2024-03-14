@@ -10,7 +10,7 @@ const sequelize = new Sequelize(
     dialect: "mysql",
     dialectOptions: {
       ssl: {
-        rejectUnauthorized: true,
+        rejectUnauthorized: false,
       },
     },
     logging: false,
@@ -33,24 +33,24 @@ sequelize
     console.error("Unable to connect to the database: ", error);
   });
 
-  
- 
 
-  const Parametro = sequelize.define("parametro", {
-    ID: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    descripcion: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    valor: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  });
+
+
+const Parametro = sequelize.define("parametro", {
+  ID: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  descripcion: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  valor: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+});
 
 const Usuario = sequelize.define("usuario", {
   DNI: {
@@ -208,38 +208,24 @@ const Post = sequelize.define(
     ],
   }
 );
-
+/*
 Post.pagina = ({ pagina = 0, DNI } = {}) => {
   return Post.findAll({
     include: [
       { model: Usuario, as: "duenio" },
       {
-        model: Respuesta,
-        as: "respuesta",
-        include: [
-          {
-            model: Pregunta,
-            as: "pregunta",
-            attributes: ["ID", "titulo"],
-            include: [
-              {
-                model: EtiquetasPregunta,
-                required: true,
-                as: "etiquetas",
-                include: {
-                  model: Etiqueta,
-                  include: {
-                    model: Categoria,
-                    as: "categoria",
-                  },
-                },
-                separate: true,
-              },
-            ],
-          }, // *Include Pregunta in Respuesta
-        ],
-        required: false,
-        attributes: ["ID", "preguntaID"],
+        model: Voto
+        , separate: true
+        , include: { model: Usuario, as: 'votante' }
+      }
+      , {
+        model: Usuario
+        , as: 'duenio'
+        , include: {
+          model: Perfil
+          , attributes: ['ID', 'nombre', 'color']
+        }
+        , attributes: ['DNI', 'nombre']
       },
       {
         model: Pregunta,
@@ -267,7 +253,7 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
     offset: +pagina * getPaginacion().resultadosPorPagina,
   });
 };
-
+*/
 Usuario.hasMany(Post, {
   constraints: false,
   foreignKey: "duenioDNI",
@@ -358,26 +344,26 @@ Voto.belongsTo(Post, {
 });
 
 // * Reportes de post. No de usuarios.
-const TipoReporte = sequelize.define('tipoReporte',{
-    ID: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    descripcion:{
-        type: DataTypes.STRING,
-        allowNull:false
-    }
+const TipoReporte = sequelize.define('tipoReporte', {
+  ID: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  descripcion: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
 })
 
 TipoReporte.upsert({
-    ID: 1,
-    descripcion: "Comportamiento abusivo / vulgar"
+  ID: 1,
+  descripcion: "Comportamiento abusivo / vulgar"
 })
 
 TipoReporte.upsert({
-    ID: 2,
-    descripcion: "Pregunta repetida"
+  ID: 2,
+  descripcion: "Pregunta repetida"
 })
 
 const ReportePost = sequelize.define("reportePost", {
@@ -665,56 +651,56 @@ User.findAll({ include: { all: true }});
 Fuente: https://stackoverflow.com/questions/18838433/sequelize-find-based-on-association
 */
 
-Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
-    /*
-		1) Inicio: Pregunta completas, ordenada por más recientes
-			Esto es la funcion `.pagina()`.
-		2) Búsqueda: Pregunta completas, filtradas por texto y etiquetas, ordenada por coincidencia
-		3) Perfil: Preguntas completas, filtradas por usuario, ordenada por más recientes
-		4) Sugerencias: Solo título e ID, filtradas por texto de título y cuerpo, ordenada por coincidencia
-        5) Suscripciones: Preguntas completas, filtradas por suscripciones, ordenadas por más recientes
+Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
+  /*
+  1) Inicio: Pregunta completas, ordenada por más recientes
+    Esto es la funcion `.pagina()`.
+  2) Búsqueda: Pregunta completas, filtradas por texto y etiquetas, ordenada por coincidencia
+  3) Perfil: Preguntas completas, filtradas por usuario, ordenada por más recientes
+  4) Sugerencias: Solo título e ID, filtradas por texto de título y cuerpo, ordenada por coincidencia
+      5) Suscripciones: Preguntas completas, filtradas por suscripciones, ordenadas por más recientes
 
-        Agrupación lógica:
-            1, 3 y 5: formato largo, filtro por usuario actual y orden más reciente
-            2, 4: Filtro por texto, y orden por coincidencia
+      Agrupación lógica:
+          1, 3 y 5: formato largo, filtro por usuario actual y orden más reciente
+          2, 4: Filtro por texto, y orden por coincidencia
 
-		Los reportes se conseguirán de /pregunta/reporte y otro endpoint, este no.
+  Los reportes se conseguirán de /pregunta/reporte y otro endpoint, este no.
 
-		El formato largo incluye:
-		- Pregunta
-			- fecha
-			- ID
-		- Cuerpo
-		- 1ra respuesta
-			- Dueño??
-				- nombre
-				- ID
-				- rol
-			- fecha
-			- Valoración
-			- cuerpo
-		- Valoración
-		- Dueño
-			- nombre
-			- ID
-			- rol
-        - Usuarios suscriptos
-            - Probablemente solo ID
-		El formato corto:
-		- Pregunta / título
-		- ID
+  El formato largo incluye:
+  - Pregunta
+    - fecha
+    - ID
+  - Cuerpo
+  - 1ra respuesta
+    - Dueño??
+      - nombre
+      - ID
+      - rol
+    - fecha
+    - Valoración
+    - cuerpo
+  - Valoración
+  - Dueño
+    - nombre
+    - ID
+    - rol
+      - Usuarios suscriptos
+          - Probablemente solo ID
+  El formato corto:
+  - Pregunta / título
+  - ID
 
-		Parámetros para lograr esto:
-		{
-			filtro:null (puede ser texto (busqueda o titulo+cuerpo por sugerencia), vacío, o un objeto con texto, etiquetas o si es por suscripciones; si texto está definido, se ordena por coincidencia)
+  Parámetros para lograr esto:
+  {
+    filtro:null (puede ser texto (busqueda o titulo+cuerpo por sugerencia), vacío, o un objeto con texto, etiquetas o si es por suscripciones; si texto está definido, se ordena por coincidencia)
 
-			formatoCorto:false (booleano. Todos los datos o solo pregunta/título e ID)
+    formatoCorto:false (booleano. Todos los datos o solo pregunta/título e ID)
 
-			duenioID:null (duenioID, )
+    duenioID:null (duenioID, )
 
-			pagina: Paginación, paralelo a cualquier conjunto de las superiores
-		}
-	*/
+    pagina: Paginación, paralelo a cualquier conjunto de las superiores
+  }
+*/
 
   if (duenioID) { // * Esto es para los perfiles.
     return Pregunta.findAll({
@@ -722,8 +708,22 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       include: [
         {
           model: Post,
-          required:true,
+          required: true,
           include: [
+            {
+              model: Voto
+              , separate: true
+              , include: { model: Usuario, as: 'votante' }
+            }
+            , {
+              model: Usuario
+              , as: 'duenio'
+              , include: {
+                model: Perfil
+                , attributes: ['ID', 'nombre', 'color']
+              }
+              , attributes: ['DNI', 'nombre']
+            },
             {
               // TODO Feature: Votos no?? Yo diría que sí.
               model: Usuario,
@@ -768,12 +768,12 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
     let opciones = {
       // raw:true,
       include: [
-        {model:Post,required:true}
+        { model: Post, required: true }
       ],
       limit: getPaginacion().resultadosPorPagina,
       offset: (+pagina) * getPaginacion().resultadosPorPagina,
       subQuery: false,
-      attributes : {
+      attributes: {
         include: [
           respuestasCount,
         ],
@@ -789,8 +789,8 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
         opciones.where = Sequelize.or(
           Sequelize.literal(
             'match(post.cuerpo) against ("' +
-              filtrar.texto +
-              '*"  IN BOOLEAN MODE)'
+            filtrar.texto +
+            '*"  IN BOOLEAN MODE)'
           ),
           Sequelize.literal(
             'match(titulo) against ("' + filtrar.texto + '*"  IN BOOLEAN MODE)'
@@ -814,12 +814,12 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
             },
             separate: true,
           }
-          ,{
+          , {
             model: EtiquetasPregunta,
             as: "filtroEtiquetas",
-            required:true
-            ,where:{
-              etiquetumID:filtrar.etiquetas
+            required: true
+            , where: {
+              etiquetumID: filtrar.etiquetas
             }
           }
         );
@@ -861,63 +861,63 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
       respuestas: 0...n
       ¿Meter los votos de la respuesta más votada / de las respuestas?
     */
-   let ordenadoPorFecha=[[Post, "fecha", "DESC"]];
-   if(filtrarEtiquetas || filtrarTexto){//filtrar siempre esta? viene como objeto vació tonces entra en el if
-      let ranking=[];
-      if(filtrarTexto){
-        ranking.push(`(match(post.cuerpo) against ("${filtrar.texto}*"  IN BOOLEAN MODE) + match(titulo) against ("${filtrar.texto}*"  IN BOOLEAN MODE))`);
+    let ordenadoPorFecha = [[Post, "fecha", "DESC"]];
+    if (filtrarEtiquetas || filtrarTexto) {//filtrar siempre esta? viene como objeto vació tonces entra en el if
+      let ranking = [];
+      if (filtrarTexto) {
+        ranking.push(`(match(post.cuerpo) against ("${filtrar.texto}*"  IN BOOLEAN MODE) + match(titulo) against ("${filtrar.texto}*"  IN BOOLEAN MODE)*2)`);
       }
-      if(filtrarEtiquetas){
+      if (filtrarEtiquetas) {
         ranking.push(`coincidencias/${filtrar.etiquetas.length}`) // * 0..1
       }
-      opciones.order=[
-        Sequelize.literal(ranking.join(' * ')+' desc') // ! Si hay uno sono, no se multiplica nada.
-        ,ordenadoPorFecha
+      opciones.order = [
+        Sequelize.literal(ranking.join(' * ') + ' desc') // ! Si hay uno sono, no se multiplica nada.
+        , ordenadoPorFecha
       ]
-    }else{
+    } else {
       opciones.order = [ordenadoPorFecha];
     }
 
-    if(formatoCorto){
-        // TODO Feature: Ver qué más trae esto, eliminar lo que no haga falta. Ideas: Agregar raw, manipular array conseguido para mandar objetos reducidos
-        opciones.attributes=['ID','titulo'];
-        opciones.raw=true;
-    }else{
-			// * Datos propios
-      
+    if (formatoCorto) {
+      // TODO Feature: Ver qué más trae esto, eliminar lo que no haga falta. Ideas: Agregar raw, manipular array conseguido para mandar objetos reducidos
+      opciones.attributes = ['ID', 'titulo'];
+      opciones.raw = true;
+    } else {
+      // * Datos propios
+
       // ! include[0] es Post por default
-			opciones.include[0].include=[
+      opciones.include[0].include = [
         {
-          model:Voto
-          ,separate:true
-          ,include:{model:Usuario,as:'votante'}
+          model: Voto
+          , separate: true
+          , include: { model: Usuario, as: 'votante' }
         }
-        ,{
-          model:Usuario
-          ,as:'duenio'
-          ,include:{
-            model:Perfil
-            ,attributes:['ID','nombre', 'color']
+        , {
+          model: Usuario
+          , as: 'duenio'
+          , include: {
+            model: Perfil
+            , attributes: ['ID', 'nombre', 'color']
           }
-          ,attributes:['DNI','nombre']
+          , attributes: ['DNI', 'nombre']
         }
       ];
 
       // TODO Refactor: Solo hace falta si hay una sesión, y solo hace falta mandar para saber si el usuario está suscrito o no. Ver ejemplo en votos.
       opciones.include.push({
-        model:SuscripcionesPregunta
-        ,as: 'suscripciones'
-        ,include:{model:Usuario,as:'suscripto'}
-        ,where: {
+        model: SuscripcionesPregunta
+        , as: 'suscripciones'
+        , include: { model: Usuario, as: 'suscripto' }
+        , where: {
           fecha_baja: null // * Vigentes
         }
-        ,separate:true
+        , separate: true
       });
 
-			if(!filtrarEtiquetas){
-				opciones.include.push({
-          model:EtiquetasPregunta
-          ,include:{
+      if (!filtrarEtiquetas) {
+        opciones.include.push({
+          model: EtiquetasPregunta
+          , include: {
             model: Etiqueta,
             include: {
               model: Categoria,
@@ -935,59 +935,84 @@ Pregunta.pagina=({pagina=0,duenioID,filtrar,formatoCorto}={})=>{
 }
 
 Post.pagina = ({ pagina = 0, DNI } = {}) => {
-  return Post.findAll({
+  return Pregunta.findAll({
     include: [
-      { model: Usuario, as: "duenio" },
+      {
+        model: Post,
+        include: [
+          {
+            model: Usuario,
+            as: "duenio",
+            include: {
+              model: Perfil,
+            },
+          },
+          {
+            model: Voto
+            , separate: true
+            , include: { model: Usuario, as: 'votante' }
+          }
+          , {
+            model: Usuario
+            , as: 'duenio'
+            , include: {
+              model: Perfil
+              , attributes: ['ID', 'nombre', 'color']
+            }
+            , attributes: ['DNI', 'nombre']
+          }
+        ],
+      },
       {
         model: Respuesta,
-        as: "respuesta",
-        include: [
-          {
-            model: Pregunta,
-            as: "pregunta",
-            attributes: ["ID", "titulo"],
-            include: [
-              {
-                model: EtiquetasPregunta,
-                required: true,
-                as: "etiquetas",
-                include: {
-                  model: Etiqueta,
-                  include: {
-                    model: Categoria,
-                    as: "categoria",
-                  },
-                },
-                separate: true,
-              },
-            ],
-          }, // *Include Pregunta in Respuesta
-        ],
+        as: "respuestas",
         required: false,
-        attributes: ["ID", "preguntaID"],
+        include: {
+          model: Post,
+          include: [
+            {
+              model: Usuario,
+              as: "duenio",
+              include: {
+                model: Perfil,
+              },
+            },
+            {
+              model: Voto,
+              separate: true,
+              include: { model: Usuario, as: "votante" },
+            },
+          ],
+        },
       },
       {
-        model: Pregunta,
-        as: "pregunta",
-        required: false,
-        attributes: ["ID", "titulo"],
-        include: [
-          {
-            model: EtiquetasPregunta,
-            required: true,
-            as: "etiquetas",
-            include: {
-              model: Etiqueta,
-            },
-            separate: true,
+        model: EtiquetasPregunta,
+        required: true,
+        as: "etiquetas",
+        include: {
+          model: Etiqueta,
+          include: {
+            model: Categoria,
+            as: "categoria",
           },
-        ],
+        },
+        separate: true,
       },
     ],
-    where: {
-      "$post.duenioDNI$": +DNI,
+    attributes: {
+      include: [
+        respuestasCount,
+      ],
     },
-    order: [["fecha", "DESC"]],
+    separate: true,
+    where: {
+      [Sequelize.Op.or]: [
+        { "$respuestas.post.duenio.DNI$": DNI, },
+        { "$post.duenio.DNI$": DNI, },
+      ]
+    },
+    subQuery: false,
+    order: [[Post, "fecha", "DESC"]],
     limit: getPaginacion().resultadosPorPagina,
     offset: +pagina * getPaginacion().resultadosPorPagina,
   });
@@ -1006,6 +1031,20 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
               model: Perfil,
             },
           },
+          {
+            model: Voto
+            , separate: true
+            , include: { model: Usuario, as: 'votante' }
+          }
+          , {
+            model: Usuario
+            , as: 'duenio'
+            , include: {
+              model: Perfil
+              , attributes: ['ID', 'nombre', 'color']
+            }
+            , attributes: ['DNI', 'nombre']
+          }
         ],
       },
       {
@@ -1118,7 +1157,7 @@ Pregunta.hasMany(EtiquetasPregunta, {
   constraints: false,
 });
 
-EtiquetasPregunta.belongsTo(Etiqueta, { constraints: false});
+EtiquetasPregunta.belongsTo(Etiqueta, { constraints: false });
 
 
 const Categoria = sequelize.define("categoria", {
@@ -1142,14 +1181,14 @@ const Categoria = sequelize.define("categoria", {
   },
 });
 
-Categoria.todasConEtiquetas=()=>{
+Categoria.todasConEtiquetas = () => {
 
 }
 
 Categoria.hasMany(Etiqueta, {
   constraints: false,
   foreignKey: "categoriaID",
-  as:'etiquetas'
+  as: 'etiquetas'
 });
 
 Etiqueta.belongsTo(Categoria, {
@@ -1204,25 +1243,25 @@ const SuscripcionesPregunta = sequelize.define("suscripcionesPregunta", {
 Pregunta.hasMany(SuscripcionesPregunta, {
   as: "suscripciones",
   constraints: false,
-  foreignKey:'preguntaID'
+  foreignKey: 'preguntaID'
 });
 
-SuscripcionesPregunta.belongsTo(Usuario, { constraints: false, as: 'suscripto',foreignKey:'suscriptoDNI'});
+SuscripcionesPregunta.belongsTo(Usuario, { constraints: false, as: 'suscripto', foreignKey: 'suscriptoDNI' });
 
 
 
-Usuario.belongsToMany(Pregunta, { 
-    through: SuscripcionesPregunta,
-    constraints:false,
-    as: 'preguntasSuscriptas',
-    foreignKey:'suscriptoDNI'
+Usuario.belongsToMany(Pregunta, {
+  through: SuscripcionesPregunta,
+  constraints: false,
+  as: 'preguntasSuscriptas',
+  foreignKey: 'suscriptoDNI'
 });
 
-Pregunta.belongsToMany(Usuario, { 
-    through: SuscripcionesPregunta,
-    constraints:false,
-    as:'usuariosSuscriptos',
-    foreignKey:'preguntaID'
+Pregunta.belongsToMany(Usuario, {
+  through: SuscripcionesPregunta,
+  constraints: false,
+  as: 'usuariosSuscriptos',
+  foreignKey: 'preguntaID'
 });
 
 const Carrera = sequelize.define("carrera", {
@@ -1237,43 +1276,43 @@ const Carrera = sequelize.define("carrera", {
   },
 });
 /* 
-				case 'IC':
-					carreraID=1;
-					break;
-				case 'IE':
-					carreraID=2;
-					break;
-				case 'IQ':
-					carreraID=3;
-					break;
-				case 'IM':
-					carreraID=4;
-					break;
-				case 'ISI':
-					carreraID=5;
-					break; */
+        case 'IC':
+          carreraID=1;
+          break;
+        case 'IE':
+          carreraID=2;
+          break;
+        case 'IQ':
+          carreraID=3;
+          break;
+        case 'IM':
+          carreraID=4;
+          break;
+        case 'ISI':
+          carreraID=5;
+          break; */
 
 Carrera.upsert({
-    ID: 1,
-    nombre: "Ingeniería Civil"
+  ID: 1,
+  nombre: "Ingeniería Civil"
 })
 Carrera.upsert({
-    ID: 2,
-    nombre: "Ingeniería Eléctrica"
+  ID: 2,
+  nombre: "Ingeniería Eléctrica"
 })
 Carrera.upsert({
-    ID: 3,
-    nombre: "Ingeniería Química"
+  ID: 3,
+  nombre: "Ingeniería Química"
 })
 Carrera.upsert({
-    ID: 4,
-    nombre: "Ingeniería Mecánica"
+  ID: 4,
+  nombre: "Ingeniería Mecánica"
 })
 Carrera.upsert({
-    ID: 5,
-    nombre: "Ingeniería en Sistemas de Información"
+  ID: 5,
+  nombre: "Ingeniería en Sistemas de Información"
 })
-        
+
 
 const CarrerasUsuario = sequelize.define("carrerasUsuario", {
   // TODO Refactor: legajo, con minúscula
@@ -1297,13 +1336,13 @@ Carrera.belongsToMany(Usuario, {
 
 
 Parametro.findAll().then((parametros) => {
- parametros.forEach((p)=>{
+  parametros.forEach((p) => {
     if (p.ID == 1)
       setResultadosPorPagina(p.valor);
     if (p.ID == 2) setModera(p.valor);
     if (p.ID == 3) setRechazaPost(p.valor);
     if (p.ID == 4) setReportaPost(p.valor);
- });
+  });
 });
 
 export {

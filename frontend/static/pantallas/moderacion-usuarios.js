@@ -18,6 +18,7 @@ function crearPantalla(ruta,sesion){
 		,{
 			nombre:'Bloqueado',
 			clases:['centrado'],
+			// TODO Refactor: Usar Boton
 			celda:(usu)=>`<div class="field"><input type="checkbox" value="${usu.DNI}" id="bloqueo-${usu.DNI}" class="switch" ${usu.bloqueosRecibidos?.length?'checked':''}><label for="bloqueo-${usu.DNI}"></label></div>`
 		}
 	]/* ,usuariosReportados */);

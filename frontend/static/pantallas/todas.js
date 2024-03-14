@@ -4,5 +4,6 @@ import { PaginaPregunta } from './pregunta.js';
 import { PantallaModeracionUsuarios } from './moderacion-usuarios.js';
 import { PantallaModeracionPosts } from './moderacion-posts.js';
 import { PantallaEditarPregunta } from './editar-pregunta.js';
+import {PantallaQuienesSomos } from './quienes-somos.js';
 
-export {PaginaInicio,PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta};
+export {PaginaInicio,PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta,PantallaQuienesSomos};

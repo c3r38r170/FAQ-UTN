@@ -37,30 +37,34 @@ app.use(cors({
 	
 	if(req.session.usuario){
 		next();
-	}else if([
+		return;
+	}
+
+	let rutasPermitidasPorMetodo={
+		GET:()=>[
 			'/',
 			'/api/perfil', // get
 			'/api/categoria', // get
 			'/api/etiqueta', // get
 			'/api/post/reporte', // get
 			'/api/pregunta', // get 
-			"/api/usuario/:DNI/foto",
-			req.path.match(userRegex), // Todas las rutas que matchean con la expresion regular
-			'/api/usuarios/ingresar',
+			// "/api/usuario/:DNI/foto",
+			req.path.match(userRegex), // * Todas las rutas que matchean con la expresion regular
 			'/api/usuarios/salir'
-		].some(route => route && req.method === 'GET')){
-			next();
-		}
-	else if([
-		'/api/sesion',
-		'/api/usuario',
-		req.path.match(userRegex),
-	].includes(req.path) && req.method === 'POST'){
-		next();
+		].some(route => route)
+		,POST:()=>[
+			'/api/sesion', // * Ingreso.
+			'/api/usuario', // * Registro.
+			req.path.match(userRegex),
+		].includes(req.path)
+		,DELETE:()=>req.path=='/api/sesion' // * Cerrado de sesión.
 	}
-	// * La gente sin sesión solo puede hacer GET, y POST de algunas cosas.
+	
+	if(rutasPermitidasPorMetodo[req.method]()){
+		next();
+	}else res.status(401).send("Usuario no tiene sesión válida activa");
 
-	else res.status(401).send("Usuario no tiene sesión válida activa");
+	// TODO Refactor: Hacer lo mismo para el frontend, con el SinPermiso.
 }) 
 
 const rutas = express.Router();

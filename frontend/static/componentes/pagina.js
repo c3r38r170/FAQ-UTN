@@ -275,7 +275,7 @@ class Encabezado {
 		<img src="/logo.png">
 		<h1>FAQ UTN</h1>
 		<a href="/">Inicio</a>
-		<a href="/quienes-somos/">Quiénes Somos</a>
+		<a href="/quienes-somos">Quiénes Somos</a>
 	</div>
 	<div id=encabezado-derecho>
 		${

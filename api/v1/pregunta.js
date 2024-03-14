@@ -2,16 +2,16 @@ import * as express from "express";
 import { Sequelize } from "sequelize";
 import { moderarWithRetry } from "./ia.js";
 import {
-    Usuario,
-    ReportePost,
-    Pregunta,
-    SuscripcionesPregunta,
-    Post,
-    Respuesta,
-    SuscripcionesEtiqueta,
-    Notificacion,
-    EtiquetasPregunta,
-  } from "./model.js";
+  Usuario,
+  ReportePost,
+  Pregunta,
+  SuscripcionesPregunta,
+  Post,
+  Respuesta,
+  SuscripcionesEtiqueta,
+  Notificacion,
+  EtiquetasPregunta,
+} from "./model.js";
 
 const router = express.Router();
 
@@ -80,7 +80,7 @@ router.get("/", (req, res) => {
                   if (respuesta.apropiado < rechazaPost) {
                     res
                       .status(400)
-                      .send("Texto rechazo por moderación automática");
+                      .send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
                     return;
                   } else if (respuesta.apropiado < reportaPost) {
                     //Crear reporte
@@ -93,144 +93,145 @@ router.get("/", (req, res) => {
                   //si pasa el filtro
                   pregunta.post.cuerpo = req.body.cuerpo;
                   pregunta.titulo = req.body.titulo;
+                  const etiquetasIDs = Array.isArray(req.body.etiquetas) ? req.body.etiquetas : [req.body.etiquetas];
                   // !no se porque pero asi anda pregunta.save() no
                   esperarA.push(
                     pregunta.post.save()
                     .then( () =>
                       pregunta.setEtiquetas([])
                     )
-                    .then( pre => pre.save())
-                    .then( () =>
-                      Promise.all(req.body.etiquetas.map(
-                        (ID) =>  EtiquetasPregunta.create({ etiquetumID: ID , preguntumID: pregunta.post.ID})
+                    .then(pre => pre.save())
+                    .then(() =>
+                      Promise.all(etiquetasIDs.map(
+                        (ID) => EtiquetasPregunta.create({ etiquetumID: ID, preguntumID: pregunta.post.ID })
                       ))
                     )
-                    // .then(ep => pregunta.setEtiquetas(req.body.etiquetas.map(
-                    //   (ID) =>({ preguntumID : pregunta.post.ID , etiquetumID: ID })
-                    // )))
+                  // .then(ep => pregunta.setEtiquetas(req.body.etiquetas.map(
+                  //   (ID) =>({ preguntumID : pregunta.post.ID , etiquetumID: ID })
+                  // )))
+                )
+                Promise.all(esperarA)
+                  .then(() =>
+                    res.status(200).send(req.body.ID + "")
                   )
-                  Promise.all(esperarA)
-                  .then( () =>
-                    res.status(200).send("Pregunta actualizada exitosamente")
-                  )
-               
-                }
-              );
-            } else {
-              let esperarA = []
-              pregunta.post.cuerpo = req.body.cuerpo;
-              pregunta.titulo = req.body.titulo;
-  
-  
-              const etiquetas = Array.isArray(req.body.etiquetas) ? req.body.etiquetas : [req.body.etiquetas]; 
-               // !no se porque pero asi anda pregunta.save() no
-               esperarA.push(
-                pregunta.post.save()
-                .then( () =>
+
+              }
+            );
+          } else {
+            let esperarA = []
+            pregunta.post.cuerpo = req.body.cuerpo;
+            pregunta.titulo = req.body.titulo;
+
+
+            const etiquetas = Array.isArray(req.body.etiquetas) ? req.body.etiquetas : [req.body.etiquetas];
+            // !no se porque pero asi anda pregunta.save() no
+            esperarA.push(
+              pregunta.post.save()
+                .then(() =>
                   pregunta.setEtiquetas([])
                 )
-                .then( pre => pre.save())
-                .then( () =>
+                .then(pre => pre.save())
+                .then(() =>
                   Promise.all(etiquetas.map(
-                    (ID) =>  EtiquetasPregunta.create({ etiquetumID: ID , preguntumID: pregunta.post.ID})
+                    (ID) => EtiquetasPregunta.create({ etiquetumID: ID, preguntumID: pregunta.post.ID })
                   ))
                 )
-                // .then(ep => pregunta.setEtiquetas(req.body.etiquetas.map(
-                //   (ID) =>({ preguntumID : pregunta.post.ID , etiquetumID: ID })
-                // )))
+              // .then(ep => pregunta.setEtiquetas(req.body.etiquetas.map(
+              //   (ID) =>({ preguntumID : pregunta.post.ID , etiquetumID: ID })
+              // )))
+            )
+            Promise.all(esperarA)
+              .then(() =>
+                res.status(200).send(req.body.ID + "")
               )
-              Promise.all(esperarA)
-              .then( () =>
-                res.status(200).send(req.body.ID+"")
-              )
-              //etiquetas vienen los id en array
-              // pregunta.setEtiquetas(
-              //   req.body.etiquetasIDs.map(
-              //     (ID) => new EtiquetasPregunta({ etiquetumID: ID })
-              //   )
-              // );
-              //no se porque pero asi anda pregunta.save() no
-              // pregunta.post.save();
-              // res.status(200).send("Pregunta actualizada exitosamente");
-            }
+            //etiquetas vienen los id en array
+            // pregunta.setEtiquetas(
+            //   req.body.etiquetasIDs.map(
+            //     (ID) => new EtiquetasPregunta({ etiquetumID: ID })
+            //   )
+            // );
+            //no se porque pero asi anda pregunta.save() no
+            // pregunta.post.save();
+            // res.status(200).send("Pregunta actualizada exitosamente");
           }
         }
-      })
-      .catch((err) => {
-        res.status(500).send(err);
-      });
-  });
-  
-  function crearPregunta(req,res,respuestaIA=null){
-    Post.create({
-      cuerpo: req.body.cuerpo,
-      duenioDNI: req.session.usuario.DNI,
-    }).then((post) => {
-      return Pregunta.create({
-        ID: post.ID,
-        titulo: req.body.titulo,
-      })
-    }).then((pregunta) => {
-      // TODO Refactor: Se puede simplificar incluso más. Para empezar, poniendo todo lo del push obligatorio dentro de la definición.
-      let esperarA = [];
-      let reportaPost = getReportaPost();
-      if (respuestaIA && respuestaIA < reportaPost) {
-        esperarA.push(
-          ReportePost.create({
-            tipoID :1,
-            reportadoID: pregunta.ID,
-          })
-        );
       }
-      //si es una tira error
-      const etiquetasIDs = Array.isArray(req.body.etiquetasIDs) ? req.body.etiquetasIDs : [req.body.etiquetasIDs]; 
-      esperarA.push(
-        //etiquetas
-          
-     etiquetasIDs.forEach(id=>{
-              EtiquetasPregunta.create({
-                preguntumID:pregunta.ID,
-                etiquetumID:id
-              })
-            }) 
-        /*Promise.all(req.body.etiquetasIDs.map(ID=>Etiqueta.findByPk(ID)))
-          .then(etiquetas=>Promise.all(etiquetas.map(eti=>{
-            let ep=new EtiquetasPregunta();
-            ep.etiqueta=eti;
-            return ep.save();
-          })))
-          .then(eps=>pregunta.setEtiquetas(eps))*/
-  
-  // Suscripciones a etiquetas
-        ,SuscripcionesEtiqueta.findAll({
-          attributes: ['suscriptoDNI'],
-          where: {
-            etiquetaID: {
-              [Sequelize.Op.in]: etiquetasIDs
-            },
-            fecha_baja: null
-          },
-          distinct: true
-        }).then(suscripciones=>{
-          return Promise.all(suscripciones.map(suscripcion =>Notificacion.create({
-            postNotificadoID:pregunta.ID,
-            notificadoDNI:suscripcion.suscriptoDNI
-          })));
-        })
-  
-        //Suscribe a su propia pregunta
-        ,Usuario.findByPk(req.session.usuario.DNI)
-          .then(usu=>pregunta.addUsuariosSuscriptos(usu))
-      )
-      
-      Promise.all(esperarA)
-        .then(()=>pregunta.save())
-        .then(() => {
-          // ! Sin las comillas se piensa que pusimos el status dentro del send
-          res.status(201).send(pregunta.ID+"");
-        })
     })
-    .catch(err=>{
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+});
+
+function crearPregunta(req, res, respuestaIA = null) {
+  Post.create({
+    cuerpo: req.body.cuerpo,
+    duenioDNI: req.session.usuario.DNI,
+  }).then((post) => {
+    return Pregunta.create({
+      ID: post.ID,
+      titulo: req.body.titulo,
+    })
+  }).then((pregunta) => {
+    // TODO Refactor: Se puede simplificar incluso más. Para empezar, poniendo todo lo del push obligatorio dentro de la definición.
+    let esperarA = [];
+    let reportaPost = getReportaPost();
+    if (respuestaIA && respuestaIA < reportaPost) {
+      esperarA.push(
+        ReportePost.create({
+          tipoID: 1,
+          reportadoID: pregunta.ID,
+        })
+      );
+    }
+    //si es una tira error
+    const etiquetasIDs = Array.isArray(req.body.etiquetasIDs) ? req.body.etiquetasIDs : [req.body.etiquetasIDs];
+    esperarA.push(
+      //etiquetas
+
+      etiquetasIDs.forEach(id => {
+        EtiquetasPregunta.create({
+          preguntumID: pregunta.ID,
+          etiquetumID: id
+        })
+      })
+      /*Promise.all(req.body.etiquetasIDs.map(ID=>Etiqueta.findByPk(ID)))
+        .then(etiquetas=>Promise.all(etiquetas.map(eti=>{
+          let ep=new EtiquetasPregunta();
+          ep.etiqueta=eti;
+          return ep.save();
+        })))
+        .then(eps=>pregunta.setEtiquetas(eps))*/
+
+      // Suscripciones a etiquetas
+      , SuscripcionesEtiqueta.findAll({
+        attributes: ['suscriptoDNI'],
+        where: {
+          etiquetaID: {
+            [Sequelize.Op.in]: etiquetasIDs
+          },
+          fecha_baja: null
+        },
+        distinct: true
+      }).then(suscripciones => {
+        return Promise.all(suscripciones.map(suscripcion => Notificacion.create({
+          postNotificadoID: pregunta.ID,
+          notificadoDNI: suscripcion.suscriptoDNI
+        })));
+      })
+
+      //Suscribe a su propia pregunta
+      , Usuario.findByPk(req.session.usuario.DNI)
+        .then(usu => pregunta.addUsuariosSuscriptos(usu))
+    )
+
+    Promise.all(esperarA)
+      .then(() => pregunta.save())
+      .then(() => {
+        // ! Sin las comillas se piensa que pusimos el status dentro del send
+        res.status(201).send(pregunta.ID + "");
+      })
+  })
+    .catch(err => {
       res.status(500).send(err);
     })
   }
@@ -244,7 +245,7 @@ router.get("/", (req, res) => {
           if (respuesta.apropiado < rechazaPost) {
             //esto anda
             // TODO UX: ¿Mandar respuesta del bot?
-            res.status(400).send("Texto rechazo por moderación automática");
+            res.status(400).send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
             return;
           }
           //reporte en esta funcion
@@ -339,51 +340,51 @@ router.get("/", (req, res) => {
     // TODO Refactor: ahorrar el callback hell, acá y en todos lados.
   });
 
-  
+
 
 router.delete("/:preguntaID/suscripcion", function (req, res) {
 
-  
-    let IDpregunta = req.params.preguntaID;
-  
-    Pregunta.findByPk(IDpregunta, { include: Post })
-      .then((pregunta) => {
-        if (!pregunta) {
-          res.status(404).send("Pregunta no encontrada / disponible");
-          return;
-        } else {
-          // TODO Refactor: Esto no hace falta, se puede hacer pregunta.SuscripcionesPregunta o algo así
-          SuscripcionesPregunta.findAll({
-            where: {
-              preguntaID: IDpregunta,
-              suscriptoDNI: req.session.usuario.DNI,
-              fecha_baja: {
-                [Sequelize.Op.is]: null,
-              },
+
+  let IDpregunta = req.params.preguntaID;
+
+  Pregunta.findByPk(IDpregunta, { include: Post })
+    .then((pregunta) => {
+      if (!pregunta) {
+        res.status(404).send("Pregunta no encontrada / disponible");
+        return;
+      } else {
+        // TODO Refactor: Esto no hace falta, se puede hacer pregunta.SuscripcionesPregunta o algo así
+        SuscripcionesPregunta.findAll({
+          where: {
+            preguntaID: IDpregunta,
+            suscriptoDNI: req.session.usuario.DNI,
+            fecha_baja: {
+              [Sequelize.Op.is]: null,
             },
-            nest: true,
-            plain: true,
+          },
+          nest: true,
+          plain: true,
+        })
+          .then((sus) => {
+            if (!sus) {
+              res.status(404).send("No se encuentra suscripto a la pregunta");
+              return;
+            } else {
+              sus.fecha_baja = new Date().toISOString().split("T")[0];
+              //! el 204 no devuelve el mensaje
+              sus.save().then(() => res.status(201).send("Suscripción cancelada"));
+            }
           })
-            .then((sus) => {
-              if (!sus) {
-                res.status(404).send("No se encuentra suscripto a la pregunta");
-                return;
-              } else {
-                sus.fecha_baja = new Date().toISOString().split("T")[0];
-                //! el 204 no devuelve el mensaje
-                sus.save().then(()=>res.status(201).send("Suscripción cancelada"));
-              }
-            })
-            .catch((err) => {
-              res.status(500).send(err);
-            });
-        }
-      })
-      .catch((err) => {
-        res.status(500).send(err);
-      });
-  });
-  
-  
+          .catch((err) => {
+            res.status(500).send(err);
+          });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+});
+
+
 
 export { router };
