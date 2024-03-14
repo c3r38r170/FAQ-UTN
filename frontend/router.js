@@ -409,7 +409,14 @@ router.get("/respuesta/:id/editar", (req, res) => {
         as: 'pregunta',
         include: {
           model: PostDAO,
-          as: 'post'
+          as: 'post',
+          include: {
+            model: UsuarioDAO,
+            as: 'duenio',
+            include: {
+              model: PerfilDAO,
+            }
+          }
         }
       }
     ];
@@ -419,9 +426,8 @@ router.get("/respuesta/:id/editar", (req, res) => {
       include
     })
       .then((respuesta) => {
-        console.log(respuesta);
-        // * Editar respuesta.
         let pagina = PantallaEditarRespuesta(req.path, req.session, respuesta);
+        pagina.partes.unshift(new Pregunta(respuesta.pregunta, pagina.partes[0], req.session));
         res.send(pagina.render());
       }).catch((error) => {
         console.error('Error:', error);
@@ -656,5 +662,8 @@ router.get("/prueba/mensaje", async (req, res) => {
     res.status(500).send("Error interno del servidor de prueba/mensaje");
   }
 });
+
+
+
 
 export { router };

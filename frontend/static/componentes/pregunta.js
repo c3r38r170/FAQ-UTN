@@ -22,7 +22,7 @@ class Pregunta {
         this.#titulo = titulo;
 
         if (post) { // * Formato largo.
-            this.#cuerpo = cuerpo;
+            this.#cuerpo = cuerpo ? cuerpo : post.cuerpo;
             this.#fecha = new Fecha(fecha)
             this.#duenio = post.duenio;
             this.#respuestas = respuestas;
@@ -31,7 +31,7 @@ class Pregunta {
             this.#instanciaModal = instanciaModal;
             this.#usuarioActual = sesion?.usuario;
             // ! El post viene sin votos cuando se trata de una representación sin interacciones en la moderación (ni controles de votación, ni de suscripción).
-            if ((post.votos && this.#usuarioActual) || !sesion?.usuario) {
+            if ((post.votos && this.#usuarioActual) || !sesion?.usuario && post.votos) {
                 this.#chipValoracion = new ChipValoracion({
                     ID
                     , votos: post.votos
@@ -120,7 +120,7 @@ class Pregunta {
                 <a href="/pregunta/${this.#ID}">
                     <div class="titulo">${this.#titulo}</div>
                 </a>
-                <div class="cuerpo">${this.#cuerpo.replace(/\n/g, '<br>')}</div>
+                <div class="cuerpo">${this.#cuerpo?.replace(/\n/g, '<br>')}</div>
                 <div class="etiquetas">
                 ${this.#etiquetas ? this.#etiquetas.map(e => new Etiqueta(e.etiquetum).render()).join('') : ''}
                 </div>

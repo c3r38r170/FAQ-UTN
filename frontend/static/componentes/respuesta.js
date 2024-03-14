@@ -23,7 +23,7 @@ class Respuesta {
     this.#instanciaModal = instanciaModal;
     this.#usuarioActual = sesion?.usuario;
 
-    if ((post.votos && sesion && this.#usuarioActual) || !sesion?.usuario) {
+    if ((post.votos && sesion && this.#usuarioActual) || !sesion?.usuario && post.votos) {
       this.#chipValoracion = new ChipValoracion({
         ID
         , votos: post.votos
