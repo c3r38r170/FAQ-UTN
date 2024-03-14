@@ -56,28 +56,28 @@ import { PantallaEditarRespuesta } from "./static/pantallas/editar-respuesta.js"
 
 router.get("/", (req, res) => {
   // ! req.path es ''
-  let consultaCategorias = Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}});
+  let consultaCategorias = Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas' } });
   // console.log(req.query);
-  let etiquetas=req.query.etiquetas;
-  let texto=req.query.searchInput;
+  let etiquetas = req.query.etiquetas;
+  let texto = req.query.searchInput;
   if (texto || etiquetas) {
     let queryString = req.url.substring(req.url.indexOf("?"));
 
-    let parametrosBusqueda = { filtrar:{}};
-    if(texto){
-      parametrosBusqueda.filtrar.texto=texto;
+    let parametrosBusqueda = { filtrar: {} };
+    if (texto) {
+      parametrosBusqueda.filtrar.texto = texto;
     }
-    if(etiquetas){
-      parametrosBusqueda.filtrar.etiquetas=Array.isArray(etiquetas)?etiquetas:[etiquetas];
+    if (etiquetas) {
+      parametrosBusqueda.filtrar.etiquetas = Array.isArray(etiquetas) ? etiquetas : [etiquetas];
     }
 
     Promise.all([
       // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
       PreguntaDAO.pagina(parametrosBusqueda)
-      ,consultaCategorias
+      , consultaCategorias
     ])
-      .then(([preguntas,categorias]) => {
-        let pagina = PaginaInicio(req.session, queryString,categorias);
+      .then(([preguntas, categorias]) => {
+        let pagina = PaginaInicio(req.session, queryString, categorias);
         pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
 
         res.send(pagina.render());
@@ -87,11 +87,11 @@ router.get("/", (req, res) => {
     Promise.all(
       [
         PreguntaDAO.pagina()
-        ,Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}})
+        , Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas' } })
       ]
     )
-      .then(([pre,categorias]) => {
-        let pagina = PaginaInicio(req.session,'',categorias);
+      .then(([pre, categorias]) => {
+        let pagina = PaginaInicio(req.session, '', categorias);
         pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
 
         res.send(pagina.render());
@@ -101,73 +101,73 @@ router.get("/", (req, res) => {
 });
 
 // * Ruta que muestra 1 pregunta con sus respuestas
-router.get("/pregunta/:id?", async (req, res) =>  {
-	
-// TODO Feature: En caso de que sea una pregunta borrada, no permitir a menos que se tengan permisos de moderación, o administración.
+router.get("/pregunta/:id?", async (req, res) => {
 
-    try {
-			if (req.params.id) {
-				const include = [
-					{
-						model: PostDAO,
-						as: 'post',
-						include: [
-							{
-								model: UsuarioDAO,
-								as: 'duenio',
-                include:PerfilDAO
-							}
-							,{
-								model:VotoDAO
-														,separate:true
-								,include:{model:UsuarioDAO,as:'votante'}
-							}
-						]
-					},
-					{
-						model: RespuestaDAO,
-						as: 'respuestas',
-						include: [
-							{
-								model: PostDAO,
-								as: 'post',
-								include: [
-									{
-										model: UsuarioDAO,
-										as: 'duenio',
-                    include:PerfilDAO
-									},
-									{
-										model: VotoDAO,
-										as: 'votos',
-                    required:false
-									}
-								]
-							}
-						], 
-						order: [['updatedAt', 'DESC']]
-					},
-					{
-						model: EtiquetasPreguntaDAO,
-						as: 'etiquetas',
-            include: {
-              model: EtiquetaDAO,
-              include: { model: Categoria, as: "categoria" },
+  // TODO Feature: En caso de que sea una pregunta borrada, no permitir a menos que se tengan permisos de moderación, o administración.
+
+  try {
+    if (req.params.id) {
+      const include = [
+        {
+          model: PostDAO,
+          as: 'post',
+          include: [
+            {
+              model: UsuarioDAO,
+              as: 'duenio',
+              include: PerfilDAO
             }
-					},
-          // TODO Refactor: Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido. No hace falta traer todas, sino solo la que nos interesa. Ver voto como ejemplo.
-					{
-						model:UsuarioDAO
-            			,as: 'usuariosSuscriptos',
-						through: {
-							model: SuscripcionesPreguntaDAO,
-							where: {
-								fecha_baja: null // Condición para que la fecha de baja sea nula
-							}
-						}
-					}
-				];
-		
+            , {
+              model: VotoDAO
+              , separate: true
+              , include: { model: UsuarioDAO, as: 'votante' }
+            }
+          ]
+        },
+        {
+          model: RespuestaDAO,
+          as: 'respuestas',
+          include: [
+            {
+              model: PostDAO,
+              as: 'post',
+              include: [
+                {
+                  model: UsuarioDAO,
+                  as: 'duenio',
+                  include: PerfilDAO
+                },
+                {
+                  model: VotoDAO,
+                  as: 'votos',
+                  required: false
+                }
+              ]
+            }
+          ],
+          order: [['updatedAt', 'DESC']]
+        },
+        {
+          model: EtiquetasPreguntaDAO,
+          as: 'etiquetas',
+          include: {
+            model: EtiquetaDAO,
+            include: { model: Categoria, as: "categoria" },
+          }
+        },
+        // TODO Refactor: Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido. No hace falta traer todas, sino solo la que nos interesa. Ver voto como ejemplo.
+        {
+          model: UsuarioDAO
+          , as: 'usuariosSuscriptos',
+          through: {
+            model: SuscripcionesPreguntaDAO,
+            where: {
+              fecha_baja: null // Condición para que la fecha de baja sea nula
+            }
+          }
+        }
+      ];
+
       const p = await PreguntaDAO.findByPk(req.params.id, { include });
 
       if (!p) {
@@ -229,8 +229,8 @@ router.get("/pregunta/:id?", async (req, res) =>  {
       pagina.globales.preguntaID = preguntaID;
 
       res.send(pagina.render());
-    } else { 
-      let sesion=req.session;
+    } else {
+      let sesion = req.session;
       if (!sesion.usuario) {
         let pagina = SinPermisos(sesion, "No está logueado");
         res.send(pagina.render());
@@ -238,9 +238,9 @@ router.get("/pregunta/:id?", async (req, res) =>  {
       }
 
       // * Nueva pregunta.
-      Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}})
-        .then(categorias=>{
-          let pagina = PantallaNuevaPregunta(req.path, sesion,categorias);
+      Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas' } })
+        .then(categorias => {
+          let pagina = PantallaNuevaPregunta(req.path, sesion, categorias);
           res.send(pagina.render());
         })
     }
@@ -303,8 +303,8 @@ router.get("/moderacion/usuarios", (req, res) => {
   res.send(pagina.render());
 });
 
-router.get('/moderacion/preguntas-y-respuestas',(req,res)=>{
-	let usu = req.session;
+router.get('/moderacion/preguntas-y-respuestas', (req, res) => {
+  let usu = req.session;
   if (!usu.usuario) {
     let pagina = SinPermisos(usu, "No está logueado");
     res.send(pagina.render());
@@ -315,7 +315,7 @@ router.get('/moderacion/preguntas-y-respuestas',(req,res)=>{
     return;
   }
 
-  let pagina=PantallaModeracionPosts(req.path,req.session);
+  let pagina = PantallaModeracionPosts(req.path, req.session);
   res.send(pagina.render());
 })
 
@@ -343,10 +343,10 @@ router.get("/perfil/preguntas", (req, res) => {
 });
 
 
-router.get("/pregunta/:id/editar", (req, res)=>{
-  try{
+router.get("/pregunta/:id/editar", (req, res) => {
+  try {
     let usu = req.session;
-    if(!usu.usuario){
+    if (!usu.usuario) {
       let pagina = SinPermisos(usu, "No está logueado");
       res.send(pagina.render());
       return;
@@ -369,28 +369,28 @@ router.get("/pregunta/:id/editar", (req, res)=>{
         }
       }
     ];
-    Promise.all( [PreguntaDAO.findByPk(req.params.id, { include }) , Categoria.findAll({include:{model:EtiquetaDAO, as:'etiquetas'}})])
-    .then(([pre, categorias])=>{
-      // * Editar pregunta.
-      let pagina = PantallaEditarPregunta(req.path, req.session, pre, categorias);
-      res.send(pagina.render());
-    }).catch((error) => {
-      console.error('Error:', error);
-      res.status(409).send('Error al buscar la pregunta');
-    });
+    Promise.all([PreguntaDAO.findByPk(req.params.id, { include }), Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas' } })])
+      .then(([pre, categorias]) => {
+        // * Editar pregunta.
+        let pagina = PantallaEditarPregunta(req.path, req.session, pre, categorias);
+        res.send(pagina.render());
+      }).catch((error) => {
+        console.error('Error:', error);
+        res.status(409).send('Error al buscar la pregunta');
+      });
 
 
-  }catch(error){
+  } catch (error) {
     console.error(error);
     res.status(500).send("Error interno del servidor");
   }
 })
 
 
-router.get("/respuesta/:id/editar", (req, res)=>{
-  try{
+router.get("/respuesta/:id/editar", (req, res) => {
+  try {
     let usu = req.session;
-    if(!usu.usuario){
+    if (!usu.usuario) {
       let pagina = SinPermisos(usu, "No está logueado");
       res.send(pagina.render());
       return;
@@ -409,26 +409,33 @@ router.get("/respuesta/:id/editar", (req, res)=>{
         as: 'pregunta',
         include: {
           model: PostDAO,
-          as: 'post'
+          as: 'post',
+          include: {
+            model: UsuarioDAO,
+            as: 'duenio',
+            include: {
+              model: PerfilDAO,
+            }
+          }
         }
       }
     ];
-    RespuestaDAO.findByPk(req.params.id, { 
+    RespuestaDAO.findByPk(req.params.id, {
       raw: true,
       nest: true,
-      include })
-    .then((respuesta)=>{
-      console.log(respuesta);
-      // * Editar respuesta.
-      let pagina = PantallaEditarRespuesta(req.path, req.session, respuesta);
-      res.send(pagina.render());
-    }).catch((error) => {
-      console.error('Error:', error);
-      res.status(409).send('Error al buscar la respuesta');
-    });
+      include
+    })
+      .then((respuesta) => {
+        let pagina = PantallaEditarRespuesta(req.path, req.session, respuesta);
+        pagina.partes.unshift(new Pregunta(respuesta.pregunta, pagina.partes[0], req.session));
+        res.send(pagina.render());
+      }).catch((error) => {
+        console.error('Error:', error);
+        res.status(409).send('Error al buscar la respuesta');
+      });
 
 
-  }catch(error){
+  } catch (error) {
     console.error(error);
     res.status(500).send("Error interno del servidor");
   }
@@ -460,15 +467,15 @@ router.get("/perfil/respuestas", (req, res) => {
 });
 
 router.get("/perfil/:DNI?", async (req, res) => {
-	// TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
+  // TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
 
   //
 
   //pagina error
   let paginaError = SinPermisos(req.session, "Algo ha malido sal.")
-  if(req.params.DNI){
-    if(req.session.usuario){
-      if(req.session.usuario.DNI==req.params.DNI){
+  if (req.params.DNI) {
+    if (req.session.usuario) {
+      if (req.session.usuario.DNI == req.params.DNI) {
         //perfil propio
         let pagina = PaginaPerfilPropioInfo(req.path, req.session);
         res.send(pagina.render());
@@ -489,7 +496,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
       let pre = await PreguntaDAO.pagina(filtro);
       let pagina = PaginaPerfil(req.path, req.session, usu);
       pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales =
-      pre;
+        pre;
       res.send(pagina.render());
       return;
     }
@@ -502,17 +509,11 @@ router.get("/perfil/:DNI?", async (req, res) => {
       res.send(paginaError.render());
       return;
     }
-    let filtro = { duenioID: null };
-    filtro.duenioID = usu.DNI;
-    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    let pre = await PreguntaDAO.pagina(filtro);
     let pagina = PaginaPerfil(req.path, req.session, usu);
-    pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales =
-    pre;
     res.send(pagina.render());
     return;
-  }else{
-    if(req.session.usuario){
+  } else {
+    if (req.session.usuario) {
       //perfil propio
       let pagina = PaginaPerfilPropioInfo(req.path, req.session);
       res.send(pagina.render());
@@ -645,7 +646,7 @@ router.get("/prueba/mensaje", async (req, res) => {
 
     pagina.partes.push(new Titulo(5, "Desplegable"));
     let desplegable = new Desplegable("myDesplegable", '<i class="fa-solid fa-ellipsis"></i>');
-    let form = new Formulario('eliminadorForm', '/api/pregunta/', [],(res)=>{alert(res)},{textoEnviar:'Eliminar',verbo: 'POST' ,clasesBoton: 'is-danger is-outlined'}).render()
+    let form = new Formulario('eliminadorForm', '/api/pregunta/', [], (res) => { alert(res) }, { textoEnviar: 'Eliminar', verbo: 'POST', clasesBoton: 'is-danger is-outlined' }).render()
     let opciones = [
       {
         descripcion: "Opcion 2",
@@ -666,5 +667,8 @@ router.get("/prueba/mensaje", async (req, res) => {
     res.status(500).send("Error interno del servidor de prueba/mensaje");
   }
 });
+
+
+
 
 export { router };
