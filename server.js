@@ -54,6 +54,8 @@ app.use(cors({
 	if(rutasPermitidasPorMetodo[req.method]()){
 		next();
 	}else res.status(401).send("Usuario no tiene sesión válida activa");
+
+	// TODO Refactor: Hacer lo mismo para el frontend, con el SinPermiso.
 }) 
 
 const rutas = express.Router();

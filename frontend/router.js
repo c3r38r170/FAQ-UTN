@@ -39,7 +39,7 @@ import {
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
 // TODO Refactor: Usar todas.js
-import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta } from './static/pantallas/todas.js';
+import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos } from './static/pantallas/todas.js';
 import { PaginaPerfil } from "./static/pantallas/perfil.js";
 import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
 import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
@@ -561,7 +561,7 @@ router.get("/administracion/parametros", async (req, res) => {
   res.send(pagina.render());
 });
 
-router.get("/administracion/categorias", async (req, res) => {
+router.get("/administracion/categorias",(req, res) => {
   let usu = req.session;
   if (!usu.usuario) {
     let pagina = SinPermisos(usu, "No está logueado");
@@ -577,7 +577,7 @@ router.get("/administracion/categorias", async (req, res) => {
   res.send(pagina.render());
 });
 
-router.get("/administracion/etiquetas", async (req, res) => {
+router.get("/administracion/etiquetas", (req, res) => {
   let usu = req.session;
   if (!usu.usuario) {
     let pagina = SinPermisos(usu, "No está logueado");
@@ -593,7 +593,7 @@ router.get("/administracion/etiquetas", async (req, res) => {
   res.send(pagina.render());
 });
 
-router.get("/administracion/perfiles", async (req, res) => {
+router.get("/administracion/perfiles", (req, res) => {
   let usu = req.session;
   if (!usu.usuario) {
     let pagina = SinPermisos(usu, "No está logueado");
@@ -610,7 +610,7 @@ router.get("/administracion/perfiles", async (req, res) => {
 });
 
 
-router.get("/administracion/usuarios", async (req, res) => {
+router.get("/administracion/usuarios", (req, res) => {
   let usu = req.session;
   if (!usu.usuario) {
     let pagina = SinPermisos(usu, "No está logueado");
@@ -625,6 +625,11 @@ router.get("/administracion/usuarios", async (req, res) => {
   let pagina = PantallaAdministracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
 });
+
+router.get('/quienes-somos',(req,res) => {
+  let pagina = PantallaQuienesSomos(req.path, req.session);
+  res.send(pagina.render());
+})
 
 // RUTA DE PRUEBA PARA PROBAR
 router.get("/prueba/mensaje", async (req, res) => {
