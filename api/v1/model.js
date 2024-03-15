@@ -1274,22 +1274,6 @@ const Carrera = sequelize.define("carrera", {
     allowNull: false,
   },
 });
-/* 
-        case 'IC':
-          carreraID=1;
-          break;
-        case 'IE':
-          carreraID=2;
-          break;
-        case 'IQ':
-          carreraID=3;
-          break;
-        case 'IM':
-          carreraID=4;
-          break;
-        case 'ISI':
-          carreraID=5;
-          break; */
 
 Carrera.upsert({
   ID: 1,
@@ -1311,7 +1295,6 @@ Carrera.upsert({
   ID: 5,
   nombre: "Ingeniería en Sistemas de Información"
 })
-
 
 const CarrerasUsuario = sequelize.define("carrerasUsuario", {
   // TODO Refactor: legajo, con minúscula
@@ -1367,4 +1350,3 @@ export {
   Categoria,
   SuscripcionesEtiqueta,
 };
-

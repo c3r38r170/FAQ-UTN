@@ -47,7 +47,8 @@ class Pagina {
 
 		if (sesion.usuario) {
 			this.columnaNotificaciones = [
-				new Titulo(5, '<i class="fa-regular fa-bell mr-2"></i> Notificaciones')
+				// elemento = 'h1', clave, titulo, clases,id
+				new Titulo('h2', 5,'<i class="fa-regular fa-bell mr-2"></i> Notificaciones','','notificacion-titulo')
 				, new DesplazamientoInfinito('notificaciones-di', '/api/notificacion', n => (new Notificacion(n.ID, n, sesion.usuario.DNI)).render())
 			];
 			this.globales.usuarioActual = sesion.usuario;
