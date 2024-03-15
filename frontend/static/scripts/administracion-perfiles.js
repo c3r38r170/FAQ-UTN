@@ -37,7 +37,7 @@ gEt("administrar-perfiles").onchange = (e) => {
   // ! Se deben crear nuevos formularios porque el valor del DNI del elegido estará en el indice, en el endpoint, y en más lógica dentro del manipulador de respuesta.
   if (perfilElegido.activado) {
     // * Se desea desbloquear
-    modal.titulo = "Deshabilitar " + perfilElegido.nombre;
+    modal.titulo = "Deshabilitar " + perfilElegido.descripcion;
     modal.contenido = [
       new ComponenteLiteral(
         () => `<big><b><p>¿Estás seguro?</p></b></big><br/>`
@@ -72,7 +72,7 @@ gEt("administrar-perfiles").onchange = (e) => {
     ];
   } else {
     // * Se desea bloquear
-    modal.titulo = "Habilitar a " + perfilElegido.nombre;
+    modal.titulo = "Habilitar a " + perfilElegido.descripcion;
     modal.contenido = [
       new Formulario(
         "administracion-perfiles-deshabilitar",
@@ -121,7 +121,7 @@ gEt("administrar-perfiles").onclick = (e) => {
   );
   let perfilElegido = tabla.entidades[indicePerfilElegido];
 
-  modal.titulo = "Editar a " + perfilElegido.nombre;
+  modal.titulo = "Editar a " + perfilElegido.descripcion;
   modal.contenido = [
     new Formulario(
       "administracion-perfiles-editar",
@@ -129,9 +129,9 @@ gEt("administrar-perfiles").onclick = (e) => {
       [
         {
           name: "nombre",
-          textoEtiqueta: "Nombre",
+          textoEtiqueta: "Descripción:",
           type: "text",
-          value: perfilElegido.nombre,
+          value: perfilElegido.descripcion,
         },
         {
           name: "color",
@@ -155,16 +155,15 @@ gEt("administrar-perfiles").onclick = (e) => {
             let tab = document.getElementById("administrar-perfiles");
             tab.rows[
               indicePerfilElegido + 1
-            ].cells[0].innerHTML = `<div class="perfil" style="background-color: ${
-              JSON.parse(txt).color
-            }"><div class="descripcion">${JSON.parse(txt).nombre}</div></div>`;
+            ].cells[0].innerHTML = `<div class="perfil" style="background-color: ${JSON.parse(txt).color
+              }"><div class="descripcion">${JSON.parse(txt).descripcion}</div></div>`;
             tab.rows[indicePerfilElegido + 1].cells[1].innerText =
               JSON.parse(txt).permisoID == 1
                 ? "Usuario"
                 : JSON.parse(txt).permisoID == 2
-                ? "Moderación"
-                : "Administración";
-            perfilElegido.nombre = JSON.parse(txt).nombre;
+                  ? "Moderación"
+                  : "Administración";
+            perfilElegido.descripcion = JSON.parse(txt).descripcion;
             perfilElegido.color = JSON.parse(txt).color;
             perfilElegido.permisoID = JSON.parse(txt).permisoID;
           }
