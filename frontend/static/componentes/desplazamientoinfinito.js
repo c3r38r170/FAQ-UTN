@@ -19,14 +19,35 @@ class DesplazamientoInfinito{
 	#generadorDeComponentes=null;
 
 	entidadesIniciales=[];
+	
+	opcionesMensajeFinal=[];
+	/* mensajeFinal='';
+	tipoMensajeFinal=MensajeInterfaz.GRIS; */
 
- 	constructor(id,endpoint,transformarRespuestaEnComponente,primerasEntidades=[]){
+ 	constructor(id,endpoint,transformarRespuestaEnComponente,primerasEntidades=[],[mensajeFinal='Llegaste al final.',tipoMensajeFinal=MensajeInterfaz.ADVERTENCIA]=[]){//{mensajeFinal='Llegaste al final.',tipoMensajeFinal=MensajeInterfaz.ADVERTENCIA}={}){
 		// TODO Feature: fallar si no se proveen los parámetros obligatorios. Aplicar a todfas las clases.
 		this.#id=id;
 		this.endpoint=endpoint;
 		this.#generadorDeComponentes=transformarRespuestaEnComponente;
 		// * Las primeras entidades solo se usan desde el servidor y sirven para servir contenido generado y así mejorar el SEO de la página. Si solamente se generara el contenido dinámico desde el frontend, no podría ser analizado.
-		this.entidadesIniciales=primerasEntidades;
+		this.entidadesIniciales=primerasEntidades/* ||[] */;
+		/* if(!mensajeFinal){
+			if(primerasEntidades && primerasEntidades.length==0){
+				this.#mensajeFinal='No se han encontrado resultados.';
+				this.#tipoMensajeFinal=MensajeInterfaz.INFORMACION;
+			}else{
+				// ! Estos son los valores predeterminados de mensajeFinal y tipoMensajeFinal.
+				this.#mensajeFinal='Llegaste al final.';
+				this.#tipoMensajeFinal=MensajeInterfaz.ADVERTENCIA;
+			}
+		}else{
+		} */
+		this.opcionesMensajeFinal=[
+
+			/* this.tipoMensajeFinal= */tipoMensajeFinal/* ; */
+			,
+			/* this.mensajeFinal= */mensajeFinal/* ; */
+		]
 
 		DesplazamientoInfinito.instancias[this.#id]=this;
 	}
@@ -69,8 +90,7 @@ class DesplazamientoInfinito{
 
 		// TODO Refactor: Poner algún componente de paginación en el frontend, que en su defecto obtenga la info del backend. Ver que no destruya ninguna renderización... quizá llevar la configuración del frontend AL backend? Suena a lo más oportuno, por mas que sea antiintuitivo...
 		if(cantidadDeEntidadesEnIteracion==0){
-			// TODO UX: No permitir cerrar este mensaje.
-			html+=(new MensajeInterfaz('3','Llegaste al final.')).render();
+			html+=(new MensajeInterfaz(...this.opcionesMensajeFinal/* this.tipoMensajeFinal,this.mensajeFinal */)).render();
 		}else{
 			html+=`<div class="loading">`
 			html+=`<img loading="lazy" src="/loading.gif" onload="if(window.DesplazamientoInfinito?.instancias?.['${this.#id}'])DesplazamientoInfinito.instancias['${this.#id}'].navegar(event);else setTimeout(()=>this.src='/loading.gif?'+Math.random(),1000)">`;

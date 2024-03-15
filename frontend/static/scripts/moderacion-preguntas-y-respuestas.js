@@ -1,6 +1,6 @@
 import { PantallaModeracionPosts } from "../pantallas/moderacion-posts.js";
 import { gEt, SqS, createElement } from "../libs/c3tools.js";
-import { ComponenteLiteral, DesplazamientoInfinito, Formulario, Pregunta } from '../componentes/todos.js';
+import { ComponenteLiteral, DesplazamientoInfinito, Formulario, Pregunta, MensajeInterfaz } from '../componentes/todos.js';
 
 let pagina = PantallaModeracionPosts(location.pathname, {
   usuario: window.usuarioActual
@@ -116,20 +116,30 @@ gEt('moderar-posts').onclick = (e) => {
 
             let divFantasma = createElement('DIV');
             campoBusqueda.parentNode/* * `label` */.after(divFantasma);
-            let desplinf = new DesplazamientoInfinito('moderacion-pregunta-unificar-desplinf', endpointInicial/* * Se actualiza */, (pre) => {
-              if (pre.ID == reportadoID) {
-                return;
-              }
+            let desplinf = new DesplazamientoInfinito(
+              'moderacion-pregunta-unificar-desplinf'
+              , endpointInicial/* * Se actualiza */
+              , (pre) => {
+                if (pre.ID == reportadoID) {
+                  return;
+                }
 
-              let pregunta = new Pregunta(pre).render();
-              return `<div class="moderacion-preguntas-unificar-desplinf-pregunta"> ${pregunta} <input type="radio" name="duplicadaID" required value="${pre.ID}"> </div>`
-            }, preguntas);
+                let pregunta = new Pregunta(pre).render();
+                return `<div class="moderacion-preguntas-unificar-desplinf-pregunta"> ${pregunta} <input type="radio" name="duplicadaID" required value="${pre.ID}"> </div>`
+              }
+              , !preguntas,preguntas.length?
+                {
+                  mensajeFinal:'No hay preguntas que coincidan.'
+                  ,tipoMensajeFinal:MensajeInterfaz.INFORMACION
+                }
+                :{}
+            );
             desplinf.pagina = 2;
             divFantasma.outerHTML = desplinf.render()
           }
           intentarAgregarLasPreguntas();
         })
-      /* fetch() preguntas, añadir al formulario */
+      /* * fetch() preguntas, añadir al formulario */
     }
 
     modal.redibujar();

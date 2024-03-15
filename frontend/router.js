@@ -78,7 +78,8 @@ router.get("/", (req, res) => {
     ])
       .then(([preguntas, categorias]) => {
         let pagina = PaginaInicio(req.session, queryString, categorias);
-        pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
+        let desplinf=pagina.partes[2];
+        desplinf.entidadesIniciales = preguntas;
 
         res.send(pagina.render());
       });
@@ -484,26 +485,9 @@ router.get("/perfil/:DNI?", async (req, res) => {
         res.send(pagina.render());
         return;
       }
-      let usu = await UsuarioDAO.findByPk(req.params.DNI, {
-        include: PerfilDAO,
-      });
-      if (!usu) {
-        //no existe el usuario buscado
-        res.send(paginaError.render());
-        return;
-      }
-      //Perfil ajeno
-      let filtro = { duenioID: null };
-      filtro.duenioID = usu.DNI;
-      // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-      let pre = await PreguntaDAO.pagina(filtro);
-      let pagina = PaginaPerfil(req.path, req.session, usu);
-      pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales =
-        pre;
-      res.send(pagina.render());
-      return;
+
     }
-    //Perfil ajeno
+    
     let usu = await UsuarioDAO.findByPk(req.params.DNI, {
       include: PerfilDAO,
     });
@@ -512,9 +496,29 @@ router.get("/perfil/:DNI?", async (req, res) => {
       res.send(paginaError.render());
       return;
     }
+    //Perfil ajeno
+    let filtro = { duenioID: null };
+    filtro.duenioID = usu.DNI;
+    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+    let pre = await PreguntaDAO.pagina(filtro);
     let pagina = PaginaPerfil(req.path, req.session, usu);
+    pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
     res.send(pagina.render());
     return;
+    /* //Perfil ajeno
+    let usu = await UsuarioDAO.findByPk(req.params.DNI, {
+      include: PerfilDAO,
+    });
+    if (!usu) {
+      // TODO Feature: 404??
+      //no existe el usuario buscado
+      res.send(paginaError.render());
+      return;
+    }
+
+    let pagina = PaginaPerfil(req.path, req.session, usu);
+    res.send(pagina.render());
+    return; */
   } else {
     if (req.session.usuario) {
       //perfil propio
@@ -527,24 +531,6 @@ router.get("/perfil/:DNI?", async (req, res) => {
     return;
   }
 
-});
-
-router.get("/usuario/:id?", async (req, res) => {
-  //??
-  UsuarioDAO.findByPk(req.params.id, {
-    raw: true,
-    plain: true,
-    nest: true,
-  }).then((u) => {
-    if (!u) {
-      res.status(404).send("ID de usuario inválido");
-    }
-
-    let usuario = new Usuario(u);
-    let chipusuario = new ChipUsuario(usuario.dataValues);
-
-    res.send();
-  });
 });
 
 router.get("/administracion/parametros", async (req, res) => {
@@ -634,6 +620,7 @@ router.get('/quienes-somos', (req, res) => {
   let pagina = PantallaQuienesSomos(req.path, req.session);
   res.send(pagina.render());
 })
+
 
 // RUTA DE PRUEBA PARA PROBAR
 router.get("/prueba/mensaje", async (req, res) => {
