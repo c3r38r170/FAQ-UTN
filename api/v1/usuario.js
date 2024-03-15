@@ -201,8 +201,9 @@ router.post("/", (req, res) => {
       perfilID = 1;
     }
   }
+  const DNI = req.body.DNI
   Usuario.findAll({
-    where: { DNI: req.body.DNI },
+    where: { DNI },
     raw: true,
     nest: true,
     plain: true,
@@ -211,8 +212,9 @@ router.post("/", (req, res) => {
       if (usu) {
         return res.status(400).send("El Usuario ya se encuentra registrado");
       }
-      const DNI = req.body.DNI
-      let encontrado = SYSACAD.obtenerDatosPorDNI(DNI);
+
+      return SYSACAD.obtenerDatosPorDNI(DNI);
+    }).then((encontrado)=>{
       if (!encontrado) {
         return res.status(404).send("El DNI especificado no se encuentra en la base de datos de la facultad.");
       }
@@ -241,7 +243,6 @@ router.post("/", (req, res) => {
           carreraID: ID,
           Legajo: legajo
         }))));
-        // datos.carreras=encontrado.carreras;
       }
 
       Promise.all(esperarA)
@@ -252,7 +253,6 @@ router.post("/", (req, res) => {
           }, Carrera]
         }))
         .then(usuarioCompleto => {
-          // console.log(usuarioCompleto);
           if (!req.session.usuario)
             req.session.usuario = usuarioCompleto;
           res.status(200).send("Registro exitoso");

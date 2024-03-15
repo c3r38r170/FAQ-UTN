@@ -241,8 +241,8 @@ class Encabezado {
 				'formularioRegistro'
 				, '/api/usuario'
 				, [
-					{ name:'nombre', textoEtiqueta:'Nombre', type: 'text' },
-					{ name:'DNI', textoEtiqueta:'D.N.I.', type: 'text' },
+					// TODO Feature: Sanitizar DNIs en el backend
+					{ name:'DNI', textoEtiqueta:'D.N.I.<br><small>(sin puntos)</small>', type: 'text' },
 					{ name:'correo', textoEtiqueta:'Correo electrónico <br><small>(opcional, ignorar para usar el registrado en la UTN, se puede cambiar luego)</small>', type: 'email', required:false },
 					{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
 				]
