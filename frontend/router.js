@@ -289,17 +289,19 @@ router.get("/perfil/info", (req, res) => {
 
 router.get("/moderacion/usuarios", (req, res) => {
   let usu = req.session;
+
   if (!usu.usuario) {
     let pagina = SinPermisos(usu, "No está logueado");
     res.send(pagina.render());
     return;
   } else if (usu.usuario.perfil.permiso.ID < 2) {
+
     let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
     res.send(pagina.render());
     return;
   }
-
-  let pagina = PantallaModeracionUsuarios(req.path, req.session);
+  const query = req.query.searchInput;
+  let pagina = PantallaModeracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
 });
 
@@ -314,8 +316,8 @@ router.get('/moderacion/preguntas-y-respuestas', (req, res) => {
     res.send(pagina.render());
     return;
   }
-
-  let pagina = PantallaModeracionPosts(req.path, req.session);
+  const query = req.query.searchInput;
+  let pagina = PantallaModeracionPosts(req.path, req.session, query);
   res.send(pagina.render());
 })
 
@@ -562,7 +564,7 @@ router.get("/administracion/parametros", async (req, res) => {
   res.send(pagina.render());
 });
 
-router.get("/administracion/categorias",(req, res) => {
+router.get("/administracion/categorias", (req, res) => {
   let usu = req.session;
   if (!usu.usuario) {
     let pagina = SinPermisos(usu, "No está logueado");
@@ -627,7 +629,7 @@ router.get("/administracion/usuarios", (req, res) => {
   res.send(pagina.render());
 });
 
-router.get('/quienes-somos',(req,res) => {
+router.get('/quienes-somos', (req, res) => {
   let pagina = PantallaQuienesSomos(req.path, req.session);
   res.send(pagina.render());
 })

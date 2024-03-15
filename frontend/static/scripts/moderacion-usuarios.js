@@ -4,9 +4,9 @@ import { Titulo, Formulario, ComponenteLiteral } from "../componentes/todos.js";
 
 let pagina = PantallaModeracionUsuarios(location.pathname, {
   usuario: window.usuarioActual,
-});
+}, location.search.split('=')[1]);
 let modal = pagina.partes[0];
-let tabla = pagina.partes[1];
+let tabla = pagina.partes[2];
 tabla /* ! Tabla */
   .iniciar();
 
