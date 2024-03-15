@@ -77,6 +77,7 @@ class Pagina {
 
 		<script src="/main.js" type=module></script>
 		<link rel="stylesheet" href="/main.css">
+		<link rel="icon" href="../favicon-32x32.png">
 
 		<script src="/scripts${rutaRecursos + ".js" }" type="module"></script>
 		<link rel="stylesheet" href="/styles${rutaRecursos + ".css"}">
