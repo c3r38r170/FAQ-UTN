@@ -1,10 +1,10 @@
 import * as express from "express";
 import { Sequelize } from "sequelize";
 import {
-    Etiqueta,
-    SuscripcionesEtiqueta,
-    Categoria,
-  } from "./model.js";
+  Etiqueta,
+  SuscripcionesEtiqueta,
+  Categoria,
+} from "./model.js";
 
 const router = express.Router();
 
@@ -14,16 +14,16 @@ import { mensajeError401, mensajeError404 } from "./mensajesError.js";
 
 
 router.post("/", function (req, res) {
-    if (req.session.usuario.perfil.permiso.ID < 3) {
-      res.status(401).send(mensajeError401);
-      return;
-    }
-    const { descripcion, categoriaID } = req.body;
-    Etiqueta.create({ descripcion, categoriaID }).then(() => {
-      res.status(200).send();
-    });
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send(mensajeError401);
+    return;
+  }
+  const { descripcion, categoriaID } = req.body;
+  Etiqueta.create({ descripcion, categoriaID }).then(() => {
+    res.status(200).send();
   });
-  
+});
+
 // TODO Refactor: cambiar este endpoint a categoría. Hacer que categoría acepte un parámetro de con o sin etiquetas.
 router.get("/", function (req, res) {
 
@@ -46,12 +46,19 @@ router.get("/", function (req, res) {
   Etiqueta.findAndCountAll({
     raw: true,
     nest: true,
-    include: [{ model: Categoria, as: "categoria" }],
+    include: [
+      {
+        model: Categoria,
+        as: "categoria",
+        attributes: ['ID', 'descripcion', 'color', 'activado']
+      }
+    ],
+    attributes: ['ID', 'descripcion', 'activado'],
     limit: PAGINACION.resultadosPorPagina,
-        offset: (+pagina) * PAGINACION.resultadosPorPagina,
+    offset: (+pagina) * PAGINACION.resultadosPorPagina,
   })
     .then((etiquetas) => {
-      res.setHeader('untfaq-cantidad-paginas', Math.ceil(etiquetas.count/PAGINACION.resultadosPorPagina));
+      res.setHeader('untfaq-cantidad-paginas', Math.ceil(etiquetas.count / PAGINACION.resultadosPorPagina));
       res.status(200).send(etiquetas.rows);
     })
     .catch((error) => {
@@ -74,7 +81,7 @@ router.patch("/:id/activado", async (req, res) => {
       await etiqueta.save();
       res.json(etiqueta);
     } else {
-      res.status(404).json(mensajeError404);
+      res.status(404).json({ message: "Etiqueta no encontrada" });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -189,6 +196,6 @@ router.delete("/:etiquetaID/suscripcion", function (req, res) {
 });
   
 
-  
+
 
 export { router };

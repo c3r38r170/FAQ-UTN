@@ -12,15 +12,15 @@ class ChipUsuario {
   #propio;
 
   constructor(
-    { DNI, nombre, correo, createdAt, fecha_alta, perfil},
-    esPerfil = false, propio=false
+    { DNI, nombre, correo, createdAt, fecha_alta, perfil },
+    esPerfil = false, propio = false
   ) {
     this.#DNI = DNI;
     this.#nombreusuario = nombre;
     this.#correo = correo;
     this.#createdAt = new Fecha(fecha_alta || createdAt);
     this.#esPerfil = esPerfil;
-    this.#tipo = perfil ? perfil.nombre : "Usuario";
+    this.#tipo = perfil ? perfil.descripcion : "Usuario";
     this.#color = perfil ? perfil.color : "#485fc7";
     this.#propio = propio;
   }
@@ -35,8 +35,8 @@ class ChipUsuario {
                       <img id="cambiarFoto" class="mr-3 img-usuario" src="../imagenCambiarFoto.png"></img>
                     </div>
                   </div>
-                    `: 
-                  '<img class="mr-3 img-usuario" src="/api/usuario/'+this.#DNI+'/foto" ></img>'}
+                    `:
+          '<img class="mr-3 img-usuario" src="/api/usuario/' + this.#DNI + '/foto" ></img>'}
                 <div class="contenido-perfil">
                     <div>DNI: <span>${this.#DNI}</span></div>
                     <div>Nombre: <span>${this.#nombreusuario}</span></div>
@@ -50,17 +50,15 @@ class ChipUsuario {
             `;
     } else {
       return `
-            <div class="chip-usuario is-vcentered">
-            <a href="/perfil/${this.#DNI}">
-            <img class="mr-3 img-usuario" src="/api/usuario/${this.#DNI}/foto" ></img>
-            </a>
-                <a class="nombre-usuario" href="/perfil/${this.#DNI}">${
-        this.#nombreusuario
-      }</a>
-                <div class="tipo-usuario" style="background-color: ${
-                  this.#color
-                }"><div class="descripcion">${this.#tipo}</div></div>
-            </div>
+        <div class="chip-usuario is-vcentered">
+          <a href="/perfil/${this.#DNI}">
+          <img class="mr-3 img-usuario" src="/api/usuario/${this.#DNI}/foto" ></img>
+          </a>
+          <a class="nombre-usuario" href="/perfil/${this.#DNI}">${this.#nombreusuario}</a>
+          <div class="tipo-usuario" style="background-color: ${this.#color}">
+            <div class="descripcion">${this.#tipo}</div>
+          </div>
+        </div>
             `;
     }
   }

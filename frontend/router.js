@@ -39,20 +39,7 @@ import {
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
 // TODO Refactor: Usar todas.js
-import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos } from './static/pantallas/todas.js';
-import { PaginaPerfil } from "./static/pantallas/perfil.js";
-import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
-import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
-import { PaginaPerfilPropioRespuestas } from "./static/pantallas/perfil-propio-respuestas.js";
-import { PaginaSuscripciones } from "./static/pantallas/suscripciones.js";
-import { PantallaAdministracionParametros } from "./static/pantallas/administracion-parametros.js";
-import { SinPermisos } from "./static/pantallas/sin-permisos.js";
-import { PantallaAdministracionPerfiles } from "./static/pantallas/administracion-perfiles.js";
-import { PantallaAdministracionCategorias } from "./static/pantallas/administracion-categorias.js";
-import { PantallaAdministracionEtiquetas } from "./static/pantallas/administracion-etiquetas.js";
-import { PantallaEtiquetaPreguntas } from "./static/pantallas/pantalla-etiquetas-pregunta.js";
-import { PantallaAdministracionUsuarios } from "./static/pantallas/administracion-usuarios.js";
-import { PantallaEditarRespuesta } from "./static/pantallas/editar-respuesta.js";
+import { PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PaginaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
   // ! req.path es ''

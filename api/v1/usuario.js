@@ -265,7 +265,7 @@ router.post("/", (req, res) => {
 });
 
 // * Te deja reinciar la contra de cualquiera lol
-router.post("/:DNI/contrasenia", function (req, res) {
+router.post("/contrasenia", function (req, res) {
   function generarContrasenia() {
     var length = 8,
       charset =
@@ -277,14 +277,20 @@ router.post("/:DNI/contrasenia", function (req, res) {
     return retVal;
   }
 
-  Usuario.findByPk(req.params.DNI).then((usu) => {
-    if (!usu) {
-      res.status(404).send(mensajeError404);
+  Usuario.findAll({
+    where: {
+      DNI: req.body.DNI,
+      correo: req.body.correo
+    }
+    ,limit:1
+  }).then((usu) => {
+    if (!usu[0]) {
+      res.status(404).send({message:"DNI inexistente"});
       return;
     }
 
     let contraseniaNueva = generarContrasenia();
-    usu.contrasenia = contraseniaNueva;
+    usu[0].contrasenia = contraseniaNueva;
 
     Promise.all([
       nodemailer
@@ -299,12 +305,12 @@ router.post("/:DNI/contrasenia", function (req, res) {
         })
         .sendMail({
           from: `"UTN FAQ - Recuperación de contraseña" <${process.env.CORREO_USER}>`, // sender address
-          to: usu.correo, // list of receivers
+          to: usu[0].correo, // list of receivers
           subject: "UTN FAQ - Recuperación de contraseña", // Subject line
-          text: `¡Saludos, ${usu.nombre}! Tu contraseña temporal es "${contraseniaNueva}" (sin comillas).`, // plain text body
-          html: `<big>¡Saludos, ${usu.nombre}!</big><br/><p>Se ha reestablecido tu contraseña, tu nueva contraseña temporal es:</p><pre>${contraseniaNueva}}</pre><p>No olvides cambiarla por otra / personalizarla cuando entres.</p><p><a href=${process.env.DIRECCION}>¡Te esperamos!</a></p>`, // html body
+          text: `¡Saludos, ${usu[0].nombre}! Tu contraseña temporal es "${contraseniaNueva}" (sin comillas).`, // plain text body
+          html: `<big>¡Saludos, ${usu[0].nombre}!</big><br/><p>Se ha reestablecido tu contraseña, tu nueva contraseña temporal es:</p><pre>${contraseniaNueva}}</pre><p>No olvides cambiarla por otra / personalizarla cuando entres.</p><p><a href=${process.env.DIRECCION}>¡Te esperamos!</a></p>`, // html body
         })
-      , usu.save()
+      , usu[0].save()
     ])
       .then(res.status(200).send({message: "Se ha reestablecido la contraseña. Revise su correo electrónico para poder acceder."}));
   });
@@ -318,12 +324,26 @@ router.post("/:DNI/reporte", function (req, res) {
         return;
       } else {
         // TODO Refactor: Usar Sequelize, usuario.addReporteUsuario(new ReporteUsuario({reportante: ... o como sea }))
-        ReportesUsuario.create({
-          usuarioReportanteDNI: req.session.usuario.DNI,
-          usuarioReportadoDNI: req.params.DNI,
-        });
-
-        res.status(201).send();
+        ReportesUsuario
+          .findOne({ where: { usuarioReportadoDNI: req.params.DNI } })
+          .then(re => {
+            if (re) {
+              re.usuarioReportanteDNI = req.session.usuario.DNI;
+              re.createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+              return re.save();
+            }else{
+              // ?? ReportesUsuario.ReportesUsuario.
+              return ReportesUsuario.
+                ReportesUsuario.create({
+                  usuarioReportanteDNI: req.session.usuario.DNI,
+                  usuarioReportadoDNI: req.params.DNI,
+                });
+            }
+          })
+          .then(()=>{
+            res.status(201).send("Reporte registrado");
+          })
+        return;
       }
     })
     .catch((err) => {

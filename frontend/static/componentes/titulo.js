@@ -3,7 +3,9 @@ class Titulo {
     #elemento;
     #tipo
     #clases
-    constructor(elemento = 'h1', clave, titulo, clases) {
+    #id
+
+    constructor(elemento = 'h1', clave, titulo, clases,id) {
 
       this.#tipo = {
           '1': 'is-1',
@@ -23,11 +25,12 @@ class Titulo {
         this.#elemento = elemento;
         this.#titulo = titulo;
         this.#clases = clases || '';
+        this.#id=id;
     }
 
     render() {
       return `
-        <${this.#elemento} class='title ${this.#tipo} ${this.#clases}'>
+        <${this.#elemento} class='title ${this.#tipo} ${this.#clases}' ${this.#id?`id="${this.#id}"`:''}>
            ${this.#titulo}
         </${this.#elemento}>
       `;

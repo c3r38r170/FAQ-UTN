@@ -414,8 +414,7 @@ const Perfil = sequelize.define("perfil", {
     primaryKey: true,
     autoIncrement: true,
   },
-  // TODO Refactor: cambiar a Descripcion
-  nombre: {
+  descripcion: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -720,7 +719,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
               , as: 'duenio'
               , include: {
                 model: Perfil
-                , attributes: ['ID', 'nombre', 'color']
+                , attributes: ['ID', 'descripcion', 'color']
               }
               , attributes: ['DNI', 'nombre']
             },
@@ -730,7 +729,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
               as: "duenio",
               include: {
                 model: Perfil,
-                attributes: ["ID", "nombre", "color"],
+                attributes: ["ID", "descripcion", "color"],
               },
               attributes: ["DNI", "nombre"],
             },
@@ -897,7 +896,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
           , as: 'duenio'
           , include: {
             model: Perfil
-            , attributes: ['ID', 'nombre', 'color']
+            , attributes: ['ID', 'descripcion', 'color']
           }
           , attributes: ['DNI', 'nombre']
         }
@@ -957,7 +956,7 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
             , as: 'duenio'
             , include: {
               model: Perfil
-              , attributes: ['ID', 'nombre', 'color']
+              , attributes: ['ID', 'descripcion', 'color']
             }
             , attributes: ['DNI', 'nombre']
           }
@@ -1041,7 +1040,7 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
             , as: 'duenio'
             , include: {
               model: Perfil
-              , attributes: ['ID', 'nombre', 'color']
+              , attributes: ['ID', 'descripcion', 'color']
             }
             , attributes: ['DNI', 'nombre']
           }
@@ -1344,6 +1343,7 @@ Parametro.findAll().then((parametros) => {
     if (p.ID == 4) setReportaPost(p.valor);
   });
 });
+
 
 export {
   Parametro,
