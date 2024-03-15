@@ -122,7 +122,7 @@ class Formulario{
             +    `Formulario.instancias['${this.#id}']=new Formulario(
                 '${this.#id}',
                 ${JSON.stringify(this.#endpoint)},
-                '${JSON.stringify(this.campos)}',
+                ${JSON.stringify(this.campos)},
                 ${representacionDeLaFuncion},
                 {
                     textoEnviar: '${this.#textoEnviar}',
