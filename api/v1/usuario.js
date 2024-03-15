@@ -19,6 +19,7 @@ import {
   } from "./model.js";
 import { getPaginacion } from "./parametros.js";
 import * as SYSACAD from './sysacad.js';
+import { mensajeError401, mensajeError403, mensajeError404 } from "./mensajesError.js";
 
 
 const router = express.Router();
@@ -56,7 +57,7 @@ router.get("/", function (req, res) {
   if (req.session.usuario.perfil.permiso.ID < 2) {
     res
       .status(403)
-      .send("No se poseen permisos de moderación o sesión válida activa");
+      .send(mensajeError403);
     return;
   }
 
@@ -147,14 +148,14 @@ router.get("/", function (req, res) {
   Usuario.findAndCountAll(opciones)
     .then((usuarios) => {
       if (usuarios.length == 0 && filtro) {
-        res.status(404).send("No se encontraron usuarios");
+        res.status(404).send(mensajeError404);
       } else {
         res.setHeader('untfaq-cantidad-paginas', Math.ceil(usuarios.count/PAGINACION.resultadosPorPagina));
       res.status(200).send(usuarios.rows);
       }
     })
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send({message: err.message});
     });
 });
 
@@ -168,7 +169,7 @@ router.get("/:DNI/preguntas", function (req, res) {
       res.status(200).send(preguntas);
     })
     .catch((err) => {
-      res.status(500).send(err)
+      res.status(500).send({message: err.message})
     });
 });
 
@@ -209,12 +210,12 @@ router.post("/", (req, res) => {
   })
     .then((usu) => {
       if (usu) {
-        return res.status(400).send("El Usuario ya se encuentra registrado");
+        return res.status(400).send({message: "El Usuario ya se encuentra registrado"});
       }
       const DNI=req.body.DNI
       let encontrado=SYSACAD.obtenerDatosPorDNI(DNI);
       if(!encontrado){
-        return res.status(404).send("El DNI especificado no se encuentra en la base de datos de la facultad.");
+        return res.status(404).send(mensajeError404);
       }
 
       // TODO Refactor: DRY, reviso encontrado.carreras 2 veces
@@ -255,11 +256,11 @@ router.post("/", (req, res) => {
           // console.log(usuarioCompleto);
           if(!req.session.usuario)
             req.session.usuario=usuarioCompleto;
-          res.status(200).send("Registro exitoso");
+          res.status(200).send();
         });
     })
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send({message: err.message});
     });
 });
 
@@ -278,7 +279,7 @@ router.post("/:DNI/contrasenia", function (req, res) {
 
   Usuario.findByPk(req.params.DNI).then((usu) => {
     if (!usu) {
-      res.status(404).send("DNI inexistente");
+      res.status(404).send(mensajeError404);
       return;
     }
 
@@ -305,7 +306,7 @@ router.post("/:DNI/contrasenia", function (req, res) {
         })
       ,usu.save()
     ])
-      .then(res.status(200).send("Se ha reestablecido la contraseña. Revise su correo electrónico para poder acceder."));
+      .then(res.status(200).send({message: "Se ha reestablecido la contraseña. Revise su correo electrónico para poder acceder."}));
   });
 });
 
@@ -313,7 +314,7 @@ router.post("/:DNI/reporte", function (req, res) {
   Usuario.findByPk(req.params.DNI)
     .then((usuario) => {
       if (!usuario) {
-        res.status(404).send("Usuario no encontrado");
+        res.status(404).send(mensajeError404);
         return;
       } else {
         // TODO Refactor: Usar Sequelize, usuario.addReporteUsuario(new ReporteUsuario({reportante: ... o como sea }))
@@ -322,17 +323,17 @@ router.post("/:DNI/reporte", function (req, res) {
           usuarioReportadoDNI: req.params.DNI,
         });
 
-        res.status(201).send("Reporte registrado");
+        res.status(201).send();
       }
     })
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send({message: err.message});
     });
 });
 
 router.post("/:DNI/bloqueo", function (req, res) {
   if (req.session.usuario.perfil.permiso.ID < 2) {
-    res.status(401).send("Usuario no posee permisos");
+    res.status(401).send(mensajeError401);
     return;
   }
   // TODO Security: Chequear permisos
@@ -350,7 +351,7 @@ router.post("/:DNI/bloqueo", function (req, res) {
   })
     .then((usuario) => {
       if (!usuario) {
-        res.status(404).send("Usuario no encontrado");
+        res.status(404).send(mensajeError404);
         return;
       }
 
@@ -397,7 +398,7 @@ router.delete("/:DNI/bloqueo", function (req, res) {
     ],
   }).then((usuario) => {
     if (!usuario) {
-      res.status(404).send("Usuario no encontrado");
+      res.status(404).send(mensajeError404);
       return;
     }
 
@@ -438,10 +439,10 @@ router.patch("/contrasenia", function (req, res) {
         usuario.contrasenia = req.body.contraseniaNueva;
         req.session.usuario.contrasenia=req.body.contraseniaNueva;
         usuario.save();
-        res.status(200).send("Datos actualizados exitosamente");
+        res.status(200).send({message: "Datos actualizados exitosamente"});
         return;
       }
-      res.status(402).send("Contraseña anterior no válida")
+      res.status(402).send({message: "Contraseña anterior no válida"})
       })
     .catch((err) => {
       res.status(500).send(err);
@@ -455,19 +456,19 @@ router.patch("/mail", function (req, res) {
         usuario.correo = req.body.correo;
         req.session.usuario.correo=req.body.correo;
         usuario.save();
-        res.status(200).send("Datos actualizados exitosamente");
+        res.status(200).send({message: "Datos actualizados exitosamente"});
         return;
       }
-      res.status(402).send("Contraseña anterior no válida")
+      res.status(402).send({message: "Contraseña anterior no válida"})
       })
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send({message: err.message});
     });
 });
 
 router.patch("/:DNI", function (req, res) {
   if (req.session.usuario.perfil.permiso.ID < 3) {
-    res.status(401).send("Usuario no posee permisos");
+    res.status(401).send(mensajeError401);
     return;
   }
   Usuario.findByPk(req.params.DNI)
@@ -477,10 +478,10 @@ router.patch("/:DNI", function (req, res) {
       usuario.correo = req.body.correo;
       usuario.perfilID= req.body.perfilID;
       usuario.save();
-      res.status(200).send("Datos actualizados exitosamente");
+      res.status(200).send({message: "Datos actualizados exitosamente"});
     })
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send({message: err.message});
     });
 });
   

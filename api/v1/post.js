@@ -14,6 +14,7 @@ import {
   } from "./model.js";
 
   import { getPaginacion } from "./parametros.js";
+import { mensajeError401, mensajeError403, mensajeError404 } from "./mensajesError.js";
 
 const router = express.Router();
 
@@ -33,7 +34,7 @@ const valorarPost = function (req, res) {
     Post.findByPk(IDvotado)
       .then((post) => {
         if (!post) {
-          res.status(404).send("Post no encontrado / disponible.");
+          res.status(404).send(mensajeError404);
           return;
         } else {
           Voto.findAll({
@@ -47,7 +48,7 @@ const valorarPost = function (req, res) {
             if (!voto) {
               // si no exite el voto lo crea con lo que mandó
               if (req.body.valoracion == "null") {
-                res.status(403).send("No existe la valoracion");
+                res.status(403).send(mensajeError403);
               } else {
                 if (req.body.valoracion) {
                   Voto.create({
@@ -66,25 +67,25 @@ const valorarPost = function (req, res) {
               voto.save();
               //Notificación
             }
-            res.status(201).send("Voto registrado.");
+            res.status(201).send({message: "Voto registrado."});
           });
         }
       })
       .catch((err) => {
-        res.status(500).send(err);
+        res.status(500).send({message: err.message});
       });
   };
   
   const eliminarVoto = function (req, res) {
     if (!req.session.usuario) {
-      res.status(401).send("Usuario no tiene sesión válida activa.");
+      res.status(401).send(mensajeError401);
       return;
     }
     let IDvotado = req.params.votadoID;
     Post.findByPk(IDvotado)
       .then((post) => {
         if (!post) {
-          res.status(404).send("Post no encontrado / disponible.");
+          res.status(404).send(mensajeError404);
           return;
         } else {
           Voto.findAll({
@@ -96,16 +97,16 @@ const valorarPost = function (req, res) {
             plain: true,
           }).then((voto) => {
             if (!voto) {
-              res.status(403).send("No existe la valoración");
+              res.status(403).send(mensajeError403);
             } else {
               voto.destroy();
             }
-            res.status(201).send("Voto Eliminado.");
+            res.status(201).send({message: "Voto Eliminado."});
           });
         }
       })
       .catch((err) => {
-        res.status(500).send(err);
+        res.status(500).send({message: err.message});
       });
   };
   
@@ -124,7 +125,7 @@ const valorarPost = function (req, res) {
     Post.findByPk(reportadoID)
       .then((pregunta) => {
         if (!pregunta) {
-          res.status(404).send("Pregunta/respuesta no encontrada");
+          res.status(404).send(mensajeError404);
           return;
         } else {
           // TODO Feature: ver si ya se reportó, y prohibir
@@ -137,11 +138,11 @@ const valorarPost = function (req, res) {
           }).then((r) => 
           r.save()
           );
-          res.status(201).send("Reporte registrado");
+          res.status(201).send({message: "Reporte registrado"});
         }
       })
       .catch((err) => {
-        res.status(500).send(err);
+        res.status(500).send({message: err.message});
       });
   };
   
@@ -173,9 +174,7 @@ router.post("/:reportadoID/reporte", reportarPost);
   
   router.delete('/:ID',(req,res) => {
     if (req.session.usuario.perfil.permiso.ID < 2) {
-      res
-        .status(403)
-        .send("No se poseen permisos de moderación");
+      res.status(403).send(mensajeError403);
       return;
     }
   
@@ -184,14 +183,14 @@ router.post("/:reportadoID/reporte", reportarPost);
     })
       .then((post) => {
         if (!post) {
-          res.status(404).send("Pregunta no encontrada");
+          res.status(404).send(mensajeError404);
           return;
         }
   
         post.setEliminador(req.session.usuario.DNI)
           .then((post)=>post.save())
           .then(()=>{
-            res.status(200).send("Estado del post consistente con interfaz");
+            res.status(200).send({message: "Estado del post consistente con interfaz"});
           })
       })
   })

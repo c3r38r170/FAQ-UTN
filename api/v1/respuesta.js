@@ -9,6 +9,7 @@ import {
   Respuesta,
   Notificacion,
 } from "./model.js";
+import { mensajeError401, mensajeError403, mensajeError404 } from "./mensajesError.js";
 
 
 import { getModera, getRechazaPost, getReportaPost } from "./parametros.js";
@@ -26,7 +27,7 @@ router.post("/", function (req, res) {
       .then((respuesta) => {
         if (respuesta.apropiado < rechazaPost) {
           // TODO Feature: ¿Devolver razón? Si se decidió que no, está bien.
-          res.status(400).send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
+          res.status(400).send({message: "Texto rechazo por moderación automática. Razón: "+respuesta.motivo});
           return;
         }
 
@@ -35,7 +36,7 @@ router.post("/", function (req, res) {
           include: Post,
         }).then((pregunta) => {
           if (!pregunta) {
-            res.status(404).send("Pregunta no encontrada / disponible");
+            res.status(404).send(mensajeError404);
           } else {
             Post.create({
               cuerpo: req.body.cuerpo,
@@ -78,24 +79,24 @@ router.post("/", function (req, res) {
                     res.status(201).send(post.ID + "");
                   })
                   .catch((err) => {
-                    res.status(500).send(err);
+                    res.status(500).send({message: err.message});
                   });
               })
               .catch((err) => {
-                res.status(500).send(err);
+                res.status(500).send({message: err.message});
               });
           }
         });
       })
       .catch((err) => {
-        res.status(500).send(err);
+        res.status(500).send({message: err.message});
       });
   } else {
     Pregunta.findByPk(req.body.IDPregunta, {
       include: Post,
     }).then((pregunta) => {
       if (!pregunta) {
-        res.status(404).send("Pregunta no encontrada / disponible");
+        res.status(404).send(mensajeError404);
       } else {
         Post.create({
           cuerpo: req.body.cuerpo,
@@ -132,11 +133,11 @@ router.post("/", function (req, res) {
                 res.status(201).send(post.ID + "");
               })
               .catch((err) => {
-                res.status(500).send(err);
+                res.status(500).send({message: err.message});
               });
           })
           .catch((err) => {
-            res.status(500).send(err);
+            res.status(500).send({message: err.message});
           });
       }
     });
@@ -149,11 +150,11 @@ router.patch("/", function (req, res) {
   })
     .then((respuesta) => {
       if (!respuesta) {
-        res.status(404).send("Respuesta no encontrada");
+        res.status(404).send(mensajeError404);
         return;
       } else {
         if (respuesta.post.duenioDNI != req.session.usuario.DNI) {
-          res.status(403).send("No puede editar una respuesta ajena.");
+          res.status(403).send(mensajeError403);
           return;
         } else {
           //filtro IA
@@ -165,7 +166,7 @@ router.patch("/", function (req, res) {
               let rechazaPost = getRechazaPost();
               // TODO Refactor: DRY
               if (resp.apropiado < rechazaPost) {
-                res.status(400).send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
+                res.status(400).send({message: "Texto rechazo por moderación automática. Razón: "+respuesta.motivo});
                 return;
               } else if (resp.apropiado < reportaPost) {
                 //Crear reporte
@@ -188,7 +189,7 @@ router.patch("/", function (req, res) {
       }
     })
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send({message: err.message});
     });
 });
 

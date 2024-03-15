@@ -14,7 +14,7 @@ router.post("/", function (req, res) {
     })
       .then((usu) => {
         if (!usu) {
-          res.status(404).send("El DNI no se encuentra registrado.");
+          res.status(404).send({message: "El DNI no se encuentra registrado."});
           return;
         } else {
           usuario = usu;
@@ -28,12 +28,12 @@ router.post("/", function (req, res) {
           return;
         } else if (coinciden == false) {
           //si salió por el 404 coinciden queda undefined
-          res.status(401).send("Contraseña incorrecta.");
+          res.status(401).send({message: "Contraseña incorrecta."});
           return;
         }
       })
       .catch((err) => {
-        res.status(500).send(err);
+        res.status(500).send({message: err.message});
         return;
       });
   });

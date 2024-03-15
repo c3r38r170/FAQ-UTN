@@ -4,6 +4,7 @@ import {
   } from "./model.js";
 
 import {setModera, setRechazaPost, setReportaPost, setResultadosPorPagina} from "./parametros.js"
+import { mensajeError401 } from "./mensajesError.js";
 
 const router = express.Router();
 
@@ -33,18 +34,18 @@ router.get("/", function (req, res) {
   
   router.patch("/:ID", function (req, res) {
     if (req.session.usuario.perfil.permiso.ID < 3) {
-      res.status(401).send("Usuario no posee permisos");
+      res.status(401).send(mensajeError401);
       return;
     }
     if (!req.session.usuario) {
       res
         .status(403)
-        .send("No se poseen permisos de administración o sesión válida activa");
+        .send({message: "No se poseen permisos de administración o sesión válida activa"});
       return;
     } else if (req.session.usuario.perfil.permiso.ID < 3) {
       res
         .status(403)
-        .send("No se poseen permisos de administración o sesión válida activa");
+        .send({message: "No se poseen permisos de administración o sesión válida activa"});
       return;
     }
     Parametro.findByPk(req.params.ID).then((p) => {

@@ -10,6 +10,7 @@ import {
   } from "./model.js";
 
   import { getPaginacion } from "./parametros.js";
+import { mensajeError403, mensajeError404 } from "./mensajesError.js";
 
 
 
@@ -91,7 +92,7 @@ router.get('/', function(req,res){
 	}).then(notificaciones=>{
 		res.status(200).send(notificaciones);
 	}).catch(err=>{
-		res.status(500).send(err);
+		res.status(500).send({message: err.message});
 	});
 });
 
@@ -106,12 +107,12 @@ router.patch("/", function (req, res) {
   Notificacion.findByPk(notificacionID)
     .then((notificacion) => {
       if (!notificacion) {
-        res.status(404).send();
+        res.status(404).send(mensajeError404);
         return;
       }
 
       if (notificacion.notificadoDNI != req.session.usuario.DNI) {
-        res.status(403).send();
+        res.status(403).send(mensajeError403);
         return;
       }
 
@@ -122,7 +123,7 @@ router.patch("/", function (req, res) {
       res.status(200).send();
     })
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send({message: err.message});
     });
 });
 
