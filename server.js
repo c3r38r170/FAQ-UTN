@@ -6,9 +6,9 @@ import 'dotenv/config';
 var app = express();
 
 app.use(session({
-	secret:'👻',
-    resave:true,
-    saveUninitialized: false
+	secret: '👻',
+	resave: true,
+	saveUninitialized: false
 }));
 
 app.use(express.json());
@@ -22,17 +22,17 @@ app.use(cors({
 // TODO Refactor: Hacer DRY en la búsqueda de sesión y permisos
 
 
- app.use((req,res,next) => {
+app.use((req, res, next) => {
 	const userRegex = /^\/api\/usuario\/\d+\/(foto|preguntas|posts|respuestas|contrasenia)$/;
 	// * Esta exp. regular admite las /api/usuario/:DNI/... --> foto, preguntas, posts, respuestas o contrasenia
-	
-	if(req.session.usuario){
+
+	if (req.session.usuario) {
 		next();
 		return;
 	}
 
-	let rutasPermitidasPorMetodo={
-		GET:()=>[
+	let rutasPermitidasPorMetodo = {
+		GET: () => [
 			'/',
 			'/api/perfil', // get
 			'/api/categoria', // get
@@ -43,25 +43,26 @@ app.use(cors({
 			req.path.match(userRegex), // * Todas las rutas que matchean con la expresion regular
 			'/api/usuarios/salir'
 		].some(route => route)
-		,POST:()=>[
+		, POST: () => [
 			'/api/sesion', // * Ingreso.
 			'/api/usuario', // * Registro.
+			'/api/usuario/contrasenia', //resetea contraseña
 			req.path.match(userRegex),
 		].includes(req.path)
-		,DELETE:()=>req.path=='/api/sesion' // * Cerrado de sesión.
+		, DELETE: () => req.path == '/api/sesion' // * Cerrado de sesión.
 	}
-	
-	if(rutasPermitidasPorMetodo[req.method]()){
+
+	if (rutasPermitidasPorMetodo[req.method]()) {
 		next();
-	}else res.status(401).send("Usuario no tiene sesión válida activa");
+	} else res.status(401).send("Usuario no tiene sesión válida activa");
 
 	// TODO Refactor: Hacer lo mismo para el frontend, con el SinPermiso.
-}) 
+})
 
 const rutas = express.Router();
 
-import {router as apiRouter} from './api/v1/router.js';
-import {router as frontendRouter} from './frontend/router.js';
+import { router as apiRouter } from './api/v1/router.js';
+import { router as frontendRouter } from './frontend/router.js';
 
 rutas.use('/api', apiRouter);
 rutas.use('/', frontendRouter);
