@@ -5065,6 +5065,7 @@ function obtenerDatosPorDNI(DNI) {
 	let encontrado = baseDeDatos[DNI];
 
 	if (!encontrado) {
+		//TODO Feature: promises
 		return false;
 	}
 
