@@ -217,7 +217,7 @@ router.get('/reporte', function (req, res) {
             , as: 'duenio'
             , include: {
               model: Perfil
-              , attributes: ['ID', 'nombre', 'color']
+              , attributes: ['ID', 'descripcion', 'color']
             }
             , attributes: ['DNI', 'nombre']
           },
