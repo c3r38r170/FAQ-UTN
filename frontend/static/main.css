@@ -125,6 +125,12 @@ div#breadcrumbs span a:hover {
   color: #485fc7 !important;
 }
 
+nav.breadcrumb ul {
+  font-size: 14px;
+}
+nav.breadcrumb ul li {
+  font-weight: 550;
+}
 div#titulo-principal.title {
   margin-left: 3rem;
 }
