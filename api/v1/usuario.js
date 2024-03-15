@@ -24,6 +24,7 @@ import * as SYSACAD from './sysacad.js';
 const router = express.Router();
 
 const upload = multer({
+  // TODO Feature: Ver si subir un PNG anda. Encontrar la manera de servir los archivos correctamente según formato.
   storage: multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, './storage/img')

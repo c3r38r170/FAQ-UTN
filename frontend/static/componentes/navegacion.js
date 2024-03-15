@@ -168,7 +168,7 @@ class Navegacion {
   }
 
   render() {
-    return `<div id="navegacion-container">
+    return `<div class="navegacion-container">
                 <ul class="navegacion">
                     ${this.#enlaces.reduce((s, en) => s + en.render(), "")}
                 </ul>
@@ -199,7 +199,7 @@ class EnlaceNavegacion {
     }
 
     return `<li>
-            <a id="link" href="${this.#enlace}">
+            <a class="link" href="${this.#enlace}">
                 <i class="fa-${this.#icono.tipo} fa-${
       this.#icono.nombre
     } mr-1"></i>

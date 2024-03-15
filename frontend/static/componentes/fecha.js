@@ -19,7 +19,7 @@ class Fecha{
 
     render(){
         return`
-        <div class="fecha">${this.#fechaformateada}</div>
+        <span class="fecha">${this.#fechaformateada}</span>
         `
     }
 

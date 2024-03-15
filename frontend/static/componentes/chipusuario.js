@@ -41,7 +41,7 @@ class ChipUsuario {
                     <div>DNI: <span>${this.#DNI}</span></div>
                     <div>Nombre: <span>${this.#nombreusuario}</span></div>
                     <div>Correo electrónico: <span>${this.#correo}</span> ${this.#propio ? '<button id="botonCambiarMail" type="button" class="button is-link is-small is-rounded">Modificar</button>':''}  </div>
-                    <div>Miembro desde: <span>${this.#createdAt.render()}</span></div>
+                    <div>Miembro desde: ${this.#createdAt.render()}</div>
                     <div class="tipo-usuario" style="background-color: ${
                       this.#color
                     }"><div class="descripcion">${this.#tipo}</div></div>

@@ -132,19 +132,15 @@ div#titulo-principal.title{
 	margin-left: 3rem;
 }
 
-div #navegacion-container{
-	padding-right: 1.5rem;
+div.navegacion-container{
 	ul.navegacion{
 	display: inline-block;
 		li{
 			margin-bottom: 0.5rem;
 			font-weight: 600;
 			
-			#icono{
-		
-			}
-			a#link{
-				color: $text;	
+			a.link{
+				color: $text;
 				&:hover{
 					color: $text-hover;
 				}
@@ -426,7 +422,12 @@ footer#footer{
 	display: flex;
 	justify-content: space-around;
 	background-color: $text;
-	color: $text-light;
+	color: white;
+	font-weight: bold;
+
+	& > div{
+		width: 100%;
+	}
 
 	#footer-content-container{
 		display: flex;
@@ -436,6 +437,31 @@ footer#footer{
 	
 	div img{
 		width: 80px;
+	}
+
+	ul{
+		display: grid;
+		gap: .5rem;
+		grid-template-columns: 1fr 1fr;
+
+		a{
+			color: white;
+		}
+	}
+
+	#footer-enlaces-externos{
+		margin: auto;
+		text-align: center;
+
+		a{
+			margin: .5rem;
+			display: inline-block;
+			text-decoration: underline;
+
+			&:hover{
+				color: white;
+			}
+		}
 	}
 }
 

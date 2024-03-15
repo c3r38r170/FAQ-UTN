@@ -13,13 +13,11 @@ class Pagina {
 	/* Idealmente, quizá la página podría serializarse, incluirse en las globales, y deserializarse en el frontend. Un ejemplo de algo que nos permitiría esto sería https://github.com/erossignon/serialijse (aunque no parece soportar las propiedades privadas)
 	De esta manera nos ahorramos la carpeta pantallas, y el archivo de visibilizar-clases. */
 
+  #ruta='';
 	// TODO Refactor: ¿No debería ser un string?
-  #ruta=''/*  = {
-	ruta: ""
-  } */;
-  titulo = {
+  titulo =''/*  {
 	titulo: ""
-  };
+  } */;
   #sesion;
   partes = [];
 	columnaNotificaciones=[];
@@ -32,15 +30,17 @@ class Pagina {
 		// Dependiendo del tipo de post, y de quien es, el texto de la notificación. Ejemplos: "Nueva respuesta en tu pregunta {titulo}", "Nueva pregunta sobre {etiqueta suscrita". "Nueva respuesta en la pregunta {pregunta suscrita}". Preferentemente podrían tener una pequeña preview sobre el contenido del post.
 		visto:boolean
 	} */
-  #encabezado;
+  #encabezado=null;
+  // #navegacion=null;
 
 	// TODO Refactor: Usar usuarioActual (o usuarioDeSesion) (sesion.usuario) en vez de sesion.
   constructor({ ruta='/index', titulo, sesion,partes=[]}) {
     this.#ruta/* .ruta */ = ruta;
     this.titulo = titulo;
-	this.#sesion = sesion;
-	this.partes = Array.isArray(partes) ? partes : [partes];
-	this.#encabezado = new Encabezado(this.#sesion);
+		this.#sesion = sesion;
+		this.partes = Array.isArray(partes) ? partes : [partes];
+		this.#encabezado = new Encabezado(this.#sesion);
+		// this.#navegacion=new Navegacion(this.#sesion?.usuario, this.#ruta);
 	
 
   // TODO Feature: Poner los 3 modales acá.
@@ -114,13 +114,18 @@ class Pagina {
 	
 			
 		<footer id="footer">
-			<div id="footer-content-container">
-			<!-- TODO Feature: Enlaces como en el encabezado. (ver bocetos) -->
-				<img src="/logo-negativo.png">
-				<div>
-					FAQ UTN 2024
-				</div>
+			<div><img src="/logo-negativo.png"></div>
+			<div>
+				<ul>
+				<!--TODO UX Poner como una columna a la izquierda, porque se supone que tenga 3 items.-->
+					<li><a href="/">Inicio</a></li>
+					<li><a href="/quienes-somos">Quiénes Somos</a></li>
+				</ul>
+				${new Navegacion(this.#sesion?.usuario).render()}
 			</div>
+			<div id="footer-enlaces-externos">
+			<a href="https://www.frro.utn.edu.ar/">Sitio Web UTN</a><a href="https://www.instagram.com/utnalumnosfrro/">Instagram Dirección Alumnos</a><a href="https://frro.cvg.utn.edu.ar/">Campus Virtual Global (CVG)</a>
+			<br>Diseño del sitio / logo © 2024 F.A.Q. UTN</div>
 		</footer>
 		<!-- TODO Refactor: Meter esto en su propio archivo, por mantenibilidad. -->
 		<script>
