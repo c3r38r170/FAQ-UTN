@@ -6,17 +6,17 @@ import nodemailer from "nodemailer";
 
 import multer from "multer";
 import {
-    Usuario,
-    Perfil,
-    Permiso,
-    Pregunta,
-    ReportesUsuario,
-    Post,
-    Respuesta,
-    Carrera,
-    Bloqueo,
-    CarrerasUsuario
-  } from "./model.js";
+  Usuario,
+  Perfil,
+  Permiso,
+  Pregunta,
+  ReportesUsuario,
+  Post,
+  Respuesta,
+  Carrera,
+  Bloqueo,
+  CarrerasUsuario
+} from "./model.js";
 import { getPaginacion } from "./parametros.js";
 import * as SYSACAD from './sysacad.js';
 
@@ -24,30 +24,30 @@ import * as SYSACAD from './sysacad.js';
 const router = express.Router();
 
 const upload = multer({
-  storage:multer.diskStorage({
+  storage: multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, './storage/img')
     },
     filename: function (req, file, cb) {
-      cb(null, "imagenPerfil-" + req.session.usuario.DNI+".jpg")
+      cb(null, "imagenPerfil-" + req.session.usuario.DNI + ".jpg")
     },
-    
+
   }),
-  fileFilter: function(req, file, cb){
+  fileFilter: function (req, file, cb) {
     const allowedExtensions = ['.jpg', '.png']; // Add more extensions as needed
     const fileExtension = path.extname(file.originalname).toLowerCase();
     if (allowedExtensions.includes(fileExtension)) {
-        cb(null, true); // Accept the file
+      cb(null, true); // Accept the file
     } else {
-        cb(null, false); // Reject the file
+      cb(null, false); // Reject the file
     }
   }
 })
 
-router.get("/:DNI/foto", function(req, res){
-  res.sendFile("imagenPerfil-"+req.params.DNI+".jpg", {'root': './storage/img'}, (err)=>{
+router.get("/:DNI/foto", function (req, res) {
+  res.sendFile("imagenPerfil-" + req.params.DNI + ".jpg", { 'root': './storage/img' }, (err) => {
     if (err) {
-      res.sendFile("user.webp", {'root': './storage/img'})
+      res.sendFile("user.webp", { 'root': './storage/img' })
     }
   });
 });
@@ -61,7 +61,7 @@ router.get("/", function (req, res) {
   }
 
   // TODO Feature: Considerar siempre los bloqueos, y el perfil. Recoger ejemplos (y quizás, normalizarlos) de estas inclusiones
-  
+
   let PAGINACION = getPaginacion();
   let opciones = {
     subQuery: false,
@@ -76,10 +76,10 @@ router.get("/", function (req, res) {
   };
 
   let include = [
-      {
-        model: Perfil,
-      },
-    ],
+    {
+      model: Perfil,
+    },
+  ],
     where = {},
     order = [];
 
@@ -103,7 +103,7 @@ router.get("/", function (req, res) {
       }
     );
     order.push([Sequelize.col("reportesRecibidos.fecha"), "DESC"]);
-  }else{
+  } else {
     include.push(
       {
         model: Bloqueo,
@@ -114,7 +114,7 @@ router.get("/", function (req, res) {
           fecha_desbloqueo: { [Sequelize.Op.is]: null },
         },
         required: false,
-        separated : true,
+        separated: true,
       },
     );
   }
@@ -124,8 +124,8 @@ router.get("/", function (req, res) {
     where.nombre = { [Sequelize.Op.substring]: filtro };
     include.push(Carrera);
     where["$carrera.legajo$"] = { [Sequelize.Op.substring]: filtro };
-  }else if( req.query.searchInput){
-    
+  } else if (req.query.searchInput) {
+
     where = {
       [Sequelize.Op.or]: [
         { DNI: { [Sequelize.Op.substring]: req.query.searchInput } },
@@ -149,8 +149,8 @@ router.get("/", function (req, res) {
       if (usuarios.length == 0 && filtro) {
         res.status(404).send("No se encontraron usuarios");
       } else {
-        res.setHeader('untfaq-cantidad-paginas', Math.ceil(usuarios.count/PAGINACION.resultadosPorPagina));
-      res.status(200).send(usuarios.rows);
+        res.setHeader('untfaq-cantidad-paginas', Math.ceil(usuarios.count / PAGINACION.resultadosPorPagina));
+        res.status(200).send(usuarios.rows);
       }
     })
     .catch((err) => {
@@ -173,7 +173,7 @@ router.get("/:DNI/preguntas", function (req, res) {
 });
 
 router.get("/:DNI/posts", function (req, res) {
-  Post.pagina({ pagina: req.query.pagina||null, DNI: req.params.DNI }).then((posts) => res.send(posts));
+  Post.pagina({ pagina: req.query.pagina || null, DNI: req.params.DNI }).then((posts) => res.send(posts));
 });
 
 router.get("/:DNI/respuestas", function (req, res) {
@@ -188,17 +188,17 @@ router.get("/:DNI/respuestas", function (req, res) {
     res.send(posts)
   );
 });
-  
+
 router.post("/", (req, res) => {
   let perfilID = req.body.perfilID ? req.body.perfilID : 1;
   // TODO Refactor: mucho texto
-  if (perfilID > 1){
+  if (perfilID > 1) {
     if (req.session.usuario) {
       if (req.session.usuario.perfil.permiso.ID < 3) {
-        perfilID=1;
+        perfilID = 1;
       }
-    }else{
-      perfilID=1;
+    } else {
+      perfilID = 1;
     }
   }
   Usuario.findAll({
@@ -211,54 +211,55 @@ router.post("/", (req, res) => {
       if (usu) {
         return res.status(400).send("El Usuario ya se encuentra registrado");
       }
-      const DNI=req.body.DNI
-      let encontrado=SYSACAD.obtenerDatosPorDNI(DNI);
-      if(!encontrado){
+      const DNI = req.body.DNI
+      let encontrado = SYSACAD.obtenerDatosPorDNI(DNI);
+      if (!encontrado) {
         return res.status(404).send("El DNI especificado no se encuentra en la base de datos de la facultad.");
       }
 
       // TODO Refactor: DRY, reviso encontrado.carreras 2 veces
-      if(!encontrado.carreras){
+      if (!encontrado.carreras) {
         // TODO Feature: Hacer la decisión entre 1 y 2 si no hay sesión con permisos acá.
-        if(perfilID==1){
-          perfilID=4; // ! "Profesor"
+        if (perfilID == 1) {
+          perfilID = 4; // ! "Profesor"
         }
       }
 
-      let esperarA=[
+      let esperarA = [
         Usuario.create({
           nombre: encontrado.nombre,
           DNI,
-          correo: req.body.correo||encontrado.correo,
+          correo: req.body.correo || encontrado.correo,
           contrasenia: req.body.contrasenia,
           perfilID
         })
       ];
 
-      if(encontrado.carreras){
-        esperarA.push(CarrerasUsuario.bulkCreate(encontrado.carreras.map(({ID,legajo})=>({
-          usuarioDNI:DNI,
-          carreraID:ID,
-          Legajo:legajo
+      if (encontrado.carreras) {
+        esperarA.push(CarrerasUsuario.bulkCreate(encontrado.carreras.map(({ ID, legajo }) => ({
+          usuarioDNI: DNI,
+          carreraID: ID,
+          Legajo: legajo
         }))));
         // datos.carreras=encontrado.carreras;
       }
 
       Promise.all(esperarA)
-        .then(([usu])=>Usuario.findByPk(usu.DNI,{
-          include:[{
+        .then(([usu]) => Usuario.findByPk(usu.DNI, {
+          include: [{
             model: Perfil,
-            include:Permiso,
+            include: Permiso,
           }, Carrera]
         }))
-        .then(usuarioCompleto=>{
+        .then(usuarioCompleto => {
           // console.log(usuarioCompleto);
-          if(!req.session.usuario)
-            req.session.usuario=usuarioCompleto;
+          if (!req.session.usuario)
+            req.session.usuario = usuarioCompleto;
           res.status(200).send("Registro exitoso");
         });
     })
     .catch((err) => {
+      console.log(err)
       res.status(500).send(err);
     });
 });
@@ -303,7 +304,7 @@ router.post("/:DNI/contrasenia", function (req, res) {
           text: `¡Saludos, ${usu.nombre}! Tu contraseña temporal es "${contraseniaNueva}" (sin comillas).`, // plain text body
           html: `<big>¡Saludos, ${usu.nombre}!</big><br/><p>Se ha reestablecido tu contraseña, tu nueva contraseña temporal es:</p><pre>${contraseniaNueva}}</pre><p>No olvides cambiarla por otra / personalizarla cuando entres.</p><p><a href=${process.env.DIRECCION}>¡Te esperamos!</a></p>`, // html body
         })
-      ,usu.save()
+      , usu.save()
     ])
       .then(res.status(200).send("Se ha reestablecido la contraseña. Revise su correo electrónico para poder acceder."));
   });
@@ -423,7 +424,7 @@ router.delete("/:DNI/bloqueo", function (req, res) {
 
 router.patch("/imagen", upload.single("image"), function (req, res) {
   //req.file tiene la imagen
-  if(!req.file){
+  if (!req.file) {
     //req.file solo existe si la imagen cumple con los formatos de arriba
     res.status(400).send("Petición mal formada");
     return;
@@ -434,15 +435,15 @@ router.patch("/imagen", upload.single("image"), function (req, res) {
 router.patch("/contrasenia", function (req, res) {
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
-      if(bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)){
+      if (bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)) {
         usuario.contrasenia = req.body.contraseniaNueva;
-        req.session.usuario.contrasenia=req.body.contraseniaNueva;
+        req.session.usuario.contrasenia = req.body.contraseniaNueva;
         usuario.save();
         res.status(200).send("Datos actualizados exitosamente");
         return;
       }
       res.status(402).send("Contraseña anterior no válida")
-      })
+    })
     .catch((err) => {
       res.status(500).send(err);
     });
@@ -451,15 +452,15 @@ router.patch("/contrasenia", function (req, res) {
 router.patch("/mail", function (req, res) {
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
-      if(bcrypt.compare(req.body.contrasenia, usuario.contrasenia)){
+      if (bcrypt.compare(req.body.contrasenia, usuario.contrasenia)) {
         usuario.correo = req.body.correo;
-        req.session.usuario.correo=req.body.correo;
+        req.session.usuario.correo = req.body.correo;
         usuario.save();
         res.status(200).send("Datos actualizados exitosamente");
         return;
       }
       res.status(402).send("Contraseña anterior no válida")
-      })
+    })
     .catch((err) => {
       res.status(500).send(err);
     });
@@ -475,7 +476,7 @@ router.patch("/:DNI", function (req, res) {
       //TODO Feature: definir que mas puede cambiar y que constituye datos inválidos
       usuario.nombre = req.body.nombre;
       usuario.correo = req.body.correo;
-      usuario.perfilID= req.body.perfilID;
+      usuario.perfilID = req.body.perfilID;
       usuario.save();
       res.status(200).send("Datos actualizados exitosamente");
     })
@@ -483,6 +484,6 @@ router.patch("/:DNI", function (req, res) {
       res.status(500).send(err);
     });
 });
-  
-  
+
+
 export { router };
