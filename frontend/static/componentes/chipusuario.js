@@ -51,7 +51,9 @@ class ChipUsuario {
     } else {
       return `
             <div class="chip-usuario is-vcentered">
+            <a href="/perfil/${this.#DNI}">
             <img class="mr-3 img-usuario" src="/api/usuario/${this.#DNI}/foto" ></img>
+            </a>
                 <a class="nombre-usuario" href="/perfil/${this.#DNI}">${
         this.#nombreusuario
       }</a>

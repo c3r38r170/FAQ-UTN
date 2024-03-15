@@ -49,7 +49,7 @@ class Pagina {
 	
      if(sesion.usuario){
 			this.columnaNotificaciones=[
-				new Titulo(5,'<i class="fa-regular fa-bell mr-2"></i> Notificaciones')
+				new Titulo('h2',5,'<i class="fa-regular fa-bell mr-2"></i> Notificaciones')
 				,new DesplazamientoInfinito('notificaciones-di','/api/notificacion',n=>(new Notificacion(n.ID,n, sesion.usuario.DNI)).render())
 			];
 			this.globales.usuarioActual=sesion.usuario;
@@ -77,6 +77,7 @@ class Pagina {
 
 		<script src="/main.js" type=module></script>
 		<link rel="stylesheet" href="/main.css">
+		<link rel="icon" href="../favicon-32x32.png">
 
 		<script src="/scripts${rutaRecursos + ".js" }" type="module"></script>
 		<link rel="stylesheet" href="/styles${rutaRecursos + ".css"}">
@@ -99,8 +100,7 @@ class Pagina {
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
-				<!-- TODO UX: Hacer Titulo -->
-				<div id="titulo-principal" class="title is-5">${this.titulo}</div>
+				${new Titulo('h1',5,this.titulo,'ml-3rem').render()}
 				${ this.partes? this.partes.map((p) => p.render()).join("") : ''}
 				
 			</div>

@@ -4,12 +4,13 @@ import {
   } from "./model.js";
 
 import { getPaginacion } from "./parametros.js";
+import { mensajeError401, mensajeError404 } from "./mensajesError.js";
 const router = express.Router();
 
 // Ruta para crear un nuevo perfil
 router.post("/", async (req, res) => {
     if (req.session.usuario.perfil.permiso.ID < 3) {
-      res.status(401).send("Usuario no posee permisos");
+      res.status(401).send(mensajeError401);
       return;
     }
     const { nombre, color, permisoID } = req.body;
@@ -21,14 +22,14 @@ router.post("/", async (req, res) => {
       });
       res.status(201).json(nuevoPerfil);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ message: error.message });
     }
   });
   
   // Ruta para actualizar un perfil por su ID
   router.patch("/:id", async (req, res) => {
     if (req.session.usuario.perfil.permiso.ID < 3) {
-      res.status(401).send("Usuario no posee permisos");
+      res.status(401).send(mensajeError401);
       return;
     }
     const { id } = req.params;
@@ -44,17 +45,17 @@ router.post("/", async (req, res) => {
           req.session.usuario.perfil.color = color;
         res.json(perfil);
       } else {
-        res.status(404).json({ error: "Perfil no encontrado" });
+        res.status(404).json(mensajeError404);
       }
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ message: error.message });
     }
   });
   
   // Ruta para desactivar un perfil por su ID
   router.patch("/:id/activado", async (req, res) => {
     if (req.session.usuario.perfil.permiso.ID < 3) {
-      res.status(401).send("Usuario no posee permisos");
+      res.status(401).send(mensajeError401);
       return;
     }
     const { id } = req.params;
@@ -65,10 +66,10 @@ router.post("/", async (req, res) => {
         await perfil.save();
         res.json(perfil);
       } else {
-        res.status(404).json({ error: "Perfil no encontrado" });
+        res.status(404).json(mensajeError404);
       }
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ message: error.message });
     }
   });
 
@@ -93,7 +94,7 @@ router.post("/", async (req, res) => {
       res.setHeader('untfaq-cantidad-paginas', Math.ceil(perfiles.count/parseInt(PAGINACION.resultadosPorPagina)));
       res.status(200).send(perfiles.rows);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ message: error.message });
     }
   });
 

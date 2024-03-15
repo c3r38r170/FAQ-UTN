@@ -68,6 +68,27 @@ $paleta-4: #f3f6ff;
 	}
 }
 
+@media screen and (max-width: 800px) {
+	#encabezado-izquierdo{
+		h1{
+			margin-right: 0!important;
+		}
+		a{
+			font-size: 14px;
+		}
+	}
+	#encabezado #encabezado-derecho{
+		gap: 0rem!important;
+	}
+	#encabezado-derecho .chip-usuario .tipo-usuario, #encabezado-derecho .chip-usuario .nombre-usuario {
+	  display: none;
+	}
+	#encabezado-derecho .chip-usuario img{
+		min-width: 32px;
+	}
+  }
+  
+
 
 
 #columna-1, #columna-principal, #columna-3 {
@@ -126,6 +147,17 @@ div#breadcrumbs{
 			}
 		}
 	}
+}
+nav.breadcrumb{
+	ul{
+		font-size: 14px;
+		li{
+			font-weight: 550;
+			a.crumb{
+			}
+		}
+	}
+
 }
 
 div#titulo-principal.title{
@@ -708,4 +740,7 @@ form > fieldset{
 
 .notification{
 	text-align: center;
+}
+.ml-3rem{
+	margin-left: 3rem;
 }

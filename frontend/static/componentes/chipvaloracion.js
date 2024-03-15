@@ -4,6 +4,7 @@ import { SqS, gEt } from "../libs/c3tools.js";
 class ChipValoracion{
     static instancias={};
 
+
     #valoracion;
     #estado;
     #id; //id del post
@@ -56,10 +57,10 @@ class ChipValoracion{
                     divChipvaloracion.dataset.valoracion=nuevaValoracion;
                     divChipvaloracion.dataset.estado=valor;
                     if(valor==1){
-                        iPos.style.color="#B90E0A";
+                        iPos.style.color = '#485fc7';
                         iNeg.style.color ="";
                     }else if(valor==-1){
-                        iNeg.style.color="#B90E0A";
+                        iNeg.style.color= '#485fc7';
                         iPos.style.color ="";
                     }
                 }
@@ -86,13 +87,13 @@ class ChipValoracion{
         <div id="chip-valoracion-${this.#id}" data-id='${this.#id}' data-valoracion='${this.#valoracion}' data-estado='${this.#estado}' class="chip-valoracion">
             <button class="positiva" value='1' onclick="ChipValoracion.votar(event)" ${this.#usuarioActual=== undefined || this.#usuarioActual.DNI ==this.#duenio.DNI?"disabled":''}>
                 <span>
-                    <i id="iPos-${this.#id}" class="fa-solid fa-caret-up" ${this.#estado == 1 ? 'style="color: #B90E0A"':''}></i>
+                    <i id="iPos-${this.#id}" class="fa-solid fa-caret-up" ${this.#estado == 1 ? 'style="color: #485fc7"':''}></i>
                 </span>
             </button>
             <div id="chip-valoracion-${this.#id}-numero" class="valoraciones" >${this.#valoracion}</div>
             <button class="negativa" value ='-1' onclick="ChipValoracion.votar(event)" ${this.#usuarioActual=== undefined || this.#usuarioActual.DNI ==this.#duenio.DNI?"disabled":''}>
                 <span>
-                    <i id="iNeg-${this.#id}" class="fa-solid fa-caret-down" ${this.#estado == -1 ? 'style="color: #B90E0A"':''}></i>
+                    <i id="iNeg-${this.#id}" class="fa-solid fa-caret-down" ${this.#estado == -1 ? 'style="color: #485fc7"':''}></i>
                 </span>
             </button>
         </div>

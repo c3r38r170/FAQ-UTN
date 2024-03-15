@@ -289,6 +289,10 @@ router.get("/perfil/info", (req, res) => {
   }
 });
 
+router.get("/moderacion", (req, res) => {
+  res.redirect('/moderacion/usuarios');
+})
+
 router.get("/moderacion/usuarios", (req, res) => {
   let usu = req.session;
 
@@ -532,6 +536,10 @@ router.get("/perfil/:DNI?", async (req, res) => {
   }
 
 });
+
+router.get("/administracion", (req, res) => {
+  res.redirect('/administracion/perfiles');
+})
 
 router.get("/administracion/parametros", async (req, res) => {
   let usu = req.session;
