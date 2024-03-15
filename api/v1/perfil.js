@@ -77,7 +77,11 @@ router.get("/", async (req, res) => {
   try {
     if (req.query.todos) {
       const perfiles = await Perfil.findAll({
-        include: Permiso,
+        include: {
+          model: Permiso,
+          attributes: ["ID", "descripcion"]
+        },
+        attributes: ["ID", "color", "permisoID", "descripcion", "activado"]
       });
       res.status(200).send(perfiles);
       return;
@@ -85,7 +89,11 @@ router.get("/", async (req, res) => {
     let PAGINACION = getPaginacion();
     let pagina = req.query.pagina ? req.query.pagina : 0;
     const perfiles = await Perfil.findAndCountAll({
-      include: Permiso,
+      include: {
+        model: Permiso,
+        attributes: ["ID", "descripcion"]
+      },
+      attributes: ["ID", "color", "permisoID", "descripcion", "activado"],
       limit: PAGINACION.resultadosPorPagina,
       offset:
         (+pagina * PAGINACION.resultadosPorPagina)
