@@ -323,12 +323,25 @@ router.post("/:DNI/reporte", function (req, res) {
         return;
       } else {
         // TODO Refactor: Usar Sequelize, usuario.addReporteUsuario(new ReporteUsuario({reportante: ... o como sea }))
-        ReportesUsuario.create({
-          usuarioReportanteDNI: req.session.usuario.DNI,
-          usuarioReportadoDNI: req.params.DNI,
-        });
+        ReportesUsuario.findOne({ where: { usuarioReportadoDNI: req.params.DNI } }).then(re => {
+          if (!re) {
+            ReportesUsuario.
+              ReportesUsuario.create({
+                usuarioReportanteDNI: req.session.usuario.DNI,
+                usuarioReportadoDNI: req.params.DNI,
+              });
+            res.status(201).send("Reporte registrado");
+            return;
+          }
+          re.usuarioReportanteDNI = req.session.usuario.DNI;
+          re.createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+          re.save();
+          res.status(201).send("Reporte registrado");
+          return;
+        })
 
-        res.status(201).send("Reporte registrado");
+
+
       }
     })
     .catch((err) => {
