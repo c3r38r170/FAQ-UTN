@@ -709,3 +709,12 @@ form > fieldset{
 .notification{
 	text-align: center;
 }
+
+.boton-carga{
+	img{
+		height:100%;
+	}
+	& + .button{
+		display: none;
+	}
+}

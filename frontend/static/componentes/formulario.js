@@ -1,4 +1,4 @@
-import { superFetch } from '../libs/c3tools.js'
+import { superFetch, createElement } from '../libs/c3tools.js'
 import { Boton } from './boton.js';
 
 class Formulario{
@@ -33,7 +33,7 @@ class Formulario{
 			this.#alEnviar(e);
 		}
 
-		if(!this.#endpoint){
+		if(!this.#endpoint){ // ! Formulario tradicional de HTML que redirige para enviar los datos.
 			return;
 		}
 
@@ -71,11 +71,23 @@ class Formulario{
 		let ok,codigo;
 		let fieldset=form.firstElementChild;
 		fieldset.disabled=true;
+		let submitter=e.submitter;
+		let botonCarga=createElement('DIV',{
+			classList:[...e.submitter.classList,'boton-carga']
+			,innerHTML:'<img src="/loading.gif">'
+			,style:{
+				height:submitter.offsetHeight+'px'
+				,width:submitter.offsetWidth+'px'
+			}
+		});
+		submitter.before(botonCarga);
 		superFetch(this.#endpoint,datos,{ method: this.verbo})
 			.then(res=>{
 				ok=res.ok;
 				if(!ok){
 					fieldset.disabled=false;
+					// TODO Feature: Probar en los formularios que se reutilizan, qué pasa cuando salen bien, y esto no se ejecuta
+					botonCarga.remove();
 				}
 				codigo=res.status;
 				return res.text();
