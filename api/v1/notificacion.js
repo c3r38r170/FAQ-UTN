@@ -88,7 +88,7 @@ router.get('/', function (req, res) {
 	}).then(notificaciones => {
 		res.status(200).send(notificaciones);
 	}).catch(err=>{
-		res.status(500).send({message: err.message});
+		res.status(500).send(err.message);
 	});
 });
 
@@ -119,7 +119,7 @@ router.patch("/", function (req, res) {
       res.status(200).send();
     })
     .catch((err) => {
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     });
 });
 

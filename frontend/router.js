@@ -94,6 +94,7 @@ router.get("/pregunta/:id?", async (req, res) => {
   // TODO Feature: En caso de que sea una pregunta borrada, no permitir a menos que se tengan permisos de moderación, o administración.
 
   try {
+    let paginaError = SinPermisos(req.session, "Algo ha malido sal.");
     if (req.params.id) {
       const include = [
         {
@@ -155,9 +156,9 @@ router.get("/pregunta/:id?", async (req, res) => {
           }
         }
       ];
-
+      
       const p = await PreguntaDAO.findByPk(req.params.id, { include });
-
+      
       if (!p) {
         let pantalla = SinPermisos(req.session, "Al parecer la pregunta no existe")
         res.send(pantalla.render())
@@ -165,6 +166,11 @@ router.get("/pregunta/:id?", async (req, res) => {
       }
 
       if (req.session.usuario) {
+
+        if (p.post.eliminadorDNI && req.session.usuario.perfil.permiso.ID < 2 ) { 
+          res.send(paginaError.render());
+          return;
+        }
         NotificacionDAO.findAll({
           include: [
             {
@@ -189,7 +195,13 @@ router.get("/pregunta/:id?", async (req, res) => {
             not.save();
           }
         });
-      }
+      }else if(p.post.eliminadorDNI){
+        // No está logueado y la pregunta esta eliminada
+        res.send(paginaError.render());
+        return;
+    }
+
+      
 
       // ! No se puede traer votos Y un resumen, por eso lo calculamos acá. Los votos los traemos solo para ver si el usuario actual votó.
 
@@ -461,11 +473,8 @@ router.get("/perfil/respuestas", (req, res) => {
   }
 });
 
+// TODO Refactor: Quitar lo async, usar promesas, y reducir el código.
 router.get("/perfil/:DNI?", async (req, res) => {
-  // TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
-
-  //
-
   //pagina error
   let paginaError = SinPermisos(req.session, "Algo ha malido sal.")
   if (req.params.DNI) {
@@ -474,6 +483,17 @@ router.get("/perfil/:DNI?", async (req, res) => {
         //perfil propio
         let pagina = PaginaPerfilPropioInfo(req.path, req.session);
         res.send(pagina.render());
+        return;
+      }
+      
+      let bloqueo = await BloqueoDAO.findAll({
+        where: {
+          bloqueadoDNI: req.params.DNI,
+          fecha_desbloqueo: null
+        }
+      })
+      if (bloqueo && req.session.usuario.perfil.permiso.ID < 2) {
+        res.send(paginaError.render());
         return;
       }
 
@@ -496,28 +516,14 @@ router.get("/perfil/:DNI?", async (req, res) => {
     pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
     res.send(pagina.render());
     return;
-    /* //Perfil ajeno
-    let usu = await UsuarioDAO.findByPk(req.params.DNI, {
-      include: PerfilDAO,
-    });
-    if (!usu) {
-      // TODO Feature: 404??
-      //no existe el usuario buscado
-      res.send(paginaError.render());
-      return;
-    }
-
-    let pagina = PaginaPerfil(req.path, req.session, usu);
-    res.send(pagina.render());
-    return; */
   } else {
+    //perfil propio
     if (req.session.usuario) {
-      //perfil propio
       let pagina = PaginaPerfilPropioInfo(req.path, req.session);
       res.send(pagina.render());
       return;
     }
-    //error no hay id ni sesion
+    // * error no hay id ni sesion
     res.send(paginaError.render());
     return;
   }

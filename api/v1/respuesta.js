@@ -27,7 +27,7 @@ router.post("/", function (req, res) {
       .then((respuesta) => {
         if (respuesta.apropiado < rechazaPost) {
           // TODO Feature: ¿Devolver razón? Si se decidió que no, está bien.
-          res.status(400).send({message: "Texto rechazo por moderación automática. Razón: "+respuesta.motivo});
+          res.status(400).send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
           return;
         }
 
@@ -79,17 +79,17 @@ router.post("/", function (req, res) {
                     res.status(201).send(post.ID + "");
                   })
                   .catch((err) => {
-                    res.status(500).send({message: err.message});
+                    res.status(500).send(err.message);
                   });
               })
               .catch((err) => {
-                res.status(500).send({message: err.message});
+                res.status(500).send(err.message);
               });
           }
         });
       })
       .catch((err) => {
-        res.status(500).send({message: err.message});
+        res.status(500).send(err.message);
       });
   } else {
     Pregunta.findByPk(req.body.IDPregunta, {
@@ -133,11 +133,11 @@ router.post("/", function (req, res) {
                 res.status(201).send(post.ID + "");
               })
               .catch((err) => {
-                res.status(500).send({message: err.message});
+                res.status(500).send(err.message);
               });
           })
           .catch((err) => {
-            res.status(500).send({message: err.message});
+            res.status(500).send(err.message);
           });
       }
     });
@@ -166,7 +166,7 @@ router.patch("/", function (req, res) {
               let rechazaPost = getRechazaPost();
               // TODO Refactor: DRY
               if (resp.apropiado < rechazaPost) {
-                res.status(400).send({message: "Texto rechazo por moderación automática. Razón: "+respuesta.motivo});
+                res.status(400).send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
                 return;
               } else if (resp.apropiado < reportaPost) {
                 //Crear reporte
@@ -189,7 +189,7 @@ router.patch("/", function (req, res) {
       }
     })
     .catch((err) => {
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     });
 });
 

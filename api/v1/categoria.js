@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
     }
     res.json(categorias);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send(error.message);
   }
 });
 
@@ -45,67 +45,67 @@ router.patch("/:id/activado", async (req, res) => {
       await categoria.save();
       res.json(categoria);
     } else {
-      res.status(404).json({ message: "Categoria no encontrado" });
+      res.status(404).send(mensajeError404);
     }
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).send(error.message);
   }
 });
 
 // Ruta para crear una nueva categoría
 router.post("/", async (req, res) => {
 
-    if (req.session.usuario.perfil.permiso.ID < 3) {
-      res.status(401).send(mensajeError401);
-      return;
-    }
-    const { descripcion, color } = req.body;
-    try {
-      const categoria = await Categoria.create({ descripcion, color });
-      res.status(201).json(categoria);
-    } catch (error) {
-      res.status(400).json({ message: error.message });
-    }
-  });
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send(mensajeError401);
+    return;
+  }
+  const { descripcion, color } = req.body;
+  try {
+    const categoria = await Categoria.create({ descripcion, color });
+    res.status(201).json(categoria);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
   
   // Ruta para actualizar una categoría por su ID
-  router.patch("/:id", async (req, res) => {
-    if (req.session.usuario.perfil.permiso.ID < 3) {
-      res.status(401).send(mensajeError401);
-      return;
+router.patch("/:id", async (req, res) => {
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send(mensajeError401);
+    return;
+  }
+  const id = req.params.id;
+  const { descripcion, color } = req.body;
+  try {
+    let categoria = await Categoria.findByPk(id);
+    if (!categoria) {
+      return res.status(404).send(mensajeError404);
     }
-    const id = req.params.id;
-    const { descripcion, color } = req.body;
-    try {
-      let categoria = await Categoria.findByPk(id);
-      if (!categoria) {
-        return res.status(404).json({ message: "Categoría no encontrada" });
-      }
-      categoria = await categoria.update({ descripcion, color });
-      res.json(categoria);
-    } catch (error) {
-      res.status(400).json({ message: error.message });
+    categoria = await categoria.update({ descripcion, color });
+    res.json(categoria);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
+// Ruta para eliminar una categoría por su ID
+router.delete("/:id", async (req, res) => {
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send(mensajeError401);
+    return;
+  }
+  const id = req.params.id;
+  try {
+    const categoria = await Categoria.findByPk(id);
+    if (!categoria) {
+      return res.status(404).send(mensajeError404);
     }
-  });
-  
-  // Ruta para eliminar una categoría por su ID
-  router.delete("/:id", async (req, res) => {
-    if (req.session.usuario.perfil.permiso.ID < 3) {
-      res.status(401).send(mensajeError401);
-      return;
-    }
-    const id = req.params.id;
-    try {
-      const categoria = await Categoria.findByPk(id);
-      if (!categoria) {
-        return res.status(404).json({ message: "Categoría no encontrada" });
-      }
-      await categoria.destroy();
-      res.json({ message: "Categoría eliminada correctamente" });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  });
+    await categoria.destroy();
+    res.json({ message: "Categoría eliminada correctamente" });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
   
 
 

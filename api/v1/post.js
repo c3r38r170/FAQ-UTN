@@ -67,12 +67,12 @@ const valorarPost = function (req, res) {
               voto.save();
               //Notificación
             }
-            res.status(201).send({message: "Voto registrado."});
+            res.status(201).send("Voto registrado.");
           });
         }
       })
       .catch((err) => {
-        res.status(500).send({message: err.message});
+        res.status(500).send(err.message);
       });
   };
   
@@ -101,12 +101,12 @@ const valorarPost = function (req, res) {
             } else {
               voto.destroy();
             }
-            res.status(201).send({message: "Voto Eliminado."});
+            res.status(201).send("Voto Eliminado.");
           });
         }
       })
       .catch((err) => {
-        res.status(500).send({message: err.message});
+        res.status(500).send(err.message);
       });
   };
   
@@ -138,12 +138,12 @@ const valorarPost = function (req, res) {
           })
             .then((r) =>r.save())
             .then(r=>{
-              res.status(201).send({message: "Reporte registrado"});
+              res.status(201).send("Reporte registrado");
             });
         }
       })
       .catch((err) => {
-        res.status(500).send({message: err.message});
+        res.status(500).send(err.message);
       });
   };
   
@@ -191,7 +191,7 @@ router.post("/:reportadoID/reporte", reportarPost);
         post.setEliminador(req.session.usuario.DNI)
           .then((post)=>post.save())
           .then(()=>{
-            res.status(200).send({message: "Estado del post consistente con interfaz"});
+            res.status(200).send("Estado del post consistente con interfaz");
           })
       })
   })
