@@ -5,7 +5,7 @@ import { Breadcrumb } from "./breadcrumb.js";
 import { Navegacion } from "./navegacion.js";
 import { Notificacion } from "./notificacion.js";
 import { Formulario } from './formulario.js';
-import { ChipUsuario,DesplazamientoInfinito,Titulo } from './todos.js'
+import { ChipUsuario,DesplazamientoInfinito,MensajeInterfaz,Titulo } from './todos.js'
 
 // TODO Feature: Tirar errores en los constructores con parámetros necesarios 
 // TODO Refactor: Cambiar a Pantalla. Colisiona con el concepto de página de los modelos.
@@ -50,7 +50,16 @@ class Pagina {
      if(sesion.usuario){
 			this.columnaNotificaciones=[
 				new Titulo(5,'<i class="fa-regular fa-bell mr-2"></i> Notificaciones')
-				,new DesplazamientoInfinito('notificaciones-di','/api/notificacion',n=>(new Notificacion(n.ID,n, sesion.usuario.DNI)).render())
+				,new DesplazamientoInfinito(
+					'notificaciones-di'
+					,'/api/notificacion'
+					,n=>(new Notificacion(n.ID,n, sesion.usuario.DNI)).render()
+					,null // * Entidades iniciales.
+					,{
+						mensajeVacio:new MensajeInterfaz(MensajeInterfaz.INFORMACION,'Todavía no tenés notificaciones.')
+						,mensajeFinal:new MensajeInterfaz(MensajeInterfaz.INFORMACION,'Esas son todas las notificaciones.')
+					}
+				)
 			];
 			this.globales.usuarioActual=sesion.usuario;
 		} 

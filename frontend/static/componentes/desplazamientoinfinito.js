@@ -52,7 +52,6 @@ class DesplazamientoInfinito{
 		let imagenAlcahuete=e.target;
 		let contenedor=imagenAlcahuete.closest('.desplazamiento-infinito');
 		let url=this.endpoint+`pagina=${this.pagina-1}`;
-		this.pagina++;
 
 		// TODO Fearure: Reaccionar a errores, como en formulario
 		fetch(url,{
@@ -71,6 +70,7 @@ class DesplazamientoInfinito{
 				html+=this.#generarUltimoComponente(nuevasEntidades.length);
 
 				contenedor.innerHTML+=html;
+				this.pagina++;
 			})
 			// TODO Feature: catch; y finally?
 	}
