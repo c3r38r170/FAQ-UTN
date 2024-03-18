@@ -101,7 +101,7 @@ router.delete("/:id", async (req, res) => {
       return res.status(404).send(mensajeError404);
     }
     await categoria.destroy();
-    res.json({ message: "Categoría eliminada correctamente" });
+    res.send("Categoría eliminada correctamente");
   } catch (error) {
     res.status(500).send(error.message);
   }

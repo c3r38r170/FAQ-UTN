@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
           req.session.usuario.perfil.color = color;
         res.json(perfil);
       } else {
-        res.status(404).json(mensajeError404);
+        res.status(404).send(mensajeError404);
       }
     } catch (error) {
       res.status(400).send(error.message);

@@ -271,7 +271,7 @@ function crearPregunta(req, res, respuestaIA = null) {
       .then(pre=>{
         if(!pre){
           // TODO Refactor: DRY en todos los "no se posee sesion", "no se poseen permisos", etc.
-          res.status(404).send({message: "Pregunta no encontrada"});
+          res.status(404).send("Pregunta no encontrada");
           return;
         }
   

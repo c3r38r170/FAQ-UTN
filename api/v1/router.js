@@ -29,16 +29,18 @@ router.use('/usuario', UsuarioRouter);
 export { router };
 
 /*
+TODO Docs: Describir diferencia en el uso de .send y .json
+
 Ejemplos de respuestas para seguir
 
-401 --> res.status(401).send({ message: "Usuario no posee permisos" });
-403 --> res.status(403).send({message: "No puede editar una pregunta ajena."});
-404 --> res.status(404).json({ message: "Entidad no encontrada" });
-400 --> res.status(400).json({ message: error.message });
+401 --> res.status(401).send("Usuario no posee permisos");
+403 --> res.status(403).send("No puede editar una pregunta ajena.");
+404 --> res.status(404).send("Entidad no encontrada");
+400 --> res.status(400).send(error.message);
 
 201 --> res.status(201).json(Entidad);
 200 --> res.status(200).send(); || res.status(200).send(Entidad) si es necesario
 
-500 --> res.status(500).send({ message: error.message });
+500 --> res.status(500).send(error.message);
 
 */

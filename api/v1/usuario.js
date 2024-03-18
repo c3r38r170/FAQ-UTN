@@ -217,7 +217,7 @@ router.post("/", (req, res) => {
       return SYSACAD.obtenerDatosPorDNI(DNI);
     }).then((encontrado)=>{
       if (!encontrado) {
-        return res.status(404).send({message:"El DNI especificado no se encuentra en la base de datos de la facultad."});
+        return res.status(404).send("El DNI especificado no se encuentra en la base de datos de la facultad.");
       }
 
       // TODO Refactor: DRY, reviso encontrado.carreras 2 veces
@@ -285,7 +285,7 @@ router.post("/contrasenia", function (req, res) {
     ,limit:1
   }).then((usu) => {
     if (!usu[0]) {
-      res.status(404).send({message:"DNI inexistente"});
+      res.status(404).send("DNI inexistente");
       return;
     }
 

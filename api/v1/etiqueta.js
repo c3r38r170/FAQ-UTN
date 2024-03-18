@@ -81,10 +81,10 @@ router.patch("/:id/activado", async (req, res) => {
       await etiqueta.save();
       res.json(etiqueta);
     } else {
-      res.status(404).json({ message: "Etiqueta no encontrada" });
+      res.status(404).send("Etiqueta no encontrada");
     }
   } catch (error) {
-    res.status(400).json(error.message);
+    res.status(400).send(error.message);
   }
 });
 
@@ -101,7 +101,7 @@ router.patch("/:id", async (req, res) => {
       include: [{ model: Categoria, as: "categoria" }],
     });
     if (!etiqueta) {
-      return res.status(404).json(mensajeError404);
+      return res.status(404).send(mensajeError404);
     }
     etiqueta = await etiqueta.update({ descripcion, categoriaID });
     etiqueta = await Etiqueta.findByPk(id, {
@@ -110,7 +110,7 @@ router.patch("/:id", async (req, res) => {
       res.json(etiqueta);
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).send(error.message );
   }
 });
 
@@ -120,7 +120,7 @@ router.post("/:etiquetaID/suscripcion", function (req, res) {
   Etiqueta.findByPk(IDetiqueta)
     .then((etiqueta) => {
       if (!etiqueta) {
-        res.status(404).send({message: "Etiqueta no encontrada / disponible"});
+        res.status(404).send( "Etiqueta no encontrada / disponible");
         return;
       } else {
         SuscripcionesEtiqueta.findAll({
