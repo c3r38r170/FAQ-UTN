@@ -106,6 +106,7 @@ router.get("/pregunta/:id?", async (req, res) => {
   // TODO Feature: En caso de que sea una pregunta borrada, no permitir a menos que se tengan permisos de moderación, o administración.
 
   try {
+    let paginaError = SinPermisos(req.session, "Algo ha malido sal.");
     if (req.params.id) {
       const include = [
         {
@@ -167,15 +168,20 @@ router.get("/pregunta/:id?", async (req, res) => {
           }
         }
       ];
-
+      
       const p = await PreguntaDAO.findByPk(req.params.id, { include });
-
+      
       if (!p) {
-        res.status(404).send("ID de pregunta inválida");
+        res.status(404).send("ID de pregunta inválido");
         return;
       }
 
       if (req.session.usuario) {
+
+        if (p.post.eliminadorDNI && req.session.usuario.perfil.permiso.ID < 2 ) { 
+          res.send(paginaError.render());
+          return;
+        }
         NotificacionDAO.findAll({
           include: [
             {
@@ -200,7 +206,13 @@ router.get("/pregunta/:id?", async (req, res) => {
             not.save();
           }
         });
-      }
+      }else if(p.post.eliminadorDNI){
+        // No está logueado y la pregunta esta eliminada
+        res.send(paginaError.render());
+        return;
+    }
+
+      
 
       // ! No se puede traer votos Y un resumen, por eso lo calculamos acá. Los votos los traemos solo para ver si el usuario actual votó.
 
