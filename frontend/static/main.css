@@ -339,6 +339,8 @@ div.notificacion div.noti-container .fecha {
   margin-top: 1rem;
   font-size: 1rem;
   color: #485fc7;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 @media screen and (max-width: 800px) {

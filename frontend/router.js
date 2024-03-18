@@ -471,10 +471,6 @@ router.get("/perfil/respuestas", (req, res) => {
 });
 
 router.get("/perfil/:DNI?", async (req, res) => {
-  // TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
-
-  //
-
   //pagina error
   let paginaError = SinPermisos(req.session, "Algo ha malido sal.")
   if (req.params.DNI) {
@@ -486,10 +482,19 @@ router.get("/perfil/:DNI?", async (req, res) => {
         return;
       }
       let usu = await UsuarioDAO.findByPk(req.params.DNI, {
-        include: PerfilDAO,
+        include: {
+          model: PerfilDAO
+        },
       });
-      if (!usu) {
-        //no existe el usuario buscado
+
+      let bloqueo = await BloqueoDAO.findAll({
+        where: {
+          bloqueadoDNI: req.params.DNI,
+          fecha_desbloqueo: null
+        }
+      })
+      if (!usu  || bloqueo && req.session.usuario.perfil.permiso.ID < 2) {
+        //no existe el usuario buscado o esta bloqueado y no tenemos permisos para verlo
         res.send(paginaError.render());
         return;
       }
@@ -508,7 +513,15 @@ router.get("/perfil/:DNI?", async (req, res) => {
     let usu = await UsuarioDAO.findByPk(req.params.DNI, {
       include: PerfilDAO,
     });
-    if (!usu) {
+
+    let bloqueo = await BloqueoDAO.findAll({
+      where: {
+        bloqueadoDNI: req.params.DNI,
+        fecha_desbloqueo: null
+      }
+    })
+
+    if (!usu || bloqueo) {
       //no existe el usuario buscado
       res.send(paginaError.render());
       return;
