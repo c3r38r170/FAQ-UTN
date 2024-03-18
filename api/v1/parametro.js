@@ -40,12 +40,12 @@ router.get("/", function (req, res) {
     if (!req.session.usuario) {
       res
         .status(403)
-        .send({message: "No se poseen permisos de administración o sesión válida activa"});
+        .send("No se poseen permisos de administración o sesión válida activa");
       return;
     } else if (req.session.usuario.perfil.permiso.ID < 3) {
       res
         .status(403)
-        .send({message: "No se poseen permisos de administración o sesión válida activa"});
+        .send("No se poseen permisos de administración o sesión válida activa");
       return;
     }
     Parametro.findByPk(req.params.ID).then((p) => {

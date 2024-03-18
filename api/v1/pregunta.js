@@ -42,7 +42,7 @@ router.get("/", (req, res) => {
           res.status(200).send(preguntas);
       })
       .catch((err) => {
-        res.status(500).send({message: err.message});
+        res.status(500).send(err.message);
       });
 });
   
@@ -58,7 +58,7 @@ router.get("/", (req, res) => {
     })
       .then((pregunta) => {
         if (!pregunta) {
-          res.status(404).send({message: "Pregunta no encontrada"});
+          res.status(404).send("Pregunta no encontrada");
           return;
         } else {
           if (pregunta.post.duenioDNI != req.session.usuario.DNI) {
@@ -76,7 +76,7 @@ router.get("/", (req, res) => {
                   if (respuesta.apropiado < rechazaPost) {
                     res
                       .status(400)
-                      .send({message: "Texto rechazo por moderación automática. Razón: "+respuesta.motivo});
+                      .send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
                     return;
                   } else if (respuesta.apropiado < reportaPost) {
                     //Crear reporte
@@ -154,7 +154,7 @@ router.get("/", (req, res) => {
       }
     })
     .catch((err) => {
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     });
 });
 
@@ -228,7 +228,7 @@ function crearPregunta(req, res, respuestaIA = null) {
       })
   })
     .catch(err => {
-      res.status(500).send(err);
+      res.status(500).send(err.message);
     })
   }
   
@@ -248,7 +248,7 @@ function crearPregunta(req, res, respuestaIA = null) {
           crearPregunta(req,res,respuesta.apropiado)
         })
         .catch((err) => {
-          res.status(500).send(err);
+          res.status(500).send(err.message);
         });
     } else crearPregunta(req,res)
   })
@@ -300,7 +300,7 @@ function crearPregunta(req, res, respuestaIA = null) {
     Pregunta.findByPk(IDpregunta, { include: Post })
       .then((pregunta) => {
         if (!pregunta) {
-          res.status(404).send({message: "Pregunta no encontrada / disponible"});
+          res.status(404).send("Pregunta no encontrada / disponible");
           return;
         } else {
           // TODO Refactor: Esto no hace falta, se puede hacer pregunta.SuscripcionesPregunta o algo así
@@ -322,16 +322,16 @@ function crearPregunta(req, res, respuestaIA = null) {
                 res.status(201).send();
                 return;
               } else {
-                res.status(401).send({message: "Ya se encuentra suscripto a la pregunta"});
+                res.status(401).send("Ya se encuentra suscripto a la pregunta");
               }
             })
             .catch((err) => {
-              res.status(500).send({message: err.message});
+              res.status(500).send(err.message);
             });
         }
       })
       .catch((err) => {
-        res.status(500).send({message: err.message});
+        res.status(500).send(err.message);
       });
     // TODO Refactor: ahorrar el callback hell, acá y en todos lados.
   });
@@ -346,7 +346,7 @@ router.delete("/:preguntaID/suscripcion", function (req, res) {
   Pregunta.findByPk(IDpregunta, { include: Post })
     .then((pregunta) => {
       if (!pregunta) {
-        res.status(404).send({message: "Pregunta no encontrada / disponible"});
+        res.status(404).send("Pregunta no encontrada / disponible");
         return;
       } else {
         // TODO Refactor: Esto no hace falta, se puede hacer pregunta.SuscripcionesPregunta o algo así
@@ -363,21 +363,21 @@ router.delete("/:preguntaID/suscripcion", function (req, res) {
         })
           .then((sus) => {
             if (!sus) {
-              res.status(404).send({message: "No se encuentra suscripto a la pregunta"});
+              res.status(404).send("No se encuentra suscripto a la pregunta");
               return;
             } else {
               sus.fecha_baja = new Date().toISOString().split("T")[0];
               //! el 204 no devuelve el mensaje
-              sus.save().then(() => res.status(201).send({message: "Suscripción cancelada"}));
+              sus.save().then(() => res.status(201).send("Suscripción cancelada"));
             }
           })
           .catch((err) => {
-            res.status(500).send({message: err.message});
+            res.status(500).send(err.message);
           });
       }
     })
     .catch((err) => {
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     });
 });
 

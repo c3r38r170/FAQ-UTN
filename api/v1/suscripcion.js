@@ -73,7 +73,7 @@ router.get('/', function(req,res){
       res.status(200).send(suscripciones);
 		})
 		.catch(err=>{
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     })  
 })
 

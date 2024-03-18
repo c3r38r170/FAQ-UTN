@@ -155,7 +155,7 @@ router.get("/", function (req, res) {
       }
     })
     .catch((err) => {
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     });
 });
 
@@ -169,7 +169,7 @@ router.get("/:DNI/preguntas", function (req, res) {
       res.status(200).send(preguntas);
     })
     .catch((err) => {
-      res.status(500).send({message: err.message})
+      res.status(500).send(err.message)
     });
 });
 
@@ -210,7 +210,7 @@ router.post("/", (req, res) => {
   })
     .then((usu) => {
       if (usu) {
-        return res.status(400).send({message: "El Usuario ya se encuentra registrado"});
+        return res.status(400).send("El Usuario ya se encuentra registrado");
       }
       const DNI=req.body.DNI
       let encontrado=SYSACAD.obtenerDatosPorDNI(DNI);
@@ -260,7 +260,7 @@ router.post("/", (req, res) => {
         });
     })
     .catch((err) => {
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     });
 });
 
@@ -306,7 +306,7 @@ router.post("/:DNI/contrasenia", function (req, res) {
         })
       ,usu.save()
     ])
-      .then(res.status(200).send({message: "Se ha reestablecido la contraseña. Revise su correo electrónico para poder acceder."}));
+      .then(res.status(200).send("Se ha reestablecido la contraseña. Revise su correo electrónico para poder acceder."));
   });
 });
 
@@ -327,7 +327,7 @@ router.post("/:DNI/reporte", function (req, res) {
       }
     })
     .catch((err) => {
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     });
 });
 
@@ -376,7 +376,7 @@ router.post("/:DNI/bloqueo", function (req, res) {
       } else res.status(200).send(mensaje);
     })
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send(err.message);
     });
 });
 
@@ -439,13 +439,13 @@ router.patch("/contrasenia", function (req, res) {
         usuario.contrasenia = req.body.contraseniaNueva;
         req.session.usuario.contrasenia=req.body.contraseniaNueva;
         usuario.save();
-        res.status(200).send({message: "Datos actualizados exitosamente"});
+        res.status(200).send("Datos actualizados exitosamente");
         return;
       }
-      res.status(402).send({message: "Contraseña anterior no válida"})
+      res.status(402).send("Contraseña anterior no válida")
       })
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send(err.message);
     });
 });
 
@@ -456,13 +456,13 @@ router.patch("/mail", function (req, res) {
         usuario.correo = req.body.correo;
         req.session.usuario.correo=req.body.correo;
         usuario.save();
-        res.status(200).send({message: "Datos actualizados exitosamente"});
+        res.status(200).send("Datos actualizados exitosamente");
         return;
       }
-      res.status(402).send({message: "Contraseña anterior no válida"})
+      res.status(402).send("Contraseña anterior no válida")
       })
     .catch((err) => {
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     });
 });
 
@@ -478,10 +478,10 @@ router.patch("/:DNI", function (req, res) {
       usuario.correo = req.body.correo;
       usuario.perfilID= req.body.perfilID;
       usuario.save();
-      res.status(200).send({message: "Datos actualizados exitosamente"});
+      res.status(200).send("Datos actualizados exitosamente");
     })
     .catch((err) => {
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     });
 });
   

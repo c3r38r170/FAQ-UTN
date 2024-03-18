@@ -55,7 +55,7 @@ router.get("/", function (req, res) {
       res.status(200).send(etiquetas.rows);
     })
     .catch((error) => {
-      res.status(500).send({ message: error.message });
+      res.status(500).send(error.message);
     });
 });
 
@@ -77,7 +77,7 @@ router.patch("/:id/activado", async (req, res) => {
       res.status(404).json(mensajeError404);
     }
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json(error.message);
   }
 });
 
@@ -139,12 +139,12 @@ router.post("/:etiquetaID/suscripcion", function (req, res) {
             }
           })
           .catch((err) => {
-            res.status(500).send({message: err.message});
+            res.status(500).send(err.message);
           });
       }
     })
     .catch((err) => {
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     });
 });
 
@@ -175,16 +175,16 @@ router.delete("/:etiquetaID/suscripcion", function (req, res) {
             } else {
               sus.fecha_baja = new Date().toISOString().split("T")[0];
               sus.save();
-              res.status(201).send({message: "Suscripción cancelada"});
+              res.status(201).send("Suscripción cancelada");
             }
           })
           .catch((err) => {
-            res.status(500).send({message: err.message});
+            res.status(500).send(err.message);
           });
       }
     })
     .catch((err) => {
-      res.status(500).send({message: err.message});
+      res.status(500).send(err.message);
     });
 });
   

@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
       }
       res.json(categorias);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json(error.message);
     }
   });
   
@@ -38,7 +38,7 @@ router.patch("/:id/activado", async (req, res) => {
       res.status(404).json(mensajeError404);
     }
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json(error.message);
   }
 });
   
@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
     const categoria = await Categoria.create({ descripcion, color });
     res.status(201).json(categoria);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json(error.message);
   }
 });
   
@@ -74,7 +74,7 @@ router.patch("/:id", async (req, res) => {
     categoria = await categoria.update({ descripcion, color });
     res.json(categoria);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json(error.message);
   }
 });
 
@@ -93,7 +93,7 @@ router.delete("/:id", async (req, res) => {
     await categoria.destroy();
     res.json({ message: "Categoría eliminada correctamente" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(error.message);
   }
 });
   

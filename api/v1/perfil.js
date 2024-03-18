@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
       });
       res.status(201).json(nuevoPerfil);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(400).json(error.message );
     }
   });
   
@@ -48,7 +48,7 @@ router.post("/", async (req, res) => {
         res.status(404).json(mensajeError404);
       }
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(400).json(error.message);
     }
   });
   
@@ -69,7 +69,7 @@ router.post("/", async (req, res) => {
         res.status(404).json(mensajeError404);
       }
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(400).json(error.message);
     }
   });
 
@@ -94,7 +94,7 @@ router.post("/", async (req, res) => {
       res.setHeader('untfaq-cantidad-paginas', Math.ceil(perfiles.count/parseInt(PAGINACION.resultadosPorPagina)));
       res.status(200).send(perfiles.rows);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json(error.message);
     }
   });
 
