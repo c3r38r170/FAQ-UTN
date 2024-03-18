@@ -47,20 +47,20 @@ router.get('/', function (req, res) {
 		include: [
 			{
 				model: Post,
-				attributes: [],
+				attributes: [/* 'ID', 'cuerpo' */],
 				required: true,
 				include: [
-					{ model: Usuario, as: 'duenio', attributes: ['DNI', 'nombre'] },
+					{ model: Usuario, as: 'duenio', attributes: [/* 'DNI', 'nombre' */] },
 					{
 						model: Respuesta
 						, as: 'respuesta'
 						, include: [
-							{ model: Pregunta, as: 'pregunta', attributes: ['ID', 'titulo'] } // *Include Pregunta in Respuesta
+							{ model: Pregunta, as: 'pregunta', attributes: [/* 'ID', 'titulo' */] } // *Include Pregunta in Respuesta
 						],
 						required: false,
-						attributes: ['ID', 'preguntaID']
+						attributes: [/* 'ID', 'preguntaID' */]
 					},
-					{ model: Pregunta, as: 'pregunta', required: false, attributes: ['ID', 'titulo'] }
+					{ model: Pregunta, as: 'pregunta', required: false, attributes: [/* 'ID', 'titulo' */] }
 				]
 			}
 		],
