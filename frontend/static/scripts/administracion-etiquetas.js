@@ -1,7 +1,6 @@
-import { gEt, SqS } from "../libs/c3tools.js";
-import { Titulo, Formulario, ComponenteLiteral } from "../componentes/todos.js";
+import { gEt } from "../libs/c3tools.js";
+import { Formulario, ComponenteLiteral } from "../componentes/todos.js";
 import { PantallaAdministracionEtiquetas } from "../pantallas/administracion-etiquetas.js";
-import { Modal } from "../componentes/todos.js";
 
 let pagina = PantallaAdministracionEtiquetas(location.pathname, {
   usuario: window.usuarioActual,
@@ -9,8 +8,7 @@ let pagina = PantallaAdministracionEtiquetas(location.pathname, {
 let modal = pagina.partes[0];
 let tabla = pagina.partes[1];
 
-tabla /* ! Tabla */
-  .iniciar();
+tabla.iniciar();
 
 let modalElemento = gEt("modal-eliminar-etiqueta");
 modalElemento.addEventListener("submit", () => {
@@ -35,7 +33,7 @@ gEt("administrar-etiquetas").onchange = (e) => {
   let etiquetaElegida = tabla.entidades[indiceEtiquetaElegida];
 
   // TODO Refactor: Aplicar DRY a lo que se pueda.
-  // ! Se deben crear nuevos formularios porque el valor del DNI del elegido estará en el indice, en el endpoint, y en más lógica dentro del manipulador de respuesta.
+  // ! Se deben crear nuevos formularios porque el valor del ID de la etiqueta elegida estará en el indice, en el endpoint, y en más lógica dentro del manipulador de respuesta.
   if (etiquetaElegida.activado) {
     // * Se desea desbloquear
     modal.titulo = "Deshabilitar " + etiquetaElegida.descripcion;
@@ -86,7 +84,7 @@ gEt("administrar-etiquetas").onchange = (e) => {
               // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
               checkbox.checked = true;
 
-              tabla.entidades[indiceEtiquetaElegida].activado = false;
+              tabla.entidades[indiceEtiquetaElegida].activado = true;
             }
           } else {
             checkbox.checked = false;
@@ -145,7 +143,6 @@ gEt("administrar-etiquetas").onclick = (e) => {
           if (tabla.entidades[indiceEtiquetaElegida].ID == ID) {
             // * Si se sigue en la misma página
             // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
-            //TODO: cambiar los datos
             let tab = document.getElementById("administrar-etiquetas");
             tab.rows[
               indiceEtiquetaElegida + 1
@@ -214,7 +211,7 @@ gEt("botonAgregar").onclick = (e) => {
         if (info.ok) {
           // * Si se sigue en la misma página
           // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
-          //TODO: cambiar los datos
+          //TODO UX: Mantener filtros, página...
           window.location.reload();
         } else {
           Swal.error(`Error ${info.codigo}: ${txt}`);

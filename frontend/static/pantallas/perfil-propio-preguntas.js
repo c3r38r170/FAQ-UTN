@@ -1,5 +1,5 @@
 import { Modal } from "../componentes/modal.js";
-import { DesplazamientoInfinito } from '../componentes/todos.js'
+import { DesplazamientoInfinito, MensajeInterfaz } from '../componentes/todos.js'
 import { Pregunta } from "../componentes/pregunta.js";
 import { Pagina } from "../componentes/pagina.js";
 
@@ -14,8 +14,15 @@ function crearPagina(ruta, sesion){
             modal,
             new DesplazamientoInfinito(
                 'perfil-desplinf'
-        ,`/api/usuario/${sesion.usuario.DNI}/preguntas`
-        ,p=>(new Pregunta(p, modal, sesion)).render()
+                ,`/api/usuario/${sesion.usuario.DNI}/preguntas`
+                ,p=>(new Pregunta(p, modal, sesion)).render()
+                ,null
+                ,{
+                    mensajeVacio:new MensajeInterfaz(
+                        MensajeInterfaz.INFORMACION
+                        ,'No hay preguntas para mostrar.'
+                    )
+                }
             )
         ]
     });

@@ -830,17 +830,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
             "coincidencias",
           ]
         )
-        /* for(let e of filtrar.etiquetas){
-          opciones.include.push({
-            model: EtiquetasPregunta,
-            as: "filtroEtiquetas",
-            where:{
-              etiquetumID:e//filtrar.etiquetas // ! Es un array. Siempre.
-            }
-            ,required:true
-          })
-        } */
-
+        
         filtrarEtiquetas = true;
       }
     }

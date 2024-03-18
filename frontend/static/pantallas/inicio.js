@@ -1,4 +1,4 @@
-import { Pagina, Modal, DesplazamientoInfinito, Pregunta , Busqueda } from "../componentes/todos.js";
+import { Pagina, Modal, DesplazamientoInfinito, Pregunta , Busqueda, MensajeInterfaz } from "../componentes/todos.js";
 
 // TODO Now: Agregar etiquetas
 function crearPagina(usuario,queryString='',categoriasConEtiquetas=[]){
@@ -15,8 +15,14 @@ function crearPagina(usuario,queryString='',categoriasConEtiquetas=[]){
 				'inicio-preguntas'
 				,'/api/pregunta'+queryString
 				,p=>(new Pregunta(p,modal, usuario)).render()
+				,null
+				,{
+					mensajeVacio:new MensajeInterfaz(
+						MensajeInterfaz.INFORMACION
+						,'No se encontraron resultados.'
+					)
+				}
 			)
-			
 		]
 	});
 }

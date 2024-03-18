@@ -750,3 +750,12 @@ form > fieldset{
 
  width: 100%;
 }
+
+.boton-carga{
+	img{
+		height:100%;
+	}
+	& + .button{
+		display: none;
+	}
+}
