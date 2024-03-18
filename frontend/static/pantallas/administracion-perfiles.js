@@ -14,7 +14,7 @@ function crearPantalla(ruta, sesion) {
     {
       nombre: "Perfil",
       celda: (perfil) =>
-        `<div class="perfil" style="background-color: ${perfil.color}"><div class="descripcion">${perfil.nombre}</div></div>`,
+        `<div class="perfil" style="background-color: ${perfil.color}"><div class="descripcion">${perfil.descripcion}</div></div>`,
     },
     {
       nombre: "Nivel",
@@ -23,8 +23,8 @@ function crearPantalla(ruta, sesion) {
         perfil.permiso.ID == 1
           ? "Usuario"
           : perfil.permiso.ID == 2
-          ? "Moderación"
-          : "Administración",
+            ? "Moderación"
+            : "Administración",
     },
     {
       nombre: "Editar",
@@ -38,10 +38,8 @@ function crearPantalla(ruta, sesion) {
       nombre: "Habilitado",
       clases: ["centrado"],
       celda: (perfil) =>
-        `<div class="field"><input type="checkbox" value="${
-          perfil.ID
-        }" id="desactivar-${perfil.ID}" class="switch" ${
-          perfil.activado ? "checked" : ""
+        `<div class="field"><input type="checkbox" value="${perfil.ID
+        }" id="desactivar-${perfil.ID}" class="switch" ${perfil.activado ? "checked" : ""
         }><label for="desactivar-${perfil.ID}"></label></div>`,
     },
   ]);

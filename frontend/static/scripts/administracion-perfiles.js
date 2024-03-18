@@ -1,15 +1,13 @@
-import { gEt, SqS } from "../libs/c3tools.js";
-import { Titulo, Formulario, ComponenteLiteral } from "../componentes/todos.js";
+import { gEt } from "../libs/c3tools.js";
+import { Formulario, ComponenteLiteral } from "../componentes/todos.js";
 import { PantallaAdministracionPerfiles } from "../pantallas/administracion-perfiles.js";
-import { Modal } from "../componentes/todos.js";
 
 let pagina = PantallaAdministracionPerfiles(location.pathname, {
   usuario: window.usuarioActual,
 });
 let modal = pagina.partes[0];
 let tabla = pagina.partes[1];
-tabla /* ! Tabla */
-  .iniciar();
+tabla.iniciar();
 
 let modalElemento = gEt("modal-eliminar-perfil");
 modalElemento.addEventListener("submit", () => {
@@ -34,10 +32,10 @@ gEt("administrar-perfiles").onchange = (e) => {
   let perfilElegido = tabla.entidades[indicePerfilElegido];
 
   // TODO Refactor: Aplicar DRY a lo que se pueda.
-  // ! Se deben crear nuevos formularios porque el valor del DNI del elegido estará en el indice, en el endpoint, y en más lógica dentro del manipulador de respuesta.
+  // ! Se deben crear nuevos formularios porque el valor de la ID del perfil elegido estará en el indice, en el endpoint, y en más lógica dentro del manipulador de respuesta.
   if (perfilElegido.activado) {
-    // * Se desea desbloquear
-    modal.titulo = "Deshabilitar " + perfilElegido.nombre;
+    // * Se desea desactivar / deshabilitar
+    modal.titulo = "Deshabilitar " + perfilElegido.descripcion;
     modal.contenido = [
       new ComponenteLiteral(
         () => `<big><b><p>¿Estás seguro?</p></b></big><br/>`
@@ -71,8 +69,8 @@ gEt("administrar-perfiles").onchange = (e) => {
       ),
     ];
   } else {
-    // * Se desea bloquear
-    modal.titulo = "Habilitar a " + perfilElegido.nombre;
+    // * Se desea activar / habilitar
+    modal.titulo = "Habilitar a " + perfilElegido.descripcion;
     modal.contenido = [
       new Formulario(
         "administracion-perfiles-deshabilitar",
@@ -85,7 +83,7 @@ gEt("administrar-perfiles").onchange = (e) => {
               // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
               checkbox.checked = true;
 
-              tabla.entidades[indicePerfilElegido].activado = false;
+              tabla.entidades[indicePerfilElegido].activado = true;
             }
           } else {
             checkbox.checked = false;
@@ -114,14 +112,14 @@ gEt("administrar-perfiles").onclick = (e) => {
     return;
   }
 
-  let ID = boton.id.split("-")[2];
+  let ID = boton.id.split("-")[2]; // TODO Refactor: Usar datasets? Hace falta que el boton tenga id?
 
   let indicePerfilElegido = tabla.entidades.findIndex(
     ({ ID: esteID }) => esteID == ID
   );
   let perfilElegido = tabla.entidades[indicePerfilElegido];
 
-  modal.titulo = "Editar a " + perfilElegido.nombre;
+  modal.titulo = "Editar a " + perfilElegido.descripcion;
   modal.contenido = [
     new Formulario(
       "administracion-perfiles-editar",
@@ -129,9 +127,9 @@ gEt("administrar-perfiles").onclick = (e) => {
       [
         {
           name: "nombre",
-          textoEtiqueta: "Nombre",
+          textoEtiqueta: "Descripción:",
           type: "text",
-          value: perfilElegido.nombre,
+          value: perfilElegido.descripcion,
         },
         {
           name: "color",
@@ -151,20 +149,19 @@ gEt("administrar-perfiles").onclick = (e) => {
           if (tabla.entidades[indicePerfilElegido].ID == ID) {
             // * Si se sigue en la misma página
             // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
-            //TODO: cambiar los datos
+            //TODO Feature: DRY
             let tab = document.getElementById("administrar-perfiles");
             tab.rows[
               indicePerfilElegido + 1
-            ].cells[0].innerHTML = `<div class="perfil" style="background-color: ${
-              JSON.parse(txt).color
-            }"><div class="descripcion">${JSON.parse(txt).nombre}</div></div>`;
+            ].cells[0].innerHTML = `<div class="perfil" style="background-color: ${JSON.parse(txt).color
+              }"><div class="descripcion">${JSON.parse(txt).descripcion}</div></div>`;
             tab.rows[indicePerfilElegido + 1].cells[1].innerText =
               JSON.parse(txt).permisoID == 1
                 ? "Usuario"
                 : JSON.parse(txt).permisoID == 2
-                ? "Moderación"
-                : "Administración";
-            perfilElegido.nombre = JSON.parse(txt).nombre;
+                  ? "Moderación"
+                  : "Administración";
+            perfilElegido.descripcion = JSON.parse(txt).descripcion;
             perfilElegido.color = JSON.parse(txt).color;
             perfilElegido.permisoID = JSON.parse(txt).permisoID;
           }
@@ -240,9 +237,7 @@ gEt("botonAgregar").onclick = (e) => {
       ],
       (txt, info) => {
         if (info.ok) {
-          // * Si se sigue en la misma página
-          // ! Cubre ambos casos: Esperando respuesta, y tomado por sorpresa tras cambiar de página y volver.
-          //TODO: cambiar los datos
+          // TODO UX: Mantener filtros o página...
           window.location.reload();
         } else {
           Swal.error(`Error ${info.codigo}: ${txt}`);
@@ -259,7 +254,6 @@ gEt("botonAgregar").onclick = (e) => {
   modal.redibujar();
 
   let select = document.getElementsByName("permisoID")[0];
-
   var options = [
     {
       text: "Usuario",

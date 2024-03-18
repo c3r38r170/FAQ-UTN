@@ -1,5 +1,5 @@
 import { Modal } from "../componentes/modal.js";
-import { ChipUsuario, DesplazamientoInfinito } from '../componentes/todos.js'
+import { ChipUsuario, DesplazamientoInfinito, MensajeInterfaz } from '../componentes/todos.js'
 import { Pregunta } from "../componentes/pregunta.js";
 import { Pagina } from "../componentes/pagina.js";
 
@@ -17,6 +17,14 @@ function crearPagina(ruta, usuario, usu) {
                 'perfil-desplinf'
                 , `/api/usuario/${usu.DNI}/posts`
                 , p => (new Pregunta(p, modal, usuario)).render()
+                ,null
+                ,{
+                    mensajeVacio:new MensajeInterfaz(
+                        MensajeInterfaz.INFORMACION
+                        // ,'Este usuario todavía no ha publicado nada.'
+                        ,'No hay contenido para mostrar.'
+                    )
+                }
             )
         ]
     });

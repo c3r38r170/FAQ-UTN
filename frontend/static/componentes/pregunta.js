@@ -124,7 +124,7 @@ class Pregunta {
                 <div class="etiquetas">
                 ${this.#etiquetas ? this.#etiquetas.map(e => new Etiqueta(e.etiquetum).render()).join('') : ''}
                 </div>
-                <div class="cantRespuestas">${this.#respuestasCount > 0 ? this.#respuestasCount + ' Respuestas' : ''}</div>
+                <div class="cantRespuestas">${this.#respuestasCount > 0 ? '<i class="fa-solid fa-reply mr-2"></i>'+ this.#respuestasCount + ' Respuestas' : ''}</div>
                 <!-- ! Las respuestas están dentro de la pregunta por la posibilidad (descartada) de poner la respuesta destacada en los listados de preguntas. -->
                 ${this.#respuestas ? this.#respuestas.map((r) => new Respuesta(r, this.#instanciaModal, this.#usuarioActual ? { usuario: this.#usuarioActual } : null).render()).join("") : ''}
             </div>`

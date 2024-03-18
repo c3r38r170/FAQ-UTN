@@ -1,4 +1,4 @@
-import { superFetch } from '../libs/c3tools.js'
+import { superFetch, createElement } from '../libs/c3tools.js'
 import { Boton } from './boton.js';
 
 class Formulario{
@@ -30,10 +30,14 @@ class Formulario{
 		let form=e.target;
 
 		if(this.#alEnviar){
-			this.#alEnviar(e);
+			let respuestaAlEnviar=this.#alEnviar(e);
+			// ! alEnviar se puede usar como validador personalizado.
+			if(respuestaAlEnviar===false){
+				return;
+			}
 		}
 
-		if(!this.#endpoint){
+		if(!this.#endpoint){ // ! Formulario tradicional de HTML que redirige para enviar los datos.
 			return;
 		}
 
@@ -68,14 +72,27 @@ class Formulario{
 				datos[key].push(value);
 			});
 		}
+		
 		let ok,codigo;
 		let fieldset=form.firstElementChild;
 		fieldset.disabled=true;
+		let submitter=e.submitter;
+		let botonCarga=createElement('DIV',{
+			classList:[...e.submitter.classList,'boton-carga']
+			,innerHTML:'<img src="/loading.gif">'
+			,style:{
+				height:submitter.offsetHeight+'px'
+				,width:submitter.offsetWidth+'px'
+			}
+		});
+		submitter.before(botonCarga);
 		superFetch(this.#endpoint,datos,{ method: this.verbo})
 			.then(res=>{
 				ok=res.ok;
 				if(!ok){
 					fieldset.disabled=false;
+					// TODO Feature: Probar en los formularios que se reutilizan, qué pasa cuando salen bien, y esto no se ejecuta
+					botonCarga.remove();
 				}
 				codigo=res.status;
 				return res.text();
@@ -122,7 +139,7 @@ class Formulario{
             +    `Formulario.instancias['${this.#id}']=new Formulario(
                 '${this.#id}',
                 ${JSON.stringify(this.#endpoint)},
-                '${JSON.stringify(this.campos)}',
+                ${JSON.stringify(this.campos)},
                 ${representacionDeLaFuncion},
                 {
                     textoEnviar: '${this.#textoEnviar}',
@@ -177,6 +194,7 @@ class Campo{
 				break;
 			case 'radio':
 				html=html.replace(this.#textoEtiqueta,'');
+				// TODO Feature: Considerar required, poner un comentario de por qué este caso es especial.
 				html=html.replace('<input class="input','<input type="radio" required value="'+this.#value+'" class="mr-2 ')
 				html=html.replace('<label class="label"','<label class="label radio-label"')
 				return html+endTag+this.#textoEtiqueta+'</label>'

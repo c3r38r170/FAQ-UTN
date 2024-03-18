@@ -33,7 +33,7 @@ class Breadcrumb{
         let html = ''
         html+= '<nav class="breadcrumb ml-5 pl-5" aria-label="breadcrumbs"><ul>'
 
-        html += `<li id="breadcrumb"><a href="/">Inicio</a></li>`
+        html += `<li id="breadcrumb"><a href="/"><i class="fa-solid fa-house fa-sm mr-2"></i>Inicio</a></li>`
 
         /*
         this.#crumbs.forEach((crumb, index) => {
@@ -42,8 +42,12 @@ class Breadcrumb{
         });
         */
         this.#crumbs.forEach((crumb, index) => {
-            let nombreCapitalizado = crumb.nombre.charAt(0).toUpperCase() + crumb.nombre.slice(1);
-            html += `<li id="breadcrumb"><a href="#">${nombreCapitalizado}</a></li>`;
+            if(crumb.nombre == 'index'){
+
+            }else{
+                let nombreCapitalizado = crumb.nombre.charAt(0).toUpperCase() + crumb.nombre.slice(1);
+                html += `<li id="breadcrumb"><a class="crumb" href="${ crumb.nombre == 'pregunta' || crumb.nombre == 'perfil' || crumb.nombre == 'respuesta' ? '' :crumb.ruta}">${nombreCapitalizado}</a></li>`;
+            }
             
         });
 

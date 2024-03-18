@@ -12,6 +12,7 @@ import {
   Notificacion,
   EtiquetasPregunta,
 } from "./model.js";
+import { mensajeError403 } from "./mensajesError.js";
 
 const router = express.Router();
 
@@ -23,9 +24,6 @@ import { getModera, getRechazaPost, getReportaPost } from "./parametros.js";
 
 
 router.get("/", (req, res) => {
-    // TODO Refactor: Mandar este comentario a Pregunta.pagina
-    // ! Siempre pedir el Post, por más que no se consulten los datos.
-  
     // TODO Feature: Aceptar etiquetas.
   
     let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto!==undefined };
@@ -38,8 +36,7 @@ router.get("/", (req, res) => {
     if(req.query.etiquetas){
       parametros.filtrar.etiquetas=Array.isArray(req.query.etiquetas)?req.query.etiquetas:[req.query.etiquetas];
     }
-  
-    // console.log(filtros);
+
     Pregunta.pagina(parametros)
       .then((preguntas) => {
           res.status(200).send(preguntas);
@@ -47,10 +44,9 @@ router.get("/", (req, res) => {
       .catch((err) => {
         res.status(500).send(err.message);
       });
-  });
+});
   
   router.patch("/", function (req, res) {
-    // console.log(req.body);
     Pregunta.findByPk(req.body.ID, {
       include: [
         Post
@@ -66,7 +62,7 @@ router.get("/", (req, res) => {
           return;
         } else {
           if (pregunta.post.duenioDNI != req.session.usuario.DNI) {
-            res.status(403).send("No puede editar una pregunta ajena.");
+            res.status(403).send(mensajeError403);
             return;
           } else {
             // TODO Refactor: DRY en este if
@@ -158,7 +154,7 @@ router.get("/", (req, res) => {
       }
     })
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send(err.message);
     });
 });
 
@@ -232,7 +228,7 @@ function crearPregunta(req, res, respuestaIA = null) {
       })
   })
     .catch(err => {
-      res.status(500).send(err);
+      res.status(500).send(err.message);
     })
   }
   
@@ -252,7 +248,7 @@ function crearPregunta(req, res, respuestaIA = null) {
           crearPregunta(req,res,respuesta.apropiado)
         })
         .catch((err) => {
-          res.status(500).send(err);
+          res.status(500).send(err.message);
         });
     } else crearPregunta(req,res)
   })
@@ -262,7 +258,7 @@ function crearPregunta(req, res, respuestaIA = null) {
     if (usuarioActual.perfil.permiso.ID < 2) {
       res
         .status(403)
-        .send("No se poseen permisos de moderación");
+        .send(mensajeError403);
       return;
     }
   
@@ -323,19 +319,19 @@ function crearPregunta(req, res, respuestaIA = null) {
                   suscriptoDNI: req.session.usuario.DNI,
                   preguntaID: IDpregunta,
                 }).then((susc) => susc.save());
-                res.status(201).send("Suscripción creada");
+                res.status(201).send();
                 return;
               } else {
                 res.status(401).send("Ya se encuentra suscripto a la pregunta");
               }
             })
             .catch((err) => {
-              res.status(500).send(err);
+              res.status(500).send(err.message);
             });
         }
       })
       .catch((err) => {
-        res.status(500).send(err);
+        res.status(500).send(err.message);
       });
     // TODO Refactor: ahorrar el callback hell, acá y en todos lados.
   });
@@ -376,12 +372,12 @@ router.delete("/:preguntaID/suscripcion", function (req, res) {
             }
           })
           .catch((err) => {
-            res.status(500).send(err);
+            res.status(500).send(err.message);
           });
       }
     })
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send(err.message);
     });
 });
 

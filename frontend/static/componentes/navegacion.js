@@ -35,17 +35,17 @@ class Navegacion {
             subenlaces: [
               new EnlaceNavegacion(
                 "Información",
-                { tipo: "solid", nombre: "circle" },
+                { tipo: "solid", nombre: "circle fa-sm" },
                 "/perfil"
               ),
               new EnlaceNavegacion(
                 "Preguntas",
-                { tipo: "solid", nombre: "circle" },
+                { tipo: "solid", nombre: "circle fa-sm" },
                 "/perfil/preguntas"
               ),
               new EnlaceNavegacion(
                 "Respuestas",
-                { tipo: "solid", nombre: "circle" },
+                { tipo: "solid", nombre: "circle fa-sm" },
                 "/perfil/respuestas"
               ),
             ],
@@ -95,13 +95,13 @@ class Navegacion {
               subenlaces: [
                 new EnlaceNavegacion(
                   "Usuarios",
-                  { tipo: "solid", nombre: "circle" },
+                  { tipo: "solid", nombre: "circle fa-sm" },
                   "/moderacion/usuarios"
                 ),
                 // TODO UX: El nav no está listo para esto. Además, según las opciones se agranda y se achica. Darle un formato consistente. Quizá achicar los laterales incluso.
                 new EnlaceNavegacion(
                   "Preguntas y Respuestas",
-                  { tipo: "solid", nombre: "circle" },
+                  { tipo: "solid", nombre: "circle fa-sm" },
                   "/moderacion/preguntas-y-respuestas"
                 ),
               ],
@@ -135,26 +135,26 @@ class Navegacion {
               subenlaces: [
                 new EnlaceNavegacion(
                   "Perfiles",
-                  { tipo: "solid", nombre: "circle" },
+                  { tipo: "solid", nombre: "circle fa-sm" },
                   "/administracion/perfiles"
                 ),new EnlaceNavegacion(
                   "Usuarios",
-                  { tipo: "solid", nombre: "circle" },
+                  { tipo: "solid", nombre: "circle fa-sm" },
                   "/administracion/usuarios"
                 ),
                 new EnlaceNavegacion(
                   "Categorías",
-                  { tipo: "solid", nombre: "circle" },
+                  { tipo: "solid", nombre: "circle fa-sm" },
                   "/administracion/categorias"
                 ),
                 new EnlaceNavegacion(
                   "Etiquetas",
-                  { tipo: "solid", nombre: "circle" },
+                  { tipo: "solid", nombre: "circle fa-sm" },
                   "/administracion/etiquetas"
                 ),
                 new EnlaceNavegacion(
                   "Parámetros",
-                  { tipo: "solid", nombre: "circle" },
+                  { tipo: "solid", nombre: "circle fa-sm" },
                   "/administracion/parametros"
                 )
               ],
@@ -168,7 +168,7 @@ class Navegacion {
   }
 
   render() {
-    return `<div id="navegacion-container">
+    return `<div class="navegacion-container">
                 <ul class="navegacion">
                     ${this.#enlaces.reduce((s, en) => s + en.render(), "")}
                 </ul>
@@ -199,7 +199,7 @@ class EnlaceNavegacion {
     }
 
     return `<li>
-            <a id="link" href="${this.#enlace}">
+            <a class="link" href="${this.#enlace}">
                 <i class="fa-${this.#icono.tipo} fa-${
       this.#icono.nombre
     } mr-1"></i>

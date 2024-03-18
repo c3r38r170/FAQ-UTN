@@ -39,20 +39,7 @@ import {
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
 // TODO Refactor: Usar todas.js
-import { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos } from './static/pantallas/todas.js';
-import { PaginaPerfil } from "./static/pantallas/perfil.js";
-import { PaginaPerfilPropioInfo } from "./static/pantallas/perfil-propio-info.js";
-import { PaginaPerfilPropioPreguntas } from "./static/pantallas/perfil-propio-preguntas.js";
-import { PaginaPerfilPropioRespuestas } from "./static/pantallas/perfil-propio-respuestas.js";
-import { PaginaSuscripciones } from "./static/pantallas/suscripciones.js";
-import { PantallaAdministracionParametros } from "./static/pantallas/administracion-parametros.js";
-import { SinPermisos } from "./static/pantallas/sin-permisos.js";
-import { PantallaAdministracionPerfiles } from "./static/pantallas/administracion-perfiles.js";
-import { PantallaAdministracionCategorias } from "./static/pantallas/administracion-categorias.js";
-import { PantallaAdministracionEtiquetas } from "./static/pantallas/administracion-etiquetas.js";
-import { PantallaEtiquetaPreguntas } from "./static/pantallas/pantalla-etiquetas-pregunta.js";
-import { PantallaAdministracionUsuarios } from "./static/pantallas/administracion-usuarios.js";
-import { PantallaEditarRespuesta } from "./static/pantallas/editar-respuesta.js";
+import { PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PaginaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -78,7 +65,8 @@ router.get("/", (req, res) => {
     ])
       .then(([preguntas, categorias]) => {
         let pagina = PaginaInicio(req.session, queryString, categorias);
-        pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = preguntas;
+        let desplinf=pagina.partes[2];
+        desplinf.entidadesIniciales = preguntas;
 
         res.send(pagina.render());
       });
@@ -106,6 +94,7 @@ router.get("/pregunta/:id?", async (req, res) => {
   // TODO Feature: En caso de que sea una pregunta borrada, no permitir a menos que se tengan permisos de moderación, o administración.
 
   try {
+    let paginaError = SinPermisos(req.session, "Algo ha malido sal.");
     if (req.params.id) {
       const include = [
         {
@@ -167,15 +156,21 @@ router.get("/pregunta/:id?", async (req, res) => {
           }
         }
       ];
-
+      
       const p = await PreguntaDAO.findByPk(req.params.id, { include });
-
+      
       if (!p) {
-        res.status(404).send("ID de pregunta inválida");
+        let pantalla = SinPermisos(req.session, "Al parecer la pregunta no existe")
+        res.send(pantalla.render())
         return;
       }
 
       if (req.session.usuario) {
+
+        if (p.post.eliminadorDNI && req.session.usuario.perfil.permiso.ID < 2 ) { 
+          res.send(paginaError.render());
+          return;
+        }
         NotificacionDAO.findAll({
           include: [
             {
@@ -200,7 +195,13 @@ router.get("/pregunta/:id?", async (req, res) => {
             not.save();
           }
         });
-      }
+      }else if(p.post.eliminadorDNI){
+        // No está logueado y la pregunta esta eliminada
+        res.send(paginaError.render());
+        return;
+    }
+
+      
 
       // ! No se puede traer votos Y un resumen, por eso lo calculamos acá. Los votos los traemos solo para ver si el usuario actual votó.
 
@@ -287,19 +288,25 @@ router.get("/perfil/info", (req, res) => {
   }
 });
 
+router.get("/moderacion", (req, res) => {
+  res.redirect('/moderacion/usuarios');
+})
+
 router.get("/moderacion/usuarios", (req, res) => {
   let usu = req.session;
+
   if (!usu.usuario) {
     let pagina = SinPermisos(usu, "No está logueado");
     res.send(pagina.render());
     return;
   } else if (usu.usuario.perfil.permiso.ID < 2) {
+
     let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
     res.send(pagina.render());
     return;
   }
-
-  let pagina = PantallaModeracionUsuarios(req.path, req.session);
+  const query = req.query.searchInput;
+  let pagina = PantallaModeracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
 });
 
@@ -314,8 +321,8 @@ router.get('/moderacion/preguntas-y-respuestas', (req, res) => {
     res.send(pagina.render());
     return;
   }
-
-  let pagina = PantallaModeracionPosts(req.path, req.session);
+  const query = req.query.searchInput;
+  let pagina = PantallaModeracionPosts(req.path, req.session, query);
   res.send(pagina.render());
 })
 
@@ -466,11 +473,8 @@ router.get("/perfil/respuestas", (req, res) => {
   }
 });
 
+// TODO Refactor: Quitar lo async, usar promesas, y reducir el código.
 router.get("/perfil/:DNI?", async (req, res) => {
-  // TODO Feature: En caso de que sea un usuario bloqueado, no permitir a menos que se tengan los permisos adecuados.
-
-  //
-
   //pagina error
   let paginaError = SinPermisos(req.session, "Algo ha malido sal.")
   if (req.params.DNI) {
@@ -481,26 +485,20 @@ router.get("/perfil/:DNI?", async (req, res) => {
         res.send(pagina.render());
         return;
       }
-      let usu = await UsuarioDAO.findByPk(req.params.DNI, {
-        include: PerfilDAO,
-      });
-      if (!usu) {
-        //no existe el usuario buscado
+      
+      let bloqueo = await BloqueoDAO.findAll({
+        where: {
+          bloqueadoDNI: req.params.DNI,
+          fecha_desbloqueo: null
+        }
+      })
+      if (bloqueo && req.session.usuario.perfil.permiso.ID < 2) {
         res.send(paginaError.render());
         return;
       }
-      //Perfil ajeno
-      let filtro = { duenioID: null };
-      filtro.duenioID = usu.DNI;
-      // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-      let pre = await PreguntaDAO.pagina(filtro);
-      let pagina = PaginaPerfil(req.path, req.session, usu);
-      pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales =
-        pre;
-      res.send(pagina.render());
-      return;
+
     }
-    //Perfil ajeno
+    
     let usu = await UsuarioDAO.findByPk(req.params.DNI, {
       include: PerfilDAO,
     });
@@ -509,40 +507,32 @@ router.get("/perfil/:DNI?", async (req, res) => {
       res.send(paginaError.render());
       return;
     }
+    //Perfil ajeno
+    let filtro = { duenioID: null };
+    filtro.duenioID = usu.DNI;
+    // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
+    let pre = await PreguntaDAO.pagina(filtro);
     let pagina = PaginaPerfil(req.path, req.session, usu);
+    pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
     res.send(pagina.render());
     return;
   } else {
+    //perfil propio
     if (req.session.usuario) {
-      //perfil propio
       let pagina = PaginaPerfilPropioInfo(req.path, req.session);
       res.send(pagina.render());
       return;
     }
-    //error no hay id ni sesion
+    // * error no hay id ni sesion
     res.send(paginaError.render());
     return;
   }
 
 });
 
-router.get("/usuario/:id?", async (req, res) => {
-  //??
-  UsuarioDAO.findByPk(req.params.id, {
-    raw: true,
-    plain: true,
-    nest: true,
-  }).then((u) => {
-    if (!u) {
-      res.status(404).send("ID de usuario inválido");
-    }
-
-    let usuario = new Usuario(u);
-    let chipusuario = new ChipUsuario(usuario.dataValues);
-
-    res.send();
-  });
-});
+router.get("/administracion", (req, res) => {
+  res.redirect('/administracion/perfiles');
+})
 
 router.get("/administracion/parametros", async (req, res) => {
   let usu = req.session;
@@ -562,7 +552,7 @@ router.get("/administracion/parametros", async (req, res) => {
   res.send(pagina.render());
 });
 
-router.get("/administracion/categorias",(req, res) => {
+router.get("/administracion/categorias", (req, res) => {
   let usu = req.session;
   if (!usu.usuario) {
     let pagina = SinPermisos(usu, "No está logueado");
@@ -627,10 +617,11 @@ router.get("/administracion/usuarios", (req, res) => {
   res.send(pagina.render());
 });
 
-router.get('/quienes-somos',(req,res) => {
+router.get('/quienes-somos', (req, res) => {
   let pagina = PantallaQuienesSomos(req.path, req.session);
   res.send(pagina.render());
 })
+
 
 // RUTA DE PRUEBA PARA PROBAR
 router.get("/prueba/mensaje", async (req, res) => {

@@ -414,8 +414,7 @@ const Perfil = sequelize.define("perfil", {
     primaryKey: true,
     autoIncrement: true,
   },
-  // TODO Refactor: cambiar a Descripcion
-  nombre: {
+  descripcion: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -720,7 +719,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
               , as: 'duenio'
               , include: {
                 model: Perfil
-                , attributes: ['ID', 'nombre', 'color']
+                , attributes: ['ID', 'descripcion', 'color']
               }
               , attributes: ['DNI', 'nombre']
             },
@@ -730,7 +729,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
               as: "duenio",
               include: {
                 model: Perfil,
-                attributes: ["ID", "nombre", "color"],
+                attributes: ["ID", "descripcion", "color"],
               },
               attributes: ["DNI", "nombre"],
             },
@@ -831,17 +830,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
             "coincidencias",
           ]
         )
-        /* for(let e of filtrar.etiquetas){
-          opciones.include.push({
-            model: EtiquetasPregunta,
-            as: "filtroEtiquetas",
-            where:{
-              etiquetumID:e//filtrar.etiquetas // ! Es un array. Siempre.
-            }
-            ,required:true
-          })
-        } */
-
+        
         filtrarEtiquetas = true;
       }
     }
@@ -897,7 +886,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
           , as: 'duenio'
           , include: {
             model: Perfil
-            , attributes: ['ID', 'nombre', 'color']
+            , attributes: ['ID', 'descripcion', 'color']
           }
           , attributes: ['DNI', 'nombre']
         }
@@ -957,7 +946,7 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
             , as: 'duenio'
             , include: {
               model: Perfil
-              , attributes: ['ID', 'nombre', 'color']
+              , attributes: ['ID', 'descripcion', 'color']
             }
             , attributes: ['DNI', 'nombre']
           }
@@ -1041,7 +1030,7 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
             , as: 'duenio'
             , include: {
               model: Perfil
-              , attributes: ['ID', 'nombre', 'color']
+              , attributes: ['ID', 'descripcion', 'color']
             }
             , attributes: ['DNI', 'nombre']
           }
@@ -1275,22 +1264,6 @@ const Carrera = sequelize.define("carrera", {
     allowNull: false,
   },
 });
-/* 
-        case 'IC':
-          carreraID=1;
-          break;
-        case 'IE':
-          carreraID=2;
-          break;
-        case 'IQ':
-          carreraID=3;
-          break;
-        case 'IM':
-          carreraID=4;
-          break;
-        case 'ISI':
-          carreraID=5;
-          break; */
 
 Carrera.upsert({
   ID: 1,
@@ -1312,7 +1285,6 @@ Carrera.upsert({
   ID: 5,
   nombre: "Ingeniería en Sistemas de Información"
 })
-
 
 const CarrerasUsuario = sequelize.define("carrerasUsuario", {
   // TODO Refactor: legajo, con minúscula
@@ -1345,6 +1317,7 @@ Parametro.findAll().then((parametros) => {
   });
 });
 
+
 export {
   Parametro,
   Carrera,
@@ -1367,4 +1340,3 @@ export {
   Categoria,
   SuscripcionesEtiqueta,
 };
-
