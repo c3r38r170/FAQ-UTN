@@ -30,7 +30,11 @@ class Formulario{
 		let form=e.target;
 
 		if(this.#alEnviar){
-			this.#alEnviar(e);
+			let respuestaAlEnviar=this.#alEnviar(e);
+			// ! alEnviar se puede usar como validador personalizado.
+			if(respuestaAlEnviar===false){
+				return;
+			}
 		}
 
 		if(!this.#endpoint){ // ! Formulario tradicional de HTML que redirige para enviar los datos.
@@ -68,6 +72,7 @@ class Formulario{
 				datos[key].push(value);
 			});
 		}
+		
 		let ok,codigo;
 		let fieldset=form.firstElementChild;
 		fieldset.disabled=true;
@@ -189,6 +194,7 @@ class Campo{
 				break;
 			case 'radio':
 				html=html.replace(this.#textoEtiqueta,'');
+				// TODO Feature: Considerar required, poner un comentario de por qué este caso es especial.
 				html=html.replace('<input class="input','<input type="radio" required value="'+this.#value+'" class="mr-2 ')
 				html=html.replace('<label class="label"','<label class="label radio-label"')
 				return html+endTag+this.#textoEtiqueta+'</label>'

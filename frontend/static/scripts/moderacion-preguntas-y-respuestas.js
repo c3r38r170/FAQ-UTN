@@ -7,8 +7,7 @@ let pagina = PantallaModeracionPosts(location.pathname, {
 }, location.search.split('=')[1]);
 
 let tabla = pagina.partes[1];
-tabla /* ! Tabla */
-  .iniciar();
+tabla.iniciar();
 let modal = pagina.partes[2];
 
 gEt('moderar-posts').onclick = (e) => {
@@ -95,11 +94,19 @@ gEt('moderar-posts').onclick = (e) => {
               Swal.error(`Error ${info.codigo}: ${txt}`);
             }
           }, {
-          verbo: 'PUT'
-          , textoEnviar: 'Unificar'
-          , clasesBoton: 'is-link is-rounded mt-3'
-          , alEnviar
-        }
+            verbo: 'PUT'
+            , textoEnviar: 'Unificar'
+            , clasesBoton: 'is-link is-rounded mt-3'
+            , alEnviar:(e)=>{
+              if(e.target.elements.duplicadoID){
+                alEnviar(e);
+              }else{
+                e.preventDefault();
+                Swal.error("Se debe elegir una pregunta para unir ambas.");
+                return false;
+              }
+            }
+          }
         )
       ];
 
@@ -127,15 +134,14 @@ gEt('moderar-posts').onclick = (e) => {
                 let pregunta = new Pregunta(pre).render();
                 return `<div class="moderacion-preguntas-unificar-desplinf-pregunta"> ${pregunta} <input type="radio" name="duplicadaID" required value="${pre.ID}"> </div>`
               }
-              , !preguntas,preguntas.length?
-                {
-                  mensajeFinal:'No hay preguntas que coincidan.'
-                  ,tipoMensajeFinal:MensajeInterfaz.INFORMACION
-                }
-                :{}
+              ,preguntas
+              ,{
+                mensajeVacio:new MensajeInterfaz(MensajeInterfaz.INFORMACION,'No hay preguntas que coincidan.')
+                ,mensajeFinal:new ComponenteLiteral(()=>'')
+              }
             );
-            desplinf.pagina = 2;
             divFantasma.outerHTML = desplinf.render()
+            desplinf.pagina = 2;
           }
           intentarAgregarLasPreguntas();
         })
@@ -149,7 +155,7 @@ gEt('moderar-posts').onclick = (e) => {
 
 var nBusqueda = 0;
 
-gEt('moderacion-posts-modal').onchange = (e) => {
+gEt('moderacion-posts-modal').oninput = (e) => {
   let t = e.target;
 
   if (t.name == 'unificar-busqueda') {

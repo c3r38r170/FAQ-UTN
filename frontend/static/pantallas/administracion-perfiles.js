@@ -23,8 +23,8 @@ function crearPantalla(ruta, sesion) {
         perfil.permiso.ID == 1
           ? "Usuario"
           : perfil.permiso.ID == 2
-          ? "Moderación"
-          : "Administración",
+            ? "Moderación"
+            : "Administración",
     },
     {
       nombre: "Editar",

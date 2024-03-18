@@ -7,8 +7,7 @@ let pagina = PantallaModeracionUsuarios(location.pathname, {
 }, location.search.split('=')[1]);
 let modal = pagina.partes[0];
 let tabla = pagina.partes[2];
-tabla /* ! Tabla */
-  .iniciar();
+tabla.iniciar();
 
 let modalElemento = gEt("moderacion-usuarios-modal");
 modalElemento.addEventListener("submit", () => {
