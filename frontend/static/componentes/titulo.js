@@ -12,7 +12,8 @@ class Titulo {
           '2': 'is-2',
           '3': 'is-3',
           '4': 'is-4',
-          '5': 'is-5'
+          '5': 'is-5',
+          '6': 'is-6'
         }[clave];
 
         // this.#elemento = {
