@@ -893,15 +893,28 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
       ];
 
       // TODO Refactor: Solo hace falta si hay una sesión, y solo hace falta mandar para saber si el usuario está suscrito o no. Ver ejemplo en votos.
-      opciones.include.push({
-        model: SuscripcionesPregunta
-        , as: 'suscripciones'
-        , include: { model: Usuario, as: 'suscripto' }
-        , where: {
-          fecha_baja: null // * Vigentes
-        }
-        , separate: true
-      });
+      if (filtrar?.suscripto) {
+        opciones.include.push({
+          model: SuscripcionesPregunta
+          , as: 'suscripciones'
+          , include: { model: Usuario, as: 'suscripto' }
+          , where: {
+            fecha_baja: null, // * Vigentes
+            suscriptoDNI: filtrar.suscripto
+          }
+          , required: true
+        });
+      } else {
+        opciones.include.push({
+          model: SuscripcionesPregunta
+          , as: 'suscripciones'
+          , include: { model: Usuario, as: 'suscripto' }
+          , where: {
+            fecha_baja: null // * Vigentes
+          }
+          , separate: true
+        });
+      }
 
       if (!filtrarEtiquetas) {
         opciones.include.push({
