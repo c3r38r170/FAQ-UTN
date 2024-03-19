@@ -34,6 +34,8 @@ import {
   Permiso as PermisoDAO,
   Parametro as ParametroDAO,
   Categoria,
+  CarrerasUsuario,
+  Carrera,
 } from "../api/v1/model.js";
 
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
@@ -500,7 +502,14 @@ router.get("/perfil/:DNI?", async (req, res) => {
     }
 
     let usu = await UsuarioDAO.findByPk(req.params.DNI, {
-      include: PerfilDAO,
+      include: [
+        {
+          model: PerfilDAO
+        },
+        {
+          model: Carrera
+        }
+      ],
     });
     if (!usu) {
       //no existe el usuario buscado
