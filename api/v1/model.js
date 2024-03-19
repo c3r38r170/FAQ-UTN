@@ -830,7 +830,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
             "coincidencias",
           ]
         )
-        
+
         filtrarEtiquetas = true;
       }
     }

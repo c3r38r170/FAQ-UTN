@@ -65,7 +65,7 @@ router.get("/", (req, res) => {
     ])
       .then(([preguntas, categorias]) => {
         let pagina = PaginaInicio(req.session, queryString, categorias);
-        let desplinf=pagina.partes[2];
+        let desplinf = pagina.partes[2];
         desplinf.entidadesIniciales = preguntas;
 
         res.send(pagina.render());
@@ -156,9 +156,9 @@ router.get("/pregunta/:id?", async (req, res) => {
           }
         }
       ];
-      
+
       const p = await PreguntaDAO.findByPk(req.params.id, { include });
-      
+
       if (!p) {
         let pantalla = SinPermisos(req.session, "Al parecer la pregunta no existe")
         res.send(pantalla.render())
@@ -167,7 +167,7 @@ router.get("/pregunta/:id?", async (req, res) => {
 
       if (req.session.usuario) {
 
-        if (p.post.eliminadorDNI && req.session.usuario.perfil.permiso.ID < 2 ) { 
+        if (p.post.eliminadorDNI && req.session.usuario.perfil.permiso.ID < 2) {
           res.send(paginaError.render());
           return;
         }
@@ -195,13 +195,13 @@ router.get("/pregunta/:id?", async (req, res) => {
             not.save();
           }
         });
-      }else if(p.post.eliminadorDNI){
+      } else if (p.post.eliminadorDNI) {
         // No está logueado y la pregunta esta eliminada
         res.send(paginaError.render());
         return;
-    }
+      }
 
-      
+
 
       // ! No se puede traer votos Y un resumen, por eso lo calculamos acá. Los votos los traemos solo para ver si el usuario actual votó.
 
@@ -485,7 +485,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
         res.send(pagina.render());
         return;
       }
-      
+
       let bloqueo = await BloqueoDAO.findAll({
         where: {
           bloqueadoDNI: req.params.DNI,
@@ -498,7 +498,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
       }
 
     }
-    
+
     let usu = await UsuarioDAO.findByPk(req.params.DNI, {
       include: PerfilDAO,
     });
@@ -508,10 +508,10 @@ router.get("/perfil/:DNI?", async (req, res) => {
       return;
     }
     //Perfil ajeno
-    let filtro = { duenioID: null };
-    filtro.duenioID = usu.DNI;
+    let filtro = { DNI: null };
+    filtro.DNI = usu.DNI;
     // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    let pre = await PreguntaDAO.pagina(filtro);
+    let pre = await PostDAO.pagina(filtro);
     let pagina = PaginaPerfil(req.path, req.session, usu);
     pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
     res.send(pagina.render());
