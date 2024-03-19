@@ -1,11 +1,4 @@
-// TODO Refactor: Chupar todo de todos.js
-import { Modal } from "./modal.js";
-import { Boton } from "./boton.js";
-import { Breadcrumb } from "./breadcrumb.js";
-import { Navegacion } from "./navegacion.js";
-import { Notificacion } from "./notificacion.js";
-import { Formulario } from './formulario.js';
-import { ChipUsuario, DesplazamientoInfinito, MensajeInterfaz, Titulo } from './todos.js'
+import { ChipUsuario, DesplazamientoInfinito, MensajeInterfaz, Titulo, Formulario, Notificacion, Navegacion, Breadcrumb, Boton, Modal } from './todos.js'
 
 // TODO Feature: Tirar errores en los constructores con parámetros necesarios 
 // TODO Refactor: Cambiar a Pantalla. Colisiona con el concepto de página de los modelos.
