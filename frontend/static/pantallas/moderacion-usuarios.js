@@ -1,7 +1,9 @@
 import { Pagina, Titulo, Formulario, Tabla, Fecha, ChipUsuario, Modal, Busqueda } from '../componentes/todos.js'
 
 function crearPantalla(ruta, sesion, query = "") {
-	let tabla = new Tabla('moderacion-usuarios', '/api/usuario?reportados=1&searchInput=' + query, [
+	let usp = new URLSearchParams(query);
+	console.log(query)
+	let tabla = new Tabla('moderacion-usuarios', '/api/usuario' + query + "&reportados=1", [
 		{
 			nombre: 'Usuario',
 			celda: (usu) => new ChipUsuario(usu).render()
@@ -47,7 +49,7 @@ function crearPantalla(ruta, sesion, query = "") {
 			// id,endpoint,columnas,entidades=[],cantidadDePaginas=1
 			// ,
 			new Modal('Bloquear usuario', 'moderacion-usuarios-modal'), // * El título se va cambiando.
-			new Busqueda(),
+			new Busqueda({ valorBusqueda: usp.get('searchInput') }),
 			tabla
 		]
 	});

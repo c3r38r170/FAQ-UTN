@@ -1,7 +1,8 @@
 import { Pagina, Titulo, Formulario, Tabla, Fecha, ChipUsuario, Modal, Respuesta, Pregunta, ComponenteLiteral, Busqueda } from '../componentes/todos.js'
 
 function crearPantalla(ruta, sesion, query = "") {
-	let tabla = new Tabla('moderar-posts', '/api/post/reporte?searchInput=' + query, [
+	let usp = new URLSearchParams(query);
+	let tabla = new Tabla('moderar-posts', '/api/post/reporte' + query, [
 		{
 			nombre: 'Post'
 			, celda: ({ reportado }) => [
@@ -44,7 +45,7 @@ function crearPantalla(ruta, sesion, query = "") {
 		titulo: 'Moderación - Preguntas y Respuestas Reportadas',
 		sesion,
 		partes: [
-			new Busqueda(),
+			new Busqueda({ valorBusqueda: usp.get('searchInput') }),
 			tabla
 			, new Modal('Moderar preguntas y respuestas', 'moderacion-posts-modal') // * El título se va cambiando.
 		]

@@ -5,7 +5,7 @@ import { Modal } from "../componentes/todos.js";
 
 let pagina = PantallaAdministracionUsuarios(location.pathname, {
   usuario: window.usuarioActual,
-}, location.search.split('=')[1]);
+}, location.search);
 let modal = pagina.partes[0];
 let tabla = pagina.partes[2];
 tabla /* ! Tabla */

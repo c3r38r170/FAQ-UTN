@@ -307,7 +307,7 @@ router.get("/moderacion/usuarios", (req, res) => {
     res.send(pagina.render());
     return;
   }
-  const query = req.query.searchInput;
+  const query = req.url.substring(req.url.indexOf("?"));
   let pagina = PantallaModeracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
 });
@@ -323,7 +323,7 @@ router.get('/moderacion/preguntas-y-respuestas', (req, res) => {
     res.send(pagina.render());
     return;
   }
-  const query = req.query.searchInput;
+  const query = req.url.substring(req.url.indexOf("?"));
   let pagina = PantallaModeracionPosts(req.path, req.session, query);
   res.send(pagina.render());
 })
@@ -630,7 +630,7 @@ router.get("/administracion/usuarios", (req, res) => {
     res.send(pagina.render());
     return;
   }
-  const query = req.query.searchInput;
+  const query = req.url.substring(req.url.indexOf("?"));
   let pagina = PantallaAdministracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
 });

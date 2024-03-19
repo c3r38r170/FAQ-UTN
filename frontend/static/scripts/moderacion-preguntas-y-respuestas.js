@@ -4,7 +4,7 @@ import { ComponenteLiteral, DesplazamientoInfinito, Formulario, Pregunta, Mensaj
 
 let pagina = PantallaModeracionPosts(location.pathname, {
   usuario: window.usuarioActual
-}, location.search.split('=')[1]);
+}, location.search);
 
 let tabla = pagina.partes[1];
 tabla.iniciar();
@@ -94,19 +94,19 @@ gEt('moderar-posts').onclick = (e) => {
               Swal.error(`Error ${info.codigo}: ${txt}`);
             }
           }, {
-            verbo: 'PUT'
-            , textoEnviar: 'Unificar'
-            , clasesBoton: 'is-link is-rounded mt-3'
-            , alEnviar:(e)=>{
-              if(e.target.elements.duplicadoID){
-                alEnviar(e);
-              }else{
-                e.preventDefault();
-                Swal.error("Se debe elegir una pregunta para unir ambas.");
-                return false;
-              }
+          verbo: 'PUT'
+          , textoEnviar: 'Unificar'
+          , clasesBoton: 'is-link is-rounded mt-3'
+          , alEnviar: (e) => {
+            if (e.target.elements.duplicadoID) {
+              alEnviar(e);
+            } else {
+              e.preventDefault();
+              Swal.error("Se debe elegir una pregunta para unir ambas.");
+              return false;
             }
           }
+        }
         )
       ];
 
@@ -134,10 +134,10 @@ gEt('moderar-posts').onclick = (e) => {
                 let pregunta = new Pregunta(pre).render();
                 return `<div class="moderacion-preguntas-unificar-desplinf-pregunta"> ${pregunta} <input type="radio" name="duplicadaID" required value="${pre.ID}"> </div>`
               }
-              ,preguntas
-              ,{
-                mensajeVacio:new MensajeInterfaz(MensajeInterfaz.INFORMACION,'No hay preguntas que coincidan.')
-                ,mensajeFinal:new ComponenteLiteral(()=>'')
+              , preguntas
+              , {
+                mensajeVacio: new MensajeInterfaz(MensajeInterfaz.INFORMACION, 'No hay preguntas que coincidan.')
+                , mensajeFinal: new ComponenteLiteral(() => '')
               }
             );
             divFantasma.outerHTML = desplinf.render()
