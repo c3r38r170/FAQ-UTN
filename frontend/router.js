@@ -227,7 +227,7 @@ router.get("/pregunta/:id?", async (req, res) => {
       let pagina = PaginaPregunta(req.path, req.session, preguntaID);
       pagina.titulo = p.titulo;
       p.titulo = "";
-      pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session));
+      pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session.usuario));
 
       pagina.globales.preguntaID = preguntaID;
 
@@ -436,7 +436,7 @@ router.get("/respuesta/:id/editar", (req, res) => {
     })
       .then((respuesta) => {
         let pagina = PantallaEditarRespuesta(req.path, req.session, respuesta);
-        pagina.partes.unshift(new Pregunta(respuesta.pregunta, pagina.partes[0], req.session));
+        pagina.partes.unshift(new Pregunta(respuesta.pregunta, pagina.partes[0], req.session.usuario));
         res.send(pagina.render());
       }).catch((error) => {
         console.error('Error:', error);

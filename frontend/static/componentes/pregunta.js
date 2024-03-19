@@ -15,7 +15,7 @@ class Pregunta {
     #estaSuscripto = false;
     #botonEditar;
     #desplegable;
-    constructor({ ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, suscripciones }, instanciaModal, sesion) {
+    constructor({ ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, suscripciones }, instanciaModal, usuario) {
         // TODO Feature: Pensar condiciones de fallo de creación. Considerar que puede venir sin cuerpo (formato corto) o sin título (/pregunta, quitado "artificialmente")
 
         this.#ID = ID;
@@ -29,16 +29,16 @@ class Pregunta {
             this.#respuestasCount = respuestasCount;
             this.#etiquetas = etiquetas;
             this.#instanciaModal = instanciaModal;
-            this.#usuarioActual = sesion?.usuario;
+            this.#usuarioActual = usuario;
             // ! El post viene sin votos cuando se trata de una representación sin interacciones en la moderación (ni controles de votación, ni de suscripción).
-            if ((post.votos && this.#usuarioActual) || !sesion?.usuario && post.votos) {
+            if ((post.votos && this.#usuarioActual) || !usuario && post.votos) {
                 this.#chipValoracion = new ChipValoracion({
                     ID
                     , votos: post.votos
-                    , usuarioActual: sesion
+                    , usuarioActual: usuario
                     , duenio: post.duenio
                 });
-                if (suscripciones && sesion?.usuarioActual) {
+                if (suscripciones && this.#usuarioActual) {
                     if (!Array.isArray(suscripciones)) suscripciones = [suscripciones]
                     this.#estaSuscripto = suscripciones.some(sus => sus.suscripto.DNI == this.#usuarioActual.DNI);
                 }
@@ -124,9 +124,9 @@ class Pregunta {
                 <div class="etiquetas">
                 ${this.#etiquetas ? this.#etiquetas.map(e => new Etiqueta(e.etiquetum).render()).join('') : ''}
                 </div>
-                <div class="cantRespuestas">${this.#respuestasCount > 0 ? '<i class="fa-solid fa-reply mr-2"></i>'+ this.#respuestasCount + ' Respuestas' : ''}</div>
+                <div class="cantRespuestas">${this.#respuestasCount > 0 ? '<i class="fa-solid fa-reply mr-2"></i>' + this.#respuestasCount + ' Respuestas' : ''}</div>
                 <!-- ! Las respuestas están dentro de la pregunta por la posibilidad (descartada) de poner la respuesta destacada en los listados de preguntas. -->
-                ${this.#respuestas ? this.#respuestas.map((r) => new Respuesta(r, this.#instanciaModal, this.#usuarioActual ? { usuario: this.#usuarioActual } : null).render()).join("") : ''}
+                ${this.#respuestas ? this.#respuestas.map((r) => new Respuesta(r, this.#instanciaModal, this.#usuarioActual ? this.#usuarioActual : null).render()).join("") : ''}
             </div>`
             : `<a href="/pregunta/${this.#ID}" class="pregunta" target="_blank"> <div class="titulo">${this.#titulo}</div> </a>`;
 

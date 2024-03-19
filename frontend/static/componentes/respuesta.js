@@ -15,19 +15,19 @@ class Respuesta {
   #instanciaModal = null;
   #chipValoracion = null;
   #desplegable;
-  constructor({ ID, cuerpo, fecha, post }, instanciaModal, sesion) {
+  constructor({ ID, cuerpo, fecha, post }, instanciaModal, usuario) {
     this.#ID = ID;
     this.#cuerpo = cuerpo;
     this.#fecha = new Fecha(fecha);
     this.#duenio = post.duenio;
     this.#instanciaModal = instanciaModal;
-    this.#usuarioActual = sesion?.usuario;
+    this.#usuarioActual = usuario;
 
-    if ((post.votos && sesion && this.#usuarioActual) || !sesion?.usuario && post.votos) {
+    if ((post.votos && usuario && this.#usuarioActual) || !usuario && post.votos) {
       this.#chipValoracion = new ChipValoracion({
         ID
         , votos: post.votos
-        , usuarioActual: sesion
+        , usuarioActual: usuario
         , duenio: post.duenio
       });
     }
