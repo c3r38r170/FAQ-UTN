@@ -494,13 +494,22 @@ router.get("/perfil/:DNI?", async (req, res) => {
           fecha_desbloqueo: null
         }
       })
-      if (bloqueo && req.session.usuario.perfil.permiso.ID < 2) {
+      if (bloqueo.length > 0 && req.session.usuario.perfil.permiso.ID < 2) {
         res.send(paginaError.render());
         return;
       }
 
     }
-
+    let bloqueo = await BloqueoDAO.findAll({
+      where: {
+        bloqueadoDNI: req.params.DNI,
+        fecha_desbloqueo: null
+      }
+    })
+    if (bloqueo.length > 0) {
+      res.send(paginaError.render());
+      return;
+    }
     let usu = await UsuarioDAO.findByPk(req.params.DNI, {
       include: [
         {
