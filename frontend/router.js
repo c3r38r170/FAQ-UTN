@@ -122,6 +122,9 @@ router.get("/pregunta/:id?", async (req, res) => {
             {
               model: PostDAO,
               as: 'post',
+              where: {
+                eliminadorDNI: null
+              },
               include: [
                 {
                   model: UsuarioDAO,
