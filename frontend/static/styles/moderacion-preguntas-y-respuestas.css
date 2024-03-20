@@ -1,6 +1,6 @@
 #moderar-posts {
-  width: calc(100% - 6rem);
-  margin: 1rem 3rem;
+  width: 100%;
+  font-size: 0.9rem;
 }
 #moderar-posts thead {
   background: #ECECEC;
@@ -18,7 +18,7 @@
   gap: 1rem;
 }
 #moderar-posts th:first-child {
-  width: 60%;
+  width: 100%;
 }
 #moderar-posts tbody td.preguntas-o-respuestas {
   border: solid 1px !important;
@@ -26,6 +26,8 @@
   border-radius: 10px;
   display: block;
   margin: 5px;
+  width: 100%;
+  min-width: 220px;
   word-break: break-all;
 }
 #moderar-posts tbody td.preguntas-o-respuestas .pregunta, #moderar-posts tbody td.preguntas-o-respuestas .respuesta {

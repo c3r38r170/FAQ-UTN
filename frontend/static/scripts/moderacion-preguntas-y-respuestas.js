@@ -6,9 +6,9 @@ let pagina = PantallaModeracionPosts(location.pathname, {
   usuario: window.usuarioActual
 }, location.search.split('=')[1]);
 
-let tabla = pagina.partes[1];
+let tabla = pagina.partes[2];
 tabla.iniciar();
-let modal = pagina.partes[2];
+let modal = pagina.partes[4];
 
 gEt('moderar-posts').onclick = (e) => {
   let t = e.target;

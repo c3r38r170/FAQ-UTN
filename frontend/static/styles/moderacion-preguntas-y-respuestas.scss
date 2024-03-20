@@ -2,8 +2,8 @@
 
 
 	// TODO Refactor: Convertir en un import para reutilizar en varias paginas y mejorar el mantenimiento. El fieldset incluso es bien específico del footer de la tabla, de los controles de navegación, asi que ¿incluir con el componente tabla??
-	width: calc(100% - 6rem);
-  margin: 1rem 3rem;
+	width: 100%;
+	font-size: .9rem;
 
 	thead{
 		background: #ECECEC;
@@ -26,7 +26,7 @@
 
 
 	th:first-child{
-		width: 60%;
+		width: 100%;
 	}
 
 	tbody {
@@ -37,6 +37,8 @@
 			border-radius: 10px;
 			display: block;
 			margin: 5px;
+			width: 100%;
+    		min-width: 220px;
 			
 			word-break: break-all;
 	
