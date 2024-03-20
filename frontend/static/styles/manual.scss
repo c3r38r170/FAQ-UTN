@@ -1,3 +1,7 @@
+#tabla-de-contenidos > ul { // Copia descarada a Wikipedia.
+  margin-left: 4rem !important;
+}
+
 #columna-principal{
 	// TODO Refactor: DRY con quienes-somos.scss
 	p,h2{
@@ -16,8 +20,13 @@
 		border-radius: 10px;
 	}
 
-	&>ul{
-		margin: auto;
-		width: max-content;
+	&>.content{
+		margin-left: 1rem;
+		margin-right: 1rem;
+
+		ul{
+			margin: auto;
+			width: max-content;
+		}
 	}
 }

@@ -327,15 +327,14 @@ router.get('/moderacion/preguntas-y-respuestas', (req, res) => {
 
 router.get("/perfil/preguntas", (req, res) => {
   try {
-    let usu = req.session;
-    if (!usu.usuario) {
-      let pagina = SinPermisos(usu, "No está logueado");
+    let usu = req.session.usuario;
+    if (!usu) {
+      let pagina = SinPermisos(req.session, "No está logueado");
       res.send(pagina.render());
       return;
     }
 
-    let filtro = { duenioID: null };
-    filtro.duenioID = req.session.usuario.DNI;
+    let filtro = { duenioID: req.session.usuario.DNI, usuarioActual:usu };
     PreguntaDAO.pagina(filtro).then((pre) => {
       let pagina = PaginaPerfilPropioPreguntas(req.path, req.session);
       pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;

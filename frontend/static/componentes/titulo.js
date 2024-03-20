@@ -1,9 +1,9 @@
 class Titulo {
-    #titulo;
+    titulo;
     #elemento;
     #tipo
     #clases
-    #id
+    id
 
     constructor(elemento = 'h1', clave, titulo, clases,id) {
 
@@ -24,16 +24,14 @@ class Titulo {
         //     '5': 'h5'
         //   }[clave];
         this.#elemento = elemento;
-        this.#titulo = titulo;
+        this.titulo = titulo;
         this.#clases = clases || '';
-        this.#id=id;
+        this.id=id;
     }
 
     render() {
       return `
-        <${this.#elemento} class='title ${this.#tipo} ${this.#clases}' ${this.#id?`id="${this.#id}"`:''}>
-           ${this.#titulo}
-        </${this.#elemento}>
+        <${this.#elemento} class='title ${this.#tipo} ${this.#clases}' ${this.id?`id="${this.id}"`:''}>${this.titulo}</${this.#elemento}>
       `;
     }
   }

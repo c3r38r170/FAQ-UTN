@@ -18,11 +18,6 @@ const router = express.Router();
 
 import { getModera, getRechazaPost, getReportaPost } from "./parametros.js";
 
-
-
-
-
-
 router.get("/", (req, res) => {
     // TODO Feature: Aceptar etiquetas.
   

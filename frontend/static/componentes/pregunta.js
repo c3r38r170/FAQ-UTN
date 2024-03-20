@@ -39,7 +39,6 @@ class Pregunta {
                     , usuarioActual: sesion
                     , duenio: post.duenio
                 });
-                console.log(ID,suscripciones?.length);
                 if (suscripciones /* && sesion?.usuarioActual */) {
                     if (!Array.isArray(suscripciones)) suscripciones = [suscripciones]
                     this.#estaSuscripto = suscripciones.some(sus => sus.suscriptoDNI == this.#usuarioActual.DNI);

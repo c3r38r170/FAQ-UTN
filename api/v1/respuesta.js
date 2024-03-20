@@ -63,7 +63,7 @@ router.post("/", function (req, res) {
                         preguntaID: req.body.IDPregunta,
                         fecha_baja: null,
                         suscriptoDNI: {
-                          [Sequelize.Op.ne]: req.session.usuario.DNI,
+                          [Sequelize.Op.ne]: req.session.usuario.DNI, // ! No se le avisa al OP, en caso de que esté suscripto.
                         },
                       },
                     }).then((suscripciones) => {
@@ -117,7 +117,7 @@ router.post("/", function (req, res) {
                     preguntaID: req.body.IDPregunta,
                     fecha_baja: null,
                     suscriptoDNI: {
-                      [Sequelize.Op.ne]: req.session.usuario.DNI,
+                      [Sequelize.Op.ne]: req.session.usuario.DNI, // ! No se le avisa al OP, en caso de que esté suscripto.
                     },
                   },
                 }).then((suscripciones) => {

@@ -705,12 +705,11 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
   if (duenioDNI) { // * Esto es para los perfiles.
     // ! Esto no considera ningún filtro.
     let opciones={
-
       include: [
         {
           model: Post,
           required: true,
-          where:{eliminadorDNI:{[sequelize.Op.not]:null}},
+          where:{eliminadorDNI:{[Sequelize.Op.is]:null}}, // * Preguntas vigentes.
           include: [
             {
               model: Voto
@@ -725,6 +724,9 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
                 , attributes: ['ID', 'descripcion', 'color']
               }
               , attributes: ['DNI', 'nombre']
+              ,where:{
+                DNI:duenioDNI
+              }
             },
             {
               // TODO Feature: Votos no?? Yo diría que sí.
@@ -756,10 +758,10 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
         include: [
           respuestasCount,
         ],
-      },
+      },/* 
       where: {
         "$post.duenio.DNI$": duenioDNI,
-      },
+      }, */
       order: [[Post, "fecha", "DESC"]],
       limit: getPaginacion().resultadosPorPagina,
       offset: +pagina * getPaginacion().resultadosPorPagina,
@@ -927,8 +929,6 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
           opcionesSuscripciones.include={ model: Usuario, as: 'suscripto', where: {DNI:usuarioActual.DNI} };
           opcionesSuscripciones.required=false;
         }
-
-        console.log(opcionesSuscripciones);
 
         opciones.include.push(opcionesSuscripciones);
       }
