@@ -170,6 +170,7 @@ div.navegacion-container{
 		li{
 			margin-bottom: 0.5rem;
 			font-weight: 600;
+			font-size: .9rem;
 			
 			a.link{
 				color: $text;
@@ -302,11 +303,15 @@ div.notificacion{
 		color:grey;
 		mix-blend-mode: multiply;
 	}
-	
-	.img-usuario{
-		width: 32px;
-		border-radius: 100%;
+
+	a.contenedor-img{
+		min-width: 32px;
+		.img-usuario{
+			width: 32px;
+			border-radius: 100%;
+		}
 	}
+	
 }
 
 .chip-usuario-perfil{
