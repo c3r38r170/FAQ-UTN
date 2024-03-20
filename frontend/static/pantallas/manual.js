@@ -66,7 +66,7 @@ function crearPagina(ruta,usuario) {
 		if(usuario.perfil.permiso.ID>=2){// * Moderador
 			partesManual.push(
 				// Moderar usuarios
-				new Titulo('h2',5,'Moderar usuarios')
+				new Titulo('h2',5,'Moderar usuarios','mt-5','moderar-usuarios')
 				,new ComponenteLiteral(()=>formatearParrafos(
 					`Los usuarios moderadores tienen la capacidad de bloquear o desbloquear cuentas según sea necesario.
 					Si necesitás moderar a algún usuario podés visitar <a href="/moderacion/usuarios">Moderación de usuarios</a> o dirigirte al link "Moderación > Usuarios" en la barra de navegación izquierda.
@@ -87,7 +87,7 @@ function crearPagina(ruta,usuario) {
 					<img srcset="motivo-desbloqueo-usuario.png 1.4x">`
 				)),
 				// Moderar preguntas y respuestas
-				new Titulo('h2',5,'Moderar Preguntas y Respuestas')
+				new Titulo('h2',5,'Moderar Preguntas y Respuestas','mt-5','moderar-posts')
 				,new ComponenteLiteral(()=>formatearParrafos(
 					`Para acceder al panel de <a href="/moderacion/preguntas-y-respuestas">Moderación de Preguntas y Respuestas</a> podés dirigirte al link "Moderación > Preguntas y Respuestas" en la barra de navegación izquierda.
 					Ahí vas a encontrar una tabla con los posts reportados.
@@ -111,10 +111,91 @@ function crearPagina(ruta,usuario) {
 			
 		}
 		if(usuario.perfil.permiso.ID>=3){// * Administrador
-			partesManual.push(new ComponenteLiteral(()=>{}));
-			// Administrar los 4 son iguales
-				// La busqueda en usuarios
-			// Descripción de los parámetros
+			partesManual.push(
+				// Administrar los 4 son iguales
+				new Titulo('h2',5,'Administración','mt-5','administracion')
+				,new ComponenteLiteral(()=>formatearParrafos(
+					`Como administrador, tenés privilegios adicionales que te permiten gestionar las siguientes entidades:
+					<div class="content">
+						<ul>
+							<li>Perfiles: Son los perfiles a los que puede estar asociado un usuario y cuentan con diferentes niveles de Permisos.
+								<ul>
+									<li>Agregar un nuevo Perfil</li>
+									<li>Editar un Perfil existente</li>
+									<li>Habilitar/Deshabilitar un Perfil existente</li>
+								</ul>		
+							</li>
+							<li>Usuarios: Los usuarios son la piedra angular de nuestra comunidad en línea. Cada usuario contribuye al intercambio de información, discusiones y colaboración en nuestro sitio web, creando así una experiencia enriquecedora y dinámica para todos los miembros.
+								<ul>
+									<li>Agregar un nuevo Usuario</li>
+									<li>Editar un Usuario existente</li>
+									<li>Bloquear/Desbloquear un Usuario existente</li>
+								</ul>	
+							</li>
+							<li>Categorías: Las categorías son una forma de organizar y clasificar el contenido relacionado. Cada Categoría puede tener varias etiquetas asociadas a ella.
+								<ul>
+									<li>Agregar una nueva Categoría</li>
+									<li>Editar una Categoría existente</li>
+									<li>Habilitar/Deshabilitar una Categoría existente</li>
+								</ul>	
+							</li>
+							<li>Etiquetas: Las etiquetas son términos más específicos que se utilizan para etiquetar el contenido dentro de una categoría.
+								<ul>
+									<li>Agregar una nueva Etiqueta</li>
+									<li>Editar una Etiqueta existente</li>
+									<li>Habilitar/Deshabilitar una Etiqueta existente</li>
+								</ul>	
+							</li>
+						</ul>
+					</div>`
+				)),
+				new Titulo('h2',5,'Administrar Perfiles','mt-5','administracion-perfiles'),
+				new ComponenteLiteral(()=>formatearParrafos(
+					`En <a href="/administracion/perfiles">Administración de Perfiles</a> vas a encontrar la siguiente tabla:
+					<img srcset="perfiles.png 1.4x">
+					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar un Perfil.
+					Para crear un Perfil nuevo presiona el botón 'Agregar' al final de la tabla.
+					<img srcset="agregar.png 1.4x">
+					Y completa el formulario:
+					<img srcset="agregar-perfil.png 1.4x">
+					`
+				)),
+				new Titulo('h2',5,'Administrar Usuarios','mt-5','administracion-usuarios'),
+				new ComponenteLiteral(()=>formatearParrafos(
+					`En <a href="/administracion/usuarios">Administración de Usuarios</a> vas a encontrar la siguiente tabla:
+					<img srcset="tabla-usuarios.png 1.4x">
+					Ahí podes accionar en el boton Editar, o en el toggle switch para Bloquear/Desbloquear un Usuario.
+					Para crear un Usuario nuevo presiona el botón 'Agregar' al final de la tabla.
+					<img srcset="agregar.png 1.4x">
+					Y completa el formulario:
+					<img srcset="agregar-usuario.png 1.4x">
+					`
+				)),
+				new Titulo('h2',5,'Administrar Categorías','mt-5','administracion-categorias'),
+				new ComponenteLiteral(()=>formatearParrafos(
+					`En <a href="/administracion/categorias">Administración de Categorías</a> vas a encontrar la siguiente tabla:
+					<img srcset="tabla-categorias.png 1.4x">
+					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar una Categoría.
+					Para crear una Categoría nueva presiona el botón 'Agregar' al final de la tabla.
+					<img srcset="agregar.png 1.4x">
+					Y completa el formulario correspondiente.
+					`
+				)),
+				new Titulo('h2',5,'Administrar Etiquetas','mt-5','administracion-etiquetas'),
+				new ComponenteLiteral(()=>formatearParrafos(
+					`En <a href="/administracion/etiquetas">Administración de Etiquetas</a> vas a encontrar la siguiente tabla:
+					<img srcset="tabla-etiquetas.png 1.4x">
+					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar una Etiqueta.
+					Para crear una Etiqueta nueva presiona el botón 'Agregar' al final de la tabla.
+					<img srcset="agregar.png 1.4x">
+					Y completa el formulario correspondiente.
+					`
+				))
+					// La busqueda en usuarios
+				// Descripción de los parámetros
+				
+
+			);
 		}
 	}
 
