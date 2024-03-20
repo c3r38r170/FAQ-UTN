@@ -43,10 +43,12 @@ $paleta-4: #f3f6ff;
 			*{
 				margin: auto;
 			}
-			
+			#logo{
+				height: 100%;
 				img{
 					height: 100%;
 				}
+			}
 		}
 	
 		#encabezado-derecho{
@@ -88,7 +90,11 @@ $paleta-4: #f3f6ff;
 	}
   }
   
-
+table{
+	.chip-usuario{
+		gap: 10px;
+	}
+}
 
 
 #columna-1, #columna-principal, #columna-3 {

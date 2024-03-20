@@ -44,6 +44,7 @@
 }
 #moderar-posts tbody td.preguntas-o-respuestas .pregunta .titulo {
   display: inline;
+  font-size: 0.95rem;
 }
 #moderar-posts tbody td.preguntas-o-respuestas .respuesta {
   border: none;

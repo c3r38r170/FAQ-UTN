@@ -32,7 +32,10 @@
 * #encabezado #encabezado-izquierdo * {
   margin: auto;
 }
-* #encabezado #encabezado-izquierdo img {
+* #encabezado #encabezado-izquierdo #logo {
+  height: 100%;
+}
+* #encabezado #encabezado-izquierdo #logo img {
   height: 100%;
 }
 * #encabezado #encabezado-derecho {
@@ -65,6 +68,10 @@
     min-width: 32px;
   }
 }
+table .chip-usuario {
+  gap: 10px;
+}
+
 #columna-1, #columna-principal, #columna-3 {
   padding-top: 1.8rem;
   min-height: calc(100vh - 252px);
