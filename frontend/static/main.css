@@ -667,4 +667,14 @@ form > fieldset {
 }
 .boton-carga + .button {
   display: none;
+}
+
+.contenedor-tabla {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  overflow-x: scroll;
+  scroll-behavior: smooth;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
 }/*# sourceMappingURL=main.css.map */

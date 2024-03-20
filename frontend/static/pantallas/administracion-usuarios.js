@@ -7,20 +7,21 @@ import {
   Fecha,
   ChipUsuario,
   Modal,
-  Busqueda
+  Busqueda,
+  ComponenteLiteral
 } from "../componentes/todos.js";
 //La primer pagina tiene un usuario menos ¿?
 function crearPantalla(ruta, sesion, query = "") {
   let tabla = new Tabla("administrar-usuarios", "/api/usuario?searchInput=" + query, [
     {
-      nombre: "DNI",
-      celda: (usuario) =>
-        usuario.DNI,
-    },
-    {
       nombre: "Nombre",
       celda: (usuario) =>
         usuario.nombre
+    },
+    {
+      nombre: "DNI",
+      celda: (usuario) =>
+        usuario.DNI,
     },
     {
       nombre: "Perfil",
@@ -42,6 +43,8 @@ function crearPantalla(ruta, sesion, query = "") {
       celda: (usu) => `<div class="field"><input type="checkbox" value="${usu.DNI}" id="bloqueo-${usu.DNI}" class="switch" ${usu.bloqueosRecibidos?.length ? 'checked' : ''}><label for="bloqueo-${usu.DNI}"></label></div>`
     }
   ]);
+  let contenedor1 = new ComponenteLiteral(()=> `<div class="contenedor-tabla">`)
+  let contenedor2 = new ComponenteLiteral(()=> `</div>`)
   let pagina = new Pagina({
     ruta: ruta,
     titulo: "Administracion - Usuarios",
@@ -49,7 +52,9 @@ function crearPantalla(ruta, sesion, query = "") {
     partes: [
       new Modal("Eliminar Usuario", "modal-eliminar-usuario"),
       new Busqueda(),
+      contenedor1,
       tabla,
+      contenedor2,
       new Boton({
         titulo: "Agregar",
         classes: "button is-link is-small is-rounded botonAgregar",
