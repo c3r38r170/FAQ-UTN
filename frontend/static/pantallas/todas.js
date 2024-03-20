@@ -17,7 +17,8 @@ import { PaginaPerfilPropioInfo } from './perfil-propio-info.js';
 import { PaginaPerfilPropioPreguntas } from './perfil-propio-preguntas.js'
 import { PaginaPerfilPropioRespuestas } from './perfil-propio-respuestas.js'
 import { SinPermisos } from './sin-permisos.js';
-import { PaginaSuscripciones } from './suscripciones.js';
+import { PantallaSuscripciones } from './suscripciones.js';
+import { PantallaManual } from './manual.js';
 
 
-export { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaAdministracionCategorias, PantallaAdministracionEtiquetas, PantallaAdministracionParametros, PantallaAdministracionPerfiles, PantallaAdministracionUsuarios, PantallaEditarRespuesta, PantallaEtiquetaPreguntas, PaginaPerfil, PaginaPerfilPropioInfo, PaginaPerfilPropioPreguntas, PaginaPerfilPropioRespuestas, PaginaSuscripciones, SinPermisos };
+export { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaAdministracionCategorias, PantallaAdministracionEtiquetas, PantallaAdministracionParametros, PantallaAdministracionPerfiles, PantallaAdministracionUsuarios, PantallaEditarRespuesta, PantallaEtiquetaPreguntas, PaginaPerfil, PaginaPerfilPropioInfo, PaginaPerfilPropioPreguntas, PaginaPerfilPropioRespuestas, PantallaSuscripciones, SinPermisos, PantallaManual };

@@ -41,7 +41,7 @@ import {
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
 // TODO Refactor: Usar todas.js
-import { PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PaginaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos } from './static/pantallas/todas.js';
+import { PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -263,7 +263,7 @@ router.get("/suscripciones", (req, res) => {
       return;
     }
 
-    let pagina = PaginaSuscripciones(req.path, req.session);
+    let pagina = PantallaSuscripciones(req.path, req.session);
 
     res.send(pagina.render());
   } catch (error) {
@@ -637,6 +637,11 @@ router.get("/administracion/usuarios", (req, res) => {
 
 router.get('/quienes-somos', (req, res) => {
   let pagina = PantallaQuienesSomos(req.path, req.session);
+  res.send(pagina.render());
+})
+
+router.get('/manual', (req, res) => {
+  let pagina = PantallaManual(req.path, req.session.usuario);
   res.send(pagina.render());
 })
 
