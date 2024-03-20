@@ -1,4 +1,4 @@
-import { Pagina, Formulario, Modal, Tabla } from "../componentes/todos.js";
+import { Pagina, Formulario, Modal, Tabla, ComponenteLiteral } from "../componentes/todos.js";
 
 //TODO: Feature: cambiar campos por apropiados y validar
 //TODO: Feature: permisos
@@ -22,11 +22,18 @@ function crearPantalla(ruta, sesion, p) {
         </button>`,
     },
   ]);
+  let contenedor1 = new ComponenteLiteral(()=> `<div class="contenedor-tabla">`)
+  let contenedor2 = new ComponenteLiteral(()=> `</div>`)
   let pagina = new Pagina({
     ruta: ruta,
     titulo: "Administracion - Parametros",
     sesion: sesion,
-    partes: [new Modal("editar Parametros", "modal-editar-parametros"), tabla],
+    partes: [
+      new Modal("editar Parametros", "modal-editar-parametros"),
+      contenedor1,
+      tabla,
+      contenedor2
+    ],
   });
   return pagina;
 }

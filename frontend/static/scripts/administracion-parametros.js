@@ -7,7 +7,7 @@ let pagina = PantallaAdministracionParametros(
   window.parametros
 );
 let modal = pagina.partes[0];
-let tabla = pagina.partes[1];
+let tabla = pagina.partes[2];
 tabla /* ! Tabla */
   .iniciar();
 

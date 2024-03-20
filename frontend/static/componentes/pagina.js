@@ -305,7 +305,9 @@ class Encabezado {
 	render() {
 		return `<div id="encabezado">
 	<div id=encabezado-izquierdo>
-		<img src="/logo.png">
+		<a id="logo" href="/">
+			<img src="/logo.png">
+		</a>
 		<h1>FAQ UTN</h1>
 		<a href="/">Inicio</a>
 		<a href="/quienes-somos">Quiénes Somos</a>

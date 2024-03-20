@@ -1,13 +1,33 @@
 #administrar-usuarios{
-	width: calc(100% - 6rem);
-  margin: 1rem 3rem;
-
+	width: 100%;
+  	// margin: 0.5rem;
+	font-size: 14px;
 	thead{
 		background: #ECECEC;
 
 		th:first-child{
-			width: 35%;
+			position: sticky;
+			left: 0;
+			background: #ECECEC;
+			z-index: 10;
+			border-right: 2px solid #f2f2f2;
 		}
+	}
+	tbody tr{
+		border: 1px solid #f2f2f2
+	}
+	tbody td:first-child{
+		z-index: 10;
+		position: sticky;
+		left: 0;
+		background: white;
+		border-right: 2px solid #f2f2f2;
+	}
+	tbody tr:nth-child(2n){
+		background-color: #f2f2f2;
+	}
+	tbody tr:nth-child(2n) .sticky{
+		background-color: #f2f2f2;
 	}
 
 	thead th,tbody td{
@@ -30,7 +50,7 @@
 		color: white;
 		border-radius: 16px;
 		padding: 4px 1.5rem;
-		margin-top: 10px;
+		// margin-top: 10px;
 	}
 	.descripcion{
 		color:grey;

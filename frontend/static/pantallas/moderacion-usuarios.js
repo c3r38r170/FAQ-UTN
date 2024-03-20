@@ -1,4 +1,4 @@
-import { Pagina, Titulo, Formulario, Tabla, Fecha, ChipUsuario, Modal, Busqueda } from '../componentes/todos.js'
+import { Pagina, Titulo, Formulario, Tabla, Fecha, ChipUsuario, Modal, Busqueda, ComponenteLiteral } from '../componentes/todos.js'
 
 function crearPantalla(ruta, sesion, query = "") {
 	let tabla = new Tabla('moderacion-usuarios', '/api/usuario?reportados=1&searchInput=' + query, [
@@ -22,6 +22,8 @@ function crearPantalla(ruta, sesion, query = "") {
 			celda: (usu) => `<div class="field"><input type="checkbox" value="${usu.DNI}" id="bloqueo-${usu.DNI}" class="switch" ${usu.bloqueosRecibidos?.length ? 'checked' : ''}><label for="bloqueo-${usu.DNI}"></label></div>`
 		}
 	]/* ,usuariosReportados */);
+	let contenedor1 = new ComponenteLiteral(()=> `<div class="contenedor-tabla">`)
+  	let contenedor2 = new ComponenteLiteral(()=> `</div>`)
 	let pagina = new Pagina({
 		ruta: ruta,
 		titulo: 'Moderación - Usuarios Reportados',
@@ -48,7 +50,9 @@ function crearPantalla(ruta, sesion, query = "") {
 			// ,
 			new Modal('Bloquear usuario', 'moderacion-usuarios-modal'), // * El título se va cambiando.
 			new Busqueda(),
-			tabla
+			contenedor1,
+			tabla,
+			contenedor2,
 		]
 	});
 	return pagina;

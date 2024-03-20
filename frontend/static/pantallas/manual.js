@@ -90,14 +90,136 @@ function crearPagina(ruta,usuario) {
 			);
 		}
 		if(usuario.perfil.permiso.ID>=2){// * Moderador
-			partesManual.push(new ComponenteLiteral(()=>{}));
-			// Moderar usuarios
-			// Moderar preguntas y respuestas
+			partesManual.push(
+				// Moderar usuarios
+				new Titulo('h2',5,'Moderar usuarios','mt-5','moderar-usuarios')
+				,new ComponenteLiteral(()=>formatearParrafos(
+					`Los usuarios moderadores tienen la capacidad de bloquear o desbloquear cuentas según sea necesario.
+					Si necesitás moderar a algún usuario podés visitar <a href="/moderacion/usuarios">Moderación de usuarios</a> o dirigirte al link "Moderación > Usuarios" en la barra de navegación izquierda.
+					Ahí vas a encontrar una tabla con los usuarios reportados.
+					<img srcset="tabla-moderacion-usuarios.png 1.4x">
+					En esta tabla, verás la siguiente información sobre cada usuario:
+					<div class="content">
+						<ul>
+							<li>Nombre de Usuario: El nombre del usuario en el sistema.</li>
+							<li>Cantidad de Reportes: Número de veces que ha sido reportado.</li>
+							<li>Último reporte: La fecha y hora del último reporte recibido.</li>
+							<li>Bloqueado: Podés ver el estado en que se encuentra el usuario.</li>
+						</ul>
+					</div>
+					Si accionas en bloquear a un usuario aparecerá un cartel modal para que indiques el motivo de bloqueo del usuario y así podrás registrar el bloqueo.
+					<img srcset="motivo-bloqueo-usuario.png 1.4x">
+					Por otro lado si quieres desbloquear un usuario que se encuentra bloqueado podrás indicar el motivo de desbloqueo  y así de esta manera registrar el desbloqueo.
+					<img srcset="motivo-desbloqueo-usuario.png 1.4x">`
+				)),
+				// Moderar preguntas y respuestas
+				new Titulo('h2',5,'Moderar Preguntas y Respuestas','mt-5','moderar-posts')
+				,new ComponenteLiteral(()=>formatearParrafos(
+					`Para acceder al panel de <a href="/moderacion/preguntas-y-respuestas">Moderación de Preguntas y Respuestas</a> podés dirigirte al link "Moderación > Preguntas y Respuestas" en la barra de navegación izquierda.
+					Ahí vas a encontrar una tabla con los posts reportados.
+					<img srcset="tabla-moderacion-preguntas-y-respuestas.png 1.4x">
+					En esta tabla, verás la siguiente información sobre cada Post:
+					<div class="content">
+						<ul>
+							<li>Post: El post reportado. Puede ser o una Pregunta o una Respuesta.</li>
+							<li>Reportes: Fecha del último reporte y el número de veces que ha sido reportado.</li>
+							<li>Acciones: Hay 2 acciones disponibles. Unificar en el caso de que sea una Pregunta o Eliminar.</li>
+						</ul>
+					</div>
+					Si accionas en Eliminar un Post aparecerá un cartel modal pidiendo una confirmación para la eliminación del post.
+					<img srcset="eliminar-post.png 1.4x">
+					Por otro lado el modal de Unificar será parecido al siguiente y te permitira seleccionar de una lista, una pregunta de otro usuario para poder unificar las dos preguntas en cuestión. Esto permite que el contenido del sitio no sea redundante.
+					<img srcset="unificar-pregunta.png 1.4x">`
+				))
+			
+			);
+			
+			
 		}
 		if(usuario.perfil.permiso.ID>=3){// * Administrador
 			partesManual.push(
+				// Administrar los 4 son iguales
+				new Titulo('h2',5,'Administración','mt-5','administracion')
+				,new ComponenteLiteral(()=>formatearParrafos(
+					`Como administrador, tenés privilegios adicionales que te permiten gestionar las siguientes entidades:
+					<div class="content">
+						<ul>
+							<li>Perfiles: Son los perfiles a los que puede estar asociado un usuario y cuentan con diferentes niveles de Permisos.
+								<ul>
+									<li>Agregar un nuevo Perfil</li>
+									<li>Editar un Perfil existente</li>
+									<li>Habilitar/Deshabilitar un Perfil existente</li>
+								</ul>		
+							</li>
+							<li>Usuarios: Los usuarios son la piedra angular de nuestra comunidad en línea. Cada usuario contribuye al intercambio de información, discusiones y colaboración en nuestro sitio web, creando así una experiencia enriquecedora y dinámica para todos los miembros.
+								<ul>
+									<li>Agregar un nuevo Usuario</li>
+									<li>Editar un Usuario existente</li>
+									<li>Bloquear/Desbloquear un Usuario existente</li>
+								</ul>	
+							</li>
+							<li>Categorías: Las categorías son una forma de organizar y clasificar el contenido relacionado. Cada Categoría puede tener varias etiquetas asociadas a ella.
+								<ul>
+									<li>Agregar una nueva Categoría</li>
+									<li>Editar una Categoría existente</li>
+									<li>Habilitar/Deshabilitar una Categoría existente</li>
+								</ul>	
+							</li>
+							<li>Etiquetas: Las etiquetas son términos más específicos que se utilizan para etiquetar el contenido dentro de una categoría.
+								<ul>
+									<li>Agregar una nueva Etiqueta</li>
+									<li>Editar una Etiqueta existente</li>
+									<li>Habilitar/Deshabilitar una Etiqueta existente</li>
+								</ul>	
+							</li>
+						</ul>
+					</div>`
+				)),
+				new Titulo('h2',5,'Administrar Perfiles','mt-5','administracion-perfiles'),
+				new ComponenteLiteral(()=>formatearParrafos(
+					`En <a href="/administracion/perfiles">Administración de Perfiles</a> vas a encontrar la siguiente tabla:
+					<img srcset="perfiles.png 1.4x">
+					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar un Perfil.
+					Para crear un Perfil nuevo presiona el botón 'Agregar' al final de la tabla.
+					<img srcset="agregar.png 1.4x">
+					Y completa el formulario:
+					<img srcset="agregar-perfil.png 1.4x">
+					`
+				)),
+				new Titulo('h2',5,'Administrar Usuarios','mt-5','administracion-usuarios'),
+				new ComponenteLiteral(()=>formatearParrafos(
+					`En <a href="/administracion/usuarios">Administración de Usuarios</a> vas a encontrar la siguiente tabla:
+					<img srcset="tabla-usuarios.png 1.4x">
+					Ahí podes accionar en el boton Editar, o en el toggle switch para Bloquear/Desbloquear un Usuario.
+					Para crear un Usuario nuevo presiona el botón 'Agregar' al final de la tabla.
+					<img srcset="agregar.png 1.4x">
+					Y completa el formulario:
+					<img srcset="agregar-usuario.png 1.4x">
+					`
+				)),
+				new Titulo('h2',5,'Administrar Categorías','mt-5','administracion-categorias'),
+				new ComponenteLiteral(()=>formatearParrafos(
+					`En <a href="/administracion/categorias">Administración de Categorías</a> vas a encontrar la siguiente tabla:
+					<img srcset="tabla-categorias.png 1.4x">
+					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar una Categoría.
+					Para crear una Categoría nueva presiona el botón 'Agregar' al final de la tabla.
+					<img srcset="agregar.png 1.4x">
+					Y completa el formulario correspondiente.
+					`
+				)),
+				new Titulo('h2',5,'Administrar Etiquetas','mt-5','administracion-etiquetas'),
+				new ComponenteLiteral(()=>formatearParrafos(
+					`En <a href="/administracion/etiquetas">Administración de Etiquetas</a> vas a encontrar la siguiente tabla:
+					<img srcset="tabla-etiquetas.png 1.4x">
+					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar una Etiqueta.
+					Para crear una Etiqueta nueva presiona el botón 'Agregar' al final de la tabla.
+					<img srcset="agregar.png 1.4x">
+					Y completa el formulario correspondiente.
+					`
+				))
+				
 				// * Descripción de los parámetros
-				new Titulo('h2',5,'Parámetros','','encabezado-parametros')
+				,new Titulo('h2',5,'Parámetros','','encabezado-parametros')
 				,new ComponenteLiteral(()=>/* formatearParrafos( */
 					`<p>Finalmente, hay disponibles una serie de parámetros que dictan cómo funciona la aplicación. A continuación, facilitamos una descripción de cada parámetro y lo que afecta, junto con sus valores predeterminados.</p>
 					<p>Los parámetros sobre la Inteligencia Artificial tienen en cuenta que el servicio remoto responderá con un número entre 0 y 100 al contenido que se le envía (cada pregunta y respuesta), donde 0 es completamente inapropiado y 100 es completamente permitible, sin aceptar insultos.</p>
@@ -111,18 +233,15 @@ function crearPagina(ruta,usuario) {
 					`
 				/* ) */)
 			);
-			// Administrar los 4 son iguales
-				// La busqueda en usuarios
 		}
 	}
-	
+
 	let tablaDeContenidos='<li><big>Tabla de Contenidos.</big></li>';
 	for(let e of partesManual){
 		if(e.titulo){ // * E' `Título`.
 			tablaDeContenidos+=`<li><a href="#${e.id}">${e.titulo}</a></li>`;
 		}
 	}
-
 	// TODO Refactor: Hubiera estado bueno poder usar Boton acá.
 	partesManual.push(new ComponenteLiteral(()=>'<a href="/" class="button is-link is-rounded">Volver al inicio</a>'));
 

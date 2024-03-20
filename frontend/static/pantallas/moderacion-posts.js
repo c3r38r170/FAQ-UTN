@@ -38,14 +38,17 @@ function crearPantalla(ruta, sesion, query = "") {
 			, clases: ['botones', 'centrado']
 		}
 	]);
-
+	let contenedor1 = new ComponenteLiteral(()=> `<div class="contenedor-tabla">`)
+	let contenedor2 = new ComponenteLiteral(()=> `</div>`)
 	let pagina = new Pagina({
 		ruta: ruta,
 		titulo: 'Moderación - Preguntas y Respuestas Reportadas',
 		sesion,
 		partes: [
 			new Busqueda(),
-			tabla
+			contenedor1,
+			tabla,
+			contenedor2
 			, new Modal('Moderar preguntas y respuestas', 'moderacion-posts-modal') // * El título se va cambiando.
 		]
 	});

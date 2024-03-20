@@ -132,7 +132,7 @@ router.get("/", function (req, res) {
       [Sequelize.Op.or]: [
         { DNI: { [Sequelize.Op.substring]: req.query.searchInput } },
         { nombre: { [Sequelize.Op.substring]: req.query.searchInput } },
-        { '$perfil.nombre$': { [Sequelize.Op.startsWith]: req.query.searchInput } }
+        { '$perfil.descripcion$': { [Sequelize.Op.startsWith]: req.query.searchInput } }
       ]
     };
     opciones.where = where;

@@ -7,7 +7,7 @@ let pagina = PantallaAdministracionUsuarios(location.pathname, {
   usuario: window.usuarioActual,
 }, location.search.split('=')[1]);
 let modal = pagina.partes[0];
-let tabla = pagina.partes[2];
+let tabla = pagina.partes[3];
 tabla /* ! Tabla */
   .iniciar();
 
@@ -80,7 +80,7 @@ gEt("administrar-usuarios").onclick = (e) => {
     options.json().then((options) => {
       options.forEach((option) => {
         var o = document.createElement("option");
-        o.text = option.nombre;
+        o.text = option.descripcion;
         o.value = option.ID;
         if(usuarioElegido.perfil)
             if (option.ID == usuarioElegido.perfil.ID) {
@@ -154,7 +154,7 @@ gEt("botonAgregar").onclick = (e) => {
     options.json().then((options) => {
       options.forEach((option) => {
         var o = document.createElement("option");
-        o.text = option.nombre;
+        o.text = option.descripcion;
         o.value = option.ID;
         select.add(o);
       });

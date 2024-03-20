@@ -100,7 +100,7 @@ class Navegacion {
                 ),
                 // TODO UX: El nav no está listo para esto. Además, según las opciones se agranda y se achica. Darle un formato consistente. Quizá achicar los laterales incluso.
                 new EnlaceNavegacion(
-                  "Preguntas y Respuestas",
+                  "Preguntas <br>y Respuestas",
                   { tipo: "solid", nombre: "circle fa-sm" },
                   "/moderacion/preguntas-y-respuestas"
                 ),
