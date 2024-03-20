@@ -6,7 +6,6 @@ function formatearParrafos(texto){
 
 function crearPagina(ruta,usuario) {
 	// ! En las imagenes se usa srcset="{direccion} {escala}" para hacer que las imágenes tengan un porcentaje de su tamaño original.
-	// TODO UX: Tabla de contenidos.
 	// TODO UX: h2 o h3?
 	let partesManual=[
 		new Titulo('h2',5,'Uso regular del sitio'),
@@ -57,9 +56,19 @@ function crearPagina(ruta,usuario) {
 				// Reportes
 				,new Titulo('h2',5,'Reportando contenido')
 				,new ComponenteLiteral(()=>formatearParrafos(
-					``
+					// TODO UX: Ver cómo otras páginas tratan este tema; usar su vocabulario.
+					`Si ves algún mal comportamiento, y ante faltas de respeto o mensajes fuera de lugar, podés reportarlo con el menú al que se accede a través de los 3 puntos en la parte superior derecha de cada pregunta / respuesta.
+					<img srcset="formulario-reporte.png 1.4x">
+					Otra opción disponible, como se ve en la imagen, es la de reportar <b><u>preguntas</u> repetidas</b>. Esto es importante para mantener la información en un solo lugar, y no repetirla o peor, tener información errónea u obsoleta que pueda ser encontrada y usada por otros usuarios. El equipo de moderadores va a revisar los reportes, y decidir si unficar la pregunta es necesario o no.`
 				))
 				// Suscripciones
+				,new Titulo('h2',5,'Suscripciones')
+				,new ComponenteLiteral(()=>formatearParrafos(
+					`Al lado del botón de 3 puntos, está el botón de "Suscribirse". Al apretar este botón, serás notificado de cada nuevo comentario sobre esa pregunta. Al suscribirte, el botón cambia para ofrecer la opción de desuscripción. El día que esa pregunta ya no sea de relevancia, podrás desuscribirte para dejar de recibir las actualizaciones.
+					
+					Cada vez que hacés una pregunta, automáticamente el sistema te suscribe a ella. Siempre vas a tener la opción de desuscribirte, incluso en tus propias respuestas.`
+				))
+				//Notificaciones
 				// Perfiles
 			);
 		}
@@ -75,6 +84,8 @@ function crearPagina(ruta,usuario) {
 			// Descripción de los parámetros
 		}
 	}
+	
+	// TODO UX: Tabla de contenidos. Mapear los títulos.
 
 	// TODO Refactor: Hubiera estado bueno poder usar Boton acá.
 	partesManual.push(new ComponenteLiteral(()=>'<a href="/" class="button is-link is-rounded">Volver al inicio</a>'));

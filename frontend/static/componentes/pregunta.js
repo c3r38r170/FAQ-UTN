@@ -31,16 +31,18 @@ class Pregunta {
             this.#instanciaModal = instanciaModal;
             this.#usuarioActual = sesion?.usuario;
             // ! El post viene sin votos cuando se trata de una representación sin interacciones en la moderación (ni controles de votación, ni de suscripción).
-            if ((post.votos && this.#usuarioActual) || !sesion?.usuario && post.votos) {
+            if (post.votos /* && (this.#usuarioActual || !sesion?.usuario) */) {
+                // if ((post.votos && this.#usuarioActual) || !sesion?.usuario && post.votos) {
                 this.#chipValoracion = new ChipValoracion({
                     ID
                     , votos: post.votos
                     , usuarioActual: sesion
                     , duenio: post.duenio
                 });
-                if (suscripciones && sesion?.usuarioActual) {
+                console.log(ID,suscripciones?.length);
+                if (suscripciones /* && sesion?.usuarioActual */) {
                     if (!Array.isArray(suscripciones)) suscripciones = [suscripciones]
-                    this.#estaSuscripto = suscripciones.some(sus => sus.suscripto.DNI == this.#usuarioActual.DNI);
+                    this.#estaSuscripto = suscripciones.some(sus => sus.suscriptoDNI == this.#usuarioActual.DNI);
                 }
                 // TODO Refactor: Que ni vengan las suscripciones que estén dadas de baja (no chequear que fecha_baja == null). fecha_baja es una eliminación suave.
             }

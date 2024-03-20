@@ -47,20 +47,21 @@ router.get("/", (req, res) => {
   // console.log(req.query);
   let etiquetas = req.query.etiquetas;
   let texto = req.query.searchInput;
+  let parametros={usuarioActual:req.session.usuario};
   if (texto || etiquetas) {
     let queryString = req.url.substring(req.url.indexOf("?"));
 
-    let parametrosBusqueda = { filtrar: {} };
+    parametros.filtrar={};
     if (texto) {
-      parametrosBusqueda.filtrar.texto = texto;
+      parametros.filtrar.texto = texto;
     }
     if (etiquetas) {
-      parametrosBusqueda.filtrar.etiquetas = Array.isArray(etiquetas) ? etiquetas : [etiquetas];
+      parametros.filtrar.etiquetas = Array.isArray(etiquetas) ? etiquetas : [etiquetas];
     }
 
     Promise.all([
       // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-      PreguntaDAO.pagina(parametrosBusqueda)
+      PreguntaDAO.pagina(parametros)
       , consultaCategorias
     ])
       .then(([preguntas, categorias]) => {
@@ -74,7 +75,7 @@ router.get("/", (req, res) => {
     // * Inicio regular.
     Promise.all(
       [
-        PreguntaDAO.pagina()
+        PreguntaDAO.pagina(parametros)
         , Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas' } })
       ]
     )
@@ -90,7 +91,6 @@ router.get("/", (req, res) => {
 
 // * Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) => {
-
   // TODO Feature: En caso de que sea una pregunta borrada, no permitir a menos que se tengan permisos de moderación, o administración.
 
   try {
@@ -250,7 +250,6 @@ router.get("/pregunta/:id?", async (req, res) => {
     res.status(500).send("Error interno del servidor");
   }
 });
-
 
 router.get("/suscripciones", (req, res) => {
   try {
@@ -477,6 +476,7 @@ router.get("/perfil/respuestas", (req, res) => {
 router.get("/perfil/:DNI?", async (req, res) => {
   //pagina error
   let paginaError = SinPermisos(req.session, "Algo ha malido sal.")
+  let usuarioActual;
   if (req.params.DNI) {
     if (req.session.usuario) {
       if (req.session.usuario.DNI == req.params.DNI) {
@@ -497,19 +497,19 @@ router.get("/perfil/:DNI?", async (req, res) => {
         return;
       }
 
+      usuarioActual=req.session.usuario;
     }
     
     let usu = await UsuarioDAO.findByPk(req.params.DNI, {
       include: PerfilDAO,
     });
     if (!usu) {
-      //no existe el usuario buscado
+      // * no existe el usuario buscado
       res.send(paginaError.render());
       return;
     }
-    //Perfil ajeno
-    let filtro = { duenioID: null };
-    filtro.duenioID = usu.DNI;
+    // * Perfil ajeno
+    let filtro = { duenioID: usu.DNI , usuarioActual};
     // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
     let pre = await PreguntaDAO.pagina(filtro);
     let pagina = PaginaPerfil(req.path, req.session, usu);

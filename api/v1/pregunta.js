@@ -26,7 +26,7 @@ import { getModera, getRechazaPost, getReportaPost } from "./parametros.js";
 router.get("/", (req, res) => {
     // TODO Feature: Aceptar etiquetas.
   
-    let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto!==undefined };
+    let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto!==undefined, usuarioActual:req.session?.usuario };
   
     // TODO Refactor: DRY
     if (req.query.searchInput) {

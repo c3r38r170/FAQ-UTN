@@ -16,17 +16,22 @@ import { getPaginacion } from "./parametros.js";
 
 const router = express.Router();
 
-// TODO Refactor: "suscripcion"? Todos los demás endpoints están en singular.
 router.get('/', function (req, res) {
-	//TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja. fecha_baja, ver si conviene volver a las relaciones como antes...
-
-	// TODO Feature Poner en Pregunta.pagina para tener también las suscripciones (aca hace falta?? sabemos que todas estas lo incluyen, quizá poner en el frontend. Esto haría un parámetro de si hacen falta los votos o no)
-	// TODO Feature Usar Pregunta.pagina para tener todos los datos unificados, como los votos
-	// TODO Feature faltan la cantidad de respuestas
+	// TODO Feature Poner en Pregunta.pagina para tener también las suscripciones (aca hace falta?? sabemos que todas estas lo incluyen, quizá poner en el frontend. Esto haría un parámetro de si hacen falta los votos o no (las suscripciones*?))
+		// TODO Feature Usar Pregunta.pagina para tener todos los datos unificados, como los votos
+		// TODO Feature faltan la cantidad de respuestas
 
 	const pagina = req.query.pagina || 0;
 	let PAGINACION = getPaginacion();
-	Pregunta.findAll({
+	/* pagina = 0, duenioID, filtrar, formatoCorto, usuarioActual */
+	// ! No hace falta usuarioActual para las suscripciones, esto
+	Pregunta.pagina({
+		pagina,
+		usuarioActual:req.session.usuario,
+		// duenioID:
+		filtrar:{suscripciones:true}
+	})
+	/* Pregunta.findAll({
 		attributes: ["ID", "titulo", "fecha"],
 		include: [
 			{
@@ -79,7 +84,7 @@ router.get('/', function (req, res) {
 		order: [[Post, 'fecha', 'DESC']],
 		limit: PAGINACION.resultadosPorPagina,
 		offset: (+pagina) * PAGINACION.resultadosPorPagina,
-	})
+	}) */
 		.then((suscripciones) => {
 			res.status(200).send(suscripciones);
 		})
