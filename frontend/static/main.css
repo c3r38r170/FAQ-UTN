@@ -315,13 +315,17 @@ div.notificacion div.noti-container .fecha {
   font-weight: 300;
   display: inline-block;
 }
+.pregunta a {
+  display: inline;
+}
 .pregunta .titulo {
   margin-left: 0.2rem;
   color: #383838;
   font-size: 1.1rem;
   line-height: 2;
   font-weight: 700;
-  display: block;
+  display: inline-block;
+  width: calc(85% - 20px);
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -335,6 +339,8 @@ div.notificacion div.noti-container .fecha {
   font-weight: 500;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  display: inline-block;
+  width: calc(85% - 20px);
 }
 .pregunta .cantRespuestas {
   margin-top: 1rem;
@@ -440,7 +446,7 @@ footer#footer #footer-enlaces-externos a:hover {
   text-align: center;
   width: 10%;
   float: left;
-  margin-bottom: 1.5rem;
+  margin-right: 20px;
 }
 .chip-valoracion button {
   padding: 0;
