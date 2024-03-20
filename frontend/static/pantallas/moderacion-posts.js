@@ -2,6 +2,9 @@ import { Pagina, Titulo, Formulario, Tabla, Fecha, ChipUsuario, Modal, Respuesta
 
 function crearPantalla(ruta, sesion, query = "") {
 	let usp = new URLSearchParams(query);
+	if (query == "") {
+		query = "?searchInput=";
+	}
 	let tabla = new Tabla('moderar-posts', '/api/post/reporte' + query, [
 		{
 			nombre: 'Post'

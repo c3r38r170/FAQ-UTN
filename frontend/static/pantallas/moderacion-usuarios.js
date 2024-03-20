@@ -2,7 +2,9 @@ import { Pagina, Titulo, Formulario, Tabla, Fecha, ChipUsuario, Modal, Busqueda 
 
 function crearPantalla(ruta, sesion, query = "") {
 	let usp = new URLSearchParams(query);
-	console.log(query)
+	if (query == "") {
+		query = "?searchInput=";
+	}
 	let tabla = new Tabla('moderacion-usuarios', '/api/usuario' + query + "&reportados=1", [
 		{
 			nombre: 'Usuario',
