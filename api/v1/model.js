@@ -748,6 +748,14 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
           },
           separate: true,
         },
+        /*{//delira al agregarlo con duenio.dni y post fecha
+          model: SuscripcionesPregunta
+          , as: 'suscripciones'
+          , where: {
+            fecha_baja: null, // * Vigentes
+            suscriptoDNI: duenioID
+          }
+        }*/
       ],
       attributes: {
         include: [
@@ -1000,6 +1008,15 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
         },
         separate: true,
       },
+      {
+        model: SuscripcionesPregunta
+        , as: 'suscripciones'
+        , include: { model: Usuario, as: 'suscripto' }
+        , where: {
+          fecha_baja: null, // * Vigentes
+        }
+        , required: false
+      }
     ],
     attributes: {
       include: [
@@ -1084,6 +1101,15 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         },
         separate: true,
       },
+      {
+        model: SuscripcionesPregunta
+        , as: 'suscripciones'
+        , include: { model: Usuario, as: 'suscripto' }
+        , where: {
+          fecha_baja: null, // * Vigentes
+        }
+        , required: false
+      }
     ],
     attributes: {
       include: [
