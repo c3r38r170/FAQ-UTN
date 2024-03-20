@@ -64,9 +64,51 @@ function crearPagina(ruta,usuario) {
 			);
 		}
 		if(usuario.perfil.permiso.ID>=2){// * Moderador
-			partesManual.push(new ComponenteLiteral(()=>{}));
-			// Moderar usuarios
-			// Moderar preguntas y respuestas
+			partesManual.push(
+				// Moderar usuarios
+				new Titulo('h2',5,'Moderar usuarios')
+				,new ComponenteLiteral(()=>formatearParrafos(
+					`Los usuarios moderadores tienen la capacidad de bloquear o desbloquear cuentas según sea necesario.
+					Si necesitás moderar a algún usuario podés visitar <a href="/moderacion/usuarios">Moderación de usuarios</a> o dirigirte al link "Moderación > Usuarios" en la barra de navegación izquierda.
+					Ahí vas a encontrar una tabla con los usuarios reportados.
+					<img srcset="tabla-moderacion-usuarios.png 1.4x">
+					En esta tabla, verás la siguiente información sobre cada usuario:
+					<div class="content">
+						<ul>
+							<li>Nombre de Usuario: El nombre del usuario en el sistema.</li>
+							<li>Cantidad de Reportes: Número de veces que ha sido reportado.</li>
+							<li>Último reporte: La fecha y hora del último reporte recibido.</li>
+							<li>Bloqueado: Podés ver el estado en que se encuentra el usuario.</li>
+						</ul>
+					</div>
+					Si accionas en bloquear a un usuario aparecerá un cartel modal para que indiques el motivo de bloqueo del usuario y así podrás registrar el bloqueo.
+					<img srcset="motivo-bloqueo-usuario.png 1.4x">
+					Por otro lado si quieres desbloquear un usuario que se encuentra bloqueado podrás indicar el motivo de desbloqueo  y así de esta manera registrar el desbloqueo.
+					<img srcset="motivo-desbloqueo-usuario.png 1.4x">`
+				)),
+				// Moderar preguntas y respuestas
+				new Titulo('h2',5,'Moderar Preguntas y Respuestas')
+				,new ComponenteLiteral(()=>formatearParrafos(
+					`Para acceder al panel de <a href="/moderacion/preguntas-y-respuestas">Moderación de Preguntas y Respuestas</a> podés dirigirte al link "Moderación > Preguntas y Respuestas" en la barra de navegación izquierda.
+					Ahí vas a encontrar una tabla con los posts reportados.
+					<img srcset="tabla-moderacion-preguntas-y-respuestas.png 1.4x">
+					En esta tabla, verás la siguiente información sobre cada Post:
+					<div class="content">
+						<ul>
+							<li>Post: El post reportado. Puede ser o una Pregunta o una Respuesta.</li>
+							<li>Reportes: Fecha del último reporte y el número de veces que ha sido reportado.</li>
+							<li>Acciones: Hay 2 acciones disponibles. Unificar en el caso de que sea una Pregunta o Eliminar.</li>
+						</ul>
+					</div>
+					Si accionas en Eliminar un Post aparecerá un cartel modal pidiendo una confirmación para la eliminación del post.
+					<img srcset="eliminar-post.png 1.4x">
+					Por otro lado el modal de Unificar será parecido al siguiente y te permitira seleccionar de una lista, una pregunta de otro usuario para poder unificar las dos preguntas en cuestión. Esto permite que el contenido del sitio no sea redundante.
+					<img srcset="unificar-pregunta.png 1.4x">`
+				))
+			
+			);
+			
+			
 		}
 		if(usuario.perfil.permiso.ID>=3){// * Administrador
 			partesManual.push(new ComponenteLiteral(()=>{}));

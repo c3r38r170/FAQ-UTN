@@ -121,6 +121,7 @@ gEt('moderar-posts').onclick = (e) => {
               return;
             }
 
+
             let divFantasma = createElement('DIV');
             campoBusqueda.parentNode/* * `label` */.after(divFantasma);
             let desplinf = new DesplazamientoInfinito(
@@ -128,7 +129,7 @@ gEt('moderar-posts').onclick = (e) => {
               , endpointInicial/* * Se actualiza */
               , (pre) => {
                 if (pre.ID == reportadoID) {
-                  return;
+                  return '';
                 }
 
                 let pregunta = new Pregunta(pre).render();
@@ -136,8 +137,8 @@ gEt('moderar-posts').onclick = (e) => {
               }
               ,preguntas
               ,{
-                mensajeVacio:new MensajeInterfaz(MensajeInterfaz.INFORMACION,'No hay preguntas que coincidan.')
-                ,mensajeFinal:new ComponenteLiteral(()=>'')
+                mensajeFinal:new ComponenteLiteral(()=>''),
+                mensajeVacio:new MensajeInterfaz(MensajeInterfaz.INFORMACION,'No hay preguntas que coincidan.'),
               }
             );
             divFantasma.outerHTML = desplinf.render()

@@ -812,3 +812,19 @@ tbody td:first-child{
 	background: white;
 	border-right: 2px solid #f2f2f2;
 }
+
+#moderacion-posts-modal{
+
+	.modal-content{
+		height: 100%;
+		overflow-y: visible;
+		padding-bottom: 1rem;
+		.box{
+			height: 100%;
+			overflow: hidden;
+			overflow-y: scroll;
+			scroll-behavior: smooth;
+			padding-bottom: 1rem;
+		}
+	}
+}
