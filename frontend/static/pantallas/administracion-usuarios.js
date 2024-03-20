@@ -12,7 +12,8 @@ import {
 } from "../componentes/todos.js";
 //La primer pagina tiene un usuario menos ¿?
 function crearPantalla(ruta, sesion, query = "") {
-  let tabla = new Tabla("administrar-usuarios", "/api/usuario?searchInput=" + query, [
+  let usp = new URLSearchParams(query);
+  let tabla = new Tabla("administrar-usuarios", "/api/usuario" + query, [
     {
       nombre: "Nombre",
       celda: (usuario) =>
@@ -51,7 +52,7 @@ function crearPantalla(ruta, sesion, query = "") {
     sesion: sesion,
     partes: [
       new Modal("Eliminar Usuario", "modal-eliminar-usuario"),
-      new Busqueda(),
+      new Busqueda({ valorBusqueda: usp.get('searchInput') }),
       contenedor1,
       tabla,
       contenedor2,

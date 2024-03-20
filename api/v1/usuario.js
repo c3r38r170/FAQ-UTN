@@ -215,7 +215,7 @@ router.post("/", (req, res) => {
         return res.status(400).send("El Usuario ya se encuentra registrado");
       }
       return SYSACAD.obtenerDatosPorDNI(DNI);
-    }).then((encontrado)=>{
+    }).then((encontrado) => {
       if (!encontrado) {
         return res.status(404).send("El DNI especificado no se encuentra en la base de datos de la facultad.");
       }
@@ -253,9 +253,9 @@ router.post("/", (req, res) => {
             include: Permiso,
           }, Carrera]
         }))
-        .then(usuarioCompleto=>{
-          if(!req.session.usuario)
-            req.session.usuario=usuarioCompleto;
+        .then(usuarioCompleto => {
+          if (!req.session.usuario)
+            req.session.usuario = usuarioCompleto;
           res.status(200).send();
         });
     })
@@ -282,7 +282,7 @@ router.post("/contrasenia", function (req, res) {
       DNI: req.body.DNI,
       correo: req.body.correo
     }
-    ,limit:1
+    , limit: 1
   }).then((usu) => {
     if (!usu[0]) {
       res.status(404).send("DNI inexistente");
@@ -331,7 +331,7 @@ router.post("/:DNI/reporte", function (req, res) {
               re.usuarioReportanteDNI = req.session.usuario.DNI;
               re.createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
               return re.save();
-            }else{
+            } else {
               // ?? ReportesUsuario.ReportesUsuario.
               return ReportesUsuario.
                 ReportesUsuario.create({
@@ -340,7 +340,7 @@ router.post("/:DNI/reporte", function (req, res) {
                 });
             }
           })
-          .then(()=>{
+          .then(() => {
             res.status(201).send("Reporte registrado");
           })
         return;
@@ -463,7 +463,7 @@ router.patch("/contrasenia", function (req, res) {
         return;
       }
       res.status(402).send("Contraseña anterior no válida")
-      })
+    })
     .catch((err) => {
       res.status(500).send(err.message);
     });
@@ -480,7 +480,7 @@ router.patch("/mail", function (req, res) {
         return;
       }
       res.status(402).send("Contraseña anterior no válida")
-      })
+    })
     .catch((err) => {
       res.status(500).send(err.message);
     });

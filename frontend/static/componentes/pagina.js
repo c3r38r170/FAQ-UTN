@@ -1,11 +1,4 @@
-// TODO Refactor: Chupar todo de todos.js
-import { Modal } from "./modal.js";
-import { Boton } from "./boton.js";
-import { Breadcrumb } from "./breadcrumb.js";
-import { Navegacion } from "./navegacion.js";
-import { Notificacion } from "./notificacion.js";
-import { Formulario } from './formulario.js';
-import { ChipUsuario,DesplazamientoInfinito,MensajeInterfaz,Titulo } from './todos.js'
+import { ChipUsuario, DesplazamientoInfinito, MensajeInterfaz, Titulo, Formulario, Notificacion, Navegacion, Breadcrumb, Boton, Modal } from './todos.js'
 
 // TODO Feature: Tirar errores en los constructores con parámetros necesarios 
 // TODO Refactor: Cambiar a Pantalla. Colisiona con el concepto de página de los modelos.
@@ -13,11 +6,11 @@ class Pagina {
 	/* Idealmente, quizá la página podría serializarse, incluirse en las globales, y deserializarse en el frontend. Un ejemplo de algo que nos permitiría esto sería https://github.com/erossignon/serialijse (aunque no parece soportar las propiedades privadas)
 	De esta manera nos ahorramos la carpeta pantallas, y el archivo de visibilizar-clases. */
 
-  #ruta='';
-  titulo ='';
-  #sesion;
-  partes = [];
-	columnaNotificaciones=[];
+	#ruta = '';
+	titulo = '';
+	#sesion;
+	partes = [];
+	columnaNotificaciones = [];
 	// * Globales para el JS del frontend
 	globales = {};
 	/* ! Notificaciones:{
@@ -45,15 +38,15 @@ class Pagina {
 		if (sesion.usuario) {
 			this.columnaNotificaciones = [
 				// elemento = 'h1', clave, titulo, clases,id
-				new Titulo('h2', 5,'<i class="fa-regular fa-bell mr-2"></i> Notificaciones','','notificacion-titulo')
-				,new DesplazamientoInfinito(
+				new Titulo('h2', 5, '<i class="fa-regular fa-bell mr-2"></i> Notificaciones', '', 'notificacion-titulo')
+				, new DesplazamientoInfinito(
 					'notificaciones-di'
-					,'/api/notificacion'
-					,n=>(new Notificacion(n.ID,n, sesion.usuario.DNI)).render()
-					,null // * Entidades iniciales.
-					,{
-						mensajeVacio:new MensajeInterfaz(MensajeInterfaz.INFORMACION,'Todavía no tenés notificaciones.')
-						,mensajeFinal:new MensajeInterfaz(MensajeInterfaz.GRIS,'Esas son todas las notificaciones.')
+					, '/api/notificacion'
+					, n => (new Notificacion(n.ID, n, sesion.usuario.DNI)).render()
+					, null // * Entidades iniciales.
+					, {
+						mensajeVacio: new MensajeInterfaz(MensajeInterfaz.INFORMACION, 'Todavía no tenés notificaciones.')
+						, mensajeFinal: new MensajeInterfaz(MensajeInterfaz.GRIS, 'Esas son todas las notificaciones.')
 					}
 				)
 			];
@@ -64,7 +57,7 @@ class Pagina {
 	// * Pagina.render solo se va a llamar desde el backend.
 	render() {
 		// * Quita los identificadores de las rutas, y los reemplaza por "viendo"
-		let rutaRecursos = '/' + this.#ruta.split('/').reduce((rR,parte) => parte? rR+'-'+((/[0-9]/.test(parte)) ? 'viendo' : parte) : rR,'').substring(1);
+		let rutaRecursos = '/' + this.#ruta.split('/').reduce((rR, parte) => parte ? rR + '-' + ((/[0-9]/.test(parte)) ? 'viendo' : parte) : rR, '').substring(1);
 		// console.log(rutaRecursos,'/' + this.#ruta.split('/').map(parte => (/[0-9]/.test(parte)) ? 'viendo' : parte).join('-'));
 
 		// TODO Feature: Meta properties. https://es.stackoverflow.com/questions/66388/poner-una-imagen-de-preview-y-t%C3%ADtulo-en-mi-p%C3%A1gina-para-que-se-visualice-en-face
@@ -106,8 +99,8 @@ class Pagina {
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
-				${new Titulo('h1',4,this.titulo,'ml-3rem','titulo-principal').render()}
-				${ this.partes? this.partes.map((p) => p.render()).join("") : ''}
+				${new Titulo('h1', 4, this.titulo, 'ml-3rem', 'titulo-principal').render()}
+				${this.partes ? this.partes.map((p) => p.render()).join("") : ''}
 				
 			</div>
 			<div id="columna-3" class="column is-4">
@@ -257,9 +250,9 @@ class Encabezado {
 				, '/api/usuario'
 				, [
 					// TODO Feature: Sanitizar DNIs en el backend
-					{ name:'DNI', textoEtiqueta:'D.N.I.<br><small>(sin puntos)</small>', type: 'text' },
-					{ name:'correo', textoEtiqueta:'Correo electrónico <br><small>(opcional, ignorar para usar el registrado en la UTN, se puede cambiar luego)</small>', type: 'email', required:false },
-					{name:'contrasenia', textoEtiqueta:'Contraseña', type: 'password' }
+					{ name: 'DNI', textoEtiqueta: 'D.N.I.<br><small>(sin puntos)</small>', type: 'text' },
+					{ name: 'correo', textoEtiqueta: 'Correo electrónico <br><small>(opcional, ignorar para usar el registrado en la UTN, se puede cambiar luego)</small>', type: 'email', required: false },
+					{ name: 'contrasenia', textoEtiqueta: 'Contraseña', type: 'password' }
 				]
 				, this.procesarRegistro
 				, { textoEnviar: 'Ingresar', verbo: 'POST', clasesBoton: 'is-link is-rounded mt-3' }

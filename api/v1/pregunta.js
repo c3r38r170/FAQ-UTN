@@ -19,76 +19,76 @@ const router = express.Router();
 import { getModera, getRechazaPost, getReportaPost } from "./parametros.js";
 
 router.get("/", (req, res) => {
-    // TODO Feature: Aceptar etiquetas.
-  
-    let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto!==undefined, usuarioActual:req.session?.usuario };
-  
-    // TODO Refactor: DRY
-    if (req.query.searchInput) {
-      parametros.filtrar.texto = req.query.searchInput;
-    }
-    
-    if(req.query.etiquetas){
-      parametros.filtrar.etiquetas=Array.isArray(req.query.etiquetas)?req.query.etiquetas:[req.query.etiquetas];
-    }
+  // TODO Feature: Aceptar etiquetas.
 
-    Pregunta.pagina(parametros)
-      .then((preguntas) => {
-          res.status(200).send(preguntas);
-      })
-      .catch((err) => {
-        res.status(500).send(err.message);
-      });
-});
-  
-  router.patch("/", function (req, res) {
-    Pregunta.findByPk(req.body.ID, {
-      include: [
-        Post
-        , {
-          model: EtiquetasPregunta,
-          as:'etiquetas',
-        }
-      ],
+  let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto !== undefined, usuarioActual:req.session?.usuario};
+
+  // TODO Refactor: DRY
+  if (req.query.searchInput) {
+    parametros.filtrar.texto = req.query.searchInput;
+  }
+
+  if (req.query.etiquetas) {
+    parametros.filtrar.etiquetas = Array.isArray(req.query.etiquetas) ? req.query.etiquetas : [req.query.etiquetas];
+  }
+
+  Pregunta.pagina(parametros)
+    .then((preguntas) => {
+      res.status(200).send(preguntas);
     })
-      .then((pregunta) => {
-        if (!pregunta) {
-          res.status(404).send("Pregunta no encontrada");
+    .catch((err) => {
+      res.status(500).send(err.message);
+    });
+});
+
+router.patch("/", function (req, res) {
+  Pregunta.findByPk(req.body.ID, {
+    include: [
+      Post
+      , {
+        model: EtiquetasPregunta,
+        as: 'etiquetas',
+      }
+    ],
+  })
+    .then((pregunta) => {
+      if (!pregunta) {
+        res.status(404).send("Pregunta no encontrada");
+        return;
+      } else {
+        if (pregunta.post.duenioDNI != req.session.usuario.DNI) {
+          res.status(403).send(mensajeError403);
           return;
         } else {
-          if (pregunta.post.duenioDNI != req.session.usuario.DNI) {
-            res.status(403).send(mensajeError403);
-            return;
-          } else {
-            // TODO Refactor: DRY en este if
-            let modera = getModera();
-            if (modera==1) {
-              moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 50).then(
-                (respuesta) => {
-                  let esperarA = []
-                  let rechazaPost = getRechazaPost();
-                  let reportaPost = getReportaPost();
-                  if (respuesta.apropiado < rechazaPost) {
-                    res
-                      .status(400)
-                      .send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
-                    return;
-                  } else if (respuesta.apropiado < reportaPost) {
-                    //Crear reporte
-                    esperarA.push(ReportePost.create({
-                      tipoID :1,
-                      reportadoID: pregunta.ID,
-                    }))
-    
-                  }
-                  //si pasa el filtro
-                  pregunta.post.cuerpo = req.body.cuerpo;
-                  pregunta.titulo = req.body.titulo;
-                  const etiquetasIDs = Array.isArray(req.body.etiquetas) ? req.body.etiquetas : [req.body.etiquetas];
-                  // !no se porque pero asi anda pregunta.save() no
-                  esperarA.push(
-                    pregunta.post.save()
-                    .then( () =>
+          // TODO Refactor: DRY en este if
+          let modera = getModera();
+          if (modera == 1) {
+            moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 50).then(
+              (respuesta) => {
+                let esperarA = []
+                let rechazaPost = getRechazaPost();
+                let reportaPost = getReportaPost();
+                if (respuesta.apropiado < rechazaPost) {
+                  res
+                    .status(400)
+                    .send("Texto rechazo por moderación automática. Razón: " + respuesta.motivo);
+                  return;
+                } else if (respuesta.apropiado < reportaPost) {
+                  //Crear reporte
+                  esperarA.push(ReportePost.create({
+                    tipoID: 1,
+                    reportadoID: pregunta.ID,
+                  }))
+
+                }
+                //si pasa el filtro
+                pregunta.post.cuerpo = req.body.cuerpo;
+                pregunta.titulo = req.body.titulo;
+                const etiquetasIDs = Array.isArray(req.body.etiquetas) ? req.body.etiquetas : [req.body.etiquetas];
+                // !no se porque pero asi anda pregunta.save() no
+                esperarA.push(
+                  pregunta.post.save()
+                    .then(() =>
                       pregunta.setEtiquetas([])
                     )
                     .then(pre => pre.save())
@@ -225,111 +225,111 @@ function crearPregunta(req, res, respuestaIA = null) {
     .catch(err => {
       res.status(500).send(err.message);
     })
-  }
-  
-  router.post("/", function (req, res) {
-    let modera=getModera();
-    if (modera==1) {
-      moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10)
-        .then((respuesta) => {
-          let rechazaPost = getRechazaPost();
-          if (respuesta.apropiado < rechazaPost) {
-            //esto anda
-            // TODO UX: ¿Mandar respuesta del bot?
-            res.status(400).send("Texto rechazo por moderación automática. Razón: "+respuesta.motivo);
-            return;
-          }
-          //reporte en esta funcion
-          crearPregunta(req,res,respuesta.apropiado)
-        })
-        .catch((err) => {
-          res.status(500).send(err.message);
-        });
-    } else crearPregunta(req,res)
-  })
-  
-  router.put('/:ID',function(req,res){
-    let usuarioActual=req.session.usuario;
-    if (usuarioActual.perfil.permiso.ID < 2) {
-      res
-        .status(403)
-        .send(mensajeError403);
-      return;
-    }
-  
-    Pregunta.findByPk(req.params.ID,{
-      include:[
-        {model:Post,include:{model:Usuario,as:'eliminador'}},
-        {model:Respuesta,as:'respuestas',include:Post},
-      ]
-    })
-      .then(pre=>{
-        if(!pre){
-          // TODO Refactor: DRY en todos los "no se posee sesion", "no se poseen permisos", etc.
-          res.status(404).send("Pregunta no encontrada");
+}
+
+router.post("/", function (req, res) {
+  let modera = getModera();
+  if (modera == 1) {
+    moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 10)
+      .then((respuesta) => {
+        let rechazaPost = getRechazaPost();
+        if (respuesta.apropiado < rechazaPost) {
+          //esto anda
+          // TODO UX: ¿Mandar respuesta del bot?
+          res.status(400).send("Texto rechazo por moderación automática. Razón: " + respuesta.motivo);
           return;
         }
-  
-        // TODO Refactor: Ver si es posible simplificar
-        let esperarA=[], preguntaReemplazoID=req.body.duplicadaID;
-  
-        if(pre.respuestas.length){
-          esperarA.push(...pre.respuestas.map(resp=>resp.setPregunta(preguntaReemplazoID).then(r=>r.save())));
-        }
-  
-        esperarA.push(pre.post.setEliminador(usuarioActual.DNI).then(p=>p.save()));
-  
-        Promise.all(esperarA).then(()=>{
-          res.send();
-        })
-      })
-  })
-  
-  //Suscripción / desuscripción a pregunta
-  
-  router.post("/:preguntaID/suscripcion", function (req, res) {
-    //TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
-  
-    let IDpregunta = req.params.preguntaID;
-  
-    Pregunta.findByPk(IDpregunta, { include: Post })
-      .then((pregunta) => {
-        if (!pregunta) {
-          res.status(404).send("Pregunta no encontrada / disponible");
-          return;
-        } else {
-          // TODO Refactor: Esto no hace falta, se puede hacer pregunta.SuscripcionesPregunta o algo así
-          SuscripcionesPregunta.findAll({
-            where: {
-              preguntaID: IDpregunta,
-              suscriptoDNI: req.session.usuario.DNI,
-              fecha_baja: null,
-            },
-            nest: true,
-            plain: true,
-          })
-            .then((sus) => {
-              if (!sus) {
-                SuscripcionesPregunta.create({
-                  suscriptoDNI: req.session.usuario.DNI,
-                  preguntaID: IDpregunta,
-                }).then((susc) => susc.save());
-                res.status(201).send();
-                return;
-              } else {
-                res.status(401).send("Ya se encuentra suscripto a la pregunta");
-              }
-            })
-            .catch((err) => {
-              res.status(500).send(err.message);
-            });
-        }
+        //reporte en esta funcion
+        crearPregunta(req, res, respuesta.apropiado)
       })
       .catch((err) => {
         res.status(500).send(err.message);
       });
-    // TODO Refactor: ahorrar el callback hell, acá y en todos lados.
-  });
+  } else crearPregunta(req, res)
+})
+
+router.put('/:ID', function (req, res) {
+  let usuarioActual = req.session.usuario;
+  if (usuarioActual.perfil.permiso.ID < 2) {
+    res
+      .status(403)
+      .send(mensajeError403);
+    return;
+  }
+
+  Pregunta.findByPk(req.params.ID, {
+    include: [
+      { model: Post, include: { model: Usuario, as: 'eliminador' } },
+      { model: Respuesta, as: 'respuestas', include: Post },
+    ]
+  })
+    .then(pre => {
+      if (!pre) {
+        // TODO Refactor: DRY en todos los "no se posee sesion", "no se poseen permisos", etc.
+        res.status(404).send("Pregunta no encontrada");
+        return;
+      }
+
+      // TODO Refactor: Ver si es posible simplificar
+      let esperarA = [], preguntaReemplazoID = req.body.duplicadaID;
+
+      if (pre.respuestas.length) {
+        esperarA.push(...pre.respuestas.map(resp => resp.setPregunta(preguntaReemplazoID).then(r => r.save())));
+      }
+
+      esperarA.push(pre.post.setEliminador(usuarioActual.DNI).then(p => p.save()));
+
+      Promise.all(esperarA).then(() => {
+        res.send();
+      })
+    })
+})
+
+//Suscripción / desuscripción a pregunta
+
+router.post("/:preguntaID/suscripcion", function (req, res) {
+  //TODO Feature: acomodar el filtro para que no encuentre suscripciones dadas de baja
+
+  let IDpregunta = req.params.preguntaID;
+
+  Pregunta.findByPk(IDpregunta, { include: Post })
+    .then((pregunta) => {
+      if (!pregunta) {
+        res.status(404).send("Pregunta no encontrada / disponible");
+        return;
+      } else {
+        // TODO Refactor: Esto no hace falta, se puede hacer pregunta.SuscripcionesPregunta o algo así
+        SuscripcionesPregunta.findAll({
+          where: {
+            preguntaID: IDpregunta,
+            suscriptoDNI: req.session.usuario.DNI,
+            fecha_baja: null,
+          },
+          nest: true,
+          plain: true,
+        })
+          .then((sus) => {
+            if (!sus) {
+              SuscripcionesPregunta.create({
+                suscriptoDNI: req.session.usuario.DNI,
+                preguntaID: IDpregunta,
+              }).then((susc) => susc.save());
+              res.status(201).send();
+              return;
+            } else {
+              res.status(401).send("Ya se encuentra suscripto a la pregunta");
+            }
+          })
+          .catch((err) => {
+            res.status(500).send(err.message);
+          });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send(err.message);
+    });
+  // TODO Refactor: ahorrar el callback hell, acá y en todos lados.
+});
 
 
 

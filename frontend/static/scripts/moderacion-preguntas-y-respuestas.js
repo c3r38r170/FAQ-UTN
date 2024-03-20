@@ -4,7 +4,7 @@ import { ComponenteLiteral, DesplazamientoInfinito, Formulario, Pregunta, Mensaj
 
 let pagina = PantallaModeracionPosts(location.pathname, {
   usuario: window.usuarioActual
-}, location.search.split('=')[1]);
+}, location.search);
 
 let tabla = pagina.partes[2];
 tabla.iniciar();
@@ -94,19 +94,19 @@ gEt('moderar-posts').onclick = (e) => {
               Swal.error(`Error ${info.codigo}: ${txt}`);
             }
           }, {
-            verbo: 'PUT'
-            , textoEnviar: 'Unificar'
-            , clasesBoton: 'is-link is-rounded mt-3'
-            , alEnviar:(e)=>{
-              if(e.target.elements.duplicadoID){
-                alEnviar(e);
-              }else{
-                e.preventDefault();
-                Swal.error("Se debe elegir una pregunta para unir ambas.");
-                return false;
-              }
+          verbo: 'PUT'
+          , textoEnviar: 'Unificar'
+          , clasesBoton: 'is-link is-rounded mt-3'
+          , alEnviar: (e) => {
+            if (e.target.elements.duplicadoID) {
+              alEnviar(e);
+            } else {
+              e.preventDefault();
+              Swal.error("Se debe elegir una pregunta para unir ambas.");
+              return false;
             }
           }
+        }
         )
       ];
 
@@ -145,7 +145,9 @@ gEt('moderar-posts').onclick = (e) => {
             desplinf.pagina = 2;
           }
           intentarAgregarLasPreguntas();
-        })
+        }).catch(error => {
+          console.error('Error con preguntas:', error);
+        });
       /* * fetch() preguntas, añadir al formulario */
     }
 

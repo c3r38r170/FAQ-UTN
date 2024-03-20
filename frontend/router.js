@@ -34,6 +34,8 @@ import {
   Permiso as PermisoDAO,
   Parametro as ParametroDAO,
   Categoria,
+  CarrerasUsuario,
+  Carrera,
 } from "../api/v1/model.js";
 
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
@@ -66,7 +68,7 @@ router.get("/", (req, res) => {
     ])
       .then(([preguntas, categorias]) => {
         let pagina = PaginaInicio(req.session, queryString, categorias);
-        let desplinf=pagina.partes[2];
+        let desplinf = pagina.partes[2];
         desplinf.entidadesIniciales = preguntas;
 
         res.send(pagina.render());
@@ -120,6 +122,9 @@ router.get("/pregunta/:id?", async (req, res) => {
             {
               model: PostDAO,
               as: 'post',
+              where: {
+                eliminadorDNI: null
+              },
               include: [
                 {
                   model: UsuarioDAO,
@@ -156,9 +161,9 @@ router.get("/pregunta/:id?", async (req, res) => {
           }
         }
       ];
-      
+
       const p = await PreguntaDAO.findByPk(req.params.id, { include });
-      
+
       if (!p) {
         let pantalla = SinPermisos(req.session, "Al parecer la pregunta no existe")
         res.send(pantalla.render())
@@ -167,7 +172,7 @@ router.get("/pregunta/:id?", async (req, res) => {
 
       if (req.session.usuario) {
 
-        if (p.post.eliminadorDNI && req.session.usuario.perfil.permiso.ID < 2 ) { 
+        if (p.post.eliminadorDNI && req.session.usuario.perfil.permiso.ID < 2) {
           res.send(paginaError.render());
           return;
         }
@@ -195,13 +200,13 @@ router.get("/pregunta/:id?", async (req, res) => {
             not.save();
           }
         });
-      }else if(p.post.eliminadorDNI){
+      } else if (p.post.eliminadorDNI) {
         // No está logueado y la pregunta esta eliminada
         res.send(paginaError.render());
         return;
-    }
+      }
 
-      
+
 
       // ! No se puede traer votos Y un resumen, por eso lo calculamos acá. Los votos los traemos solo para ver si el usuario actual votó.
 
@@ -225,7 +230,7 @@ router.get("/pregunta/:id?", async (req, res) => {
       let pagina = PaginaPregunta(req.path, req.session, preguntaID);
       pagina.titulo = p.titulo;
       p.titulo = "";
-      pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session));
+      pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session.usuario));
 
       pagina.globales.preguntaID = preguntaID;
 
@@ -304,7 +309,7 @@ router.get("/moderacion/usuarios", (req, res) => {
     res.send(pagina.render());
     return;
   }
-  const query = req.query.searchInput;
+  const query = req.url.substring(req.url.indexOf("?"));
   let pagina = PantallaModeracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
 });
@@ -320,7 +325,7 @@ router.get('/moderacion/preguntas-y-respuestas', (req, res) => {
     res.send(pagina.render());
     return;
   }
-  const query = req.query.searchInput;
+  const query = req.url.substring(req.url.indexOf("?"));
   let pagina = PantallaModeracionPosts(req.path, req.session, query);
   res.send(pagina.render());
 })
@@ -432,7 +437,7 @@ router.get("/respuesta/:id/editar", (req, res) => {
     })
       .then((respuesta) => {
         let pagina = PantallaEditarRespuesta(req.path, req.session, respuesta);
-        pagina.partes.unshift(new Pregunta(respuesta.pregunta, pagina.partes[0], req.session));
+        pagina.partes.unshift(new Pregunta(respuesta.pregunta, pagina.partes[0], req.session.usuario));
         res.send(pagina.render());
       }).catch((error) => {
         console.error('Error:', error);
@@ -484,23 +489,39 @@ router.get("/perfil/:DNI?", async (req, res) => {
         res.send(pagina.render());
         return;
       }
-      
+
       let bloqueo = await BloqueoDAO.findAll({
         where: {
           bloqueadoDNI: req.params.DNI,
           fecha_desbloqueo: null
         }
       })
-      if (bloqueo && req.session.usuario.perfil.permiso.ID < 2) {
+      if (bloqueo.length > 0 && req.session.usuario.perfil.permiso.ID < 2) {
         res.send(paginaError.render());
         return;
       }
 
       usuarioActual=req.session.usuario;
     }
-    
+    let bloqueo = await BloqueoDAO.findAll({
+      where: {
+        bloqueadoDNI: req.params.DNI,
+        fecha_desbloqueo: null
+      }
+    })
+    if (bloqueo.length > 0) {
+      res.send(paginaError.render());
+      return;
+    }
     let usu = await UsuarioDAO.findByPk(req.params.DNI, {
-      include: PerfilDAO,
+      include: [
+        {
+          model: PerfilDAO
+        },
+        {
+          model: Carrera
+        }
+      ],
     });
     if (!usu) {
       // * no existe el usuario buscado
@@ -508,9 +529,9 @@ router.get("/perfil/:DNI?", async (req, res) => {
       return;
     }
     // * Perfil ajeno
-    let filtro = { duenioID: usu.DNI , usuarioActual};
+    let filtro = { DNI: usu.DNI , usuarioActual};
     // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    let pre = await PreguntaDAO.pagina(filtro);
+    let pre = await PostDAO.pagina(filtro);
     let pagina = PaginaPerfil(req.path, req.session, usu);
     pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
     res.send(pagina.render());
@@ -611,7 +632,7 @@ router.get("/administracion/usuarios", (req, res) => {
     res.send(pagina.render());
     return;
   }
-  const query = req.query.searchInput;
+  const query = req.url.substring(req.url.indexOf("?"));
   let pagina = PantallaAdministracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
 });

@@ -752,16 +752,13 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
             },
           },
           separate: true,
-        }
+        },
       ],
       attributes: {
         include: [
           respuestasCount,
         ],
-      },/* 
-      where: {
-        "$post.duenio.DNI$": duenioDNI,
-      }, */
+      },
       order: [[Post, "fecha", "DESC"]],
       limit: getPaginacion().resultadosPorPagina,
       offset: +pagina * getPaginacion().resultadosPorPagina,
@@ -851,7 +848,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
             "coincidencias",
           ]
         )
-        
+
         filtrarEtiquetas = true;
       }
     }
@@ -923,11 +920,13 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
           }
         };
         
-        if(filtrar?.suscripciones){
+        if(filtrar?.suscripto){
           opcionesSuscripciones.where.suscriptoDNI=usuarioActual.DNI;
+          opcionesSuscripciones.required=true;
         }else{
           opcionesSuscripciones.include={ model: Usuario, as: 'suscripto', where: {DNI:usuarioActual.DNI} };
           opcionesSuscripciones.required=false;
+          // ! No hace falta separate, porque un usuario siempre va a tener una sola suscripcion a cada pregunta (o ninguna). 
         }
 
         opciones.include.push(opcionesSuscripciones);
@@ -953,6 +952,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
   }
 }
 
+// TODO Refactor: duenioDNI
 Post.pagina = ({ pagina = 0, DNI } = {}) => {
   return Pregunta.findAll({
     include: [
@@ -1017,6 +1017,15 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
         },
         separate: true,
       },
+      {
+        model: SuscripcionesPregunta
+        , as: 'suscripciones'
+        , include: { model: Usuario, as: 'suscripto' }
+        , where: {
+          fecha_baja: null, // * Vigentes
+        }
+        , required: false
+      }
     ],
     attributes: {
       include: [
@@ -1101,6 +1110,15 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         },
         separate: true,
       },
+      {
+        model: SuscripcionesPregunta
+        , as: 'suscripciones'
+        , include: { model: Usuario, as: 'suscripto' }
+        , where: {
+          fecha_baja: null, // * Vigentes
+        }
+        , required: false
+      }
     ],
     attributes: {
       include: [
