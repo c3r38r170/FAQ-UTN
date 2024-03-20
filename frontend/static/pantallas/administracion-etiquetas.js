@@ -22,6 +22,7 @@ function crearPantalla(ruta, sesion) {
     },
     {
       nombre: "Categoría",
+      clases: ["centrado"],
       celda: (etiqueta) =>
         `<div class="categoria" style="background-color: ${etiqueta.categoria.color}"><div class="descripcion">${etiqueta.categoria.descripcion}</div></div>`,
     },

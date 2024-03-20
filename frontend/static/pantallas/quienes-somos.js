@@ -3,7 +3,7 @@ import { Pagina, Modal, ComponenteLiteral } from "../componentes/todos.js";
 function crearPagina(ruta,usuario) {
   let modal = new Modal("General", "modal-general");
   return new Pagina({
-		titulo: "FAQ UTN",
+		titulo: "FAQ UTN - Quiénes Somos",
     sesion: usuario,
 		ruta,
     partes: [

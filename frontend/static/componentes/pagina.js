@@ -14,10 +14,7 @@ class Pagina {
 	De esta manera nos ahorramos la carpeta pantallas, y el archivo de visibilizar-clases. */
 
   #ruta='';
-	// TODO Refactor: ¿No debería ser un string?
-  titulo =''/*  {
-	titulo: ""
-  } */;
+  titulo ='';
   #sesion;
   partes = [];
 	columnaNotificaciones=[];
@@ -56,7 +53,7 @@ class Pagina {
 					,null // * Entidades iniciales.
 					,{
 						mensajeVacio:new MensajeInterfaz(MensajeInterfaz.INFORMACION,'Todavía no tenés notificaciones.')
-						,mensajeFinal:new MensajeInterfaz(MensajeInterfaz.INFORMACION,'Esas son todas las notificaciones.')
+						,mensajeFinal:new MensajeInterfaz(MensajeInterfaz.GRIS,'Esas son todas las notificaciones.')
 					}
 				)
 			];
@@ -67,7 +64,8 @@ class Pagina {
 	// * Pagina.render solo se va a llamar desde el backend.
 	render() {
 		// * Quita los identificadores de las rutas, y los reemplaza por "viendo"
-		let rutaRecursos = '/' + this.#ruta.split('/').map(parte => (/[0-9]/.test(parte)) ? 'viendo' : parte).join('-').substring(1);
+		let rutaRecursos = '/' + this.#ruta.split('/').reduce((rR,parte) => parte? rR+'-'+((/[0-9]/.test(parte)) ? 'viendo' : parte) : rR,'').substring(1);
+		// console.log(rutaRecursos,'/' + this.#ruta.split('/').map(parte => (/[0-9]/.test(parte)) ? 'viendo' : parte).join('-'));
 
 		// TODO Feature: Meta properties. https://es.stackoverflow.com/questions/66388/poner-una-imagen-de-preview-y-t%C3%ADtulo-en-mi-p%C3%A1gina-para-que-se-visualice-en-face
 		return `<!DOCTYPE html>
@@ -108,7 +106,7 @@ class Pagina {
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
-				${new Titulo('h1',5,this.titulo,'ml-3rem','titulo-principal').render()}
+				${new Titulo('h1',4,this.titulo,'ml-3rem','titulo-principal').render()}
 				${ this.partes? this.partes.map((p) => p.render()).join("") : ''}
 				
 			</div>
@@ -125,9 +123,11 @@ class Pagina {
 			<div><img src="/logo-negativo.png"></div>
 			<div>
 				<ul>
+				<!-- TODO Refactor: que estos 3 links no se repitan acá y en Encabezado, DRY
 				<!--TODO UX Poner como una columna a la izquierda, porque se supone que tenga 3 items.-->
 					<li><a href="/">Inicio</a></li>
 					<li><a href="/quienes-somos">Quiénes Somos</a></li>
+					<li><a href="/manual">Ayuda</a></li>
 				</ul>
 				${new Navegacion(this.#sesion?.usuario).render()}
 			</div>
@@ -311,6 +311,7 @@ class Encabezado {
 		<h1>FAQ UTN</h1>
 		<a href="/">Inicio</a>
 		<a href="/quienes-somos">Quiénes Somos</a>
+		<a href="/manual">Ayuda</a>
 	</div>
 	<div id=encabezado-derecho>
 		${
@@ -333,4 +334,4 @@ class Encabezado {
 
 }
 
-export { Pagina, Encabezado };
+export { Pagina, Encabezado }; // ! Se exporta encabezado para visibilizar sus modales, formularios...
