@@ -66,6 +66,8 @@ class ChipValoracion {
                         iPos.style.color = "";
                     }
                 }
+            }).catch(error => {
+                console.error('Error al votar:', error);
             });
         } else {
             fetch(url, {
@@ -79,6 +81,8 @@ class ChipValoracion {
                     iNeg.style.color = "";
                     iPos.style.color = "";
                 }
+            }).catch(error => {
+                console.error('Error al votar:', error);
             });
         }
     }

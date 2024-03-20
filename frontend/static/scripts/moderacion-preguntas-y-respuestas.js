@@ -144,7 +144,9 @@ gEt('moderar-posts').onclick = (e) => {
             desplinf.pagina = 2;
           }
           intentarAgregarLasPreguntas();
-        })
+        }).catch(error => {
+          console.error('Error con preguntas:', error);
+        });
       /* * fetch() preguntas, añadir al formulario */
     }
 

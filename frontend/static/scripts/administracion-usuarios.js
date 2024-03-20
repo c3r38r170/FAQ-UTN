@@ -89,6 +89,8 @@ gEt("administrar-usuarios").onclick = (e) => {
         select.add(o);
       });
     });
+  }).catch(error => {
+    console.error('Error con perfiles:', error);
   });
 
   modalElemento.classList.add("is-active");
@@ -159,6 +161,8 @@ gEt("botonAgregar").onclick = (e) => {
         select.add(o);
       });
     });
+  }).catch(error => {
+    console.error('Error con perfiles:', error);
   });
 
   modalElemento.classList.add("is-active");
