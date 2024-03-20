@@ -22,4 +22,4 @@ function crearPagina(ruta, sesion) {
 
 }
 
-export { crearPagina as PaginaSuscripciones }
+export { crearPagina as PantallaSuscripciones }
