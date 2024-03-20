@@ -1,25 +1,25 @@
-import { Pagina, Modal, DesplazamientoInfinito, Pregunta , Busqueda, MensajeInterfaz } from "../componentes/todos.js";
+import { Pagina, Modal, DesplazamientoInfinito, Pregunta, Busqueda, MensajeInterfaz } from "../componentes/todos.js";
 
 // TODO Now: Agregar etiquetas
-function crearPagina(usuario,queryString='',categoriasConEtiquetas=[]){
-	let modal = new Modal('General','modal-general');
-	let usp=new URLSearchParams(queryString);
+function crearPagina(usuario, queryString = '', categoriasConEtiquetas = []) {
+	let modal = new Modal('General', 'modal-general');
+	let usp = new URLSearchParams(queryString);
 
 	return new Pagina({
 		titulo: "Inicio",
-		sesion:usuario,
-		partes:[
+		sesion: usuario,
+		partes: [
 			modal,
-			new Busqueda({valorBusqueda:usp.get('searchInput'),categorias: categoriasConEtiquetas,etiquetasSeleccionadas:usp.getAll('etiquetas')})
-			,new DesplazamientoInfinito(
+			new Busqueda({ valorBusqueda: usp.get('searchInput'), categorias: categoriasConEtiquetas, etiquetasSeleccionadas: usp.getAll('etiquetas') })
+			, new DesplazamientoInfinito(
 				'inicio-preguntas'
-				,'/api/pregunta'+queryString
-				,p=>(new Pregunta(p,modal, usuario)).render()
-				,null
-				,{
-					mensajeVacio:new MensajeInterfaz(
+				, '/api/pregunta' + queryString
+				, p => (new Pregunta(p, modal, usuario.usuario)).render()
+				, null
+				, {
+					mensajeVacio: new MensajeInterfaz(
 						MensajeInterfaz.INFORMACION
-						,'No se encontraron resultados.'
+						, 'No se encontraron resultados.'
 					)
 				}
 			)
@@ -27,4 +27,4 @@ function crearPagina(usuario,queryString='',categoriasConEtiquetas=[]){
 	});
 }
 
-export {crearPagina as PaginaInicio};
+export { crearPagina as PaginaInicio };

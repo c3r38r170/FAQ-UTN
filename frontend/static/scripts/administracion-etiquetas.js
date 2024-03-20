@@ -6,7 +6,7 @@ let pagina = PantallaAdministracionEtiquetas(location.pathname, {
   usuario: window.usuarioActual,
 });
 let modal = pagina.partes[0];
-let tabla = pagina.partes[1];
+let tabla = pagina.partes[2];
 
 tabla.iniciar();
 
@@ -146,11 +146,9 @@ gEt("administrar-etiquetas").onclick = (e) => {
             let tab = document.getElementById("administrar-etiquetas");
             tab.rows[
               indiceEtiquetaElegida + 1
-            ].cells[1].innerHTML = `<div class="categoria" style="background-color: ${
-              JSON.parse(txt).categoria.color
-            }"><div class="descripcion">${
-              JSON.parse(txt).categoria.descripcion
-            }</div></div>`;
+            ].cells[1].innerHTML = `<div class="categoria" style="background-color: ${JSON.parse(txt).categoria.color
+            }"><div class="descripcion">${JSON.parse(txt).categoria.descripcion
+              }</div></div>`;
             tab.rows[indiceEtiquetaElegida + 1].cells[0].innerText =
               JSON.parse(txt).descripcion;
             etiquetaElegida.descripcion = JSON.parse(txt).descripcion;
@@ -184,6 +182,8 @@ gEt("administrar-etiquetas").onclick = (e) => {
         select.add(o);
       });
     });
+  }).catch(error => {
+    console.error('Error con categorias:', error);
   });
 
   modalElemento.classList.add("is-active");
@@ -238,6 +238,8 @@ gEt("botonAgregar").onclick = (e) => {
         select.add(o);
       });
     });
+  }).catch(error => {
+    console.error('Error con categorias:', error);
   });
 
   modalElemento.classList.add("is-active");

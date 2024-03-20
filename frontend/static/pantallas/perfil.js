@@ -16,13 +16,13 @@ function crearPagina(ruta, usuario, usu) {
             , new DesplazamientoInfinito(
                 'perfil-desplinf'
                 , `/api/usuario/${usu.DNI}/posts`
-                , p => (new Pregunta(p, modal, usuario)).render()
-                ,null
-                ,{
-                    mensajeVacio:new MensajeInterfaz(
+                , p => (new Pregunta(p, modal, usuario.usuario)).render()
+                , null
+                , {
+                    mensajeVacio: new MensajeInterfaz(
                         MensajeInterfaz.INFORMACION
                         // ,'Este usuario todavía no ha publicado nada.'
-                        ,'No hay contenido para mostrar.'
+                        , 'No hay contenido para mostrar.'
                     )
                 }
             )

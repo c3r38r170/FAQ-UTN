@@ -650,7 +650,8 @@ User.findAll({ include: { all: true }});
 Fuente: https://stackoverflow.com/questions/18838433/sequelize-find-based-on-association
 */
 
-Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
+Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usuarioActual } = {}) => {
+  // TODO Refactor: DRY en los include.
   /*
   1) Inicio: Pregunta completas, ordenada por más recientes
     Esto es la funcion `.pagina()`.
@@ -701,13 +702,14 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
   }
 */
 
-  if (duenioID) { // * Esto es para los perfiles.
-    return Pregunta.findAll({
-
+  if (duenioDNI) { // * Esto es para los perfiles.
+    // ! Esto no considera ningún filtro.
+    let opciones={
       include: [
         {
           model: Post,
           required: true,
+          where:{eliminadorDNI:{[Sequelize.Op.is]:null}}, // * Preguntas vigentes.
           include: [
             {
               model: Voto
@@ -722,6 +724,9 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
                 , attributes: ['ID', 'descripcion', 'color']
               }
               , attributes: ['DNI', 'nombre']
+              ,where:{
+                DNI:duenioDNI
+              }
             },
             {
               // TODO Feature: Votos no?? Yo diría que sí.
@@ -754,20 +759,33 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
           respuestasCount,
         ],
       },
-      where: {
-        "$post.duenio.DNI$": duenioID,
-      },
       order: [[Post, "fecha", "DESC"]],
       limit: getPaginacion().resultadosPorPagina,
       offset: +pagina * getPaginacion().resultadosPorPagina,
 
       // ,raw:true,nest:true
-    });
+    };
+
+    if(usuarioActual){
+      let opcionesSuscripciones={
+        model: SuscripcionesPregunta
+        , as: 'suscripciones'
+        , include: { model: Usuario, as: 'suscripto', where: {DNI:usuarioActual.DNI} , attributes:[]}
+        , where: {
+          fecha_baja: null // * Vigentes
+        }
+        , separate: true
+      };
+      opciones.include.push(opcionesSuscripciones)
+    }
+
+    return Pregunta.findAll(opciones);
+
   } else {
     let opciones = {
       // raw:true,
       include: [
-        { model: Post, required: true }
+        { model: Post, required: true ,where:{eliminadorDNI:{[Sequelize.Op.is]:null}}}
       ],
       limit: getPaginacion().resultadosPorPagina,
       offset: (+pagina) * getPaginacion().resultadosPorPagina,
@@ -830,7 +848,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
             "coincidencias",
           ]
         )
-        
+
         filtrarEtiquetas = true;
       }
     }
@@ -893,15 +911,26 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
       ];
 
       // TODO Refactor: Solo hace falta si hay una sesión, y solo hace falta mandar para saber si el usuario está suscrito o no. Ver ejemplo en votos.
-      opciones.include.push({
-        model: SuscripcionesPregunta
-        , as: 'suscripciones'
-        , include: { model: Usuario, as: 'suscripto' }
-        , where: {
-          fecha_baja: null // * Vigentes
+      if(usuarioActual){
+        let opcionesSuscripciones={
+          model: SuscripcionesPregunta
+          , as: 'suscripciones'
+          , where: {
+            fecha_baja: null // * Vigentes
+          }
+        };
+        
+        if(filtrar?.suscripciones){
+          opcionesSuscripciones.where.suscriptoDNI=usuarioActual.DNI;
+          // opcionesSuscripciones.required=true;
+        }else{
+          opcionesSuscripciones.include={ model: Usuario, as: 'suscripto', where: {DNI:usuarioActual.DNI} };
+          opcionesSuscripciones.required=false;
+          // ! No hace falta separate, porque un usuario siempre va a tener una sola suscripcion a cada pregunta (o ninguna). 
         }
-        , separate: true
-      });
+
+        opciones.include.push(opcionesSuscripciones);
+      }
 
       if (!filtrarEtiquetas) {
         opciones.include.push({
@@ -923,6 +952,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID, filtrar, formatoCorto } = {}) => {
   }
 }
 
+// TODO Refactor: duenioDNI
 Post.pagina = ({ pagina = 0, DNI } = {}) => {
   return Pregunta.findAll({
     include: [
@@ -987,6 +1017,15 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
         },
         separate: true,
       },
+      {
+        model: SuscripcionesPregunta
+        , as: 'suscripciones'
+        , include: { model: Usuario, as: 'suscripto' }
+        , where: {
+          fecha_baja: null, // * Vigentes
+        }
+        , required: false
+      }
     ],
     attributes: {
       include: [
@@ -1071,6 +1110,15 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         },
         separate: true,
       },
+      {
+        model: SuscripcionesPregunta
+        , as: 'suscripciones'
+        , include: { model: Usuario, as: 'suscripto' }
+        , where: {
+          fecha_baja: null, // * Vigentes
+        }
+        , required: false
+      }
     ],
     attributes: {
       include: [

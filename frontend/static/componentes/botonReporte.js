@@ -6,8 +6,7 @@ class BotonReporte{
     constructor(postID, modal) {
         this.#postID = postID;
         this.#modal = modal;
-
-      }
+    }
 
     render(){
         return`

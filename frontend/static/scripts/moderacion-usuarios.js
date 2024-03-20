@@ -4,9 +4,9 @@ import { Titulo, Formulario, ComponenteLiteral } from "../componentes/todos.js";
 
 let pagina = PantallaModeracionUsuarios(location.pathname, {
   usuario: window.usuarioActual,
-}, location.search.split('=')[1]);
+}, location.search);
 let modal = pagina.partes[0];
-let tabla = pagina.partes[2];
+let tabla = pagina.partes[3];
 tabla.iniciar();
 
 let modalElemento = gEt("moderacion-usuarios-modal");

@@ -11,6 +11,7 @@ class BotonSuscripcion{
         this.#targetID = targetID;
         this.#endpoint = endpoint;
 
+        // TODO Refactor: DRY
         if(this.#estaSuscripto){
             this.#formulario = new Formulario(
                 'formularioSuscripcion'+targetID

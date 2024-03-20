@@ -7,6 +7,7 @@ import {
   Fecha,
   ChipUsuario,
   Modal,
+  ComponenteLiteral
 } from "../componentes/todos.js";
 
 function crearPantalla(ruta, sesion) {
@@ -21,6 +22,7 @@ function crearPantalla(ruta, sesion) {
     },
     {
       nombre: "Categoría",
+      clases: ["centrado"],
       celda: (etiqueta) =>
         `<div class="categoria" style="background-color: ${etiqueta.categoria.color}"><div class="descripcion">${etiqueta.categoria.descripcion}</div></div>`,
     },
@@ -43,13 +45,17 @@ function crearPantalla(ruta, sesion) {
         }><label for="desactivar-${etiqueta.ID}"></label></div>`,
     },
   ]);
+  let contenedor1 = new ComponenteLiteral(()=> `<div class="contenedor-tabla">`)
+  let contenedor2 = new ComponenteLiteral(()=> `</div>`)
   let pagina = new Pagina({
     ruta: ruta,
     titulo: "Administracion - Etiquetas",
     sesion: sesion,
     partes: [
       new Modal("Eliminar Categoría", "modal-eliminar-etiqueta"),
+      contenedor1,
       tabla,
+      contenedor2,
       new Boton({
         titulo: "Agregar",
         classes: "button is-link is-small is-rounded botonAgregar",

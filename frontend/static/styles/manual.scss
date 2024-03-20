@@ -1,0 +1,32 @@
+#tabla-de-contenidos > ul { // Copia descarada a Wikipedia.
+  margin-left: 4rem !important;
+}
+
+#columna-principal{
+	// TODO Refactor: DRY con quienes-somos.scss
+	p,h2{
+		margin: 1rem 2rem;
+		text-indent: .5in;
+	}
+
+	img, &>a{
+		margin: auto;
+		display: block;
+		width: min-content;
+	}
+
+	img{
+		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+		border-radius: 10px;
+	}
+
+	&>.content{
+		margin-left: 1rem;
+		margin-right: 1rem;
+
+		ul{
+			margin: auto;
+			width: max-content;
+		}
+	}
+}

@@ -1,7 +1,11 @@
 import { Pagina, Titulo, Formulario, Tabla, Fecha, ChipUsuario, Modal, Respuesta, Pregunta, ComponenteLiteral, Busqueda } from '../componentes/todos.js'
 
 function crearPantalla(ruta, sesion, query = "") {
-	let tabla = new Tabla('moderar-posts', '/api/post/reporte?searchInput=' + query, [
+	let usp = new URLSearchParams(query);
+	if (query == "") {
+		query = "?searchInput=";
+	}
+	let tabla = new Tabla('moderar-posts', '/api/post/reporte' + query, [
 		{
 			nombre: 'Post'
 			, celda: ({ reportado }) => [
@@ -38,14 +42,17 @@ function crearPantalla(ruta, sesion, query = "") {
 			, clases: ['botones', 'centrado']
 		}
 	]);
-
+	let contenedor1 = new ComponenteLiteral(()=> `<div class="contenedor-tabla">`)
+	let contenedor2 = new ComponenteLiteral(()=> `</div>`)
 	let pagina = new Pagina({
 		ruta: ruta,
 		titulo: 'Moderación - Preguntas y Respuestas Reportadas',
 		sesion,
 		partes: [
-			new Busqueda(),
-			tabla
+			new Busqueda({ valorBusqueda: usp.get('searchInput') }),
+			contenedor1,
+			tabla,
+			contenedor2
 			, new Modal('Moderar preguntas y respuestas', 'moderacion-posts-modal') // * El título se va cambiando.
 		]
 	});

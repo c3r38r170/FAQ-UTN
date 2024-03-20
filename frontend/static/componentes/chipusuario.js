@@ -10,9 +10,10 @@ class ChipUsuario {
   #tipo;
   #color;
   #propio;
+  #carreras;
 
   constructor(
-    { DNI, nombre, correo, createdAt, fecha_alta, perfil },
+    { DNI, nombre, correo, createdAt, fecha_alta, perfil, carreras },
     esPerfil = false, propio = false
   ) {
     this.#DNI = DNI;
@@ -23,6 +24,7 @@ class ChipUsuario {
     this.#tipo = perfil ? perfil.descripcion : "Usuario";
     this.#color = perfil ? perfil.color : "#485fc7";
     this.#propio = propio;
+    this.#carreras = carreras
   }
   render() {
     if (this.#esPerfil) {
@@ -40,18 +42,18 @@ class ChipUsuario {
                 <div class="contenido-perfil">
                     <div>DNI: <span>${this.#DNI}</span></div>
                     <div>Nombre: <span>${this.#nombreusuario}</span></div>
-                    <div>Correo electrónico: <span>${this.#correo}</span> ${this.#propio ? '<button id="botonCambiarMail" type="button" class="button is-link is-small is-rounded">Modificar</button>':''}  </div>
+                    <div>Correo electrónico: <span>${this.#correo}</span> ${this.#propio ? '<button id="botonCambiarMail" type="button" class="button is-link is-small is-rounded">Modificar</button>' : ''}  </div>
                     <div>Miembro desde: ${this.#createdAt.render()}</div>
-                    <div class="tipo-usuario" style="background-color: ${
-                      this.#color
-                    }"><div class="descripcion">${this.#tipo}</div></div>
+                    <div>${this.#carreras.length > 0 ? "Estudiante de:" + this.#carreras.map(c => { return " " + c.nombre }) : ""}</div>
+                    <div class="tipo-usuario" style="background-color: ${this.#color
+        }"><div class="descripcion">${this.#tipo}</div></div>
                 </div>
             </div>
             `;
     } else {
       return `
         <div class="chip-usuario is-vcentered">
-          <a href="/perfil/${this.#DNI}">
+          <a href="/perfil/${this.#DNI}" class="contenedor-img">
           <img class="mr-3 img-usuario" src="/api/usuario/${this.#DNI}/foto" ></img>
           </a>
           <a class="nombre-usuario" href="/perfil/${this.#DNI}">${this.#nombreusuario}</a>

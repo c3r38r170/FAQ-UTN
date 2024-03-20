@@ -71,7 +71,9 @@ class Notificacion {
 			})
 		}).then(response => {
 			window.location.replace('/pregunta/' + idPregunta)
-		})
+		}).catch(error => {
+			console.error('Error al ver notificación:', error);
+		});
 
 	}
 

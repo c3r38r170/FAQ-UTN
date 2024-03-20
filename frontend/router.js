@@ -34,12 +34,14 @@ import {
   Permiso as PermisoDAO,
   Parametro as ParametroDAO,
   Categoria,
+  CarrerasUsuario,
+  Carrera,
 } from "../api/v1/model.js";
 
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
 // TODO Refactor: Usar todas.js
-import { PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PaginaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos } from './static/pantallas/todas.js';
+import { PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -47,25 +49,26 @@ router.get("/", (req, res) => {
   // console.log(req.query);
   let etiquetas = req.query.etiquetas;
   let texto = req.query.searchInput;
+  let parametros={usuarioActual:req.session.usuario};
   if (texto || etiquetas) {
     let queryString = req.url.substring(req.url.indexOf("?"));
 
-    let parametrosBusqueda = { filtrar: {} };
+    parametros.filtrar={};
     if (texto) {
-      parametrosBusqueda.filtrar.texto = texto;
+      parametros.filtrar.texto = texto;
     }
     if (etiquetas) {
-      parametrosBusqueda.filtrar.etiquetas = Array.isArray(etiquetas) ? etiquetas : [etiquetas];
+      parametros.filtrar.etiquetas = Array.isArray(etiquetas) ? etiquetas : [etiquetas];
     }
 
     Promise.all([
       // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-      PreguntaDAO.pagina(parametrosBusqueda)
+      PreguntaDAO.pagina(parametros)
       , consultaCategorias
     ])
       .then(([preguntas, categorias]) => {
         let pagina = PaginaInicio(req.session, queryString, categorias);
-        let desplinf=pagina.partes[2];
+        let desplinf = pagina.partes[2];
         desplinf.entidadesIniciales = preguntas;
 
         res.send(pagina.render());
@@ -74,7 +77,7 @@ router.get("/", (req, res) => {
     // * Inicio regular.
     Promise.all(
       [
-        PreguntaDAO.pagina()
+        PreguntaDAO.pagina(parametros)
         , Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas' } })
       ]
     )
@@ -90,7 +93,6 @@ router.get("/", (req, res) => {
 
 // * Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) => {
-
   // TODO Feature: En caso de que sea una pregunta borrada, no permitir a menos que se tengan permisos de moderación, o administración.
 
   try {
@@ -120,6 +122,9 @@ router.get("/pregunta/:id?", async (req, res) => {
             {
               model: PostDAO,
               as: 'post',
+              where: {
+                eliminadorDNI: null
+              },
               include: [
                 {
                   model: UsuarioDAO,
@@ -156,9 +161,9 @@ router.get("/pregunta/:id?", async (req, res) => {
           }
         }
       ];
-      
+
       const p = await PreguntaDAO.findByPk(req.params.id, { include });
-      
+
       if (!p) {
         let pantalla = SinPermisos(req.session, "Al parecer la pregunta no existe")
         res.send(pantalla.render())
@@ -167,7 +172,7 @@ router.get("/pregunta/:id?", async (req, res) => {
 
       if (req.session.usuario) {
 
-        if (p.post.eliminadorDNI && req.session.usuario.perfil.permiso.ID < 2 ) { 
+        if (p.post.eliminadorDNI && req.session.usuario.perfil.permiso.ID < 2) {
           res.send(paginaError.render());
           return;
         }
@@ -195,13 +200,13 @@ router.get("/pregunta/:id?", async (req, res) => {
             not.save();
           }
         });
-      }else if(p.post.eliminadorDNI){
+      } else if (p.post.eliminadorDNI) {
         // No está logueado y la pregunta esta eliminada
         res.send(paginaError.render());
         return;
-    }
+      }
 
-      
+
 
       // ! No se puede traer votos Y un resumen, por eso lo calculamos acá. Los votos los traemos solo para ver si el usuario actual votó.
 
@@ -225,7 +230,7 @@ router.get("/pregunta/:id?", async (req, res) => {
       let pagina = PaginaPregunta(req.path, req.session, preguntaID);
       pagina.titulo = p.titulo;
       p.titulo = "";
-      pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session));
+      pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session.usuario));
 
       pagina.globales.preguntaID = preguntaID;
 
@@ -251,7 +256,6 @@ router.get("/pregunta/:id?", async (req, res) => {
   }
 });
 
-
 router.get("/suscripciones", (req, res) => {
   try {
     let usu = req.session;
@@ -261,7 +265,7 @@ router.get("/suscripciones", (req, res) => {
       return;
     }
 
-    let pagina = PaginaSuscripciones(req.path, req.session);
+    let pagina = PantallaSuscripciones(req.path, req.session);
 
     res.send(pagina.render());
   } catch (error) {
@@ -305,7 +309,7 @@ router.get("/moderacion/usuarios", (req, res) => {
     res.send(pagina.render());
     return;
   }
-  const query = req.query.searchInput;
+  const query = req.url.substring(req.url.indexOf("?"));
   let pagina = PantallaModeracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
 });
@@ -321,22 +325,21 @@ router.get('/moderacion/preguntas-y-respuestas', (req, res) => {
     res.send(pagina.render());
     return;
   }
-  const query = req.query.searchInput;
+  const query = req.url.substring(req.url.indexOf("?"));
   let pagina = PantallaModeracionPosts(req.path, req.session, query);
   res.send(pagina.render());
 })
 
 router.get("/perfil/preguntas", (req, res) => {
   try {
-    let usu = req.session;
-    if (!usu.usuario) {
-      let pagina = SinPermisos(usu, "No está logueado");
+    let usu = req.session.usuario;
+    if (!usu) {
+      let pagina = SinPermisos(req.session, "No está logueado");
       res.send(pagina.render());
       return;
     }
 
-    let filtro = { duenioID: null };
-    filtro.duenioID = req.session.usuario.DNI;
+    let filtro = { duenioID: req.session.usuario.DNI, usuarioActual:usu };
     PreguntaDAO.pagina(filtro).then((pre) => {
       let pagina = PaginaPerfilPropioPreguntas(req.path, req.session);
       pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
@@ -434,7 +437,7 @@ router.get("/respuesta/:id/editar", (req, res) => {
     })
       .then((respuesta) => {
         let pagina = PantallaEditarRespuesta(req.path, req.session, respuesta);
-        pagina.partes.unshift(new Pregunta(respuesta.pregunta, pagina.partes[0], req.session));
+        pagina.partes.unshift(new Pregunta(respuesta.pregunta, pagina.partes[0], req.session.usuario));
         res.send(pagina.render());
       }).catch((error) => {
         console.error('Error:', error);
@@ -477,6 +480,7 @@ router.get("/perfil/respuestas", (req, res) => {
 router.get("/perfil/:DNI?", async (req, res) => {
   //pagina error
   let paginaError = SinPermisos(req.session, "Algo ha malido sal.")
+  let usuarioActual;
   if (req.params.DNI) {
     if (req.session.usuario) {
       if (req.session.usuario.DNI == req.params.DNI) {
@@ -485,33 +489,49 @@ router.get("/perfil/:DNI?", async (req, res) => {
         res.send(pagina.render());
         return;
       }
-      
+
       let bloqueo = await BloqueoDAO.findAll({
         where: {
           bloqueadoDNI: req.params.DNI,
           fecha_desbloqueo: null
         }
       })
-      if (bloqueo && req.session.usuario.perfil.permiso.ID < 2) {
+      if (bloqueo.length > 0 && req.session.usuario.perfil.permiso.ID < 2) {
         res.send(paginaError.render());
         return;
       }
 
+      usuarioActual=req.session.usuario;
     }
-    
-    let usu = await UsuarioDAO.findByPk(req.params.DNI, {
-      include: PerfilDAO,
-    });
-    if (!usu) {
-      //no existe el usuario buscado
+    let bloqueo = await BloqueoDAO.findAll({
+      where: {
+        bloqueadoDNI: req.params.DNI,
+        fecha_desbloqueo: null
+      }
+    })
+    if (bloqueo.length > 0) {
       res.send(paginaError.render());
       return;
     }
-    //Perfil ajeno
-    let filtro = { duenioID: null };
-    filtro.duenioID = usu.DNI;
+    let usu = await UsuarioDAO.findByPk(req.params.DNI, {
+      include: [
+        {
+          model: PerfilDAO
+        },
+        {
+          model: Carrera
+        }
+      ],
+    });
+    if (!usu) {
+      // * no existe el usuario buscado
+      res.send(paginaError.render());
+      return;
+    }
+    // * Perfil ajeno
+    let filtro = { DNI: usu.DNI , usuarioActual};
     // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-    let pre = await PreguntaDAO.pagina(filtro);
+    let pre = await PostDAO.pagina(filtro);
     let pagina = PaginaPerfil(req.path, req.session, usu);
     pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
     res.send(pagina.render());
@@ -612,13 +632,18 @@ router.get("/administracion/usuarios", (req, res) => {
     res.send(pagina.render());
     return;
   }
-  const query = req.query.searchInput;
+  const query = req.url.substring(req.url.indexOf("?"));
   let pagina = PantallaAdministracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
 });
 
 router.get('/quienes-somos', (req, res) => {
   let pagina = PantallaQuienesSomos(req.path, req.session);
+  res.send(pagina.render());
+})
+
+router.get('/manual', (req, res) => {
+  let pagina = PantallaManual(req.path, req.session.usuario);
   res.send(pagina.render());
 })
 
