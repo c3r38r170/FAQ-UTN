@@ -40,7 +40,7 @@
 			width: 100%;
     		min-width: 220px;
 			
-			word-break: break-all;
+			overflow-wrap: anywhere;
 	
 			.pregunta, .respuesta{
 				font-size: smaller !important;
@@ -80,7 +80,6 @@
 		}
 	}
 
-
 }
 
 #moderacion-posts-modal form{
@@ -102,6 +101,10 @@
 				padding: 0;
 				margin: 0;
 				border: none;
+
+				.titulo{
+					width: 100%;
+				}
 			}
 
 			[type="radio"]{

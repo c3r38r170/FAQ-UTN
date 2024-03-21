@@ -31,7 +31,7 @@ gEt("administrar-usuarios").onclick = (e) => {
   );
   let usuarioElegido = tabla.entidades[indiceUsuarioElegido];
 
-  modal.titulo = "Editar a " + usuarioElegido.nombre;
+  modal.titulo = "Editar la cuenta de \"" + usuarioElegido.nombre+'"';
   modal.contenido = [
     new Formulario(
       "administracion-usuarios-editar",

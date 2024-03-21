@@ -119,7 +119,7 @@ gEt("administrar-perfiles").onclick = (e) => {
   );
   let perfilElegido = tabla.entidades[indicePerfilElegido];
 
-  modal.titulo = "Editar a " + perfilElegido.descripcion;
+  modal.titulo = "Editar el perfil \"" + perfilElegido.descripcion+'"';
   modal.contenido = [
     new Formulario(
       "administracion-perfiles-editar",

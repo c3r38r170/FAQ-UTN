@@ -121,7 +121,7 @@ gEt("administrar-categorias").onclick = (e) => {
   );
   let categoriaElegida = tabla.entidades[indiceCategoriaElegida];
 
-  modal.titulo = "Editar a " + categoriaElegida.descripcion;
+  modal.titulo = "Editar la categoría \"" + categoriaElegida.descripcion+'"';
   modal.contenido = [
     new Formulario(
       "administracion-categorias-editar",

@@ -814,7 +814,6 @@ tbody td:first-child{
 }
 
 #moderacion-posts-modal{
-
 	.modal-content{
 		height: 100%;
 		overflow-y: visible;
@@ -822,7 +821,7 @@ tbody td:first-child{
 		.box{
 			height: 100%;
 			overflow: hidden;
-			overflow-y: scroll;
+			overflow-y: auto;
 			scroll-behavior: smooth;
 			padding-bottom: 1rem;
 		}

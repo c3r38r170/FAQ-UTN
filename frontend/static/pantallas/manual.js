@@ -179,10 +179,8 @@ function crearPagina(ruta,usuario) {
 				new ComponenteLiteral(()=>formatearParrafos(
 					`En <a href="/administracion/perfiles">Administración de Perfiles</a> vas a encontrar la siguiente tabla:
 					<img srcset="perfiles.png 1.4x">
-					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar un Perfil.
-					Para crear un Perfil nuevo presiona el botón 'Agregar' al final de la tabla.
+					Ahí podés accionar en el boton Editar, o en el perilla para Habilitar/Deshabilitar un Perfil. Para crear un Perfil nuevo presiona el botón "Agregar" al final de la tabla y completá el formulario.
 					<img srcset="agregar.png 1.4x">
-					Y completá el formulario:
 					<img srcset="agregar-perfil.png 1.4x">
 					`
 				)),
@@ -190,30 +188,26 @@ function crearPagina(ruta,usuario) {
 				new ComponenteLiteral(()=>formatearParrafos(
 					`En <a href="/administracion/usuarios">Administración de Usuarios</a> vas a encontrar la siguiente tabla:
 					<img srcset="tabla-usuarios.png 1.4x">
-					Ahí podes accionar en el boton Editar, o en el toggle switch para Bloquear/Desbloquear un Usuario.
-					Para crear un Usuario nuevo presiona el botón 'Agregar' al final de la tabla.
+					Ahí podés accionar en el boton "Editar", o en el perilla para Bloquear/Desbloquear un Usuario. Para crear un Usuario nuevo presioná el botón "Agregar" al final de la tabla y completá el formulario.
 					<img srcset="agregar.png 1.4x">
-					Y completá el formulario:
 					<img srcset="agregar-usuario.png 1.4x">`
 				)),
 				new Titulo('h2',5,'Administrar Categorías','mt-5','administracion-categorias'),
 				new ComponenteLiteral(()=>formatearParrafos(
 					`En <a href="/administracion/categorias">Administración de Categorías</a> vas a encontrar la siguiente tabla:
 					<img srcset="tabla-categorias.png 1.4x">
-					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar una Categoría.
-					Para crear una Categoría nueva presiona el botón 'Agregar' al final de la tabla.
+					Ahí podés accionar en el boton Editar, o en el perilla para Habilitar/Deshabilitar una Categoría. Para crear una Categoría nueva presiona el botón "Agregar" al final de la tabla y completá el formulario.
 					<img srcset="agregar.png 1.4x">
-					Y completá el formulario correspondiente.
+					<img srcset="formulario-categoria.png 1.4x">
 					`
 				)),
 				new Titulo('h2',5,'Administrar Etiquetas','mt-5','administracion-etiquetas'),
 				new ComponenteLiteral(()=>formatearParrafos(
 					`En <a href="/administracion/etiquetas">Administración de Etiquetas</a> vas a encontrar la siguiente tabla:
 					<img srcset="tabla-etiquetas.png 1.4x">
-					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar una Etiqueta.
-					Para crear una Etiqueta nueva presiona el botón 'Agregar' al final de la tabla.
+					Ahí podés accionar en el boton Editar, o en el perilla para Habilitar/Deshabilitar una Etiqueta. Para crear una Etiqueta nueva presiona el botón "Agregar" al final de la tabla y completá el formulario.
 					<img srcset="agregar.png 1.4x">
-					Y completá el formulario correspondiente.
+					<img srcset="formulario-etiqueta.png 1.4x">
 					`
 				))
 				
@@ -223,7 +217,7 @@ function crearPagina(ruta,usuario) {
 					`<p>Finalmente, hay disponibles una serie de parámetros que dictan cómo funciona la aplicación. A continuación, facilitamos una descripción de cada parámetro y lo que afecta, junto con sus valores predeterminados.</p>
 					<p>Los parámetros sobre la Inteligencia Artificial tienen en cuenta que el servicio remoto responderá con un número entre 0 y 100 al contenido que se le envía (cada pregunta y respuesta), donde 0 es completamente inapropiado y 100 es completamente permitible, sin aceptar insultos.</p>
 					<div class="content">
-					<table><thead><tr><th>Parámetro</th><th>Descripción</th><th>Valor Recomendado</th></tr></thead>
+					<table id="tabla-parametros"><thead><tr><th>Parámetro</th><th>Descripción</th><th>Valor Recomendado</th></tr></thead>
 						<tbody><tr><td>Resultados por página</td><td>La cantidad de resultados que vienen por segmentación en tablas, y en las pantallas donde el usuario reciba contenido al desplazarse (preguntas, respuestas, notificaciones...)</td><td>10</td></tr>
 						<tr><td>Moderar con IA</td><td>Activa o desactiva el uso del servicio de Inteligencia Artificial para moderar el contenido nuevo. Si se desactiva, el contenido no será moderado en absoluto.</td><td>Sí</td></tr>
 						<tr><td>Confianza para rechazar post</td><td>Límite superior de cuán apropiado debe ser una publicación para ser rechazada por el servicio de Inteligencia Artificial. A mayor número, más restrictivo es el módulo.</td><td>40</td></tr>

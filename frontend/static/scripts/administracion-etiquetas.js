@@ -120,7 +120,7 @@ gEt("administrar-etiquetas").onclick = (e) => {
   );
   let etiquetaElegida = tabla.entidades[indiceEtiquetaElegida];
 
-  modal.titulo = "Editar a " + etiquetaElegida.descripcion;
+  modal.titulo = "Editar la etiqueta \"" + etiquetaElegida.descripcion+'"';
   modal.contenido = [
     new Formulario(
       "administracion-etiquetas-editar",
@@ -132,11 +132,12 @@ gEt("administrar-etiquetas").onclick = (e) => {
           type: "text",
           value: etiquetaElegida.descripcion,
         },
+        // TODO Refactor: Esta lista tiene un undefined invisible en la list de hijos, antes de los option
         {
           name: "categoriaID",
           textoEtiqueta: "Categoría:",
           type: "select",
-        },
+        }
       ],
       (txt, info) => {
         if (info.ok) {
