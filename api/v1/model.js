@@ -922,7 +922,6 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
         
         if(filtrar?.suscripciones){
           opcionesSuscripciones.where.suscriptoDNI=usuarioActual.DNI;
-          // opcionesSuscripciones.required=true;
         }else{
           opcionesSuscripciones.include={ model: Usuario, as: 'suscripto', where: {DNI:usuarioActual.DNI} };
           opcionesSuscripciones.required=false;
