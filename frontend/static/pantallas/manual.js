@@ -140,8 +140,8 @@ function crearPagina(ruta,usuario) {
 			partesManual.push(
 				// Administrar los 4 son iguales
 				new Titulo('h2',5,'Administración','mt-5','administracion')
-				,new ComponenteLiteral(()=>formatearParrafos(
-					`Como administrador, tenés privilegios adicionales que te permiten gestionar las siguientes entidades:
+				,new ComponenteLiteral(()=>
+					`<p>Como administrador, tenés privilegios adicionales que te permiten gestionar las siguientes entidades:</p>
 					<div class="content">
 						<ul>
 							<li>Perfiles: Son los perfiles a los que puede estar asociado un usuario y cuentan con diferentes niveles de Permisos.
@@ -174,7 +174,7 @@ function crearPagina(ruta,usuario) {
 							</li>
 						</ul>
 					</div>`
-				)),
+				),
 				new Titulo('h2',5,'Administrar Perfiles','mt-5','administracion-perfiles'),
 				new ComponenteLiteral(()=>formatearParrafos(
 					`En <a href="/administracion/perfiles">Administración de Perfiles</a> vas a encontrar la siguiente tabla:
@@ -182,7 +182,7 @@ function crearPagina(ruta,usuario) {
 					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar un Perfil.
 					Para crear un Perfil nuevo presiona el botón 'Agregar' al final de la tabla.
 					<img srcset="agregar.png 1.4x">
-					Y completa el formulario:
+					Y completá el formulario:
 					<img srcset="agregar-perfil.png 1.4x">
 					`
 				)),
@@ -193,9 +193,8 @@ function crearPagina(ruta,usuario) {
 					Ahí podes accionar en el boton Editar, o en el toggle switch para Bloquear/Desbloquear un Usuario.
 					Para crear un Usuario nuevo presiona el botón 'Agregar' al final de la tabla.
 					<img srcset="agregar.png 1.4x">
-					Y completa el formulario:
-					<img srcset="agregar-usuario.png 1.4x">
-					`
+					Y completá el formulario:
+					<img srcset="agregar-usuario.png 1.4x">`
 				)),
 				new Titulo('h2',5,'Administrar Categorías','mt-5','administracion-categorias'),
 				new ComponenteLiteral(()=>formatearParrafos(
@@ -204,7 +203,7 @@ function crearPagina(ruta,usuario) {
 					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar una Categoría.
 					Para crear una Categoría nueva presiona el botón 'Agregar' al final de la tabla.
 					<img srcset="agregar.png 1.4x">
-					Y completa el formulario correspondiente.
+					Y completá el formulario correspondiente.
 					`
 				)),
 				new Titulo('h2',5,'Administrar Etiquetas','mt-5','administracion-etiquetas'),
@@ -214,7 +213,7 @@ function crearPagina(ruta,usuario) {
 					Ahí podes accionar en el boton Editar, o en el toggle switch para Habilitar/Deshabilitar una Etiqueta.
 					Para crear una Etiqueta nueva presiona el botón 'Agregar' al final de la tabla.
 					<img srcset="agregar.png 1.4x">
-					Y completa el formulario correspondiente.
+					Y completá el formulario correspondiente.
 					`
 				))
 				
