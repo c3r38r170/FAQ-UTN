@@ -1,13 +1,1 @@
-#nueva-pregunta-sugerencias {
-  display: flex;
-  overflow: auto;
-}
-#nueva-pregunta-sugerencias .pregunta {
-  min-width: -moz-max-content;
-  min-width: max-content;
-  padding: 0.5rem 1rem;
-  margin: 0;
-}
-#nueva-pregunta-sugerencias .pregunta .titulo {
-  font-size: smaller;
-}/*# sourceMappingURL=pregunta.css.map */
+#nueva-pregunta-sugerencias{display:flex;overflow:auto}#nueva-pregunta-sugerencias .pregunta{min-width:-moz-max-content;min-width:max-content;padding:.5rem 1rem;margin:0}#nueva-pregunta-sugerencias .pregunta .titulo{font-size:smaller;width:100%}/*# sourceMappingURL=pregunta.css.map */

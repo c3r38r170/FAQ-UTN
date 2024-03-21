@@ -6,7 +6,7 @@ class Desplegable{
     opciones = [];
     #tipoPorDefecto;
     htmlOpciones={
-        link:opcion=>`<a href="${opcion.href}" class="dropdown-item">${opcion.descripcion}</a>`
+        link:opcion=>`<div class="dropdown-item"><a href="${opcion.href}">${opcion.descripcion}</a></div>`
         ,div:opcion=>`<div class="dropdown-item">${opcion.descripcion}</div>`
         ,option:opcion=>`<option value="${opcion.value}">${opcion.descripcion}</option>`
         ,form:opcion=>`${opcion.render}`

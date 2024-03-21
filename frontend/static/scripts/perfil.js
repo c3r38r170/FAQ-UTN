@@ -130,3 +130,4 @@ gEt("botonCambiarContraseña").onclick = (e) => {
     }
     input.click();
   };
+

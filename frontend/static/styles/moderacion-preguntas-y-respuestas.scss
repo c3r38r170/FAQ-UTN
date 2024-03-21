@@ -40,7 +40,7 @@
 			width: 100%;
     		min-width: 220px;
 			
-			word-break: break-all;
+			overflow-wrap: anywhere;
 	
 			.pregunta, .respuesta{
 				font-size: smaller !important;
@@ -80,7 +80,6 @@
 		}
 	}
 
-
 }
 
 #moderacion-posts-modal form{
@@ -102,6 +101,11 @@
 				padding: 0;
 				margin: 0;
 				border: none;
+
+				// TODO Refactor: Esto se debe a la forma en la que se solucionó el CSS de las preguntas. Revisarlo para sacar esto.
+				.titulo{
+					width: 100%;
+				}
 			}
 
 			[type="radio"]{
