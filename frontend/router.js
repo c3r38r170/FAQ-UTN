@@ -482,37 +482,42 @@ router.get("/perfil/:DNI?", async (req, res) => {
   let paginaError = SinPermisos(req.session, "Algo ha malido sal.")
   let usuarioActual;
   if (req.params.DNI) {
-    if (req.session.usuario) {
-      if (req.session.usuario.DNI == req.params.DNI) {
-        //perfil propio
-        let pagina = PaginaPerfilPropioInfo(req.path, req.session);
-        res.send(pagina.render());
-        return;
-      }
-
-      let bloqueo = await BloqueoDAO.findAll({
-        where: {
-          bloqueadoDNI: req.params.DNI,
-          fecha_desbloqueo: null
-        }
-      })
-      if (bloqueo.length > 0 && req.session.usuario.perfil.permiso.ID < 2) {
-        res.send(paginaError.render());
-        return;
-      }
-
-      usuarioActual=req.session.usuario;
-    }
+    
+    // Esta bloqueado el usuario?
     let bloqueo = await BloqueoDAO.findAll({
       where: {
         bloqueadoDNI: req.params.DNI,
         fecha_desbloqueo: null
       }
     })
-    if (bloqueo.length > 0) {
+
+    // Si está bloqueado y no hay sesion CHAU
+    if (bloqueo.length > 0 && !req.session.usuario) {
+      // * Esta bloqueado y No estoy logueado
       res.send(paginaError.render());
       return;
     }
+
+   
+    if (req.session.usuario) {
+      if (req.session.usuario.DNI == req.params.DNI) {
+        // * perfil propio
+        let pagina = PaginaPerfilPropioInfo(req.path, req.session);
+        res.send(pagina.render());
+        return;
+      }
+
+      
+      if (bloqueo.length > 0 && req.session.usuario.perfil.permiso.ID < 2) {
+        // * Esta bloqueado y estoy logueado pero no tengo permisos
+        res.send(paginaError.render());
+        return;
+      }
+
+    }
+    
+    
+    
     let usu = await UsuarioDAO.findByPk(req.params.DNI, {
       include: [
         {
@@ -528,6 +533,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
       res.send(paginaError.render());
       return;
     }
+
     // * Perfil ajeno
     let filtro = { DNI: usu.DNI , usuarioActual};
     // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
