@@ -41,7 +41,7 @@ import {
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
 // TODO Refactor: Usar todas.js
-import { PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual } from './static/pantallas/todas.js';
+import { PantallaEstadisticasPosts, PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -49,11 +49,11 @@ router.get("/", (req, res) => {
   // console.log(req.query);
   let etiquetas = req.query.etiquetas;
   let texto = req.query.searchInput;
-  let parametros={usuarioActual:req.session.usuario};
+  let parametros = { usuarioActual: req.session.usuario };
   if (texto || etiquetas) {
     let queryString = req.url.substring(req.url.indexOf("?"));
 
-    parametros.filtrar={};
+    parametros.filtrar = {};
     if (texto) {
       parametros.filtrar.texto = texto;
     }
@@ -339,7 +339,7 @@ router.get("/perfil/preguntas", (req, res) => {
       return;
     }
 
-    let filtro = { duenioID: req.session.usuario.DNI, usuarioActual:usu };
+    let filtro = { duenioID: req.session.usuario.DNI, usuarioActual: usu };
     PreguntaDAO.pagina(filtro).then((pre) => {
       let pagina = PaginaPerfilPropioPreguntas(req.path, req.session);
       pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
@@ -501,7 +501,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
         return;
       }
 
-      usuarioActual=req.session.usuario;
+      usuarioActual = req.session.usuario;
     }
     let bloqueo = await BloqueoDAO.findAll({
       where: {
@@ -529,7 +529,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
       return;
     }
     // * Perfil ajeno
-    let filtro = { DNI: usu.DNI , usuarioActual};
+    let filtro = { DNI: usu.DNI, usuarioActual };
     // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
     let pre = await PostDAO.pagina(filtro);
     let pagina = PaginaPerfil(req.path, req.session, usu);
@@ -634,6 +634,23 @@ router.get("/administracion/usuarios", (req, res) => {
   }
   const query = req.url.substring(req.url.indexOf("?"));
   let pagina = PantallaAdministracionUsuarios(req.path, req.session, query);
+  res.send(pagina.render());
+});
+
+//estadisticas
+router.get("/estadisticas/posts/etiquetas", (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+
+  let pagina = PantallaEstadisticasPosts(req.path, req.session);
   res.send(pagina.render());
 });
 

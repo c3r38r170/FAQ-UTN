@@ -1,0 +1,33 @@
+#etiquetas-usadas {
+  width: 100%;
+  font-size: 0.9rem;
+}
+#etiquetas-usadas thead {
+  background: #ECECEC;
+}
+#etiquetas-usadas thead th:first-child {
+  width: 35%;
+}
+#etiquetas-usadas thead th, #etiquetas-usadas tbody td {
+  padding: 5px 1rem;
+  vertical-align: middle;
+}
+#etiquetas-usadas thead th.centrado, #etiquetas-usadas tbody td.centrado {
+  text-align: center;
+}
+#etiquetas-usadas fieldset {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+#etiquetas-usadas .categoria {
+  display: inline-block;
+  color: white;
+  border-radius: 16px;
+  padding: 4px 1.5rem;
+  margin-top: 10px;
+}
+#etiquetas-usadas .descripcion {
+  color: grey;
+  mix-blend-mode: multiply;
+}/*# sourceMappingURL=estadisticas-posts-etiquetas.css.map */

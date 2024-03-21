@@ -124,7 +124,7 @@ class Navegacion {
           ruta == "/administracion/perfiles" ||
           ruta == "/administracion/categorias" ||
           ruta == "/administracion/etiquetas" ||
-          ruta == "/administracion/parametros"||
+          ruta == "/administracion/parametros" ||
           ruta == "/administracion/usuarios"
         ) {
           administracion = new EnlaceNavegacion(
@@ -137,7 +137,7 @@ class Navegacion {
                   "Perfiles",
                   { tipo: "solid", nombre: "circle fa-sm" },
                   "/administracion/perfiles"
-                ),new EnlaceNavegacion(
+                ), new EnlaceNavegacion(
                   "Usuarios",
                   { tipo: "solid", nombre: "circle fa-sm" },
                   "/administracion/usuarios"
@@ -163,6 +163,47 @@ class Navegacion {
           );
         }
         this.#enlaces.push(administracion);
+
+        let estadisticas = new EnlaceNavegacion("Estadísticas Posts",
+          { tipo: "solid", nombre: "user-secret" },
+          "/estadisticas/posts/etiquetas"
+        );
+        if (
+          ruta == "/estadisticas/posts" ||
+          ruta == "/estadisticas/posts/etiquetas"
+        ) {
+          estadisticas = new EnlaceNavegacion(
+            "Estadísticas Posts",
+            {
+              tipo: "solid",
+              nombre: "user-secret",
+              subenlaces: [
+                new EnlaceNavegacion(
+                  "Etiquetas más usadas",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/posts/etiquetas"
+                ),
+                new EnlaceNavegacion(
+                  "Preguntas más votadas",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/posts/preguntasMasVotadas"
+                ),
+                new EnlaceNavegacion(
+                  "Preguntas con más respuestas",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/posts/preguntasMasRespuestas"
+                ),
+                new EnlaceNavegacion(
+                  "Posts con más votos negativos",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/posts/postsNegativos"
+                ),
+              ],
+            },
+            "/estadisticas/posts/etiquetas"
+          );
+        }
+        this.#enlaces.push(estadisticas);
       }
     }
   }
@@ -200,9 +241,8 @@ class EnlaceNavegacion {
 
     return `<li>
             <a class="link" href="${this.#enlace}">
-                <i class="fa-${this.#icono.tipo} fa-${
-      this.#icono.nombre
-    } mr-1"></i>
+                <i class="fa-${this.#icono.tipo} fa-${this.#icono.nombre
+      } mr-1"></i>
                 ${this.#texto}
             </a>
             ${subnavegacionHTML}

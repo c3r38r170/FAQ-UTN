@@ -704,12 +704,12 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
 
   if (duenioDNI) { // * Esto es para los perfiles.
     // ! Esto no considera ningún filtro.
-    let opciones={
+    let opciones = {
       include: [
         {
           model: Post,
           required: true,
-          where:{eliminadorDNI:{[Sequelize.Op.is]:null}}, // * Preguntas vigentes.
+          where: { eliminadorDNI: { [Sequelize.Op.is]: null } }, // * Preguntas vigentes.
           include: [
             {
               model: Voto
@@ -724,8 +724,8 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
                 , attributes: ['ID', 'descripcion', 'color']
               }
               , attributes: ['DNI', 'nombre']
-              ,where:{
-                DNI:duenioDNI
+              , where: {
+                DNI: duenioDNI
               }
             },
             {
@@ -766,11 +766,11 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
       // ,raw:true,nest:true
     };
 
-    if(usuarioActual){
-      let opcionesSuscripciones={
+    if (usuarioActual) {
+      let opcionesSuscripciones = {
         model: SuscripcionesPregunta
         , as: 'suscripciones'
-        , include: { model: Usuario, as: 'suscripto', where: {DNI:usuarioActual.DNI} , attributes:[]}
+        , include: { model: Usuario, as: 'suscripto', where: { DNI: usuarioActual.DNI }, attributes: [] }
         , where: {
           fecha_baja: null // * Vigentes
         }
@@ -785,7 +785,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
     let opciones = {
       // raw:true,
       include: [
-        { model: Post, required: true ,where:{eliminadorDNI:{[Sequelize.Op.is]:null}}}
+        { model: Post, required: true, where: { eliminadorDNI: { [Sequelize.Op.is]: null } } }
       ],
       limit: getPaginacion().resultadosPorPagina,
       offset: (+pagina) * getPaginacion().resultadosPorPagina,
@@ -911,21 +911,21 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
       ];
 
       // TODO Refactor: Solo hace falta si hay una sesión, y solo hace falta mandar para saber si el usuario está suscrito o no. Ver ejemplo en votos.
-      if(usuarioActual){
-        let opcionesSuscripciones={
+      if (usuarioActual) {
+        let opcionesSuscripciones = {
           model: SuscripcionesPregunta
           , as: 'suscripciones'
           , where: {
             fecha_baja: null // * Vigentes
           }
         };
-        
-        if(filtrar?.suscripciones){
-          opcionesSuscripciones.where.suscriptoDNI=usuarioActual.DNI;
+
+        if (filtrar?.suscripciones) {
+          opcionesSuscripciones.where.suscriptoDNI = usuarioActual.DNI;
           // opcionesSuscripciones.required=true;
-        }else{
-          opcionesSuscripciones.include={ model: Usuario, as: 'suscripto', where: {DNI:usuarioActual.DNI} };
-          opcionesSuscripciones.required=false;
+        } else {
+          opcionesSuscripciones.include = { model: Usuario, as: 'suscripto', where: { DNI: usuarioActual.DNI } };
+          opcionesSuscripciones.required = false;
           // ! No hace falta separate, porque un usuario siempre va a tener una sola suscripcion a cada pregunta (o ninguna). 
         }
 
@@ -1195,7 +1195,7 @@ Pregunta.hasMany(EtiquetasPregunta, {
 });
 
 EtiquetasPregunta.belongsTo(Etiqueta, { constraints: false });
-
+EtiquetasPregunta.belongsTo(Pregunta, { constraints: false });
 
 const Categoria = sequelize.define("categoria", {
   ID: {
