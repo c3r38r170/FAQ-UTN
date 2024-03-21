@@ -170,7 +170,10 @@ class Navegacion {
         );
         if (
           ruta == "/estadisticas/posts" ||
-          ruta == "/estadisticas/posts/etiquetas"
+          ruta == "/estadisticas/posts/etiquetas" ||
+          ruta == "/estadisticas/posts/preguntasMasVotadas" ||
+          ruta == "/estadisticas/posts/preguntasMasRespuestas" ||
+          ruta == "/estadisticas/posts/postsNegativos"
         ) {
           estadisticas = new EnlaceNavegacion(
             "Estadísticas Posts",

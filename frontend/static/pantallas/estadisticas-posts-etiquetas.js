@@ -38,4 +38,4 @@ function crearPagina(ruta, usuario) {
     });
 }
 
-export { crearPagina as PantallaEstadisticasPosts };
+export { crearPagina as PantallaEstadisticasPostsEtiquetas };

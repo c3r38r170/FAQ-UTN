@@ -11,6 +11,7 @@ import {
   SuscripcionesEtiqueta,
   Notificacion,
   EtiquetasPregunta,
+  Voto
 } from "./model.js";
 import { mensajeError403 } from "./mensajesError.js";
 
@@ -21,7 +22,7 @@ import { getModera, getRechazaPost, getReportaPost } from "./parametros.js";
 router.get("/", (req, res) => {
   // TODO Feature: Aceptar etiquetas.
 
-  let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto !== undefined, usuarioActual:req.session?.usuario};
+  let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto !== undefined, usuarioActual: req.session?.usuario };
 
   // TODO Refactor: DRY
   if (req.query.searchInput) {
@@ -376,6 +377,31 @@ router.delete("/:preguntaID/suscripcion", function (req, res) {
     });
 });
 
+router.get("/masVotadas", function (req, res) {
+  Pregunta.findAll({
+    attributes: [[Sequelize.fn('SUM', Sequelize.col('valoracion')), 'valoracion']],
+    include: [
+      {
+        model: Post,
+        include: [
+          {
+            model: Voto,
+            attributes: []
+          }
+        ]
+      }
+    ],
+    group: ['ID'],
+    order: [[Sequelize.literal('SUM(valoracion)'), 'DESC']]
+  })
+    .then(preguntas => {
+      // Etiquetas ordenadas por uso
+      res.status(200).send(preguntas)
+    })
+    .catch(error => {
+      res.status(400).send(error.message);
+    });
+});
 
 
 export { router };

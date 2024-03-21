@@ -1,6 +1,6 @@
-import { PantallaEstadisticasPosts } from "../pantallas/estadisticas-posts-etiquetas.js";
+import { PantallaEstadisticasPostsEtiquetas } from "../pantallas/estadisticas-posts-etiquetas.js";
 
-let pagina = PantallaEstadisticasPosts(location.pathname, {
+let pagina = PantallaEstadisticasPostsEtiquetas(location.pathname, {
     usuario: window.usuarioActual,
 });
 let modal = pagina.partes[0];
