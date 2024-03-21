@@ -144,28 +144,28 @@ function crearPagina(ruta,usuario) {
 					`<p>Como administrador, tenés privilegios adicionales que te permiten gestionar las siguientes entidades:</p>
 					<div class="content">
 						<ul>
-							<li>Perfiles: Son los perfiles a los que puede estar asociado un usuario y cuentan con diferentes niveles de Permisos.
+							<li><b>Perfiles</b>: Son los perfiles a los que puede estar asociado un usuario y cuentan con diferentes niveles de <b>Permisos</b>.
 								<ul>
 									<li>Agregar un nuevo Perfil</li>
 									<li>Editar un Perfil existente</li>
 									<li>Habilitar/Deshabilitar un Perfil existente</li>
 								</ul>		
 							</li>
-							<li>Usuarios: Los usuarios son la piedra angular de nuestra comunidad en línea. Cada usuario contribuye al intercambio de información, discusiones y colaboración en nuestro sitio web, creando así una experiencia enriquecedora y dinámica para todos los miembros.
+							<li><b>Usuarios</b>: Los usuarios son la piedra angular de nuestra comunidad en línea. Cada usuario contribuye al intercambio de información, discusiones y colaboración en nuestro sitio web, creando así una experiencia enriquecedora y dinámica para todos los miembros.
 								<ul>
 									<li>Agregar un nuevo Usuario</li>
 									<li>Editar un Usuario existente</li>
 									<li>Bloquear/Desbloquear un Usuario existente</li>
 								</ul>	
 							</li>
-							<li>Categorías: Las categorías son una forma de organizar y clasificar el contenido relacionado. Cada Categoría puede tener varias etiquetas asociadas a ella.
+							<li><b>Categorías</b>: Las categorías son una forma de organizar y clasificar el contenido relacionado. Cada Categoría puede tener varias etiquetas asociadas a ella.
 								<ul>
 									<li>Agregar una nueva Categoría</li>
 									<li>Editar una Categoría existente</li>
 									<li>Habilitar/Deshabilitar una Categoría existente</li>
 								</ul>	
 							</li>
-							<li>Etiquetas: Las etiquetas son términos más específicos que se utilizan para etiquetar el contenido dentro de una categoría.
+							<li><b>Etiquetas</b>: Las etiquetas son términos más específicos que se utilizan para etiquetar el contenido dentro de una categoría.
 								<ul>
 									<li>Agregar una nueva Etiqueta</li>
 									<li>Editar una Etiqueta existente</li>

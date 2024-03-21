@@ -27,13 +27,15 @@
 		ul{
 			margin: auto;
 			width: max-content;
+			max-width: calc(100% - 4rem);
+			margin-left: 4rem;
 		}
 	}
 }
 
 @media screen and (max-aspect-ratio: 13/9) {
 	.content ul{
-		max-width: calc(100% - 2rem);
-		margin-left: 2rem;
+		max-width: calc(100% - 2rem) !important;
+		margin-left: 2rem !important;
 	}
 }
