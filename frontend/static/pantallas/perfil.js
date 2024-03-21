@@ -1,17 +1,30 @@
 import { Modal } from "../componentes/modal.js";
-import { ChipUsuario, DesplazamientoInfinito, MensajeInterfaz } from '../componentes/todos.js'
+import { ChipUsuario, ComponenteLiteral, DesplazamientoInfinito, MensajeInterfaz, Boton } from '../componentes/todos.js'
 import { Pregunta } from "../componentes/pregunta.js";
 import { Pagina } from "../componentes/pagina.js";
 
-function crearPagina(ruta, usuario, usu) {
+function crearPagina(ruta, usuario, usu, perfilBloqueado = false) {
     let titulo = ((usuario && usu.DNI && usuario.DNI == usu.DNI) || (usuario && !usu.DNI)) ? 'Mi Perfil' : 'Perfil de ' + usu.nombre;
     let modal = new Modal('General', 'modal-general');
+    let posibleBotonModerar;
+    if(usuario.usuario?.perfil.permiso.ID > 1){
+        let boton;
+        if(perfilBloqueado){
+            boton = `<button id="botonDesbloquear" data-DNI="${usu.DNI}" type="button" class="button is-warning is-light is-small is-rounded">Desbloquear</button>`
+        }else{
+            boton = `<button id="botonBloquear" data-DNI="${usu.DNI}" type="button" class="button is-warning is-small is-rounded">Bloquear</button>`
+        }
+        posibleBotonModerar = new ComponenteLiteral(()=> `<div class="contenedor-boton-bloqueo">${boton}</div> `)
+    }else{
+        posibleBotonModerar = new ComponenteLiteral(()=> ``)
+    };
     return new Pagina({
         ruta: ruta,
         titulo: titulo,
         sesion: usuario,
         partes: [
             modal,
+            posibleBotonModerar,
             new ChipUsuario(usu, true, false)
             , new DesplazamientoInfinito(
                 'perfil-desplinf'
