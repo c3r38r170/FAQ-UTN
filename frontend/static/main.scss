@@ -116,11 +116,15 @@ table{
 	justify-content: end;
 	@media screen and (max-width: 768px) {
 		justify-content: center;
-	  }
+	}
 	
-	  @media screen and (max-width: 576px) {
+	@media screen and (max-width: 576px) {
 		justify-content: start;
-	  }
+	}
+
+	.navegacion{
+		position: sticky;top: 20px;
+	}
 }
 
 div#contenedor-principal{

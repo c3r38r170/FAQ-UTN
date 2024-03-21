@@ -9,6 +9,8 @@
 
 		.titulo{
 			font-size: smaller;
+			// TODO Refactor: Esto se debe a la forma en la que se solucionó el CSS de las preguntas. Revisarlo para sacar esto.
+			width: 100%;
 		}
 	}
 }

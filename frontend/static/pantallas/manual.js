@@ -13,13 +13,16 @@ function crearPagina(ruta,usuario) {
 			`Para encontrar la información que estás buscando, dirigite al <a href="/">inicio</a>, y usá los filtros de búsqueda.
 			Hay 2 filtros; de <b>texto</b> y de <b>etiquetas</b>. El texto sirve para encontrar la información específica; y las etiquetas, para seleccionar en qué categorías buscar, filtrar por año, carrera, etc...
 			Una vez definidos los filtros, usá el botón con una lupa para ver los resultados.
-			<img srcset="filtros.png 1.4x">`))
+			<img srcset="filtros.png 1.4x">
+			El sitio te va a mostrar las preguntas que hayan coincidido con tus filtros. Haciendo clic en el <b>título</b> de la pregunta, vas a acceder a todas las respuestas de la comunidad, donde esperamos que encuentres lo que estás buscando.
+			<img srcset="pregunta.png 1.4x">
+			`))
 	]
 
 	if(!usuario){
 		partesManual.push(
 			new ComponenteLiteral(()=>formatearParrafos(
-				`En caso de no encontrar la información deseada, si sos un estudiante de la UTN te invitamos a registrarte usando tu DNI y realizar la pregunta vos mismo, con las etiquetas correspondientes.
+				`En caso de no encontrar la información deseada, si sos un estudiante de la UTN te invitamos a registrarte usando tu DNI y realizar la pregunta vos mismo, con los detalles y las etiquetas correspondientes.
 				<img srcset="registrarse.png 1.4x">
 				<img srcset="formulario-registro.png 1.4x">
 				Cuando ingreses, en esta misma página vas a poder encontrar información sobre cómo publicar tus preguntas, y sobre cómo aportar a la comunidad respondiendo las dudas de otras personas.`
@@ -28,7 +31,7 @@ function crearPagina(ruta,usuario) {
 			,new ComponenteLiteral(()=>formatearParrafos(
 				`Si ya tenés una cuenta, vas a poder ingresar con tu DNI y contraseña apretando el botón de "Ingresar".
 				<img srcset="formulario-ingreso.png 1.4x">
-				Si <b>olvidaste tu contraseña</b>, podés apretar el botón de "Olvidé mi Contraseña". Para recuperarla, vas a necesitar usar tu DNI y la misma dirección de correo electrónico que está registrado en tu cuenta.
+				Si <b>olvidaste tu contraseña</b>, podés apretar el botón de "Olvidé mi Contraseña". Para recuperarla, vas a necesitar usar tu DNI y la misma dirección de correo electrónico que está registrada en tu cuenta.
 				<img srcset="formulario-olvide.png 1.4x">`
 				// TODO UX: ¿Algo como "Esperamos que esto te haya ayudado"?
 			))
@@ -38,36 +41,39 @@ function crearPagina(ruta,usuario) {
 			partesManual.push(
 				new Titulo('h2',5,'Publicando una pregunta','','publicando-pregunta')
 				,new ComponenteLiteral(()=>formatearParrafos(
-					`Si no encontrás la respuesta a tu pregunta, en la barra de navegación sobre el lateral izquierdo vas a encontrar el acceso al formulario de publicación de preguntas.
+					`Si no encontrás la respuesta a tu pregunta, en la barra de navegación sobre el lateral izquierdo vas a encontrar el acceso al formulario de publicación de preguntas en el enlace "Preguntar".
 					<img srcset="nav-1.png 1.4x">
-					Para realizar una pregunta, debés ponerle: <div class="content"><ul><li>Un título representativo</li><li>Una descripción de la duda o consulta</li><li>Etiquetas sobre los temas involucrados</li></ul></div>
+					Esto te va a abrir un formulario. Para realizar una pregunta, debés rellenarlo con la siguiente información: <div class="content"><ul><li>Un título representativo</li><li>Una descripción de la duda o consulta</li><li>Etiquetas sobre los temas involucrados</li></ul></div>
 					<img srcset="formulario-pregunta.png 1.4x">
+					A medida que vayas escribiendo, el formulario va a estar buscando y mostrándote preguntas según lo que completes. ¡Asegurate de pegarles un vistazo! Quizás encuentres lo que necesitabas y no necesites volverlo a preguntar y esperar que alguien que lo sepa te responda.
+					<img srcset="formulario-pregunta-sugerencias.png 1.4x">
 					Si al publicarlo te das cuenta de que te equivocaste, no te preocupes. Tenés tiempo hasta que alguien haga una respuesta para editar la pregunta, o eliminarla en caso de que lo prefieras.
 					<img srcset="formulario-pregunta-propia.png 1.4x">`
 				))
 				// * Respuestas
 				,new Titulo('h2',5,'Publicando una respuesta','','publicando-respuesta')
 				,new ComponenteLiteral(()=>formatearParrafos(
-					`Si querés responder una pregunta, añadir información, o realizar cualquier otro comentario; en la página de cada respuesta vas a tener un formulario para aportar tu granito de arena.
+					`Al final de la lista de respuestas en cada pregunta, vas a encontrar el campo dedicado a realizar una nueva respuesta. Si querés responder la pregunta, añadir información, o realizar cualquier otro comentario; este es el medio para aportar tu granito de arena.
 					<img srcset="formulario-respuesta.png 1.4x">
-					<b>Estas respuestas (junto con las preguntas) son vistas por todos.</b> Estudiantes, profesores, administradores, incluso la gente que no está registrada.
+					<b>Estas respuestas (junto con las preguntas) son vistas por todos.</b> Estudiantes, profesores, administradores, incluso la gente que no está registrada; así que te invitamos a mantener un ambiente académico libre de agresiones y lleno de cooperación. :)
 					Existe un sistema de moderación automática, y hay moderadores que se encargan de retirar todo el contenido reportado. El mecanismo de reportado de publicaciones será detallado en la siguiente sección.`
 				))
 				// * Reportes
 				,new Titulo('h2',5,'Reportando contenido','','reportando-contenido')
 				,new ComponenteLiteral(()=>formatearParrafos(
 					// TODO UX: Ver cómo otras páginas tratan este tema; usar su vocabulario.
-					`Si ves algún mal comportamiento, y ante faltas de respeto o mensajes fuera de lugar, podés reportarlo con el menú al que se accede a través de los 3 puntos en la parte superior derecha de cada pregunta / respuesta.
+					`Si ves algún mal comportamiento, o ante faltas de respeto o mensajes fuera de lugar, podés reportarlo con el menú al que se accede a través de los 3 puntos en la parte superior derecha de cada pregunta / respuesta.
 					<img srcset="formulario-reporte.png 1.4x">
 					Otra opción disponible, como se ve en la imagen, es la de reportar <b><u>preguntas</u> repetidas</b>. Esto es importante para mantener la información en un solo lugar, y no repetirla o peor, tener información errónea u obsoleta que pueda ser encontrada y usada por otros usuarios. El equipo de moderadores va a revisar los reportes, y decidir si unficar la pregunta es necesario o no.`
 				))
 				// * Suscripciones
 				,new Titulo('h2',5,'Suscripciones','','encabezado-suscripciones')
 				,new ComponenteLiteral(()=>formatearParrafos(
-					`Al lado del botón de 3 puntos, está el botón de "Suscribirse". Al apretar este botón, serás notificado de cada nuevo comentario sobre esa pregunta. Al suscribirte, el botón cambia para ofrecer la opción de desuscripción. El día que esa pregunta ya no sea de relevancia, podrás desuscribirte para dejar de recibir las actualizaciones.
+					`Al lado del botón de 3 puntos, está el botón de "Suscribirse". Al apretar este botón, serás notificado de cada <b>nuevo comentario</b> sobre esa pregunta. Al suscribirte, el botón cambia para ofrecer la opción de desuscripción. El día que esa pregunta ya no sea de relevancia, podrás desuscribirte para dejar de recibir las actualizaciones.
 					<img srcset="boton-suscribirse.png 1.4x">
 					<img srcset="boton-desuscribirse.png 1.4x">
-					Cada vez que hacés una pregunta, automáticamente el sistema te suscribe a ella, para notificarte de las nuevas respuestas. Siempre vas a tener la opción de desuscribirte, incluso en tus propias respuestas.`
+					Cada vez que hacés una pregunta, automáticamente el sistema te suscribe a ella, para notificarte de las nuevas respuestas. Siempre vas a tener la opción de desuscribirte, incluso en tus propias respuestas.
+					Podés encontrar y administrar todas tus suscripciones en el enlace en la barra lateral izquierda adecuadamente titulado "Suscripciones".`
 				))
 				// * Notificaciones
 				,new Titulo('h2',5,'Notificaciones','','encabezado-notificaciones')
@@ -84,7 +90,7 @@ function crearPagina(ruta,usuario) {
 					<img srcset="perfil-chiquito.png 1.4x">
 					Haciendo clic en los nombres, podés acceder al perfil donde vas a encontrar su información personal, y todas las preguntas y respuestas que tengan publicadas.
 					<img srcset="perfil-grande.png 1.4x">
-					Accediento a tu propio perfil, a través de una pregunta, una respuesta, o el acceso en la barra de navegación a la izquierda; vas a encontrar un espacio para ver tus datos personales. En este menú, vas a poder cambiar tu correo, tu foto de perfil, y tu contraseña cuando lo creas necesario. También vas a poder encontrar accesos para ver todas tus preguntas y todas tus respuestas a la izquierda.
+					Accediento a tu propio perfil, a través de una pregunta, una respuesta, o el acceso en la barra de navegación a la izquierda llamado "Perfil"; vas a encontrar un espacio para ver tus datos personales. En este menú, vas a poder cambiar tu correo, tu foto de perfil, y tu contraseña cuando lo creas necesario. También vas a poder encontrar accesos para ver todas tus preguntas y todas tus respuestas a la izquierda.
 					<img srcset="perfil-propio.png 1.4x">`
 				))
 			);
