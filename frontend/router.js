@@ -483,6 +483,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
   let usuarioActual;
   if (req.params.DNI) {
     
+    let perfilBloqueado = false;
     // Esta bloqueado el usuario?
     let bloqueo = await BloqueoDAO.findAll({
       where: {
@@ -491,8 +492,12 @@ router.get("/perfil/:DNI?", async (req, res) => {
       }
     })
 
+    if(bloqueo.length > 0){
+      perfilBloqueado = true;
+    }
+
     // Si está bloqueado y no hay sesion CHAU
-    if (bloqueo.length > 0 && !req.session.usuario) {
+    if (perfilBloqueado && !req.session.usuario) {
       // * Esta bloqueado y No estoy logueado
       res.send(paginaError.render());
       return;
@@ -508,7 +513,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
       }
 
       
-      if (bloqueo.length > 0 && req.session.usuario.perfil.permiso.ID < 2) {
+      if (perfilBloqueado && req.session.usuario.perfil.permiso.ID < 2) {
         // * Esta bloqueado y estoy logueado pero no tengo permisos
         res.send(paginaError.render());
         return;
@@ -538,7 +543,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
     let filtro = { DNI: usu.DNI , usuarioActual};
     // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
     let pre = await PostDAO.pagina(filtro);
-    let pagina = PaginaPerfil(req.path, req.session, usu);
+    let pagina = PaginaPerfil(req.path, req.session, usu, perfilBloqueado);
     pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
     res.send(pagina.render());
     return;

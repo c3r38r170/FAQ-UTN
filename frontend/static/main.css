@@ -730,4 +730,10 @@ tbody td:first-child {
   overflow-y: scroll;
   scroll-behavior: smooth;
   padding-bottom: 1rem;
+}
+
+.contenedor-boton-bloqueo {
+  display: flex;
+  margin: 1rem 3rem;
+  justify-content: right;
 }/*# sourceMappingURL=main.css.map */
