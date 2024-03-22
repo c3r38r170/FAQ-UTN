@@ -712,9 +712,10 @@ router.get("/estadisticas/usuarios/masRelevantes", (req, res) => {
   }
 
 
-  let pagina = PantallaEstadisticasUsuariosMasRelevantes(req.path, req.session);
+  let pagina = PantallaEstadisticasUsuariosMasRelevantes(req.path, req.session, req.url.substring(req.url.indexOf("?")));
   res.send(pagina.render());
 });
+
 
 router.get('/quienes-somos', (req, res) => {
   let pagina = PantallaQuienesSomos(req.path, req.session);

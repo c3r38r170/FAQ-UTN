@@ -3,6 +3,8 @@ import { Pagina, Modal, Tabla, ComponenteLiteral, ChipUsuario } from "../compone
 // TODO Now: Agregar etiquetas
 function crearPagina(ruta, usuario, query = "") {
     let modal = new Modal('General', 'modal-general');
+    let votados = query == "?votados=0" ? 1 : 0;
+    console.log(query)
     let contenedor1 = new ComponenteLiteral(() => `<div class="contenedor-tabla">`)
     let contenedor2 = new ComponenteLiteral(() => `</div>`)
     let tabla = new Tabla("usuarios-mas-relevantes", "/api/usuario/masRelevantes" + query, [
@@ -18,7 +20,7 @@ function crearPagina(ruta, usuario, query = "") {
                 post.cantPosts ? post.cantPosts : 0,
         },
         {
-            nombre: "<a title='Filtrar por valoración' href='?votados=0'>Puntuacion</a>",
+            nombre: "<a title='Filtrar por valoración' href='?votados=" + votados + "'>Puntuacion</a>",
             clases: ["centrado"],
             celda: (post) =>
                 post.valoracion ? post.valoracion : 0,

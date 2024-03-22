@@ -529,7 +529,7 @@ router.get("/masRelevantes", function (req, res) {
         attributes: ['DNI', 'nombre']
       },
     ],
-    order: req.query.votados ? [[Sequelize.literal('COALESCE(SUM(valoracion), 0)'), 'DESC']] : [[Sequelize.literal('COUNT(post.ID)'), 'DESC']],
+    order: req.query.votados ? req.query.votados == 0 ? [[Sequelize.literal('COALESCE(SUM(valoracion), 0)'), 'ASC']] : [[Sequelize.literal('COALESCE(SUM(valoracion), 0)'), 'DESC']] : [[Sequelize.literal('COUNT(post.ID)'), 'DESC']],
     group: ['DNI'], // Ajustando para agrupar por DNI del usuario
     subQuery: false,
     raw: true,

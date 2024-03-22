@@ -208,52 +208,7 @@ const Post = sequelize.define(
     ],
   }
 );
-/*
-Post.pagina = ({ pagina = 0, DNI } = {}) => {
-  return Post.findAll({
-    include: [
-      { model: Usuario, as: "duenio" },
-      {
-        model: Voto
-        , separate: true
-        , include: { model: Usuario, as: 'votante' }
-      }
-      , {
-        model: Usuario
-        , as: 'duenio'
-        , include: {
-          model: Perfil
-          , attributes: ['ID', 'nombre', 'color']
-        }
-        , attributes: ['DNI', 'nombre']
-      },
-      {
-        model: Pregunta,
-        as: "pregunta",
-        required: false,
-        attributes: ["ID", "titulo"],
-        include: [
-          {
-            model: EtiquetasPregunta,
-            required: true,
-            as: "etiquetas",
-            include: {
-              model: Etiqueta,
-            },
-            separate: true,
-          },
-        ],
-      },
-    ],
-    where: {
-      "$post.duenioDNI$": +DNI,
-    },
-    order: [["fecha", "DESC"]],
-    limit: getPaginacion().resultadosPorPagina,
-    offset: +pagina * getPaginacion().resultadosPorPagina,
-  });
-};
-*/
+
 Usuario.hasMany(Post, {
   constraints: false,
   foreignKey: "duenioDNI",
