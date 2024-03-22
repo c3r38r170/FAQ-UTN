@@ -174,10 +174,6 @@ router.post("/:reportadoID/reporte", reportarPost);
     }); */
   
   router.delete('/:ID',(req,res) => {
-    if (req.session.usuario.perfil.permiso.ID < 2) {
-      res.status(403).send(mensajeError403);
-      return;
-    }
   
     Post.findByPk(req.params.ID,{
       include:{model:Usuario,as:'eliminador'}
@@ -185,6 +181,11 @@ router.post("/:reportadoID/reporte", reportarPost);
       .then((post) => {
         if (!post) {
           res.status(404).send(mensajeError404);
+          return;
+        }
+
+        if (req.session.usuario.DNI!=post.duenioDNI && req.session.usuario.perfil.permiso.ID < 2) {
+          res.status(403).send(mensajeError403);
           return;
         }
   
