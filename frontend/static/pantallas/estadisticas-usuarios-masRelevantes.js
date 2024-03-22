@@ -5,6 +5,7 @@ function crearPagina(ruta, usuario, query = "") {
     let modal = new Modal('General', 'modal-general');
     let votados = query == "?votados=0" ? 1 : 0;
     console.log(query)
+    let aviso = new ComponenteLiteral(() => '<label>Apretando en las cabeceras puede cambiar la forma en la que se ordenan los usuarios</label>')
     let contenedor1 = new ComponenteLiteral(() => `<div class="contenedor-tabla">`)
     let contenedor2 = new ComponenteLiteral(() => `</div>`)
     let tabla = new Tabla("usuarios-mas-relevantes", "/api/usuario/masRelevantes" + query, [
@@ -19,8 +20,8 @@ function crearPagina(ruta, usuario, query = "") {
             celda: (post) =>
                 post.cantPosts ? post.cantPosts : 0,
         },
-        {
-            nombre: "<a title='Filtrar por valoración' href='?votados=" + votados + "'>Puntuacion</a>",
+        {//<i class="fa-tipo fa-nombre mr-1"></i>
+            nombre: `<a title='Filtrar por valoración' href='?votados=${votados}'>Puntuacion <i class='fa fa-arrow-${votados == 1 ? 'down' : 'up'}'  aria-hidden='true'></i></a>`,
             clases: ["centrado"],
             celda: (post) =>
                 post.valoracion ? post.valoracion : 0,

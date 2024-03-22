@@ -208,8 +208,8 @@ class Navegacion {
         );
         if (
           ruta == "/estadisticas/usuarios" ||
-          ruta == "/estadisticas/usuarios/masRelevantes" ||
-          ruta == "/estadisticas/usuarios/masNegativos"
+          ruta == "/estadisticas/usuarios/masRelevantes" /*||
+          ruta == "/estadisticas/usuarios/masNegativos"*/
         ) {
           estadisticasUsuarios = new EnlaceNavegacion(
             "Estadísticas Usuarios",
@@ -222,11 +222,11 @@ class Navegacion {
                   { tipo: "solid", nombre: "circle fa-sm" },
                   "/estadisticas/usuarios/masRelevantes"
                 ),
-                new EnlaceNavegacion(
+                /*new EnlaceNavegacion(
                   "Usuarios más negativos",
                   { tipo: "solid", nombre: "circle fa-sm" },
                   "/estadisticas/usuarios/masNegativos"
-                ),
+                ),*/
               ],
             },
             "/estadisticas/posts/etiquetas"
@@ -279,4 +279,4 @@ class EnlaceNavegacion {
   }
 }
 
-export { Navegacion };
+export { Navegacion, EnlaceNavegacion };
