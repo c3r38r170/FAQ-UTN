@@ -544,4 +544,22 @@ router.get("/masRelevantes", function (req, res) {
     });
 })
 
+router.get("/masReportados", function (req, res) {
+  Usuario.findAll({
+    attributes: ['DNI', 'nombre'],
+    include: [],
+    group: ['DNI'], // Ajustando para agrupar por DNI del usuario
+    subQuery: false,
+    raw: true,
+    nest: true,
+    limit: getPaginacion().resultadosPorPagina,
+  })
+    .then(usuarios => {
+      res.status(200).send(usuarios)
+    })
+    .catch(error => {
+      res.status(400).send(error.message);
+    });
+})
+
 export { router };

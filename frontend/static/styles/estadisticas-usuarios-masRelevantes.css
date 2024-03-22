@@ -19,4 +19,9 @@
 }
 #usuarios-mas-relevantes th:first-child {
   width: 100%;
+}
+
+.aviso {
+  font-size: 12px;
+  margin-left: 42px;
 }/*# sourceMappingURL=estadisticas-usuarios-masRelevantes.css.map */

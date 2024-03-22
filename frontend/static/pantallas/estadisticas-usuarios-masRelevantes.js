@@ -4,8 +4,7 @@ import { Pagina, Modal, Tabla, ComponenteLiteral, ChipUsuario } from "../compone
 function crearPagina(ruta, usuario, query = "") {
     let modal = new Modal('General', 'modal-general');
     let votados = query == "?votados=0" ? 1 : 0;
-    console.log(query)
-    let aviso = new ComponenteLiteral(() => '<label>Apretando en las cabeceras puede cambiar la forma en la que se ordenan los usuarios</label>')
+    let aviso = new ComponenteLiteral(() => '<label class="aviso">Apretando en las cabeceras puede cambiar la forma en la que se ordenan los usuarios</label>')
     let contenedor1 = new ComponenteLiteral(() => `<div class="contenedor-tabla">`)
     let contenedor2 = new ComponenteLiteral(() => `</div>`)
     let tabla = new Tabla("usuarios-mas-relevantes", "/api/usuario/masRelevantes" + query, [
@@ -34,6 +33,7 @@ function crearPagina(ruta, usuario, query = "") {
         sesion: usuario,
         partes: [
             modal,
+            aviso,
             contenedor1,
             tabla,
             contenedor2

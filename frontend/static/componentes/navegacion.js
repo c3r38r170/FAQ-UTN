@@ -165,7 +165,7 @@ class Navegacion {
         this.#enlaces.push(administracion);
 
         let estadisticasPosts = new EnlaceNavegacion("Estadísticas Posts",
-          { tipo: "solid", nombre: "user-secret" },
+          { tipo: "solid", nombre: "chart-simple" },
           "/estadisticas/posts/etiquetas"
         );
         if (
@@ -178,7 +178,7 @@ class Navegacion {
             "Estadísticas Posts",
             {
               tipo: "solid",
-              nombre: "user-secret",
+              nombre: "chart-simple",
               subenlaces: [
                 new EnlaceNavegacion(
                   "Etiquetas más usadas",
@@ -203,7 +203,7 @@ class Navegacion {
         this.#enlaces.push(estadisticasPosts);
 
         let estadisticasUsuarios = new EnlaceNavegacion("Estadísticas Usuarios",
-          { tipo: "solid", nombre: "user-secret" },
+          { tipo: "solid", nombre: "chart-simple" },
           "/estadisticas/usuarios/masRelevantes"
         );
         if (
@@ -215,7 +215,7 @@ class Navegacion {
             "Estadísticas Usuarios",
             {
               tipo: "solid",
-              nombre: "user-secret",
+              nombre: "chart-simple",
               subenlaces: [
                 new EnlaceNavegacion(
                   "Usuarios más Relevantes",
