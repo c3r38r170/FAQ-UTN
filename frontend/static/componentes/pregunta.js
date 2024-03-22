@@ -80,7 +80,7 @@ class Pregunta {
                     },
                     {
                         name: "tipoID",
-                        textoEtiqueta: "Post repetido",
+                        textoEtiqueta: "Pregunta repetida",
                         value: '2',
                         type: "radio"
                     }],

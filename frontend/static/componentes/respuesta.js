@@ -59,12 +59,6 @@ class Respuesta {
             textoEtiqueta: "Lenguaje Vulgar",
             value: '1',
             type: "radio"
-          },
-          {
-            name: "tipoID",
-            textoEtiqueta: "Post repetido",
-            value: '2',
-            type: "radio"
           }],
           // TODO Refactor: No usar alert. Usar Swal.
           (res) => { alert(res) },
