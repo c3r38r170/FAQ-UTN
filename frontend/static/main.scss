@@ -116,11 +116,15 @@ table{
 	justify-content: end;
 	@media screen and (max-width: 768px) {
 		justify-content: center;
-	  }
+	}
 	
-	  @media screen and (max-width: 576px) {
+	@media screen and (max-width: 576px) {
 		justify-content: start;
-	  }
+	}
+
+	.navegacion{
+		position: sticky;top: 20px;
+	}
 }
 
 div#contenedor-principal{
@@ -814,7 +818,6 @@ tbody td:first-child{
 }
 
 #moderacion-posts-modal{
-
 	.modal-content{
 		height: 100%;
 		overflow-y: visible;
@@ -822,9 +825,15 @@ tbody td:first-child{
 		.box{
 			height: 100%;
 			overflow: hidden;
-			overflow-y: scroll;
+			overflow-y: auto;
 			scroll-behavior: smooth;
 			padding-bottom: 1rem;
 		}
 	}
+}
+
+.contenedor-boton-bloqueo{
+	display: flex;
+    margin: 1rem 3rem;
+    justify-content: right;
 }

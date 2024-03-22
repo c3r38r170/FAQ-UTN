@@ -53,6 +53,7 @@ class Pregunta {
                 // TODO Refactor: No usar alert. Usar Swal.
                 let form = new Formulario('eliminadorPregunta' + this.#ID, '/api/post/' + this.#ID, [], (res) => { alert(res) }, { textoEnviar: 'Eliminar', verbo: 'DELETE', clasesBoton: 'mx-auto is-danger w-100' }).render()
                 let opciones = [
+                    // TODO UX: Ver la posibilildad de que esto sea un botón .button.is-link.is-rounded ; habría que modificar Desplegable para que acepte tipo:'componente', y esto también beneficiaría a la forma de pasar el formulario.
                     {
                         descripcion: "Editar",
                         tipo: "link",

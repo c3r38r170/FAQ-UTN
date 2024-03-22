@@ -3,6 +3,8 @@
 }
 
 #columna-principal{
+	scroll-behavior: smooth;
+
 	// TODO Refactor: DRY con quienes-somos.scss
 	p,h2{
 		margin: 1rem 2rem;
@@ -27,6 +29,37 @@
 		ul{
 			margin: auto;
 			width: max-content;
+			max-width: calc(100% - 4rem);
+			margin-left: 4rem;
 		}
+	}
+}
+
+@media screen and (max-aspect-ratio: 13/9) {
+	.content ul{
+		max-width: calc(100% - 2rem) !important;
+		margin-left: 2rem !important;
+	}
+	#tabla-parametros{
+		&, thead, tbody, th, td { 
+			display: block; 
+		}
+		tr{
+			display: grid;
+			grid-template: "a c" "b b" / repeat(2,1fr);
+
+			td,th{
+				&:nth-child(2){
+					grid-area: b;
+				}
+			}
+			th{
+				text-align: center;
+			}
+			td{
+				text-align: justify;
+			}
+		}
+
 	}
 }
