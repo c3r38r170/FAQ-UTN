@@ -1,0 +1,48 @@
+#preguntas-mas-votadas {
+  width: 100%;
+  font-size: 0.9rem;
+}
+#preguntas-mas-votadas thead {
+  background: #ECECEC;
+}
+#preguntas-mas-votadas thead th, #preguntas-mas-votadas tbody td {
+  padding: 5px 1rem;
+  vertical-align: middle;
+}
+#preguntas-mas-votadas thead th.centrado, #preguntas-mas-votadas tbody td.centrado {
+  text-align: center;
+}
+#preguntas-mas-votadas fieldset {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+#preguntas-mas-votadas th:first-child {
+  width: 100%;
+}
+#preguntas-mas-votadas tbody td.preguntas {
+  border: solid 1px !important;
+  padding: 5px !important;
+  border-radius: 10px;
+  display: block;
+  margin: 5px;
+  width: 100%;
+  min-width: 220px;
+  overflow-wrap: anywhere;
+}
+#preguntas-mas-votadas tbody td.preguntas .pregunta {
+  font-size: smaller !important;
+  padding: 0;
+  margin: 0;
+}
+#preguntas-mas-votadas tbody td.preguntas .pregunta > * {
+  padding: 0;
+  margin: 0;
+}
+#preguntas-mas-votadas tbody td.preguntas .pregunta .cuerpo {
+  font-size: 1rem !important;
+}
+#preguntas-mas-votadas tbody td.preguntas .pregunta .titulo {
+  display: inline;
+  font-size: 0.95rem;
+}/*# sourceMappingURL=estadisticas-posts-preguntasRelevantes.css.map */

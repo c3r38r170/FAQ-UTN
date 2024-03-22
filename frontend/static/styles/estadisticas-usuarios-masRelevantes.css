@@ -1,0 +1,27 @@
+#usuarios-mas-relevantes {
+  width: 100%;
+  font-size: 0.9rem;
+}
+#usuarios-mas-relevantes thead {
+  background: #ECECEC;
+}
+#usuarios-mas-relevantes thead th, #usuarios-mas-relevantes tbody td {
+  padding: 5px 1rem;
+  vertical-align: middle;
+}
+#usuarios-mas-relevantes thead th.centrado, #usuarios-mas-relevantes tbody td.centrado {
+  text-align: center;
+}
+#usuarios-mas-relevantes fieldset {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+#usuarios-mas-relevantes th:first-child {
+  width: 100%;
+}
+
+.aviso {
+  font-size: 12px;
+  margin-left: 42px;
+}/*# sourceMappingURL=estadisticas-usuarios-masRelevantes.css.map */

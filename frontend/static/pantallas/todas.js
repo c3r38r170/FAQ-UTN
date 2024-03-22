@@ -19,6 +19,8 @@ import { PaginaPerfilPropioRespuestas } from './perfil-propio-respuestas.js'
 import { SinPermisos } from './sin-permisos.js';
 import { PantallaSuscripciones } from './suscripciones.js';
 import { PantallaManual } from './manual.js';
-
-
-export { PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaAdministracionCategorias, PantallaAdministracionEtiquetas, PantallaAdministracionParametros, PantallaAdministracionPerfiles, PantallaAdministracionUsuarios, PantallaEditarRespuesta, PantallaEtiquetaPreguntas, PaginaPerfil, PaginaPerfilPropioInfo, PaginaPerfilPropioPreguntas, PaginaPerfilPropioRespuestas, PantallaSuscripciones, SinPermisos, PantallaManual };
+import { PantallaEstadisticasPostsEtiquetas } from './estadisticas-posts-etiquetas.js';
+import { PantallaEstadisticasPostsRelevantes } from './estadisticas-posts-preguntasRelevantes.js';
+import { PantallaEstadisticasPostsNegativos } from './estadisticas-posts-postsNegativos.js';
+import { PantallaEstadisticasUsuariosMasRelevantes } from './estadisticas-usuarios-masRelevantes.js';
+export { PantallaEstadisticasUsuariosMasRelevantes, PantallaEstadisticasPostsNegativos, PantallaEstadisticasPostsRelevantes, PantallaEstadisticasPostsEtiquetas, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaAdministracionCategorias, PantallaAdministracionEtiquetas, PantallaAdministracionParametros, PantallaAdministracionPerfiles, PantallaAdministracionUsuarios, PantallaEditarRespuesta, PantallaEtiquetaPreguntas, PaginaPerfil, PaginaPerfilPropioInfo, PaginaPerfilPropioPreguntas, PaginaPerfilPropioRespuestas, PantallaSuscripciones, SinPermisos, PantallaManual };

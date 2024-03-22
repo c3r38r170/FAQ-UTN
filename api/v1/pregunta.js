@@ -11,17 +11,19 @@ import {
   SuscripcionesEtiqueta,
   Notificacion,
   EtiquetasPregunta,
+  Voto,
+  Perfil,
 } from "./model.js";
 import { mensajeError403 } from "./mensajesError.js";
 
 const router = express.Router();
 
-import { getModera, getRechazaPost, getReportaPost } from "./parametros.js";
+import { getModera, getPaginacion, getRechazaPost, getReportaPost } from "./parametros.js";
 
 router.get("/", (req, res) => {
   // TODO Feature: Aceptar etiquetas.
 
-  let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto !== undefined, usuarioActual:req.session?.usuario};
+  let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto !== undefined, usuarioActual: req.session?.usuario };
 
   // TODO Refactor: DRY
   if (req.query.searchInput) {
@@ -376,6 +378,57 @@ router.delete("/:preguntaID/suscripcion", function (req, res) {
     });
 });
 
+router.get("/masVotadas", function (req, res) {
+  let resultadosPorPagina = getPaginacion().resultadosPorPagina;
+  console.log(resultadosPorPagina)
+  const respuestasCount = [
+    Sequelize.literal(
+      "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+    ),
+    "respuestasCount",
+  ]
+  Pregunta.findAll({
+    attributes: [
+      [Sequelize.fn('COALESCE', Sequelize.fn('SUM', Sequelize.col('valoracion')), 0), 'valoracion'], // Utiliza COALESCE para mostrar 0 si la suma es null 
+      'titulo',
+      respuestasCount
+    ],
+    include: [
+      {
+        model: Post,
+        where: { eliminadorDNI: null },
+        include: [
+          {
+            model: Voto,
+            attributes: [],
+          },
+          {
+            model: Usuario
+            , as: 'duenio'
+            , include: {
+              model: Perfil
+              , attributes: ['ID', 'descripcion', 'color']
+            }
+            , attributes: ['DNI', 'nombre']
+          },
+        ]
+      },
+    ],
+    group: ['ID'],
+    order: req.query.respondidas ? [[Sequelize.literal(
+      "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+    ), 'DESC']] : [[Sequelize.literal('valoracion'), 'DESC']],
+    subQuery: false,
+    limit: resultadosPorPagina
+  })
+    .then(preguntas => {
+      // Etiquetas ordenadas por uso
+      res.status(200).send(preguntas)
+    })
+    .catch(error => {
+      res.status(400).send(error.message);
+    });
+});
 
 
 export { router };

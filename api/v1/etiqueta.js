@@ -4,6 +4,9 @@ import {
   Etiqueta,
   SuscripcionesEtiqueta,
   Categoria,
+  EtiquetasPregunta,
+  Pregunta,
+  Post
 } from "./model.js";
 
 const router = express.Router();
@@ -110,17 +113,17 @@ router.patch("/:id", async (req, res) => {
       res.json(etiqueta);
     });
   } catch (error) {
-    res.status(400).send(error.message );
+    res.status(400).send(error.message);
   }
 });
 
-router.post("/:etiquetaID/suscripcion", function (req, res) {  
+router.post("/:etiquetaID/suscripcion", function (req, res) {
   let IDetiqueta = req.params.etiquetaID;
 
   Etiqueta.findByPk(IDetiqueta)
     .then((etiqueta) => {
       if (!etiqueta) {
-        res.status(404).send( "Etiqueta no encontrada / disponible");
+        res.status(404).send("Etiqueta no encontrada / disponible");
         return;
       } else {
         SuscripcionesEtiqueta.findAll({
@@ -194,8 +197,45 @@ router.delete("/:etiquetaID/suscripcion", function (req, res) {
       res.status(500).send(err.message);
     });
 });
-  
 
+router.get("/masUsadas", function (req, res) {
+
+
+  EtiquetasPregunta.findAll({
+    attributes: ["etiquetumID", [Sequelize.fn('COUNT', Sequelize.col('etiquetumID')), 'cantidad']],
+    include: [{
+      model: Etiqueta,
+      attributes: ["descripcion"],
+      include: [{
+        model: Categoria,
+        as: "categoria",
+        attributes: ["descripcion", "color"]
+      }]
+    },
+    {
+      model: Pregunta,
+      attributes: [],
+      include: {
+        model: Post,
+        attributes: [],
+        where: { eliminadorDNI: null },
+        required: true
+      },
+      required: true
+    }
+    ],
+    group: ['etiquetumID'],
+    order: [[Sequelize.literal('COUNT(*)'), 'DESC']],
+    limit: getPaginacion().resultadosPorPagina
+  })
+    .then(etiquetas => {
+      // Etiquetas ordenadas por uso
+      res.status(200).send(etiquetas)
+    })
+    .catch(error => {
+      res.status(400).send(error.message);
+    });
+});
 
 
 export { router };

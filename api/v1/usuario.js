@@ -15,6 +15,7 @@ import {
   Respuesta,
   Carrera,
   Bloqueo,
+  Voto,
   CarrerasUsuario
 } from "./model.js";
 import { getPaginacion } from "./parametros.js";
@@ -505,5 +506,60 @@ router.patch("/:DNI", function (req, res) {
     });
 });
 
+
+router.get("/masRelevantes", function (req, res) {
+  Post.findAll({
+    attributes: [
+      [Sequelize.literal('COALESCE(SUM(valoracion), 0)'), 'valoracion'],
+      [Sequelize.fn('COUNT', Sequelize.col('post.ID')), 'cantPosts']
+    ],
+    include: [
+      {
+        model: Voto,
+        attributes: [],
+        required: false
+      },
+      {
+        model: Usuario,
+        as: 'duenio',
+        include: {
+          model: Perfil,
+          attributes: ['ID', 'descripcion', 'color']
+        },
+        attributes: ['DNI', 'nombre']
+      },
+    ],
+    order: req.query.votados ? req.query.votados == 0 ? [[Sequelize.literal('COALESCE(SUM(valoracion), 0)'), 'ASC']] : [[Sequelize.literal('COALESCE(SUM(valoracion), 0)'), 'DESC']] : [[Sequelize.literal('COUNT(post.ID)'), 'DESC']],
+    group: ['DNI'], // Ajustando para agrupar por DNI del usuario
+    subQuery: false,
+    raw: true,
+    nest: true,
+    limit: getPaginacion().resultadosPorPagina,
+  })
+    .then(posts => {
+      res.status(200).send(posts)
+    })
+    .catch(error => {
+      res.status(400).send(error.message);
+    });
+})
+
+router.get("/masReportados", function (req, res) {
+  Usuario.findAll({
+    attributes: ['DNI', 'nombre'],
+    include: [],
+    group: ['DNI'], // Ajustando para agrupar por DNI del usuario
+    subQuery: false,
+    raw: true,
+    nest: true,
+    limit: getPaginacion().resultadosPorPagina,
+  })
+    .then(usuarios => {
+      res.status(200).send(usuarios)
+    })
+    .catch(error => {
+      res.status(400).send(error.message);
+    });
+})
 
 export { router };

@@ -41,7 +41,7 @@ import {
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
 // TODO Refactor: Usar todas.js
-import { PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual } from './static/pantallas/todas.js';
+import { PantallaEstadisticasUsuariosMasRelevantes, PantallaEstadisticasPostsEtiquetas, PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual, PantallaEstadisticasPostsRelevantes, PantallaEstadisticasPostsNegativos } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -49,11 +49,11 @@ router.get("/", (req, res) => {
   // console.log(req.query);
   let etiquetas = req.query.etiquetas;
   let texto = req.query.searchInput;
-  let parametros={usuarioActual:req.session.usuario};
+  let parametros = { usuarioActual: req.session.usuario };
   if (texto || etiquetas) {
     let queryString = req.url.substring(req.url.indexOf("?"));
 
-    parametros.filtrar={};
+    parametros.filtrar = {};
     if (texto) {
       parametros.filtrar.texto = texto;
     }
@@ -339,7 +339,7 @@ router.get("/perfil/preguntas", (req, res) => {
       return;
     }
 
-    let filtro = { duenioID: req.session.usuario.DNI, usuarioActual:usu };
+    let filtro = { duenioID: req.session.usuario.DNI, usuarioActual: usu };
     PreguntaDAO.pagina(filtro).then((pre) => {
       let pagina = PaginaPerfilPropioPreguntas(req.path, req.session);
       pagina.partes[1] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
@@ -482,7 +482,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
   let paginaError = SinPermisos(req.session, "Algo ha malido sal.")
   let usuarioActual;
   if (req.params.DNI) {
-    
+
     let perfilBloqueado = false;
     // Esta bloqueado el usuario?
     let bloqueo = await BloqueoDAO.findAll({
@@ -492,7 +492,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
       }
     })
 
-    if(bloqueo.length > 0){
+    if (bloqueo.length > 0) {
       perfilBloqueado = true;
     }
 
@@ -503,7 +503,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
       return;
     }
 
-   
+
     if (req.session.usuario) {
       if (req.session.usuario.DNI == req.params.DNI) {
         // * perfil propio
@@ -512,7 +512,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
         return;
       }
 
-      
+
       if (perfilBloqueado && req.session.usuario.perfil.permiso.ID < 2) {
         // * Esta bloqueado y estoy logueado pero no tengo permisos
         res.send(paginaError.render());
@@ -520,9 +520,9 @@ router.get("/perfil/:DNI?", async (req, res) => {
       }
 
     }
-    
-    
-    
+
+
+
     let usu = await UsuarioDAO.findByPk(req.params.DNI, {
       include: [
         {
@@ -540,7 +540,7 @@ router.get("/perfil/:DNI?", async (req, res) => {
     }
 
     // * Perfil ajeno
-    let filtro = { DNI: usu.DNI , usuarioActual};
+    let filtro = { DNI: usu.DNI, usuarioActual };
     // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
     let pre = await PostDAO.pagina(filtro);
     let pagina = PaginaPerfil(req.path, req.session, usu, perfilBloqueado);
@@ -647,6 +647,75 @@ router.get("/administracion/usuarios", (req, res) => {
   let pagina = PantallaAdministracionUsuarios(req.path, req.session, query);
   res.send(pagina.render());
 });
+
+//estadisticas
+router.get("/estadisticas/posts/etiquetas", (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+
+  let pagina = PantallaEstadisticasPostsEtiquetas(req.path, req.session);
+  res.send(pagina.render());
+});
+
+router.get("/estadisticas/posts/postsNegativos", (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+
+  let pagina = PantallaEstadisticasPostsNegativos(req.path, req.session);
+  res.send(pagina.render());
+});
+
+
+router.get("/estadisticas/posts/preguntasRelevantes", (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+
+
+  let pagina = PantallaEstadisticasPostsRelevantes(req.path, req.session);
+  res.send(pagina.render());
+});
+
+router.get("/estadisticas/usuarios/masRelevantes", (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+
+
+  let pagina = PantallaEstadisticasUsuariosMasRelevantes(req.path, req.session, req.url.substring(req.url.indexOf("?")));
+  res.send(pagina.render());
+});
+
 
 router.get('/quienes-somos', (req, res) => {
   let pagina = PantallaQuienesSomos(req.path, req.session);

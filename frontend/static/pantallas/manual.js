@@ -64,7 +64,7 @@ function crearPagina(ruta,usuario) {
 					// TODO UX: Ver cómo otras páginas tratan este tema; usar su vocabulario.
 					`Si ves algún mal comportamiento, o ante faltas de respeto o mensajes fuera de lugar, podés reportarlo con el menú al que se accede a través de los 3 puntos en la parte superior derecha de cada pregunta / respuesta.
 					<img srcset="formulario-reporte.png 1.4x">
-					Otra opción disponible, como se ve en la imagen, es la de reportar <b><u>preguntas</u> repetidas</b>. Esto es importante para mantener la información en un solo lugar, y no repetirla o peor, tener información errónea u obsoleta que pueda ser encontrada y usada por otros usuarios. El equipo de moderadores va a revisar los reportes, y decidir si unficar la pregunta es necesario o no.`
+					Otra opción disponible, como se ve en la imagen, es la de reportar <b><u>preguntas</u> repetidas</b>. Esto es importante para mantener la información en un solo lugar, y no repetirla o peor, tener información errónea u obsoleta que pueda ser encontrada y usada por otros usuarios. El equipo de moderadores va a revisar los reportes, y ver si es necesario unificar la pregunta con otra idéntica o no.`
 				))
 				// * Suscripciones
 				,new Titulo('h2',5,'Suscripciones','','encabezado-suscripciones')

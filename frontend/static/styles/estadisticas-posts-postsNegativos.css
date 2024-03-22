@@ -1,0 +1,55 @@
+#posts-negativos {
+  width: 100%;
+  font-size: 0.9rem;
+}
+#posts-negativos thead {
+  background: #ECECEC;
+}
+#posts-negativos thead th, #posts-negativos tbody td {
+  padding: 5px 1rem;
+  vertical-align: middle;
+}
+#posts-negativos thead th.centrado, #posts-negativos tbody td.centrado {
+  text-align: center;
+}
+#posts-negativos fieldset {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+#posts-negativos th:first-child {
+  width: 100%;
+}
+#posts-negativos tbody td.preguntas-o-respuestas {
+  border: solid 1px !important;
+  padding: 5px !important;
+  border-radius: 10px;
+  display: block;
+  margin: 5px;
+  width: 100%;
+  min-width: 220px;
+  overflow-wrap: anywhere;
+}
+#posts-negativos tbody td.preguntas-o-respuestas .pregunta, #posts-negativos tbody td.preguntas-o-respuestas .respuesta {
+  font-size: smaller !important;
+  padding: 0;
+  margin: 0;
+}
+#posts-negativos tbody td.preguntas-o-respuestas .pregunta > *, #posts-negativos tbody td.preguntas-o-respuestas .respuesta > * {
+  padding: 0;
+  margin: 0;
+}
+#posts-negativos tbody td.preguntas-o-respuestas .pregunta .cuerpo, #posts-negativos tbody td.preguntas-o-respuestas .respuesta .cuerpo {
+  font-size: 1rem !important;
+}
+#posts-negativos tbody td.preguntas-o-respuestas .pregunta .titulo {
+  display: inline;
+  font-size: 0.95rem;
+}
+#posts-negativos tbody td.preguntas-o-respuestas .respuesta {
+  border: none;
+  justify-content: initial;
+}
+#posts-negativos tbody td.preguntas-o-respuestas .respuesta .usuario {
+  margin: 0 !important;
+}/*# sourceMappingURL=estadisticas-posts-postsNegativos.css.map */

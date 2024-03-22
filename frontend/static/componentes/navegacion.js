@@ -124,7 +124,7 @@ class Navegacion {
           ruta == "/administracion/perfiles" ||
           ruta == "/administracion/categorias" ||
           ruta == "/administracion/etiquetas" ||
-          ruta == "/administracion/parametros"||
+          ruta == "/administracion/parametros" ||
           ruta == "/administracion/usuarios"
         ) {
           administracion = new EnlaceNavegacion(
@@ -137,7 +137,7 @@ class Navegacion {
                   "Perfiles",
                   { tipo: "solid", nombre: "circle fa-sm" },
                   "/administracion/perfiles"
-                ),new EnlaceNavegacion(
+                ), new EnlaceNavegacion(
                   "Usuarios",
                   { tipo: "solid", nombre: "circle fa-sm" },
                   "/administracion/usuarios"
@@ -163,6 +163,76 @@ class Navegacion {
           );
         }
         this.#enlaces.push(administracion);
+
+        let estadisticasPosts = new EnlaceNavegacion("Estadísticas Posts",
+          { tipo: "solid", nombre: "chart-simple" },
+          "/estadisticas/posts/etiquetas"
+        );
+        if (
+          ruta == "/estadisticas/posts" ||
+          ruta == "/estadisticas/posts/etiquetas" ||
+          ruta == "/estadisticas/posts/preguntasRelevantes" ||
+          ruta == "/estadisticas/posts/postsNegativos"
+        ) {
+          estadisticasPosts = new EnlaceNavegacion(
+            "Estadísticas Posts",
+            {
+              tipo: "solid",
+              nombre: "chart-simple",
+              subenlaces: [
+                new EnlaceNavegacion(
+                  "Etiquetas más usadas",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/posts/etiquetas"
+                ),
+                new EnlaceNavegacion(
+                  "Preguntas más relevantes",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/posts/preguntasRelevantes"
+                ),
+                new EnlaceNavegacion(
+                  "Posts con más votos negativos",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/posts/postsNegativos"
+                ),
+              ],
+            },
+            "/estadisticas/posts/etiquetas"
+          );
+        }
+        this.#enlaces.push(estadisticasPosts);
+
+        let estadisticasUsuarios = new EnlaceNavegacion("Estadísticas Usuarios",
+          { tipo: "solid", nombre: "chart-simple" },
+          "/estadisticas/usuarios/masRelevantes"
+        );
+        if (
+          ruta == "/estadisticas/usuarios" ||
+          ruta == "/estadisticas/usuarios/masRelevantes" /*||
+          ruta == "/estadisticas/usuarios/masNegativos"*/
+        ) {
+          estadisticasUsuarios = new EnlaceNavegacion(
+            "Estadísticas Usuarios",
+            {
+              tipo: "solid",
+              nombre: "chart-simple",
+              subenlaces: [
+                new EnlaceNavegacion(
+                  "Usuarios más Relevantes",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/usuarios/masRelevantes"
+                ),
+                /*new EnlaceNavegacion(
+                  "Usuarios más negativos",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/usuarios/masNegativos"
+                ),*/
+              ],
+            },
+            "/estadisticas/posts/etiquetas"
+          );
+        }
+        this.#enlaces.push(estadisticasUsuarios);
       }
     }
   }
@@ -200,9 +270,8 @@ class EnlaceNavegacion {
 
     return `<li>
             <a class="link" href="${this.#enlace}">
-                <i class="fa-${this.#icono.tipo} fa-${
-      this.#icono.nombre
-    } mr-1"></i>
+                <i class="fa-${this.#icono.tipo} fa-${this.#icono.nombre
+      } mr-1"></i>
                 ${this.#texto}
             </a>
             ${subnavegacionHTML}
@@ -210,4 +279,4 @@ class EnlaceNavegacion {
   }
 }
 
-export { Navegacion };
+export { Navegacion, EnlaceNavegacion };
