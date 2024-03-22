@@ -388,7 +388,11 @@ router.get("/masVotadas", function (req, res) {
     "respuestasCount",
   ]
   Pregunta.findAll({
-    attributes: [[Sequelize.fn('SUM', Sequelize.col('valoracion')), 'valoracion'], 'titulo', respuestasCount],
+    attributes: [
+      [Sequelize.fn('COALESCE', Sequelize.fn('SUM', Sequelize.col('valoracion')), 0), 'valoracion'], // Utiliza COALESCE para mostrar 0 si la suma es null 
+      'titulo',
+      respuestasCount
+    ],
     include: [
       {
         model: Post,
@@ -413,7 +417,7 @@ router.get("/masVotadas", function (req, res) {
     group: ['ID'],
     order: req.query.respondidas ? [[Sequelize.literal(
       "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
-    ), 'DESC']] : [[Sequelize.literal('SUM(valoracion)'), 'DESC']],
+    ), 'DESC']] : [[Sequelize.literal('valoracion'), 'DESC']],
     subQuery: false,
     limit: resultadosPorPagina
   })

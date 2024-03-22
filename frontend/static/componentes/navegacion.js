@@ -164,7 +164,7 @@ class Navegacion {
         }
         this.#enlaces.push(administracion);
 
-        let estadisticas = new EnlaceNavegacion("Estadísticas Posts",
+        let estadisticasPosts = new EnlaceNavegacion("Estadísticas Posts",
           { tipo: "solid", nombre: "user-secret" },
           "/estadisticas/posts/etiquetas"
         );
@@ -174,7 +174,7 @@ class Navegacion {
           ruta == "/estadisticas/posts/preguntasRelevantes" ||
           ruta == "/estadisticas/posts/postsNegativos"
         ) {
-          estadisticas = new EnlaceNavegacion(
+          estadisticasPosts = new EnlaceNavegacion(
             "Estadísticas Posts",
             {
               tipo: "solid",
@@ -200,7 +200,39 @@ class Navegacion {
             "/estadisticas/posts/etiquetas"
           );
         }
-        this.#enlaces.push(estadisticas);
+        this.#enlaces.push(estadisticasPosts);
+
+        let estadisticasUsuarios = new EnlaceNavegacion("Estadísticas Usuarios",
+          { tipo: "solid", nombre: "user-secret" },
+          "/estadisticas/usuarios/masRelevantes"
+        );
+        if (
+          ruta == "/estadisticas/usuarios" ||
+          ruta == "/estadisticas/usuarios/masRelevantes" ||
+          ruta == "/estadisticas/usuarios/masNegativos"
+        ) {
+          estadisticasUsuarios = new EnlaceNavegacion(
+            "Estadísticas Usuarios",
+            {
+              tipo: "solid",
+              nombre: "user-secret",
+              subenlaces: [
+                new EnlaceNavegacion(
+                  "Usuarios más Relevantes",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/usuarios/masRelevantes"
+                ),
+                new EnlaceNavegacion(
+                  "Usuarios más negativos",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/usuarios/masNegativos"
+                ),
+              ],
+            },
+            "/estadisticas/posts/etiquetas"
+          );
+        }
+        this.#enlaces.push(estadisticasUsuarios);
       }
     }
   }
