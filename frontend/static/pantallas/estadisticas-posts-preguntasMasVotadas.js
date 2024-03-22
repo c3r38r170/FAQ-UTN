@@ -1,32 +1,29 @@
-import { Pagina, Modal, Tabla, ComponenteLiteral } from "../componentes/todos.js";
+import { Pagina, Modal, Tabla, ComponenteLiteral, ChipUsuario } from "../componentes/todos.js";
 
 // TODO Now: Agregar etiquetas
 function crearPagina(ruta, usuario) {
     let modal = new Modal('General', 'modal-general');
     let contenedor1 = new ComponenteLiteral(() => `<div class="contenedor-tabla">`)
     let contenedor2 = new ComponenteLiteral(() => `</div>`)
-    let tabla = new Tabla("etiquetas-usadas", "/api/etiqueta/masUsadas", [
+    let tabla = new Tabla("preguntas-mas-votadas", "/api/pregunta/masVotadas", [
         {
-            nombre: "Etiqueta",
-            celda: (etiqueta) =>
-                etiqueta.etiquetum.descripcion,
+            nombre: "Pregunta",
+            celda: (pregunta) => [
+                new ChipUsuario(pregunta.post.duenio),
+                new ComponenteLiteral(() => `<span class="pregunta"><a target="_blank" href="/pregunta/${pregunta.post.ID}" class="titulo">${pregunta.titulo}</a></span>`
+                    + `<div class="cuerpo">${pregunta.post.cuerpo}</div>`)].reduce((acc, el) => acc + el.render(), '')
+            , clases: ['preguntas']
         },
         {
-            nombre: "Categoría",
+            nombre: "Valoración",
             clases: ["centrado"],
-            celda: (etiqueta) =>
-                `<div class="categoria" style="background-color: ${etiqueta.etiquetum.categoria.color}"><div class="descripcion">${etiqueta.etiquetum.categoria.descripcion}</div></div>`
-        },
-        {
-            nombre: "Incidencias",
-            clases: ["centrado"],
-            celda: (etiqueta) =>
-                etiqueta.cantidad,
+            celda: (pregunta) =>
+                pregunta.valoracion,
         },
     ]);
 
     return new Pagina({
-        titulo: "Etiquetas más Usadas",
+        titulo: "Preguntas mejor Calificadas",
         ruta: ruta,
         sesion: usuario,
         partes: [

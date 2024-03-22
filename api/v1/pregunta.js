@@ -11,13 +11,14 @@ import {
   SuscripcionesEtiqueta,
   Notificacion,
   EtiquetasPregunta,
-  Voto
+  Voto,
+  Perfil
 } from "./model.js";
 import { mensajeError403 } from "./mensajesError.js";
 
 const router = express.Router();
 
-import { getModera, getRechazaPost, getReportaPost } from "./parametros.js";
+import { getModera, getPaginacion, getRechazaPost, getReportaPost } from "./parametros.js";
 
 router.get("/", (req, res) => {
   // TODO Feature: Aceptar etiquetas.
@@ -378,21 +379,34 @@ router.delete("/:preguntaID/suscripcion", function (req, res) {
 });
 
 router.get("/masVotadas", function (req, res) {
+  let resultadosPorPagina = getPaginacion().resultadosPorPagina;
   Pregunta.findAll({
-    attributes: [[Sequelize.fn('SUM', Sequelize.col('valoracion')), 'valoracion']],
+    attributes: [[Sequelize.fn('SUM', Sequelize.col('valoracion')), 'valoracion'], 'titulo'],
     include: [
       {
         model: Post,
+        where: { eliminadorDNI: null },
         include: [
           {
             model: Voto,
-            attributes: []
-          }
+            attributes: [],
+            required: true
+          },
+          {
+            model: Usuario
+            , as: 'duenio'
+            , include: {
+              model: Perfil
+              , attributes: ['ID', 'descripcion', 'color']
+            }
+            , attributes: ['DNI', 'nombre']
+          },
         ]
-      }
+      },
     ],
     group: ['ID'],
-    order: [[Sequelize.literal('SUM(valoracion)'), 'DESC']]
+    order: [[Sequelize.literal('SUM(valoracion)'), 'DESC']],
+    //limit: resultadosPorPagina //:(
   })
     .then(preguntas => {
       // Etiquetas ordenadas por uso
