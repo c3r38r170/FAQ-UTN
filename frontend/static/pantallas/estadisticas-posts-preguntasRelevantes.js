@@ -1,11 +1,11 @@
 import { Pagina, Modal, Tabla, ComponenteLiteral, ChipUsuario } from "../componentes/todos.js";
 
 // TODO Now: Agregar etiquetas
-function crearPagina(ruta, usuario) {
+function crearPagina(ruta, usuario, query = "") {
     let modal = new Modal('General', 'modal-general');
     let contenedor1 = new ComponenteLiteral(() => `<div class="contenedor-tabla">`)
     let contenedor2 = new ComponenteLiteral(() => `</div>`)
-    let tabla = new Tabla("preguntas-mas-votadas", "/api/pregunta/masVotadas", [
+    let tabla = new Tabla("preguntas-mas-votadas", "/api/pregunta/masVotadas" + query, [
         {
             nombre: "Pregunta",
             celda: (pregunta) => [
@@ -15,15 +15,21 @@ function crearPagina(ruta, usuario) {
             , clases: ['preguntas']
         },
         {
-            nombre: "Valoración",
+            nombre: "<a title='Filtrar por valoración' href='?votadas'>Valoracion</a>",
             clases: ["centrado"],
             celda: (pregunta) =>
-                pregunta.valoracion,
+                pregunta.valoracion ? pregunta.valoracion : 0,
+        },
+        {
+            nombre: "<a title='Filtrar por cantidad de respuestas' href='?respondidas=0'>Respuestas</a>",
+            clases: ["centrado"],
+            celda: (pregunta) =>
+                pregunta.respuestasCount ? pregunta.respuestasCount : 0,
         },
     ]);
 
     return new Pagina({
-        titulo: "Preguntas mejor Calificadas",
+        titulo: "Preguntas más relevantes",
         ruta: ruta,
         sesion: usuario,
         partes: [
@@ -35,4 +41,4 @@ function crearPagina(ruta, usuario) {
     });
 }
 
-export { crearPagina as PantallaEstadisticasPostsMasVotados };
+export { crearPagina as PantallaEstadisticasPostsRelevantes };

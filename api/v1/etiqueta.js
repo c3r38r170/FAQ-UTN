@@ -225,7 +225,8 @@ router.get("/masUsadas", function (req, res) {
     }
     ],
     group: ['etiquetumID'],
-    order: [[Sequelize.literal('COUNT(*)'), 'DESC']]
+    order: [[Sequelize.literal('COUNT(*)'), 'DESC']],
+    limit: getPaginacion().resultadosPorPagina
   })
     .then(etiquetas => {
       // Etiquetas ordenadas por uso

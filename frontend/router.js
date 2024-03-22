@@ -41,7 +41,7 @@ import {
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
 // TODO Refactor: Usar todas.js
-import { PantallaEstadisticasPostsEtiquetas, PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual, PantallaEstadisticasPostsMasVotados } from './static/pantallas/todas.js';
+import { PantallaEstadisticasPostsEtiquetas, PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual, PantallaEstadisticasPostsRelevantes, PantallaEstadisticasPostsNegativos } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -677,11 +677,12 @@ router.get("/estadisticas/posts/postsNegativos", (req, res) => {
     return;
   }
 
-  let pagina = PantallaEstadisticasPostsEtiquetas(req.path, req.session);
+  let pagina = PantallaEstadisticasPostsNegativos(req.path, req.session);
   res.send(pagina.render());
 });
 
-router.get("/estadisticas/posts/preguntasMasRespuestas", (req, res) => {
+
+router.get("/estadisticas/posts/preguntasRelevantes", (req, res) => {
   let usu = req.session;
   if (!usu.usuario) {
     let pagina = SinPermisos(usu, "No está logueado");
@@ -693,23 +694,8 @@ router.get("/estadisticas/posts/preguntasMasRespuestas", (req, res) => {
     return;
   }
 
-  let pagina = PantallaEstadisticasPostsEtiquetas(req.path, req.session);
-  res.send(pagina.render());
-});
 
-router.get("/estadisticas/posts/preguntasMasVotadas", (req, res) => {
-  let usu = req.session;
-  if (!usu.usuario) {
-    let pagina = SinPermisos(usu, "No está logueado");
-    res.send(pagina.render());
-    return;
-  } else if (usu.usuario.perfil.permiso.ID < 3) {
-    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
-    res.send(pagina.render());
-    return;
-  }
-
-  let pagina = PantallaEstadisticasPostsMasVotados(req.path, req.session);
+  let pagina = PantallaEstadisticasPostsRelevantes(req.path, req.session);
   res.send(pagina.render());
 });
 

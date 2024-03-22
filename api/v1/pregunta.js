@@ -12,7 +12,7 @@ import {
   Notificacion,
   EtiquetasPregunta,
   Voto,
-  Perfil
+  Perfil,
 } from "./model.js";
 import { mensajeError403 } from "./mensajesError.js";
 
@@ -380,8 +380,15 @@ router.delete("/:preguntaID/suscripcion", function (req, res) {
 
 router.get("/masVotadas", function (req, res) {
   let resultadosPorPagina = getPaginacion().resultadosPorPagina;
+  console.log(resultadosPorPagina)
+  const respuestasCount = [
+    Sequelize.literal(
+      "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+    ),
+    "respuestasCount",
+  ]
   Pregunta.findAll({
-    attributes: [[Sequelize.fn('SUM', Sequelize.col('valoracion')), 'valoracion'], 'titulo'],
+    attributes: [[Sequelize.fn('SUM', Sequelize.col('valoracion')), 'valoracion'], 'titulo', respuestasCount],
     include: [
       {
         model: Post,
@@ -390,7 +397,6 @@ router.get("/masVotadas", function (req, res) {
           {
             model: Voto,
             attributes: [],
-            required: true
           },
           {
             model: Usuario
@@ -405,8 +411,11 @@ router.get("/masVotadas", function (req, res) {
       },
     ],
     group: ['ID'],
-    order: [[Sequelize.literal('SUM(valoracion)'), 'DESC']],
-    //limit: resultadosPorPagina //:(
+    order: req.query.respondidas ? [[Sequelize.literal(
+      "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+    ), 'DESC']] : [[Sequelize.literal('SUM(valoracion)'), 'DESC']],
+    subQuery: false,
+    limit: resultadosPorPagina
   })
     .then(preguntas => {
       // Etiquetas ordenadas por uso

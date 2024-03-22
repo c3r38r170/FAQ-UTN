@@ -171,8 +171,7 @@ class Navegacion {
         if (
           ruta == "/estadisticas/posts" ||
           ruta == "/estadisticas/posts/etiquetas" ||
-          ruta == "/estadisticas/posts/preguntasMasVotadas" ||
-          ruta == "/estadisticas/posts/preguntasMasRespuestas" ||
+          ruta == "/estadisticas/posts/preguntasRelevantes" ||
           ruta == "/estadisticas/posts/postsNegativos"
         ) {
           estadisticas = new EnlaceNavegacion(
@@ -187,14 +186,9 @@ class Navegacion {
                   "/estadisticas/posts/etiquetas"
                 ),
                 new EnlaceNavegacion(
-                  "Preguntas más votadas",
+                  "Preguntas más relevantes",
                   { tipo: "solid", nombre: "circle fa-sm" },
-                  "/estadisticas/posts/preguntasMasVotadas"
-                ),
-                new EnlaceNavegacion(
-                  "Preguntas con más respuestas",
-                  { tipo: "solid", nombre: "circle fa-sm" },
-                  "/estadisticas/posts/preguntasMasRespuestas"
+                  "/estadisticas/posts/preguntasRelevantes"
                 ),
                 new EnlaceNavegacion(
                   "Posts con más votos negativos",
