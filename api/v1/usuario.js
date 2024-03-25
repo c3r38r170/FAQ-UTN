@@ -91,12 +91,16 @@ router.get("/", function (req, res) {
       {
         model: Bloqueo,
         as: "bloqueosRecibidos",
-        // TODO Feature: Traer quién bloqueó y razón.
         attributes: ["motivo"],
         where: {
           fecha_desbloqueo: { [Sequelize.Op.is]: null },
         },
         required: false,
+        include:{
+           model:Usuario
+           ,as:'bloqueador'
+           ,attributes:['nombre']
+        }
       },
       {
         model: ReportesUsuario,

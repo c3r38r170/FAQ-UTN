@@ -18,11 +18,11 @@ const router = express.Router();
 
 function crearRespuesta(req, res, respuestaIA = null) {
   let reportaPost = getReportaPost();
-  // TODO Refactor: Quizá sea más facil usar yield para esta parte, o ir devolviendo las premisas. O ambas cosas.
   Pregunta.findByPk(req.body.IDPregunta, {
     include: Post,
   }).then((pregunta) => {
     if (!pregunta) {
+      // TODO Refactor: Probar early return, observar comportamiento del catch de abajo de todo.
       res.status(404).send(mensajeError404);
     } else {
       Post.create({
@@ -35,6 +35,8 @@ function crearRespuesta(req, res, respuestaIA = null) {
             preguntaID: req.body.IDPregunta,
           })
             .then((resp) => {
+              // TODO Refactor: Esperar a todas las promesas creadas. Reducir la cantidad de catch y callbacks
+
               if (respuestaIA && respuestaIA.apropiado < reportaPost) {
                 ReportePost.create({
                   tipoID: 1,
@@ -62,8 +64,8 @@ function crearRespuesta(req, res, respuestaIA = null) {
                 });
               });
 
-              //si adentro de send hay un int tira error porque piensa que es el status
-              res.status(201).send(post.ID + "");
+              // ! si adentro de send hay un int tira error porque piensa que es el status
+              res.status(201).json({ID:post.ID, motivo:respuestaIA?.motivo});
             })
             .catch((err) => {
               res.status(500).send(err.message);
@@ -90,6 +92,7 @@ router.post("/", function (req, res) {
           res.status(400).send("Texto rechazo por moderación automática. Razón: " + respuesta.motivo);
           return;
         }
+
         crearRespuesta(req, res, respuesta);
       });
   } else {

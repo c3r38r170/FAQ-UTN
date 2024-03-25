@@ -192,10 +192,35 @@ router.delete('/:ID', (req, res) => {
       post.setEliminador(req.session.usuario.DNI)
         .then((post) => post.save())
         .then(() => {
-          res.status(200).send("Estado del post consistente con interfaz");
+          // ! Cast a string o nos butea express (piensa que pasamos un código.).
+          res.status(200).send(`${post.ID}`);
         })
     })
 })
+
+router.patch('/:ID/restaurar', (req, res) => {
+  Post.findByPk(req.params.ID, {
+    include: { model: Usuario, as: 'eliminador' }
+  })
+    .then((post) => {
+      if (!post) {
+        res.status(404).send(mensajeError404);
+        return;
+      }
+
+      if (req.session.usuario.DNI != post.duenioDNI && req.session.usuario.perfil.permiso.ID < 2) {
+        res.status(403).send(mensajeError403);
+        return;
+      }
+
+      post.setEliminador(null)
+        .then((post) => post.save())
+        .then(() => {
+          res.status(200).send("Se ha restaurado el post");
+        })
+    })
+})
+
 
 
 router.get('/reporte', function (req, res) {

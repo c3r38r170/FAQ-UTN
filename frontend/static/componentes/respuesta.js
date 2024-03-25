@@ -36,7 +36,37 @@ class Respuesta {
       this.#desplegable = new Desplegable('opcionesRespuesta' + this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>', undefined, undefined, 'opcionesPost');
       if (this.#usuarioActual && this.#usuarioActual.DNI == this.#duenio.DNI) {
         // TODO Refactor: No usar alert. Usar Swal.
-        let form = new Formulario('eliminadorRespuesta' + this.#ID, '/api/post/' + this.#ID, [], (res) => { alert(res) }, { textoEnviar: 'Eliminar', verbo: 'DELETE', clasesBoton: 'mx-auto is-danger w-100' }).render()
+        let form = new Formulario(
+          'eliminadorRespuesta' + this.#ID
+          , '/api/post/' + this.#ID
+          , []
+          , (txt, { ok, codigo }) => {
+              if(!ok){
+                  Swal.error(txt);
+                  return;
+              }
+
+              // * A diferencia de las preguntas, nunca van a necesitar reemplazarse con un cartel.
+              SqS(`.respuesta[data-post-id="${txt}"]`).remove();
+          }
+          , {
+            textoEnviar: 'Eliminar'
+            ,verbo: 'DELETE'
+            ,clasesBoton: 'mx-auto is-danger w-100'
+            ,alEnviar:(e)=>{
+                e.preventDefault();
+                return new Promise((resolve, reject) => {
+                    Swal.confirmar('¿Seguro que desea eliminar esta respuesta? Esto no se puede deshacer.')
+                        .then(res=>{
+                            if(res.isConfirmed) {
+                                resolve();
+                            // TODO Refactor: Esto de acá abajo genera un error?? Quizá porque nunca se catchea... "Uncaught (in promise) undefined"
+                            }else reject();
+                        })
+                });
+            }
+          }
+        ).render();
         let opciones = [
           {
             descripcion: "Editar",
@@ -68,7 +98,6 @@ class Respuesta {
           {
             tipo: "form",
             render: form
-
           }
         ];
         this.#desplegable.opciones = opciones;
@@ -86,7 +115,7 @@ class Respuesta {
 
   render() {
     return `
-        <div class="respuesta">
+        <div class="respuesta" data-post-id="${this.#ID}">
               ${this.#chipValoracion ? this.#chipValoracion.render() : ''}
               <div class="cuerpo">
                 ${this.#usuarioActual ? '<div class="contenedor-reporte">' + this.#desplegable.render() + '</div>' : ''}

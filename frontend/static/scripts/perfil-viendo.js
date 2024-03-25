@@ -4,7 +4,7 @@ import { ComponenteLiteral, Formulario } from "../componentes/todos.js";
 
 
 let pagina = PaginaPerfil(location.pathname, { usuario: window.usuarioActual }, { DNI: location.pathname.split('/')[2] });
-let desplinf=pagina.partes[3];
+let desplinf=pagina.partes[4];
 desplinf.pagina=2;
 
 let modal = pagina.partes[0];

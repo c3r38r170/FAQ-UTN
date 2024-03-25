@@ -19,8 +19,13 @@ function crearPagina(ruta,sesion,categorias){
 				]
 				,(respuesta,info)=>{
 					if(info.ok){
-						let preguntaID=+respuesta
-						window.location.replace('/pregunta/'+preguntaID);
+						const respuesta=JSON.parse(respuesta);
+						const preguntaID=+respuesta.ID
+						const irAPregunta=()=>window.location.replace('/pregunta/'+preguntaID);
+						if(respuesta.motivo){
+							Swal.redirigirEn(10,`La respuesta se va a publicar, pero fue automáticamente reportada por el siguiente motivo:<br><br><i>${respuesta.motivo}</i>`)
+								.then(irAPregunta);
+						}else irAPregunta();
 					}else Swal.error(`Error ${info.codigo}: ${respuesta}`);
 				}
 				,{
