@@ -63,11 +63,11 @@ class DesplazamientoInfinito {
 				let html = '';
 
 				for (let ent of nuevasEntidades) {
-					html += this.#generadorDeComponentes(ent) || ''; // * El `||''` es para permitir que la función saltee resultados.
+					html += this.#generadorDeComponentes(ent) || ''; // * El `||''` es para _permitir_ que la función saltee resultados.
 				}
 
 				imagenAlcahuete.closest('.loading').remove();
-				html += this.#generarUltimoComponente(nuevasEntidades.length);
+				html += this.#generarUltimoComponente(!!html);
 
 				contenedor.innerHTML += html;
 				this.pagina++;
@@ -77,11 +77,11 @@ class DesplazamientoInfinito {
 		// TODO Feature: catch; y finally?
 	}
 
-	#generarUltimoComponente(cantidadDeEntidadesEnIteracion) {
+	#generarUltimoComponente(hayEntidades) {
 		let html = '';
 
 		// TODO Refactor: Poner algún componente de paginación en el frontend, que en su defecto obtenga la info del backend. Ver que no destruya ninguna renderización... quizá llevar la configuración del frontend AL backend? Suena a lo más oportuno, por mas que sea antiintuitivo...
-		if (cantidadDeEntidadesEnIteracion == 0) {
+		if (!hayEntidades) {
 			html += (this.pagina == 1 ? this.mensajeVacio : this.mensajeFinal).render();
 		} else {
 			html += `<div class="loading">`
@@ -93,7 +93,9 @@ class DesplazamientoInfinito {
 	}
 
 	render() {
-		return `<div id=${this.#id} class="desplazamiento-infinito">` + (this.entidadesIniciales || []).reduce((acc, ent) => acc + this.#generadorDeComponentes(ent), '') + this.#generarUltimoComponente(this.entidadesIniciales ? this.entidadesIniciales.length : -1 /* ! Si no ponemos -1, y no usamos entidadesIniciales, llega un cartel y nunca carga. */) + `</div>`;
+		// TODO Refactor: DRY en la generación de HTML de entidades.
+		let htmlEI=(this.entidadesIniciales || []).reduce((acc, ent) => acc + this.#generadorDeComponentes(ent)||'', '');
+		return `<div id=${this.#id} class="desplazamiento-infinito">` + htmlEI + this.#generarUltimoComponente(this.entidadesIniciales ? !!htmlEI : true /* ! Si no ponemos true, y no usamos entidadesIniciales, llega un cartel y nunca carga por primera vez. */) + `</div>`;
 	}
 }
 
