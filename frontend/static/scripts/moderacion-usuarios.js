@@ -40,7 +40,7 @@ gEt("moderacion-usuarios").onchange = (e) => {
     modal.contenido = [
       new ComponenteLiteral(
         () =>
-          `<big><b><p>¿Estás seguro?</p></b></big> <p>${usuarioElegido.nombre} fue bloqueado por ${bloqueo.bloqueador.nombre} con el siguiente motivo:<br/><i>${bloqueo.motivo}</i></p><br/>`
+          `<big><b><p>¿Estás seguro?</p></b></big> <p><b>${usuarioElegido.nombre}</b> fue bloqueado por <b>${bloqueo.bloqueador.nombre}</b> con el siguiente motivo:<br/><i>${bloqueo.motivo}</i></p><br/>`
       ),
       new Formulario(
         "moderacion-usuarios-desbloquear",
