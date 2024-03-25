@@ -27,7 +27,7 @@ function PaginaPregunta(ruta, sesion, pregunta){
         posibleBotonModerar = new ComponenteLiteral(()=> ``)
     };
 
-
+    // pregunta.titulo = "";
     pagina.partes.push(
         modal,
         posibleMensajePostBloqueado,

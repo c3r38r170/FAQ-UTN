@@ -20,6 +20,8 @@ if (noBorrado) {
         if (boton.type != "button") {
         return;
         }
+
+        console.log(window.pregunta);
     
         var postID = boton.getAttribute("data-ID");
         modal.titulo = "Borrar Post";
@@ -28,6 +30,8 @@ if (noBorrado) {
             new ComponenteLiteral(
             () =>
                 `<p>¿Estás seguro que quieres borrar el post #${postID}?</p><br/>`
+                + `<p>${window.pregunta.titulo}</p>`
+                + `<p>${window.pregunta.post.cuerpo}</p><br/>`
             ),
             new Formulario('eliminadorPregunta' + postID, '/api/post/' + postID, [], (res) => { alert(res), location.reload() }, { textoEnviar: 'Eliminar', verbo: 'DELETE', clasesBoton: 'mx-auto is-danger w-100' })        
         ];
@@ -54,8 +58,11 @@ if (borrado) {
             new ComponenteLiteral(
             () =>
                 `<p>Vas a restaurar el post #${postID}</p><br/>`
+                + `<p>${window.pregunta.titulo}</p>`
+                + `<p>${window.pregunta.post.cuerpo}</p><br/>`
             ),
-            new Formulario('eliminadorPregunta' + postID, '/api/post/' + postID, [], (res) => { alert(res), location.reload() }, { textoEnviar: 'Restaurar', verbo: 'DELETE', clasesBoton: 'mx-auto is-link w-100' })        
+            new Formulario('eliminadorPregunta' + postID, '/api/post/' + postID + '/restaurar', [], (res) => { alert(res), location.reload() }, { textoEnviar: 'Restaurar', verbo: 'PATCH', clasesBoton: 'mx-auto is-link w-100' })        
+                // ! IMPLEMENTAR RESTAURAR POST EN API
         ];
         modal.redibujar();
         modalElemento.classList.add("is-active");

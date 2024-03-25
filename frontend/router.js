@@ -230,7 +230,6 @@ router.get("/pregunta/:id?", async (req, res) => {
       // let preguntaID = p.ID;
       let pagina = PaginaPregunta(req.path, req.session, p);
       pagina.titulo = p.titulo;
-      p.titulo = "";
 
       pagina.globales.pregunta = p;
       res.send(pagina.render());
