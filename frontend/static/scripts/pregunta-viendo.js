@@ -62,7 +62,7 @@ if (borrado) {
                 + `<p>${window.pregunta.post.cuerpo}</p><br/>`
             ),
             new Formulario('eliminadorPregunta' + postID, '/api/post/' + postID + '/restaurar', [], (res) => { alert(res), location.reload() }, { textoEnviar: 'Restaurar', verbo: 'PATCH', clasesBoton: 'mx-auto is-link w-100' })        
-                // ! IMPLEMENTAR RESTAURAR POST EN API
+
         ];
         modal.redibujar();
         modalElemento.classList.add("is-active");
