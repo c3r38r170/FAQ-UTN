@@ -35,3 +35,24 @@ Swal.confirmar=function(text='¿Está seguro? Esta acción no se puede deshacer.
 		,cancelButtonText: "Cancelar"
 	})
 }
+
+Swal.redirigirEn=function(segundos, mensaje){
+	let timerInterval;
+	return CustomSwal.fire({
+		icon: "warning",
+		// TODO UX: Mensaje pensando en cuando se redirige (pregunta) o se recarga la pagina (respuestas). Algo como "Se procederá en..."
+		html: mensaje+`<br><br>Vas a ser redirigido en <b></b> segundos.`,
+		timer: segundos*1000,
+		timerProgressBar: true,
+		didOpen: () => {
+			// Swal.showLoading();
+			const timer = Swal.getPopup().querySelector("b");
+			timerInterval = setInterval(() => {
+				timer.textContent = `${(Swal.getTimerLeft()/1000).toFixed(1)}`;
+			}, 200);
+		},
+		willClose: () => {
+			clearInterval(timerInterval);
+		}
+	});
+}

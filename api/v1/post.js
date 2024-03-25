@@ -76,76 +76,76 @@ const valorarPost = function (req, res) {
       });
   };
   
-  const eliminarVoto = function (req, res) {
-    if (!req.session.usuario) {
-      res.status(401).send(mensajeError401);
-      return;
-    }
-    let IDvotado = req.params.votadoID;
-    Post.findByPk(IDvotado)
-      .then((post) => {
-        if (!post) {
-          res.status(404).send(mensajeError404);
-          return;
-        } else {
-          Voto.findAll({
-            where: {
-              votadoID: IDvotado,
-              votanteDNI: req.session.usuario.DNI,
-            },
-            nest: true,
-            plain: true,
-          }).then((voto) => {
-            if (!voto) {
-              res.status(403).send(mensajeError403);
-            } else {
-              voto.destroy();
-            }
-            res.status(201).send("Voto Eliminado.");
+const eliminarVoto = function (req, res) {
+  if (!req.session.usuario) {
+    res.status(401).send(mensajeError401);
+    return;
+  }
+  let IDvotado = req.params.votadoID;
+  Post.findByPk(IDvotado)
+    .then((post) => {
+      if (!post) {
+        res.status(404).send(mensajeError404);
+        return;
+      } else {
+        Voto.findAll({
+          where: {
+            votadoID: IDvotado,
+            votanteDNI: req.session.usuario.DNI,
+          },
+          nest: true,
+          plain: true,
+        }).then((voto) => {
+          if (!voto) {
+            res.status(403).send(mensajeError403);
+          } else {
+            voto.destroy();
+          }
+          res.status(201).send("Voto Eliminado.");
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send(err.message);
+    });
+};
+
+// TODO Feature: Hacer las funciones anónimas, si ya no hace falta usarlas en diferentes lugares. valorar, eliminarVoto, y reportarPost
+
+router.post("/:votadoID/valoracion", valorarPost);
+
+router.delete("/:votadoID/valoracion", eliminarVoto);
+
+//reporte post
+
+const reportarPost = function (req, res) {
+  // TODO Refactor: ocupar la sesión activa válida en el server.js así no hay que repetirlo a cada rato
+
+  let reportadoID = req.params.reportadoID;
+  Post.findByPk(reportadoID)
+    .then((pregunta) => {
+      if (!pregunta) {
+        res.status(404).send(mensajeError404);
+        return;
+      } else {
+        // TODO Feature: ver si ya se reportó, y prohibir
+        // Se podría hacer un get a los reportes y si ya existe que aparezca mensajito de ya está reportado y directamente no te aparezca el form
+        // TODO Feature: determinar tipos
+        ReportePost.create({
+          tipoID: req.body.tipoID || 1,
+          reportanteDNI: req.session.usuario.DNI,
+          reportadoID: reportadoID,
+        })
+          .then((r) =>r.save())
+          .then(r=>{
+            res.status(201).send("Reporte registrado");
           });
-        }
-      })
-      .catch((err) => {
-        res.status(500).send(err.message);
-      });
-  };
-  
-  // TODO Feature: Hacer las funciones anónimas, si ya no hace falta usarlas en diferentes lugares. valorar, eliminarVoto, y reportarPost
-  
-  router.post("/:votadoID/valoracion", valorarPost);
-  
-  router.delete("/:votadoID/valoracion", eliminarVoto);
-  
-  //reporte post
-  
-  const reportarPost = function (req, res) {
-    // TODO Refactor: ocupar la sesión activa válida en el server.js así no hay que repetirlo a cada rato
-  
-    let reportadoID = req.params.reportadoID;
-    Post.findByPk(reportadoID)
-      .then((pregunta) => {
-        if (!pregunta) {
-          res.status(404).send(mensajeError404);
-          return;
-        } else {
-          // TODO Feature: ver si ya se reportó, y prohibir
-          // Se podría hacer un get a los reportes y si ya existe que aparezca mensajito de ya está reportado y directamente no te aparezca el form
-          // TODO Feature: determinar tipos
-          ReportePost.create({
-            tipoID: req.body.tipoID || 1,
-            reportanteDNI: req.session.usuario.DNI,
-            reportadoID: reportadoID,
-          })
-            .then((r) =>r.save())
-            .then(r=>{
-              res.status(201).send("Reporte registrado");
-            });
-        }
-      })
-      .catch((err) => {
-        res.status(500).send(err.message);
-      });
-  };
+      }
+    })
+    .catch((err) => {
+      res.status(500).send(err.message);
+    });
+};
   
 router.post("/:reportadoID/reporte", reportarPost);
   
