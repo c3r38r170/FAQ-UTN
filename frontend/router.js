@@ -15,7 +15,8 @@ import {
   MensajeInterfaz,
   Titulo,
   Formulario,
-  Desplegable
+  Desplegable,
+  ComponenteLiteral
 } from "./static/componentes/todos.js";
 import {
   Voto as VotoDAO,
@@ -93,8 +94,6 @@ router.get("/", (req, res) => {
 
 // * Ruta que muestra 1 pregunta con sus respuestas
 router.get("/pregunta/:id?", async (req, res) => {
-  // TODO Feature: En caso de que sea una pregunta borrada, no permitir a menos que se tengan permisos de moderación, o administración.
-
   try {
     let paginaError = SinPermisos(req.session, "Algo ha malido sal.");
     if (req.params.id) {
@@ -200,6 +199,8 @@ router.get("/pregunta/:id?", async (req, res) => {
             not.save();
           }
         });
+
+
       } else if (p.post.eliminadorDNI) {
         // No está logueado y la pregunta esta eliminada
         res.send(paginaError.render());
@@ -226,14 +227,12 @@ router.get("/pregunta/:id?", async (req, res) => {
       });
 
       // TODO UX: Esto no se ve muy lindo. Alternativa: Alguna forma de que la pregunta no renderice el link, y sí renderice un título h-
-      let preguntaID = p.ID;
-      let pagina = PaginaPregunta(req.path, req.session, preguntaID);
+      // let preguntaID = p.ID;
+      let pagina = PaginaPregunta(req.path, req.session, p);
       pagina.titulo = p.titulo;
       p.titulo = "";
-      pagina.partes.unshift(new Pregunta(p, pagina.partes[0], req.session.usuario));
 
-      pagina.globales.preguntaID = preguntaID;
-
+      pagina.globales.pregunta = p;
       res.send(pagina.render());
     } else {
       let sesion = req.session;
