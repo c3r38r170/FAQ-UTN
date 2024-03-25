@@ -7,23 +7,29 @@ function crearPagina(ruta, usuario, usu, perfilBloqueado = false) {
     let titulo = ((usuario && usu.DNI && usuario.DNI == usu.DNI) || (usuario && !usu.DNI)) ? 'Mi Perfil' : 'Perfil de ' + usu.nombre;
     let modal = new Modal('General', 'modal-general');
     let posibleBotonModerar;
+    let posibleMensajeUsuarioBloqueado;
     if(usuario.usuario?.perfil.permiso.ID > 1){
         let boton;
         if(perfilBloqueado){
             boton = `<button id="botonDesbloquear" data-DNI="${usu.DNI}" type="button" class="button is-warning is-light is-small is-rounded">Desbloquear</button>`
+            posibleMensajeUsuarioBloqueado = new MensajeInterfaz(MensajeInterfaz.GRIS,'Este usuario se encuentra bloqueado')
         }else{
             boton = `<button id="botonBloquear" data-DNI="${usu.DNI}" type="button" class="button is-warning is-small is-rounded">Bloquear</button>`
+            posibleMensajeUsuarioBloqueado = new ComponenteLiteral(()=> ``)
         }
         posibleBotonModerar = new ComponenteLiteral(()=> `<div class="contenedor-boton-bloqueo">${boton}</div> `)
     }else{
+        posibleMensajeUsuarioBloqueado = new ComponenteLiteral(()=> ``)
         posibleBotonModerar = new ComponenteLiteral(()=> ``)
     };
+
     return new Pagina({
         ruta: ruta,
         titulo: titulo,
         sesion: usuario,
         partes: [
             modal,
+            posibleMensajeUsuarioBloqueado,
             posibleBotonModerar,
             new ChipUsuario(usu, true, false)
             , new DesplazamientoInfinito(
