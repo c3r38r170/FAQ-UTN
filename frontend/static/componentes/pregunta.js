@@ -63,15 +63,12 @@ class Pregunta {
                             return;
                         }
 
-                        // TODO
                         let preguntas=SqS(`.pregunta`,{n:ALL});
-                        if(preguntas.length==1){ // Ruta de la pregunta misma, o una búsqueda con un solo resultado.
+                        if(preguntas.length==1){ //* Ruta de la pregunta misma, o una búsqueda con un solo resultado.
                             location.reload();
                         }else{
                             preguntas.find(p=>p.dataset.postId == +txt /* post.ID del backend */).remove()
-                        }/* 
-                        SqS(`.pregunta[data-post-id="${thisID}"]`).remove();
-                        if(.length==0) */
+                        }
                     }
                     , {
                         textoEnviar: 'Eliminar'
@@ -80,45 +77,17 @@ class Pregunta {
                         ,alEnviar:(e)=>{
                             e.preventDefault();
                             return new Promise((resolve, reject) => {
-                                Swal.confirmar('¿Seguro')
+                                Swal.confirmar('¿Seguro que desea eliminar esta pregunta? Esto no se puede deshacer.')
                                     .then(res=>{
                                         if(res.isConfirmed) {
                                             resolve();
-                                        // TODO Refactor: Esto de acá abajo genera un error?? Quizá porque nunca se catchea...
+                                        // TODO Refactor: Esto de acá abajo genera un error?? Quizá porque nunca se catchea... "Uncaught (in promise) undefined"
                                         }else reject();
                                     })
                             });
-                            /* 
-                                .then(res=>{
-                                    // console.log(res.isConfirmed)
-                                    if(res.isConfirmed) {
-
-                                        fetch('/api/post/' + thisID,{method:'DELETE'})
-                                            .then(r=>{
-                                                if(r.ok){
-                                                    SqS(`.pregunta[data-post-id="${thisID}"]`).remove();
-                                                }
-                                            })
-                                    }
-                                }) 
-                                return false;
-                                */
                         }
                     }
                 ).render();
-                /* form=new Boton({accion:(e)=>{
-                    Swal.confirmar('¿Seguro')
-                        .then(res=>{
-                            if(res.isConfirmed) {
-                                superFetch('/api/post/' + this.#ID,null,{method:'DELETE'})
-                                    .then(r=>{
-                                        if(r.ok){
-                                            SqS(`.pregunta[data-post-id="${this.#ID}"]`).remove();
-                                        }
-                                    })
-                            }
-                        })
-                }}).render(); */
                 let opciones = [
                     // TODO UX: Ver la posibilildad de que esto sea un botón .button.is-link.is-rounded ; habría que modificar Desplegable para que acepte tipo:'componente', y esto también beneficiaría a la forma de pasar el formulario.
                     {
@@ -133,11 +102,11 @@ class Pregunta {
                 ];
                 this.#desplegable.opciones = opciones;
             } else {
-                // "/post/:reportadoID/reporte"
-
+                
                 // {name,textoEtiqueta,type,required=true,value=''/* TODO Refactor: null? */,extra,placeholder, clasesInput}){
                 let form = new Formulario(
                     'reportadorPost' + this.#ID,
+                    // "/post/:reportadoID/reporte"
                     '/api/post/' + this.#ID + '/reporte',
                     [{
                         name: "tipoID",
@@ -159,7 +128,6 @@ class Pregunta {
                     {
                         tipo: "form",
                         render: form
-
                     }
                 ];
                 this.#desplegable.opciones = opciones;

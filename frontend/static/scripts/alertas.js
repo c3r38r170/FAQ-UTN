@@ -34,12 +34,4 @@ Swal.confirmar=function(text='¿Está seguro? Esta acción no se puede deshacer.
 		,confirmButtonText: 'Eliminar definitivamente'
 		,cancelButtonText: "Cancelar"
 	})
-/* 		.then(
-			result=>{
-				yield result.isConfirmed
-			}
-			) */
-			/* 
-			si=>yield true
-			,no=>yield false */
 }
