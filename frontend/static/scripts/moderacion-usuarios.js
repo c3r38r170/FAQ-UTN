@@ -35,11 +35,12 @@ gEt("moderacion-usuarios").onchange = (e) => {
   // ! Se deben crear nuevos formularios porque el valor del DNI del elegido estará en el indice, en el endpoint, y en más lógica dentro del manipulador de respuesta.
   if (usuarioElegido.bloqueosRecibidos.length) {
     // * Se desea desbloquear
+    let bloqueo=usuarioElegido.bloqueosRecibidos[0];
     modal.titulo = "Desbloquear a " + usuarioElegido.nombre;
     modal.contenido = [
       new ComponenteLiteral(
         () =>
-          `<big><b><p>¿Estás seguro?</p></b></big> <p><i>${usuarioElegido.nombre} fue bloqueado con el siguiente motivo:</i><br/>${usuarioElegido.bloqueosRecibidos[0].motivo}</p><br/>`
+          `<big><b><p>¿Estás seguro?</p></b></big> <p>${usuarioElegido.nombre} fue bloqueado por ${bloqueo.bloqueador.nombre} con el siguiente motivo:<br/><i>${bloqueo.motivo}</i></p><br/>`
       ),
       new Formulario(
         "moderacion-usuarios-desbloquear",
