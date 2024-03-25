@@ -80,6 +80,8 @@ class Pagina {
 
 		<script src="/scripts${rutaRecursos + ".js"}" type="module"></script>
 		<link rel="stylesheet" href="/styles${rutaRecursos + ".css"}">
+
+		<script src="https://unpkg.com/@c3r38r170/c3tools@1.3.1" type="module"></script>
 		
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 		<script src="/scripts/alertas.js"></script>

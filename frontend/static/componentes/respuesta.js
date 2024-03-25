@@ -36,7 +36,20 @@ class Respuesta {
       this.#desplegable = new Desplegable('opcionesRespuesta' + this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>', undefined, undefined, 'opcionesPost');
       if (this.#usuarioActual && this.#usuarioActual.DNI == this.#duenio.DNI) {
         // TODO Refactor: No usar alert. Usar Swal.
-        let form = new Formulario('eliminadorRespuesta' + this.#ID, '/api/post/' + this.#ID, [], (res) => { alert(res) }, { textoEnviar: 'Eliminar', verbo: 'DELETE', clasesBoton: 'mx-auto is-danger w-100' }).render()
+        let form = new Formulario(
+          'eliminadorRespuesta' + this.#ID
+          , '/api/post/' + this.#ID
+          , []
+          , (res) => {
+            // TODO Feature: Eliminar del feel o redirigir al inicio...
+            alert(res);
+          }
+          , {
+            textoEnviar: 'Eliminar'
+            ,verbo: 'DELETE'
+            ,clasesBoton: 'mx-auto is-danger w-100'
+          }
+        ).render();
         let opciones = [
           {
             descripcion: "Editar",

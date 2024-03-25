@@ -11,6 +11,7 @@ Swal.error = function (mensaje) {
 	})
 }
 
+// TODO Refactor: ¿Quizá agregar un parámetro callback, para que sea reutilizable?
 Swal.exito = function (mensaje) {
 	return CustomSwal.fire({
 		text: mensaje,
@@ -19,3 +20,26 @@ Swal.exito = function (mensaje) {
 		document.getElementById("modal-resetear-contrasenia").classList.remove('is-active');
 	});
 };
+
+Swal.confirmar=function(text='¿Está seguro? Esta acción no se puede deshacer.') {
+	return CustomSwal.fire({
+		text
+		,icon: "warning"
+		,showCancelButton: true
+		,customClass: {
+			// TODO Refactor: DRY
+			confirmButton: 'button is-link is-rounded mt-3',
+			cancelButton:'button is-rounded mt-3'
+		}
+		,confirmButtonText: 'Eliminar definitivamente'
+		,cancelButtonText: "Cancelar"
+	})
+/* 		.then(
+			result=>{
+				yield result.isConfirmed
+			}
+			) */
+			/* 
+			si=>yield true
+			,no=>yield false */
+}

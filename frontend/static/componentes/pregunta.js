@@ -1,3 +1,4 @@
+import { ALL, SqS, superFetch } from '../libs/c3tools.js';
 import { ChipUsuario, ChipValoracion, Etiqueta, Respuesta, Boton, Fecha, BotonReporte, Formulario, BotonSuscripcion, Desplegable } from "./todos.js";
 
 class Pregunta {
@@ -51,7 +52,73 @@ class Pregunta {
             this.#desplegable = new Desplegable('opcionesPregunta' + this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>', undefined, undefined, 'opcionesPost');
             if (this.#usuarioActual.DNI == this.#duenio.DNI) {
                 // TODO Refactor: No usar alert. Usar Swal.
-                let form = new Formulario('eliminadorPregunta' + this.#ID, '/api/post/' + this.#ID, [], (res) => { alert(res) }, { textoEnviar: 'Eliminar', verbo: 'DELETE', clasesBoton: 'mx-auto is-danger w-100' }).render()
+                let thisID=this.#ID;
+                let form = new Formulario(
+                    'eliminadorPregunta' + thisID
+                    , '/api/post/' + thisID
+                    , []
+                    , (txt, { ok, codigo }) => {
+                        if(!ok){
+                            Swal.error(txt);
+                            return;
+                        }
+
+                        // TODO
+                        let preguntas=SqS(`.pregunta`,{n:ALL});
+                        if(preguntas.length==1){ // Ruta de la pregunta misma, o una búsqueda con un solo resultado.
+                            location.reload();
+                        }else{
+                            preguntas.find(p=>p.dataset.postId == +txt /* post.ID del backend */).remove()
+                        }/* 
+                        SqS(`.pregunta[data-post-id="${thisID}"]`).remove();
+                        if(.length==0) */
+                    }
+                    , {
+                        textoEnviar: 'Eliminar'
+                        , verbo: 'DELETE'
+                        , clasesBoton: 'mx-auto is-danger w-100'
+                        ,alEnviar:(e)=>{
+                            e.preventDefault();
+                            return new Promise((resolve, reject) => {
+                                Swal.confirmar('¿Seguro')
+                                    .then(res=>{
+                                        if(res.isConfirmed) {
+                                            resolve();
+                                        // TODO Refactor: Esto de acá abajo genera un error?? Quizá porque nunca se catchea...
+                                        }else reject();
+                                    })
+                            });
+                            /* 
+                                .then(res=>{
+                                    // console.log(res.isConfirmed)
+                                    if(res.isConfirmed) {
+
+                                        fetch('/api/post/' + thisID,{method:'DELETE'})
+                                            .then(r=>{
+                                                if(r.ok){
+                                                    SqS(`.pregunta[data-post-id="${thisID}"]`).remove();
+                                                }
+                                            })
+                                    }
+                                }) 
+                                return false;
+                                */
+                        }
+                    }
+                ).render();
+                /* form=new Boton({accion:(e)=>{
+                    Swal.confirmar('¿Seguro')
+                        .then(res=>{
+                            if(res.isConfirmed) {
+                                superFetch('/api/post/' + this.#ID,null,{method:'DELETE'})
+                                    .then(r=>{
+                                        if(r.ok){
+                                            SqS(`.pregunta[data-post-id="${this.#ID}"]`).remove();
+                                        }
+                                    })
+                            }
+                        })
+                }}).render(); */
                 let opciones = [
                     // TODO UX: Ver la posibilildad de que esto sea un botón .button.is-link.is-rounded ; habría que modificar Desplegable para que acepte tipo:'componente', y esto también beneficiaría a la forma de pasar el formulario.
                     {
