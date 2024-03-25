@@ -802,17 +802,18 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
 
     if (filtrar) {
       if (filtrar.texto) {
-        // TODO Security: cadena literal en consulta
         opciones.where = Sequelize.or(
           Sequelize.literal(
-            'match(post.cuerpo) against ("' +
-            filtrar.texto +
-            '*"  IN BOOLEAN MODE)'
+            `match(post.cuerpo) against (? IN BOOLEAN MODE)`
           ),
           Sequelize.literal(
-            'match(titulo) against ("' + filtrar.texto + '*"  IN BOOLEAN MODE)'
+            `match(titulo) against (? IN BOOLEAN MODE)`
           )
-        );
+        )
+        opciones.replacements=[
+          `${filtrar.texto}*`
+          ,`${filtrar.texto}*`
+        ];
         filtrarTexto = true;
       }
 
@@ -840,10 +841,13 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
             }
           }
         );
+        if(!opciones.replacements)
+          opciones.replacements=[];
+        opciones.replacements.push(...filtrar.etiquetas);
         opciones.attributes.include.push(
           [
             sequelize.literal(
-              `(SELECT COUNT(*) FROM etiquetasPregunta WHERE etiquetasPregunta.preguntumID = pregunta.ID AND etiquetasPregunta.etiquetumID IN(${filtrar.etiquetas}))`
+              `(SELECT COUNT(*) FROM etiquetasPregunta WHERE etiquetasPregunta.preguntumID = pregunta.ID AND etiquetasPregunta.etiquetumID IN(${new Array(filtrar.etiquetas.length).fill('?').join()}))`
             ),
             "coincidencias",
           ]
@@ -872,7 +876,12 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
     if (filtrarEtiquetas || filtrarTexto) {//filtrar siempre esta? viene como objeto vació tonces entra en el if
       let ranking = [];
       if (filtrarTexto) {
-        ranking.push(`(match(post.cuerpo) against ("${filtrar.texto}*"  IN BOOLEAN MODE) + match(titulo) against ("${filtrar.texto}*"  IN BOOLEAN MODE)*2)`);
+        ranking.push(`(match(post.cuerpo) against (? IN BOOLEAN MODE) + match(titulo) against (? IN BOOLEAN MODE)*2)`);
+        // * En la definición del where se establece replacements con un par de el mismo valor.
+        opciones.replacements.push(
+          `${filtrar.texto}*`
+          ,`${filtrar.texto}*`
+        );
       }
       if (filtrarEtiquetas) {
         ranking.push(`coincidencias/${filtrar.etiquetas.length}`) // * 0..1

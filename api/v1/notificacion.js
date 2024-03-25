@@ -68,11 +68,12 @@ router.get('/', function (req, res) {
 			//'$post.pregunta.ID$': { [Sequelize.Op.ne]: null }, // *Check if the post is a question
 			notificadoDNI: req.session.usuario.DNI // *Filter by notificadoDNI matching user's DNI
 		},
+		replacements:[req.session.usuario.DNI],
 		attributes: [
 			[Sequelize.fn('min', Sequelize.col('notificacion.visto')), 'visto']
 			, [Sequelize.fn('max', Sequelize.col('notificacion.createdAt')), 'createdAt']
 			, [Sequelize.fn('count', Sequelize.col('*')), 'cantidad']
-			, [Sequelize.literal(`IF(post.duenioDNI='${req.session.usuario.DNI}',1,0)`), 'propia']
+			, [Sequelize.literal(`IF(post.duenioDNI=?,1,0)`), 'propia']
 			, [Sequelize.fn('coalesce', Sequelize.col('post.respuesta.pregunta.titulo'), Sequelize.col('post.pregunta.titulo')), 'titulo']
 
 			, [Sequelize.col('post.respuesta.preguntaID'), 'respuestaPreguntaID']
