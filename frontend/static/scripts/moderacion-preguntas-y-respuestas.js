@@ -121,10 +121,10 @@ gEt('moderar-posts').onclick = (e) => {
               return;
             }
 
-
             let divFantasma = createElement('DIV');
             campoBusqueda.parentNode/* * `label` */.after(divFantasma);
             let desplinf = new DesplazamientoInfinito(
+              // TODO Refactor: DRY en esta ID
               'moderacion-pregunta-unificar-desplinf'
               , endpointInicial/* * Se actualiza */
               , (pre) => {

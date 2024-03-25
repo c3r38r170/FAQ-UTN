@@ -26,17 +26,7 @@ class Formulario {
 		Formulario.instancias[id] = this;
 	}
 
-	enviar(e) {
-		let form = e.target;
-
-		if (this.#alEnviar) {
-			let respuestaAlEnviar = this.#alEnviar(e);
-			// ! alEnviar se puede usar como validador personalizado.
-			if (respuestaAlEnviar === false) {
-				return;
-			}
-		}
-
+	#terminarEnvioDelFormulario(e){
 		if (!this.#endpoint) { // ! Formulario tradicional de HTML que redirige para enviar los datos.
 			return;
 		}
@@ -44,6 +34,7 @@ class Formulario {
 		e.preventDefault();
 		// ! No funciona GET con FormData.
 
+		let form = e.target;
 
 		// Crear un objeto FormData para facilitar la obtención de datos del formulario
 		const formData = new FormData(form);
@@ -52,10 +43,7 @@ class Formulario {
 		let datos;
 		if (fileInput) {
 			datos = formData;
-
-
 		} else {
-
 			// Crear un objeto para almacenar los datos
 			datos = {};
 
@@ -93,13 +81,31 @@ class Formulario {
 					fieldset.disabled = false;
 					// TODO Feature: Probar en los formularios que se reutilizan, qué pasa cuando salen bien, y esto no se ejecuta
 					botonCarga.remove();
+					// ! La notificación de errores se encarga cada formulario. Podría haber errores recuperables o transparentes.
 				}
 				codigo = res.status;
 				return res.text();
 			})
-			.then(txt => this.#funcionRetorno(txt, { ok, codigo })).catch(error => {
+			.then(txt => this.#funcionRetorno(txt, { ok, codigo }))
+			.catch(error => {
 				console.error('Error con formulario:', error);
 			});
+	}
+
+	enviar(e) {
+		if (this.#alEnviar) {
+			let respuestaAlEnviar = this.#alEnviar(e);
+			// ! alEnviar se puede usar como validador personalizado.
+			if(respuestaAlEnviar instanceof Promise){
+				respuestaAlEnviar.then(() => this.#terminarEnvioDelFormulario(e))
+				return;
+			}
+			if (respuestaAlEnviar === false) {
+				return;
+			}
+		}
+
+		this.#terminarEnvioDelFormulario(e);
 	}
 
 	render() {
@@ -125,18 +131,23 @@ class Formulario {
 				- Formato: function(){}
 				- Acción: Nada.
 		*/
-		let representacionDeLaFuncion;
-		if (this.#funcionRetorno) {
-			representacionDeLaFuncion = this.#funcionRetorno.toString();
-			let parteHastaPrimerParentesis = representacionDeLaFuncion.substring(0, representacionDeLaFuncion.indexOf('('));
-			if (parteHastaPrimerParentesis/* ! No es flecha. */ && parteHastaPrimerParentesis != 'function' /* ! No es anónima. */) {
-				representacionDeLaFuncion = 'function ' + representacionDeLaFuncion;
-			}
-		} else representacionDeLaFuncion = 'null';
-		// ! Queda terminantemente prohibido nombrar funciones con el prefijo `function`
+		const funcionAString=(f)=>{
+			let representacion;
+			if (f) {
+				representacion = f.toString();
+				let parteHastaPrimerParentesis = representacion.substring(0, representacion.indexOf('(')).trim();
+				if (parteHastaPrimerParentesis/* ! No es flecha. */ && parteHastaPrimerParentesis != 'function' /* ! No es anónima. */ && parteHastaPrimerParentesis != 'async' /* ! No es flecha asincronica. */) {
+					representacion = 'function ' + representacion;
+				}
+			} else representacion = 'null';
+			return representacion;
+		}
+
+		let representacionDeLaFuncion=funcionAString(this.#funcionRetorno);
+		let representacionDeAlEnviar=funcionAString(this.#alEnviar);
+		// ! Queda terminantemente prohibido nombrar funciones con el prefijo `function` y `async`
 
 		return '<script> addEventListener("load",()=> {'
-
 			// id,endpoint,campos,funcionRetorno,{textoEnviar='Enviar',verbo='POST',clasesBoton : clasesBotonEnviar='button is-primary mt-3'}={}
 			+ `Formulario.instancias['${this.#id}']=new Formulario(
                 '${this.#id}',
@@ -146,7 +157,8 @@ class Formulario {
                 {
                     textoEnviar: '${this.#textoEnviar}',
                     verbo: '${this.verbo}',
-                    clasesBoton: '${this.#clasesBotonEnviar}'
+                    clasesBoton: '${this.#clasesBotonEnviar}',
+										alEnviar:${representacionDeAlEnviar}
                 }
             )`
 			+ '}); </script>'

@@ -168,7 +168,7 @@ function crearPregunta(req, res, respuestaIA = null) {
     // TODO Refactor: Se puede simplificar incluso más. Para empezar, poniendo todo lo del push obligatorio dentro de la definición.
     let esperarA = [];
     let reportaPost = getReportaPost();
-    if (respuestaIA && respuestaIA < reportaPost) {
+    if (respuestaIA && respuestaIA.apropiado < reportaPost) {
       esperarA.push(
         ReportePost.create({
           tipoID: 1,
@@ -221,7 +221,7 @@ function crearPregunta(req, res, respuestaIA = null) {
       .then(() => pregunta.save())
       .then(() => {
         // ! Sin las comillas se piensa que pusimos el status dentro del send
-        res.status(201).send(pregunta.ID + "");
+        res.status(201).json({ID:pregunta.ID,motivo:respuestaIA?.motivo});
       })
   })
     .catch(err => {
@@ -242,7 +242,7 @@ router.post("/", function (req, res) {
           return;
         }
         //reporte en esta funcion
-        crearPregunta(req, res, respuesta.apropiado)
+        crearPregunta(req, res, respuesta)
       })
       .catch((err) => {
         res.status(500).send(err.message);

@@ -192,7 +192,8 @@ router.delete('/:ID', (req, res) => {
       post.setEliminador(req.session.usuario.DNI)
         .then((post) => post.save())
         .then(() => {
-          res.status(200).send("Estado del post consistente con interfaz");
+          // ! Cast a string o nos butea express (piensa que pasamos un código.).
+          res.status(200).send(`${post.ID}`);
         })
     })
 })
