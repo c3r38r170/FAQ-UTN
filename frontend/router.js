@@ -41,8 +41,7 @@ import {
 
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
-// TODO Refactor: Usar todas.js
-import { PantallaModeracionPostsBorrados ,PantallaEstadisticasUsuariosMasRelevantes, PantallaEstadisticasPostsEtiquetas, PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual, PantallaEstadisticasPostsRelevantes, PantallaEstadisticasPostsNegativos } from './static/pantallas/todas.js';
+import { PantallaModeracionPostsBorrados ,PantallaEstadisticasSitio, PantallaEstadisticasUsuariosMasRelevantes, PantallaEstadisticasPostsEtiquetas, PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual, PantallaEstadisticasPostsRelevantes, PantallaEstadisticasPostsNegativos } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -125,7 +124,10 @@ router.get("/pregunta/:id?", async (req, res) => {
               ]
             }
           ],
-          order: [['updatedAt', 'DESC']]
+          order: [
+            Sequelize.literal('(select coalesce(sum(valoracion),1) from votos where votadoID = respuesta.ID) DESC'),
+            ['updatedAt', 'DESC'], //
+          ]
         },
         {
           model: EtiquetasPreguntaDAO,
@@ -706,6 +708,23 @@ router.get("/estadisticas/usuarios/masRelevantes", (req, res) => {
   res.send(pagina.render());
 });
 
+router.get("/estadisticas/sitio", (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 3) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+
+
+  let pagina = PantallaEstadisticasSitio(req.path, req.session);
+  res.send(pagina.render());
+});
+
 
 router.get('/quienes-somos', (req, res) => {
   let pagina = PantallaQuienesSomos(req.path, req.session);
@@ -732,7 +751,7 @@ router.get("/prueba/mensaje", async (req, res) => {
 
     pagina.partes.push(new Titulo(5, "Desplegable"));
     let desplegable = new Desplegable("myDesplegable", '<i class="fa-solid fa-ellipsis"></i>');
-    let form = new Formulario('eliminadorForm', '/api/pregunta/', [], (res) => { alert(res) }, { textoEnviar: 'Eliminar', verbo: 'POST', clasesBoton: 'is-danger is-outlined' }).render()
+    let form = new Formulario('eliminadorForm', '/api/pregunta/', [], (res) => { Swal.exito(`${res}`); }, { textoEnviar: 'Eliminar', verbo: 'POST', clasesBoton: 'is-danger is-outlined' }).render()
     let opciones = [
       {
         descripcion: "Opcion 2",

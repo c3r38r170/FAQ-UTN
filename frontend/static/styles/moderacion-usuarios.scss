@@ -25,6 +25,13 @@
 		justify-content: center;
 		gap: 1rem;
 	}
+
+	tbody tr:nth-child(2n){
+		background-color: #f2f2f2;
+	}
+	tbody tr:nth-child(2n) .sticky{
+		background-color: #f2f2f2;
+	}
 }
 
 .switch[type="checkbox"]:checked + label::before{

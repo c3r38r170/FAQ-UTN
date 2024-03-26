@@ -10,7 +10,10 @@ import {
   Post,
   Respuesta,
   Notificacion,
-  Parametro
+  Parametro,
+  SuscripcionesPregunta,
+  SuscripcionesEtiqueta,
+  Bloqueo
 } from "./model.js";
 
 import { getPaginacion } from "./parametros.js";
@@ -18,9 +21,8 @@ import { mensajeError401, mensajeError403, mensajeError404 } from "./mensajesErr
 
 const router = express.Router();
 
-// valoracion
-
-const valorarPost = function (req, res) {
+//valoracion
+router.post("/:votadoID/valoracion", function (req, res) {
   //res tendría idpregunta
   //la valoracion(true es positiva, false negativa)
   //el usuario viene con la sesión
@@ -82,9 +84,9 @@ const valorarPost = function (req, res) {
     .catch((err) => {
       res.status(500).send(err.message);
     });
-};
+});
 
-const eliminarVoto = function (req, res) {
+router.delete("/:votadoID/valoracion", function (req, res) {
   if (!req.session.usuario) {
     res.status(401).send(mensajeError401);
     return;
@@ -116,17 +118,11 @@ const eliminarVoto = function (req, res) {
     .catch((err) => {
       res.status(500).send(err.message);
     });
-};
-
-// TODO Feature: Hacer las funciones anónimas, si ya no hace falta usarlas en diferentes lugares. valorar, eliminarVoto, y reportarPost
-
-router.post("/:votadoID/valoracion", valorarPost);
-
-router.delete("/:votadoID/valoracion", eliminarVoto);
+});
 
 //reporte post
 
-const reportarPost = function (req, res) {
+router.post("/:reportadoID/reporte", function (req, res) {
   // TODO Refactor: ocupar la sesión activa válida en el server.js así no hay que repetirlo a cada rato
 
   let reportadoID = req.params.reportadoID;
@@ -139,23 +135,31 @@ const reportarPost = function (req, res) {
         // TODO Feature: ver si ya se reportó, y prohibir
         // Se podría hacer un get a los reportes y si ya existe que aparezca mensajito de ya está reportado y directamente no te aparezca el form
         // TODO Feature: determinar tipos
-        ReportePost.create({
-          tipoID: req.body.tipoID || 1,
-          reportanteDNI: req.session.usuario.DNI,
-          reportadoID: reportadoID,
+        ReportePost.findOne({
+          where: {
+            reportadoID: reportadoID,
+            reportanteDNI: req.session.usuario.DNI
+          }
+        }).then(re => {
+          if (re) {
+            re.fecha = Date.now();
+            re.save();
+          } else {
+            ReportePost.create({
+              tipoID: req.body.tipoID || 1,
+              reportanteDNI: req.session.usuario.DNI,
+              reportadoID: reportadoID,
+            })
+          }
+          res.status(201).send("Reporte registrado");
+          return;
         })
-          .then((r) => r.save())
-          .then(r => {
-            res.status(201).send("Reporte registrado");
-          });
       }
     })
     .catch((err) => {
       res.status(500).send(err.message);
     });
-};
-
-router.post("/:reportadoID/reporte", reportarPost);
+});
 
 // TODO Feature: Los reportes no se eliminan. Solo se actua sobre ellos (eliminando o unificando) o se ignoran. Esta ignoración podría ser interesante de implementar.
 //Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)
@@ -427,5 +431,65 @@ router.get("/masNegativos", function (req, res) {
       res.status(400).send(error.message);
     });
 });
+
+
+router.get("/estadisticas", async function (req, res) {
+  //con promises en vez de await porque son muchas consultas y tarda mucho si no las hace en paralelo
+  const obtenerEstadisticas = async () => {
+    const estadisticas = [
+      { nombre: 'Preguntas', valor: 0, ultimoMes: 0 },
+      { nombre: 'Posts', valor: 0, ultimoMes: 0 },
+      { nombre: 'Votos', valor: 0, ultimoMes: 0 },
+      { nombre: 'Bloqueos', valor: 0, ultimoMes: 0 },
+      { nombre: 'Suscripciones', valor: 0, ultimoMes: 0 }
+    ];
+
+    // Consultas para obtener el valor total y el valor del último mes para cada estadística
+    const consultas = [
+      Pregunta.count(),
+      Post.count(),
+      Voto.count(),
+      Bloqueo.count(),
+      SuscripcionesPregunta.count(),
+      SuscripcionesEtiqueta.count(),
+      Pregunta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }),
+      Post.count({ where: { fecha: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }),
+      Voto.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }),
+      Bloqueo.count({ where: { fecha: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }),
+      SuscripcionesPregunta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }),
+      SuscripcionesEtiqueta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } })
+    ];
+
+    const resultados = await Promise.all(consultas);
+
+    estadisticas[0].valor = resultados[0];
+    estadisticas[1].valor = resultados[1];
+    estadisticas[2].valor = resultados[2];
+    estadisticas[3].valor = resultados[3];
+    estadisticas[4].valor = resultados[4] + resultados[5];
+    estadisticas[0].ultimoMes = resultados[6];
+    estadisticas[1].ultimoMes = resultados[7];
+    estadisticas[2].ultimoMes = resultados[8];
+    estadisticas[3].ultimoMes = resultados[9];
+    estadisticas[4].ultimoMes = resultados[10] + resultados[11];
+
+    return estadisticas;
+  };
+
+  const fechaInicioMesActual = new Date();
+  const fechaInicioMesPasado = new Date(fechaInicioMesActual);
+  fechaInicioMesPasado.setMonth(fechaInicioMesActual.getMonth() - 1);
+
+  const handleRequest = async (req, res) => {
+    try {
+      const estadisticas = await obtenerEstadisticas();
+      res.status(200).send(estadisticas);
+    } catch (error) {
+      console.error('Error al obtener las estadísticas:', error);
+      res.status(500).send('Error interno del servidor');
+    }
+  };
+  handleRequest(req, res);
+})
 
 export { router };

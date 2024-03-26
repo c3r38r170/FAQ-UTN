@@ -105,16 +105,16 @@ router.patch("/", function (req, res) {
   Respuesta.findByPk(req.body.ID, {
     include: Post
   })
-  .then((respuesta) => {
-    if (!respuesta) {
-      res.status(404).send(mensajeError404);
-      return;
-    } else {
-      if (respuesta.post.duenioDNI != req.session.usuario.DNI) {
-        res.status(403).send(mensajeError403);
+    .then((respuesta) => {
+      if (!respuesta) {
+        res.status(404).send(mensajeError404);
         return;
       } else {
-          const editarRespuesta=()=>{
+        if (respuesta.post.duenioDNI != req.session.usuario.DNI) {
+          res.status(403).send(mensajeError403);
+          return;
+        } else {
+          const editarRespuesta = () => {
             respuesta.post.cuerpo = req.body.cuerpo;
             respuesta.post.save();
             res.status(200).send(req.body.IDPregunta + "");

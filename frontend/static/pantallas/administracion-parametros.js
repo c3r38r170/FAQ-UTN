@@ -11,7 +11,7 @@ function crearPantalla(ruta, sesion, p) {
     {
       nombre: "Valor",
       clases: ["centrado"],
-      celda: (parametro) => parametro.ID==2?parametro.valor==1?"Sí":"No":parametro.valor,
+      celda: (parametro) => parametro.ID == 2 ? parametro.valor == 1 ? "Sí" : "No" : parametro.valor,
     },
     {
       nombre: "Editar",
@@ -21,9 +21,9 @@ function crearPantalla(ruta, sesion, p) {
           Editar
         </button>`,
     },
-  ]);
-  let contenedor1 = new ComponenteLiteral(()=> `<div class="contenedor-tabla">`)
-  let contenedor2 = new ComponenteLiteral(()=> `</div>`)
+  ], [], 1, false);
+  let contenedor1 = new ComponenteLiteral(() => `<div class="contenedor-tabla">`)
+  let contenedor2 = new ComponenteLiteral(() => `</div>`)
   let pagina = new Pagina({
     ruta: ruta,
     titulo: "Administracion - Parametros",

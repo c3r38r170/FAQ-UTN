@@ -7,9 +7,9 @@ class Formulario {
 	#endpoint = '';
 	#id = '';
 	#textoEnviar = '';
-	#funcionRetorno = null;
+	funcionRetorno = null;
 	campos = [];
-	verbo = [];
+	verbo = 'POST';
 	#clasesBotonEnviar = '';
 	#alEnviar = null;
 
@@ -19,14 +19,14 @@ class Formulario {
 		this.campos = campos;
 		this.verbo = verbo;
 		this.#textoEnviar = textoEnviar;
-		this.#funcionRetorno = funcionRetorno;
+		this.funcionRetorno = funcionRetorno;
 		this.#clasesBotonEnviar = clasesBotonEnviar;
 		this.#alEnviar = alEnviar;
 
 		Formulario.instancias[id] = this;
 	}
 
-	#terminarEnvioDelFormulario(e){
+	#terminarEnvioDelFormulario(e) {
 		if (!this.#endpoint) { // ! Formulario tradicional de HTML que redirige para enviar los datos.
 			return;
 		}
@@ -86,7 +86,7 @@ class Formulario {
 				codigo = res.status;
 				return res.text();
 			})
-			.then(txt => this.#funcionRetorno(txt, { ok, codigo }))
+			.then(txt => this.funcionRetorno(txt, { ok, codigo }))
 			.catch(error => {
 				console.error('Error con formulario:', error);
 			});
@@ -96,7 +96,7 @@ class Formulario {
 		if (this.#alEnviar) {
 			let respuestaAlEnviar = this.#alEnviar(e);
 			// ! alEnviar se puede usar como validador personalizado.
-			if(respuestaAlEnviar instanceof Promise){
+			if (respuestaAlEnviar instanceof Promise) {
 				respuestaAlEnviar.then(() => this.#terminarEnvioDelFormulario(e))
 				return;
 			}
@@ -131,7 +131,7 @@ class Formulario {
 				- Formato: function(){}
 				- Acción: Nada.
 		*/
-		const funcionAString=(f)=>{
+		const funcionAString = (f) => {
 			let representacion;
 			if (f) {
 				representacion = f.toString();
@@ -143,8 +143,8 @@ class Formulario {
 			return representacion;
 		}
 
-		let representacionDeLaFuncion=funcionAString(this.#funcionRetorno);
-		let representacionDeAlEnviar=funcionAString(this.#alEnviar);
+		let representacionDeLaFuncion = funcionAString(this.funcionRetorno);
+		let representacionDeAlEnviar = funcionAString(this.#alEnviar);
 		// ! Queda terminantemente prohibido nombrar funciones con el prefijo `function` y `async`
 
 		return '<script> addEventListener("load",()=> {'

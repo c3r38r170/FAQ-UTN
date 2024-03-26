@@ -220,7 +220,7 @@ function crearPregunta(req, res, respuestaIA = null) {
       .then(() => pregunta.save())
       .then(() => {
         // ! Sin las comillas se piensa que pusimos el status dentro del send
-        res.status(201).json({ID:pregunta.ID,motivo:reportado?respuestaIA.motivo:null});
+        res.status(201).json({ID:pregunta.ID,motivo:respuestaIA?.motivo});
       })
   })
     .catch(err => {
@@ -315,7 +315,7 @@ router.post("/:preguntaID/suscripcion", function (req, res) {
                 suscriptoDNI: req.session.usuario.DNI,
                 preguntaID: IDpregunta,
               }).then((susc) => susc.save());
-              res.status(201).send();
+              res.status(201).send(IDpregunta);
               return;
             } else {
               res.status(401).send("Ya se encuentra suscripto a la pregunta");
@@ -364,7 +364,7 @@ router.delete("/:preguntaID/suscripcion", function (req, res) {
             } else {
               sus.fecha_baja = new Date().toISOString().split("T")[0];
               //! el 204 no devuelve el mensaje
-              sus.save().then(() => res.status(201).send("Suscripción cancelada"));
+              sus.save().then(() => res.status(201).send(IDpregunta));
             }
           })
           .catch((err) => {

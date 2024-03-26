@@ -1,0 +1,31 @@
+#estadisticas-sitio {
+  width: 100%;
+  font-size: 0.9rem;
+}
+#estadisticas-sitio thead {
+  background: #ECECEC;
+}
+#estadisticas-sitio thead th, #estadisticas-sitio tbody td {
+  padding: 5px 1rem;
+  vertical-align: middle;
+}
+#estadisticas-sitio thead th.centrado, #estadisticas-sitio tbody td.centrado {
+  text-align: center;
+}
+#estadisticas-sitio fieldset {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+#estadisticas-sitio th:first-child {
+  width: 100%;
+}
+#estadisticas-sitio td {
+  min-width: 138px;
+}
+#estadisticas-sitio tbody tr:nth-child(2n) {
+  background-color: #f2f2f2;
+}
+#estadisticas-sitio tbody tr:nth-child(2n) .sticky {
+  background-color: #f2f2f2;
+}/*# sourceMappingURL=estadisticas-sitio.css.map */
