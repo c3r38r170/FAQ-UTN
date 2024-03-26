@@ -164,6 +164,12 @@ class Navegacion {
         }
         this.#enlaces.push(administracion);
 
+        let estadisticasSitio = new EnlaceNavegacion("Estadísticas del Sitio",
+          { tipo: "solid", nombre: "chart-simple" },
+          "/estadisticas/sitio"
+        );
+        this.#enlaces.push(estadisticasSitio);
+
         let estadisticasPosts = new EnlaceNavegacion("Estadísticas Posts",
           { tipo: "solid", nombre: "chart-simple" },
           "/estadisticas/posts/etiquetas"

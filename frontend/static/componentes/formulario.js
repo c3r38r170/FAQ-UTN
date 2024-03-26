@@ -26,7 +26,7 @@ class Formulario {
 		Formulario.instancias[id] = this;
 	}
 
-	#terminarEnvioDelFormulario(e){
+	#terminarEnvioDelFormulario(e) {
 		if (!this.#endpoint) { // ! Formulario tradicional de HTML que redirige para enviar los datos.
 			return;
 		}
@@ -96,7 +96,7 @@ class Formulario {
 		if (this.#alEnviar) {
 			let respuestaAlEnviar = this.#alEnviar(e);
 			// ! alEnviar se puede usar como validador personalizado.
-			if(respuestaAlEnviar instanceof Promise){
+			if (respuestaAlEnviar instanceof Promise) {
 				respuestaAlEnviar.then(() => this.#terminarEnvioDelFormulario(e))
 				return;
 			}
@@ -131,7 +131,7 @@ class Formulario {
 				- Formato: function(){}
 				- Acción: Nada.
 		*/
-		const funcionAString=(f)=>{
+		const funcionAString = (f) => {
 			let representacion;
 			if (f) {
 				representacion = f.toString();
@@ -143,8 +143,8 @@ class Formulario {
 			return representacion;
 		}
 
-		let representacionDeLaFuncion=funcionAString(this.#funcionRetorno);
-		let representacionDeAlEnviar=funcionAString(this.#alEnviar);
+		let representacionDeLaFuncion = funcionAString(this.#funcionRetorno);
+		let representacionDeAlEnviar = funcionAString(this.#alEnviar);
 		// ! Queda terminantemente prohibido nombrar funciones con el prefijo `function` y `async`
 
 		return '<script> addEventListener("load",()=> {'

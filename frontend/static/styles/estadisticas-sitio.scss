@@ -1,0 +1,33 @@
+#estadisticas-sitio{
+
+
+	// TODO Refactor: Convertir en un import para reutilizar en varias paginas y mejorar el mantenimiento. El fieldset incluso es bien específico del footer de la tabla, de los controles de navegación, asi que ¿incluir con el componente tabla??
+	width: 100%;
+	font-size: .9rem;
+
+	thead{
+		background: #ECECEC;
+	}
+
+	thead th,tbody td{
+		padding: 5px 1rem;
+		vertical-align: middle;
+		
+		&.centrado{
+			text-align: center;
+		}
+	}
+
+	fieldset{
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+	}
+
+
+	th:first-child{
+		width: 100%;
+	}
+
+
+}

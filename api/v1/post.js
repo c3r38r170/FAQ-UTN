@@ -10,7 +10,10 @@ import {
   Post,
   Respuesta,
   Notificacion,
-  Parametro
+  Parametro,
+  SuscripcionesPregunta,
+  SuscripcionesEtiqueta,
+  Bloqueo
 } from "./model.js";
 
 import { getPaginacion } from "./parametros.js";
@@ -361,5 +364,55 @@ router.get("/masNegativos", function (req, res) {
       res.status(400).send(error.message);
     });
 });
+
+
+router.get("/estadisticas", async function (req, res) {
+  let estadisticas = [
+    {
+      nombre: "Cantidad de Preguntas",
+      valor: 0,
+      ultimoMes: 0
+    },
+    {
+      nombre: "Cantidad de Posts",
+      valor: 0,
+      ultimoMes: 0
+    },
+    {
+      nombre: "Cantidad de Votos",
+      valor: 0,
+      ultimoMes: 0
+    },
+    {
+      nombre: "Cantidad de Bloqueos",
+      valor: 0,
+      ultimoMes: 0
+    },
+    {
+      nombre: "Cantidad de Suscripciones",
+      valor: 0,
+      ultimoMes: 0
+    },
+  ]
+  estadisticas[0].valor = await Pregunta.count();
+  estadisticas[1].valor = await Post.count();
+  estadisticas[2].valor = await Voto.count();
+  estadisticas[3].valor = await Bloqueo.count();
+  estadisticas[4].valor = await SuscripcionesPregunta.count() + await SuscripcionesEtiqueta.count();
+
+
+  const fechaInicioMesActual = new Date();
+  const fechaInicioMesPasado = new Date(fechaInicioMesActual);
+  fechaInicioMesPasado.setMonth(fechaInicioMesActual.getMonth() - 1);
+
+  estadisticas[0].ultimoMes = await Pregunta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } });
+  estadisticas[1].ultimoMes = await Post.count({ where: { fecha: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } });
+  estadisticas[2].ultimoMes = await Voto.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } });
+  estadisticas[3].ultimoMes = await Bloqueo.count({ where: { fecha: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } });
+  estadisticas[4].ultimoMes = await SuscripcionesPregunta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }) + await SuscripcionesEtiqueta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } });
+
+  res.status(200).send(estadisticas)
+
+})
 
 export { router };
