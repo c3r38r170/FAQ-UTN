@@ -36,12 +36,14 @@ function crearRespuesta(req, res, respuestaIA = null) {
           })
             .then((resp) => {
               // TODO Refactor: Esperar a todas las promesas creadas. Reducir la cantidad de catch y callbacks
+              let reportado=false;
 
               if (respuestaIA && respuestaIA.apropiado < reportaPost) {
                 ReportePost.create({
                   tipoID: 1,
                   reportadoID: post.ID,
                 });
+                reportado=true;
               }
               resp.save();
 
@@ -65,7 +67,7 @@ function crearRespuesta(req, res, respuestaIA = null) {
               });
 
               // ! si adentro de send hay un int tira error porque piensa que es el status
-              res.status(201).json({ID:post.ID, motivo:respuestaIA?.motivo});
+              res.status(201).json({ID:post.ID, motivo:reportado?respuestaIA.motivo:null});
             })
             .catch((err) => {
               res.status(500).send(err.message);
