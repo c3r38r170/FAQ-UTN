@@ -15,6 +15,12 @@
 #etiquetas-usadas thead th.centrado, #etiquetas-usadas tbody td.centrado {
   text-align: center;
 }
+#etiquetas-usadas tbody tr:nth-child(2n) {
+  background-color: #f2f2f2;
+}
+#etiquetas-usadas tbody tr:nth-child(2n) .sticky {
+  background-color: #f2f2f2;
+}
 #etiquetas-usadas fieldset {
   display: flex;
   justify-content: center;

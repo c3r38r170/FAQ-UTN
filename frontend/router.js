@@ -752,7 +752,7 @@ router.get("/prueba/mensaje", async (req, res) => {
 
     pagina.partes.push(new Titulo(5, "Desplegable"));
     let desplegable = new Desplegable("myDesplegable", '<i class="fa-solid fa-ellipsis"></i>');
-    let form = new Formulario('eliminadorForm', '/api/pregunta/', [], (res) => { alert(res) }, { textoEnviar: 'Eliminar', verbo: 'POST', clasesBoton: 'is-danger is-outlined' }).render()
+    let form = new Formulario('eliminadorForm', '/api/pregunta/', [], (res) => { Swal.exito(`${res}`); }, { textoEnviar: 'Eliminar', verbo: 'POST', clasesBoton: 'is-danger is-outlined' }).render()
     let opciones = [
       {
         descripcion: "Opcion 2",

@@ -4,6 +4,7 @@ import { Pagina, Modal, Tabla, ComponenteLiteral, ChipUsuario } from "../compone
 function crearPagina(ruta, usuario, query = "") {
     let modal = new Modal('General', 'modal-general');
     let votados = query == "?votados=0" ? 1 : 0;
+    let mostrarFlecha = query == "?posts" || query == "/estadisticas/usuarios/masRelevantes" ? 0 : 1;
     let aviso = new ComponenteLiteral(() => '<label class="aviso">Apretando en las cabeceras puede cambiar la forma en la que se ordenan los usuarios</label>')
     let contenedor1 = new ComponenteLiteral(() => `<div class="contenedor-tabla">`)
     let contenedor2 = new ComponenteLiteral(() => `</div>`)
@@ -20,7 +21,7 @@ function crearPagina(ruta, usuario, query = "") {
                 post.cantPosts ? post.cantPosts : 0,
         },
         {//<i class="fa-tipo fa-nombre mr-1"></i>
-            nombre: `<a title='Filtrar por valoración' href='?votados=${votados}'>Puntuacion <i class='fa fa-arrow-${votados == 1 ? 'down' : 'up'}'  aria-hidden='true'></i></a>`,
+            nombre: `<a title='Filtrar por valoración' href='?votados=${votados}'>Puntuacion <i class='fa fa-arrow-${mostrarFlecha == 1 ? votados == 1 ? 'down' : 'up' : ""}'  aria-hidden='true'></i></a>`,
             clases: ["centrado"],
             celda: (post) =>
                 post.valoracion ? post.valoracion : 0,

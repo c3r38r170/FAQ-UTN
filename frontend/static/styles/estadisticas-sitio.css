@@ -22,4 +22,10 @@
 }
 #estadisticas-sitio td {
   min-width: 138px;
+}
+#estadisticas-sitio tbody tr:nth-child(2n) {
+  background-color: #f2f2f2;
+}
+#estadisticas-sitio tbody tr:nth-child(2n) .sticky {
+  background-color: #f2f2f2;
 }/*# sourceMappingURL=estadisticas-sitio.css.map */

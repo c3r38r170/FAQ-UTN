@@ -23,6 +23,12 @@
 #usuarios-mas-relevantes td {
   min-width: 126px;
 }
+#usuarios-mas-relevantes tbody tr:nth-child(2n) {
+  background-color: #f2f2f2;
+}
+#usuarios-mas-relevantes tbody tr:nth-child(2n) .sticky {
+  background-color: #f2f2f2;
+}
 
 .aviso {
   font-size: 12px;
