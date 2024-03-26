@@ -1,11 +1,14 @@
-import { Pagina, Modal, Tabla, ComponenteLiteral, ChipUsuario } from "../componentes/todos.js";
+import { Pagina, Titulo, Formulario, Tabla, Fecha, ChipUsuario, Modal, Respuesta, Pregunta, ComponenteLiteral, Busqueda, Boton } from '../componentes/todos.js'
 
-// TODO Now: Agregar etiquetas
-function crearPagina(ruta, usuario) {
+function crearPantalla(ruta, usuario, query = "") {
+	let usp = new URLSearchParams(query);
+	if (query == "") {
+		query = "?searchInput=";
+	}
     let modal = new Modal('General', 'modal-general');
     let contenedor1 = new ComponenteLiteral(() => `<div class="contenedor-tabla">`)
     let contenedor2 = new ComponenteLiteral(() => `</div>`)
-    let tabla = new Tabla("posts-negativos", "/api/post/masNegativos", [
+    let tabla = new Tabla("posts-borrados", "/api/post/borrados", [
         {
             nombre: "Post",
             celda: (post) =>
@@ -17,15 +20,16 @@ function crearPagina(ruta, usuario) {
             , clases: ['preguntas-o-respuestas']
         },
         {
-            nombre: "Valoración",
+            nombre: "Acción",
             clases: ["centrado"],
-            celda: (post) =>
-                post.valoracion
+            celda: (post) => [
+                `<button id="botonRestaurar${post.ID}" data-ID="${post.ID}" type="button" class="button is-link is-small is-rounded">Restaurar</button>`
+            ]
         },
-    ], [], 1, false);
+    ]);
 
     return new Pagina({
-        titulo: "Posts más Negativos",
+        titulo: "Posts borrados",
         ruta: ruta,
         sesion: usuario,
         partes: [
@@ -37,4 +41,4 @@ function crearPagina(ruta, usuario) {
     });
 }
 
-export { crearPagina as PantallaEstadisticasPostsNegativos };
+export { crearPantalla as PantallaModeracionPostsBorrados };

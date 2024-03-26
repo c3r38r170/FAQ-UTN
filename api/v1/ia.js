@@ -1,7 +1,6 @@
 import event from 'events';
 event.EventEmitter.defaultMaxListeners = 50;
 
-// TODO Security: Usar .env
 const apiKey = process.env.IA_APIKEY;
 const base_url = process.env.IA_BASE_URL;
 const MODEL_DI = process.env.IA_MODEL_DI;

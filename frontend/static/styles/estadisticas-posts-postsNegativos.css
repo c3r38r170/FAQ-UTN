@@ -17,6 +17,12 @@
   justify-content: center;
   gap: 1rem;
 }
+#posts-negativos tbody tr:nth-child(2n) {
+  background-color: #f2f2f2;
+}
+#posts-negativos tbody tr:nth-child(2n) .sticky {
+  background-color: #f2f2f2;
+}
 #posts-negativos th:first-child {
   width: 100%;
 }

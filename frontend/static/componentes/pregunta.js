@@ -51,38 +51,37 @@ class Pregunta {
         if (this.#usuarioActual) {
             this.#desplegable = new Desplegable('opcionesPregunta' + this.#ID, '<i class="fa-solid fa-ellipsis fa-lg"></i>', undefined, undefined, 'opcionesPost');
             if (this.#usuarioActual.DNI == this.#duenio.DNI) {
-                // TODO Refactor: No usar alert. Usar Swal.
-                let thisID=this.#ID;
+                let thisID = this.#ID;
                 let form = new Formulario(
                     'eliminadorPregunta' + thisID
                     , '/api/post/' + thisID
                     , []
                     , (txt, { ok, codigo }) => {
-                        if(!ok){
+                        if (!ok) {
                             Swal.error(txt);
                             return;
                         }
 
-                        let preguntas=SqS(`.pregunta`,{n:ALL});
-                        if(preguntas.length==1){ //* Ruta de la pregunta misma, o una búsqueda con un solo resultado.
+                        let preguntas = SqS(`.pregunta`, { n: ALL });
+                        if (preguntas.length == 1) { //* Ruta de la pregunta misma, o una búsqueda con un solo resultado.
                             location.reload();
-                        }else{
-                            preguntas.find(p=>p.dataset.postId == +txt /* post.ID del backend */).remove()
+                        } else {
+                            preguntas.find(p => p.dataset.postId == +txt /* post.ID del backend */).remove()
                         }
                     }
                     , {
                         textoEnviar: 'Eliminar'
                         , verbo: 'DELETE'
                         , clasesBoton: 'mx-auto is-danger w-100'
-                        ,alEnviar:(e)=>{
+                        , alEnviar: (e) => {
                             e.preventDefault();
                             return new Promise((resolve, reject) => {
                                 Swal.confirmar('¿Seguro que desea eliminar esta pregunta? Esto no se puede deshacer.')
-                                    .then(res=>{
-                                        if(res.isConfirmed) {
+                                    .then(res => {
+                                        if (res.isConfirmed) {
                                             resolve();
-                                        // TODO Refactor: Esto de acá abajo genera un error?? Quizá porque nunca se catchea... "Uncaught (in promise) undefined"
-                                        }else reject();
+                                            // TODO Refactor: Esto de acá abajo genera un error?? Quizá porque nunca se catchea... "Uncaught (in promise) undefined"
+                                        } else reject();
                                     })
                             });
                         }
@@ -102,7 +101,7 @@ class Pregunta {
                 ];
                 this.#desplegable.opciones = opciones;
             } else {
-                
+
                 // {name,textoEtiqueta,type,required=true,value=''/* TODO Refactor: null? */,extra,placeholder, clasesInput}){
                 let form = new Formulario(
                     'reportadorPost' + this.#ID,
@@ -120,8 +119,7 @@ class Pregunta {
                         value: '2',
                         type: "radio"
                     }],
-                    // TODO Refactor: No usar alert. Usar Swal.
-                    (res) => { alert(res) },
+                    (res) => { Swal.exito(`${res}`) },
                     { textoEnviar: 'Reportar', verbo: 'POST', clasesBoton: 'mx-auto is-link w-100' }
                 ).render()
                 let opciones = [

@@ -78,7 +78,6 @@ class Notificacion {
 	}
 
 	render() {
-		// TODO Feature: Matar el user.webp viejo, meter acá el endpoint de imagen de usuario.
 		return `
 		<div class="chip-notificacion notificacion ${this.visto == 0 ? 'noti-no-vista' : ''}" id='chip-notificacion-${this.#ID}' data-id='${this.#ID}' data-idPregunta='${this.#idPregunta}'>
 			<div class="img-container">

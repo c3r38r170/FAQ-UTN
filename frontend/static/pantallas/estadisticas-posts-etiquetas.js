@@ -23,7 +23,7 @@ function crearPagina(ruta, usuario) {
             celda: (etiqueta) =>
                 etiqueta.cantidad,
         },
-    ]);
+    ], [], 1, false);
 
     return new Pagina({
         titulo: "Etiquetas más Usadas",

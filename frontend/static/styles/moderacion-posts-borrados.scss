@@ -1,4 +1,4 @@
-#posts-negativos{
+#posts-borrados{
 
 
 	// TODO Refactor: Convertir en un import para reutilizar en varias paginas y mejorar el mantenimiento. El fieldset incluso es bien específico del footer de la tabla, de los controles de navegación, asi que ¿incluir con el componente tabla??
@@ -22,13 +22,6 @@
 		display: flex;
 		justify-content: center;
 		gap: 1rem;
-	}
-
-    tbody tr:nth-child(2n){
-		background-color: #f2f2f2;
-	}
-	tbody tr:nth-child(2n) .sticky{
-		background-color: #f2f2f2;
 	}
 
 

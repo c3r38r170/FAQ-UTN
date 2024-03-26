@@ -45,4 +45,15 @@
 #preguntas-mas-votadas tbody td.preguntas .pregunta .titulo {
   display: inline;
   font-size: 0.95rem;
+}
+#preguntas-mas-votadas tbody tr:nth-child(2n) {
+  background-color: #f2f2f2;
+}
+#preguntas-mas-votadas tbody tr:nth-child(2n) .sticky {
+  background-color: #f2f2f2;
+}
+
+.aviso {
+  font-size: 12px;
+  margin-left: 42px;
 }/*# sourceMappingURL=estadisticas-posts-preguntasRelevantes.css.map */

@@ -1,4 +1,4 @@
-#preguntas-mas-votadas{
+#estadisticas-sitio{
 
 
 	// TODO Refactor: Convertir en un import para reutilizar en varias paginas y mejorar el mantenimiento. El fieldset incluso es bien específico del footer de la tabla, de los controles de navegación, asi que ¿incluir con el componente tabla??
@@ -28,45 +28,11 @@
 	th:first-child{
 		width: 100%;
 	}
+    td{
+        min-width: 138px;
+    }
 
-	tbody {
-		
-		td.preguntas {
-			border: solid 1px !important;
-			padding: 5px !important;
-			border-radius: 10px;
-			display: block;
-			margin: 5px;
-			width: 100%;
-    		min-width: 220px;
-			
-			overflow-wrap: anywhere;
-	
-			.pregunta{
-				font-size: smaller !important;
-				padding: 0;
-				margin: 0;
-	
-				&>*{
-					padding: 0;
-					margin: 0;
-				}
-	
-				.cuerpo{
-					font-size: 1rem !important;
-				}
-			}
-	
-			.pregunta .titulo{
-				display: inline;
-				font-size: .95rem;
-			}
-		}
-
-		
-	}
-
-	tbody tr:nth-child(2n){
+    tbody tr:nth-child(2n){
 		background-color: #f2f2f2;
 	}
 	tbody tr:nth-child(2n) .sticky{
@@ -74,9 +40,3 @@
 	}
 
 }
-
-.aviso{
-    font-size: 12px;
-    margin-left: 42px;
-}
-

@@ -15,7 +15,6 @@ import { mensajeError403, mensajeError404 } from "./mensajesError.js";
 const router = express.Router();
 
 // TODO Refactor: Minimizar datos que envia este endpoint.
-// TODO Feature: Hacer que se devuelvan una sola notificacion por pregunta (sí, pregunta)
 router.get('/', function (req, res) {
 	// pregunta
 	// 	propia

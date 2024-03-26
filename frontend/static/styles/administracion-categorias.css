@@ -15,6 +15,12 @@
 #administrar-categorias thead th.centrado, #administrar-categorias tbody td.centrado {
   text-align: center;
 }
+#administrar-categorias tbody tr:nth-child(2n) {
+  background-color: #f2f2f2;
+}
+#administrar-categorias tbody tr:nth-child(2n) .sticky {
+  background-color: #f2f2f2;
+}
 #administrar-categorias fieldset {
   display: flex;
   justify-content: center;

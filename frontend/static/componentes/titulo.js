@@ -1,6 +1,6 @@
 class Titulo {
     titulo;
-    #elemento;
+    elemento;
     #tipo
     #clases
     id
@@ -23,7 +23,7 @@ class Titulo {
         //     '4': 'h4',
         //     '5': 'h5'
         //   }[clave];
-        this.#elemento = elemento;
+        this.elemento = elemento;
         this.titulo = titulo;
         this.#clases = clases || '';
         this.id=id;
@@ -31,7 +31,7 @@ class Titulo {
 
     render() {
       return `
-        <${this.#elemento} class='title ${this.#tipo} ${this.#clases}' ${this.id?`id="${this.id}"`:''}>${this.titulo}</${this.#elemento}>
+        <${this.elemento} class='title ${this.#tipo} ${this.#clases}' ${this.id?`id="${this.id}"`:''}>${this.titulo}</${this.elemento}>
       `;
     }
   }

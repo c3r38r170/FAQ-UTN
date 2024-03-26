@@ -28,6 +28,16 @@
 	th:first-child{
 		width: 100%;
 	}
+    td{
+        min-width: 126px;
+    }
+
+    tbody tr:nth-child(2n){
+		background-color: #f2f2f2;
+	}
+	tbody tr:nth-child(2n) .sticky{
+		background-color: #f2f2f2;
+	}
 
 }
 .aviso{
