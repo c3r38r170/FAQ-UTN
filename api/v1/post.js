@@ -300,6 +300,66 @@ router.get('/reporte', function (req, res) {
     });
 })
 
+router.get("/borrados", function (req, res) {
+  Post.findAll({
+    where: {
+      eliminadorDNI: {
+        [Sequelize.Op.ne]: null
+      }
+    },
+    include: [
+      {
+        model: Pregunta,
+        as: 'pregunta',
+        attributes: ["titulo", "ID"]
+      },
+      {
+        model: Respuesta,
+        as: 'respuesta',
+        attributes: ["ID"],
+        include: [
+          {
+            model: Pregunta,
+            as: 'pregunta',
+            include: {
+              model: Post,
+              include: {
+                model: Usuario
+                , as: 'duenio'
+                , include: {
+                  model: Perfil
+                  , attributes: ['ID', 'descripcion', 'color']
+                }
+                , attributes: ['DNI', 'nombre']
+              },
+            }
+          }
+        ]
+      },
+      {
+        model: Usuario
+        , as: 'duenio'
+        , include: {
+          model: Perfil
+          , attributes: ['ID', 'descripcion', 'color']
+        }
+        , attributes: ['DNI', 'nombre']
+      },
+    ],
+    // order: [[Sequelize.literal('SUM(valoracion)'), 'ASC']],
+    // // group: ['ID'],
+    // subQuery: false,
+    // limit: getPaginacion().resultadosPorPagina,
+  })
+    .then(posts => {
+      // Etiquetas ordenadas por uso
+      res.status(200).send(posts)
+    })
+    .catch(error => {
+      res.status(400).send(error.message);
+    });
+});
+
 
 router.get("/masNegativos", function (req, res) {
   Post.findAll({

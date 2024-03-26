@@ -85,7 +85,8 @@ class Navegacion {
         if (
           ruta == "/moderacion/preguntas-y-respuestas" ||
           ruta == "/moderacion/usuarios" ||
-          ruta == "/moderacion/etiquetas"
+          ruta == "/moderacion/etiquetas" ||
+          ruta == "/moderacion/posts-borrados"
         )
           moderacion = new EnlaceNavegacion(
             "Moderación",
@@ -103,6 +104,11 @@ class Navegacion {
                   "Preguntas <br>y Respuestas",
                   { tipo: "solid", nombre: "circle fa-sm" },
                   "/moderacion/preguntas-y-respuestas"
+                ),
+                new EnlaceNavegacion(
+                  "Posts Borrados",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/moderacion/posts-borrados"
                 ),
               ],
             },

@@ -3,6 +3,7 @@ import { PantallaNuevaPregunta } from './nueva-pregunta.js';
 import { PaginaPregunta } from './pregunta.js';
 import { PantallaModeracionUsuarios } from './moderacion-usuarios.js';
 import { PantallaModeracionPosts } from './moderacion-posts.js';
+import { PantallaModeracionPostsBorrados } from './moderacion-posts-borrados.js';
 import { PantallaEditarPregunta } from './editar-pregunta.js';
 import { PantallaQuienesSomos } from './quienes-somos.js';
 import { PantallaAdministracionCategorias } from './administracion-categorias.js'
@@ -23,4 +24,4 @@ import { PantallaEstadisticasPostsEtiquetas } from './estadisticas-posts-etiquet
 import { PantallaEstadisticasPostsRelevantes } from './estadisticas-posts-preguntasRelevantes.js';
 import { PantallaEstadisticasPostsNegativos } from './estadisticas-posts-postsNegativos.js';
 import { PantallaEstadisticasUsuariosMasRelevantes } from './estadisticas-usuarios-masRelevantes.js';
-export { PantallaEstadisticasUsuariosMasRelevantes, PantallaEstadisticasPostsNegativos, PantallaEstadisticasPostsRelevantes, PantallaEstadisticasPostsEtiquetas, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaAdministracionCategorias, PantallaAdministracionEtiquetas, PantallaAdministracionParametros, PantallaAdministracionPerfiles, PantallaAdministracionUsuarios, PantallaEditarRespuesta, PantallaEtiquetaPreguntas, PaginaPerfil, PaginaPerfilPropioInfo, PaginaPerfilPropioPreguntas, PaginaPerfilPropioRespuestas, PantallaSuscripciones, SinPermisos, PantallaManual };
+export { PantallaModeracionPostsBorrados, PantallaEstadisticasUsuariosMasRelevantes, PantallaEstadisticasPostsNegativos, PantallaEstadisticasPostsRelevantes, PantallaEstadisticasPostsEtiquetas, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaAdministracionCategorias, PantallaAdministracionEtiquetas, PantallaAdministracionParametros, PantallaAdministracionPerfiles, PantallaAdministracionUsuarios, PantallaEditarRespuesta, PantallaEtiquetaPreguntas, PaginaPerfil, PaginaPerfilPropioInfo, PaginaPerfilPropioPreguntas, PaginaPerfilPropioRespuestas, PantallaSuscripciones, SinPermisos, PantallaManual };
