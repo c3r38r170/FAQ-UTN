@@ -71,24 +71,58 @@ $paleta-4: #f3f6ff;
 }
 
 @media screen and (max-width: 800px) {
+	#encabezado{
+		flex-direction: column;
+		gap: .54rem;
+		padding-top: .5rem;
+		// TODO Refactor: Hacer que el `height: 80px` sea exclusivo de @media ... min-width
+		height: initial;
+	}
+
 	#encabezado-izquierdo{
+		#logo{
+			aspect-ratio: 2;
+		}
 		h1{
-			margin-right: 0!important;
+			display: none;
 		}
 		a{
 			font-size: 14px;
+			text-align: center;
+			width: 100%;
 		}
 	}
 	#encabezado #encabezado-derecho{
-		gap: 0rem!important;
+		// gap: 0rem!important;
 	}
-	#encabezado-derecho .chip-usuario .tipo-usuario, #encabezado-derecho .chip-usuario .nombre-usuario {
-	  display: none;
+	#encabezado-derecho{
+		justify-content: end;
+		padding: .5rem 0;
+
+		.chip-usuario{
+			.tipo-usuario {
+				display: none;
+			}
+			img{
+				min-width: 32px;
+			}
+		}
 	}
-	#encabezado-derecho .chip-usuario img{
-		min-width: 32px;
+
+
+	.pregunta .encabezado {
+		justify-content: start;
+		flex-wrap: wrap;
 	}
-  }
+
+	form{
+		display: flex;
+
+		fieldset{
+			margin: auto;
+		}
+	}
+}
   
 table{
 	.chip-usuario{
@@ -416,16 +450,6 @@ div.notificacion{
 	
 	
 }
-
-
-@media screen and (max-width: 800px) {
-	.pregunta .encabezado {
-		justify-content: start;
-		flex-wrap: wrap;
-	}
-
-}
-
 
 .etiquetas{
 	display: flex;
