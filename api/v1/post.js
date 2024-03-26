@@ -125,15 +125,25 @@ router.post("/:reportadoID/reporte", function (req, res) {
         // TODO Feature: ver si ya se reportó, y prohibir
         // Se podría hacer un get a los reportes y si ya existe que aparezca mensajito de ya está reportado y directamente no te aparezca el form
         // TODO Feature: determinar tipos
-        ReportePost.create({
-          tipoID: req.body.tipoID || 1,
-          reportanteDNI: req.session.usuario.DNI,
-          reportadoID: reportadoID,
+        ReportePost.findOne({
+          where: {
+            reportadoID: reportadoID,
+            reportanteDNI: req.session.usuario.DNI
+          }
+        }).then(re => {
+          if (re) {
+            re.fecha = Date.now();
+            re.save();
+          } else {
+            ReportePost.create({
+              tipoID: req.body.tipoID || 1,
+              reportanteDNI: req.session.usuario.DNI,
+              reportadoID: reportadoID,
+            })
+          }
+          res.status(201).send("Reporte registrado");
+          return;
         })
-          .then((r) => r.save())
-          .then(r => {
-            res.status(201).send("Reporte registrado");
-          });
       }
     })
     .catch((err) => {
