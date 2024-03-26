@@ -220,7 +220,7 @@ function crearPregunta(req, res, respuestaIA = null) {
       .then(() => pregunta.save())
       .then(() => {
         // ! Sin las comillas se piensa que pusimos el status dentro del send
-        res.status(201).json({ID:pregunta.ID,motivo:respuestaIA?.motivo});
+        res.status(201).json({ID:pregunta.ID,motivo:reportado?respuestaIA.motivo:null});
       })
   })
     .catch(err => {

@@ -841,7 +841,6 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
       }
     }
 
-    console.log(opciones);
     return Pregunta.findAll(opciones);
   }
 }
