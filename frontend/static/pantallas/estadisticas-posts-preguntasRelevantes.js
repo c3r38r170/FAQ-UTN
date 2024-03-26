@@ -3,6 +3,7 @@ import { Pagina, Modal, Tabla, ComponenteLiteral, ChipUsuario } from "../compone
 // TODO Now: Agregar etiquetas
 function crearPagina(ruta, usuario, query = "") {
     let modal = new Modal('General', 'modal-general');
+    let aviso = new ComponenteLiteral(() => '<label class="aviso">Apretando en las cabeceras puede cambiar la forma en la que se ordenan las preguntas</label>')
     let contenedor1 = new ComponenteLiteral(() => `<div class="contenedor-tabla">`)
     let contenedor2 = new ComponenteLiteral(() => `</div>`)
     let tabla = new Tabla("preguntas-mas-votadas", "/api/pregunta/masVotadas" + query, [
@@ -26,7 +27,7 @@ function crearPagina(ruta, usuario, query = "") {
             celda: (pregunta) =>
                 pregunta.respuestasCount ? pregunta.respuestasCount : 0,
         },
-    ]);
+    ], [], 1, false);
 
     return new Pagina({
         titulo: "Preguntas más relevantes",
@@ -34,6 +35,7 @@ function crearPagina(ruta, usuario, query = "") {
         sesion: usuario,
         partes: [
             modal,
+            aviso,
             contenedor1,
             tabla,
             contenedor2

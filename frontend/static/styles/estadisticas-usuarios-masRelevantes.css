@@ -20,6 +20,9 @@
 #usuarios-mas-relevantes th:first-child {
   width: 100%;
 }
+#usuarios-mas-relevantes td {
+  min-width: 126px;
+}
 
 .aviso {
   font-size: 12px;

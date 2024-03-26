@@ -19,4 +19,7 @@
 }
 #estadisticas-sitio th:first-child {
   width: 100%;
+}
+#estadisticas-sitio td {
+  min-width: 138px;
 }/*# sourceMappingURL=estadisticas-sitio.css.map */

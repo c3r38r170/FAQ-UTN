@@ -45,4 +45,9 @@
 #preguntas-mas-votadas tbody td.preguntas .pregunta .titulo {
   display: inline;
   font-size: 0.95rem;
+}
+
+.aviso {
+  font-size: 12px;
+  margin-left: 42px;
 }/*# sourceMappingURL=estadisticas-posts-preguntasRelevantes.css.map */

@@ -9,7 +9,7 @@ class Formulario {
 	#textoEnviar = '';
 	funcionRetorno = null;
 	campos = [];
-	verbo = [];
+	verbo = 'POST';
 	#clasesBotonEnviar = '';
 	#alEnviar = null;
 

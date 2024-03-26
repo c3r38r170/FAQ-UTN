@@ -25,7 +25,7 @@ function crearPagina(ruta, usuario, query = "") {
             celda: (post) =>
                 post.valoracion ? post.valoracion : 0,
         },
-    ]);
+    ], [], 1, false);
 
     return new Pagina({
         titulo: "Usuarios más relevantes",

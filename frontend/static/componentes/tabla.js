@@ -7,6 +7,7 @@ class Tabla {
 	#columnas = []; //{nombre,celda(entidad),clases:[]}
 	entidades = [];
 	#endpointPaginacion = '';
+	#mostrarPaginacion = true;
 	set endpointPaginacion(valor) {
 		this.#endpointPaginacion = valor + (valor.includes('?') ? '&' : '?');
 	};
@@ -17,12 +18,13 @@ class Tabla {
 	cantidadDePaginas;
 	#id = '';
 
-	constructor(id, endpoint, columnas, entidades = [], cantidadDePaginas = 1) {
+	constructor(id, endpoint, columnas, entidades = [], cantidadDePaginas = 1, mostrarPaginacion = true) {
 		this.#id = id;
 		this.endpointPaginacion = endpoint;
 		this.#columnas = columnas;
 		this.entidades = entidades;
 		this.cantidadDePaginas = cantidadDePaginas
+		this.#mostrarPaginacion = mostrarPaginacion;
 
 		Tabla.instancias[id] = this;
 	}
@@ -126,13 +128,18 @@ class Tabla {
 		html += this.generarCuerpo();
 
 		// TODO UX: Hacer lindo esto.
-		html += `</tbody><tfoot><tr><td colspan="${this.#columnas.length}">
+		html += "</tbody>"
+		if (this.#mostrarPaginacion) {
+			html += `<tfoot><tr><td colspan="${this.#columnas.length}">
 	<form onsubmit="Tabla.instancias['${this.#id}'].navegar(event)">
 		<fieldset>
 			${this.generarElementosPaginacion()}
 		</fieldset>
 	</form>
 </td></tr></tfoot></table>`;
+		}
+		html += "</table>"
+
 
 		return html;
 	}

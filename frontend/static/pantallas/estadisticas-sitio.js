@@ -18,12 +18,12 @@ function crearPagina(ruta, usuario) {
                 stat.valor
         },
         {
-            nombre: "En el último mes",
+            nombre: "Últimos 30 días",
             clases: ["centrado"],
             celda: (stat) =>
                 stat.ultimoMes
         },
-    ]);
+    ], [], 1, false);
 
     return new Pagina({
         titulo: "Estadísticas del Sitio",

@@ -22,7 +22,7 @@ function crearPagina(ruta, usuario) {
             celda: (post) =>
                 post.valoracion
         },
-    ]);
+    ], [], 1, false);
 
     return new Pagina({
         titulo: "Posts más Negativos",

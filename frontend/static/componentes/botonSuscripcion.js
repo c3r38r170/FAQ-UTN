@@ -21,8 +21,6 @@ class BotonSuscripcion {
 
     procesarSuscripcion(targetID, res) {
         setTimeout(() => {
-            //location.reload()
-
             try {
                 let form = document.getElementById("formularioSuscripcion" + targetID);
                 let boton = form.getElementsByTagName("button")[0];

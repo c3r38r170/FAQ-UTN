@@ -164,23 +164,19 @@ class Navegacion {
         }
         this.#enlaces.push(administracion);
 
-        let estadisticasSitio = new EnlaceNavegacion("Estadísticas del Sitio",
+        let estadisticasSitio = new EnlaceNavegacion("Estadísticas",
           { tipo: "solid", nombre: "chart-simple" },
           "/estadisticas/sitio"
         );
-        this.#enlaces.push(estadisticasSitio);
-
-        let estadisticasPosts = new EnlaceNavegacion("Estadísticas Posts",
-          { tipo: "solid", nombre: "chart-simple" },
-          "/estadisticas/posts/etiquetas"
-        );
         if (
-          ruta == "/estadisticas/posts" ||
+          ruta == "/estadisticas/sitio" ||
           ruta == "/estadisticas/posts/etiquetas" ||
           ruta == "/estadisticas/posts/preguntasRelevantes" ||
+          ruta == "/estadisticas/usuarios/masRelevantes" ||
           ruta == "/estadisticas/posts/postsNegativos"
+
         ) {
-          estadisticasPosts = new EnlaceNavegacion(
+          estadisticasSitio = new EnlaceNavegacion(
             "Estadísticas Posts",
             {
               tipo: "solid",
@@ -192,53 +188,26 @@ class Navegacion {
                   "/estadisticas/posts/etiquetas"
                 ),
                 new EnlaceNavegacion(
+                  "Posts con más votos negativos",
+                  { tipo: "solid", nombre: "circle fa-sm" },
+                  "/estadisticas/posts/postsNegativos"
+                ),
+                new EnlaceNavegacion(
                   "Preguntas más relevantes",
                   { tipo: "solid", nombre: "circle fa-sm" },
                   "/estadisticas/posts/preguntasRelevantes"
                 ),
                 new EnlaceNavegacion(
-                  "Posts con más votos negativos",
-                  { tipo: "solid", nombre: "circle fa-sm" },
-                  "/estadisticas/posts/postsNegativos"
-                ),
-              ],
-            },
-            "/estadisticas/posts/etiquetas"
-          );
-        }
-        this.#enlaces.push(estadisticasPosts);
-
-        let estadisticasUsuarios = new EnlaceNavegacion("Estadísticas Usuarios",
-          { tipo: "solid", nombre: "chart-simple" },
-          "/estadisticas/usuarios/masRelevantes"
-        );
-        if (
-          ruta == "/estadisticas/usuarios" ||
-          ruta == "/estadisticas/usuarios/masRelevantes" /*||
-          ruta == "/estadisticas/usuarios/masNegativos"*/
-        ) {
-          estadisticasUsuarios = new EnlaceNavegacion(
-            "Estadísticas Usuarios",
-            {
-              tipo: "solid",
-              nombre: "chart-simple",
-              subenlaces: [
-                new EnlaceNavegacion(
                   "Usuarios más Relevantes",
                   { tipo: "solid", nombre: "circle fa-sm" },
                   "/estadisticas/usuarios/masRelevantes"
                 ),
-                /*new EnlaceNavegacion(
-                  "Usuarios más negativos",
-                  { tipo: "solid", nombre: "circle fa-sm" },
-                  "/estadisticas/usuarios/masNegativos"
-                ),*/
               ],
             },
-            "/estadisticas/posts/etiquetas"
+            "/estadisticas/sitio"
           );
         }
-        this.#enlaces.push(estadisticasUsuarios);
+        this.#enlaces.push(estadisticasSitio);
       }
     }
   }
