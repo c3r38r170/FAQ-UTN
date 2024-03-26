@@ -467,7 +467,7 @@ Post.belongsTo(Respuesta, {
 
 const respuestasCount = [
   sequelize.literal(
-    "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"
+    "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID and eliminadorDNI is null)"
   ),
   "respuestasCount",
 ]
@@ -765,9 +765,9 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
             `match(titulo) against (? IN BOOLEAN MODE)`
           )
         )
-        opciones.replacements=[
+        opciones.replacements = [
           `${filtrar.texto}*`
-          ,`${filtrar.texto}*`
+          , `${filtrar.texto}*`
         ];
         filtrarTexto = true;
       }
@@ -796,8 +796,8 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
             }
           }
         );
-        if(!opciones.replacements)
-          opciones.replacements=[];
+        if (!opciones.replacements)
+          opciones.replacements = [];
         opciones.replacements.push(...filtrar.etiquetas);
         opciones.attributes.include.push(
           [
@@ -835,7 +835,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
         // * En la definición del where se establece replacements con un par de el mismo valor.
         opciones.replacements.push(
           `${filtrar.texto}*`
-          ,`${filtrar.texto}*`
+          , `${filtrar.texto}*`
         );
       }
       if (filtrarEtiquetas) {
