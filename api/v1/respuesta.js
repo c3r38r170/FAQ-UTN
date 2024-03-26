@@ -65,7 +65,7 @@ function crearRespuesta(req, res, respuestaIA = null) {
               });
 
               // ! si adentro de send hay un int tira error porque piensa que es el status
-              res.status(201).json({ID:post.ID, motivo:respuestaIA?.motivo});
+              res.status(201).json({ ID: post.ID, motivo: respuestaIA?.motivo });
             })
             .catch((err) => {
               res.status(500).send(err.message);
@@ -88,7 +88,6 @@ router.post("/", function (req, res) {
     moderarWithRetry(req.body.cuerpo, 10)
       .then((respuesta) => {
         if (respuesta.apropiado < rechazaPost) {
-          // TODO Feature: ¿Devolver razón? Si se decidió que no, está bien.
           res.status(400).send("Texto rechazo por moderación automática. Razón: " + respuesta.motivo);
           return;
         }
@@ -105,16 +104,16 @@ router.patch("/", function (req, res) {
   Respuesta.findByPk(req.body.ID, {
     include: Post
   })
-  .then((respuesta) => {
-    if (!respuesta) {
-      res.status(404).send(mensajeError404);
-      return;
-    } else {
-      if (respuesta.post.duenioDNI != req.session.usuario.DNI) {
-        res.status(403).send(mensajeError403);
+    .then((respuesta) => {
+      if (!respuesta) {
+        res.status(404).send(mensajeError404);
         return;
       } else {
-          const editarRespuesta=()=>{
+        if (respuesta.post.duenioDNI != req.session.usuario.DNI) {
+          res.status(403).send(mensajeError403);
+          return;
+        } else {
+          const editarRespuesta = () => {
             respuesta.post.cuerpo = req.body.cuerpo;
             respuesta.post.save();
             res.status(200).send(req.body.IDPregunta + "");

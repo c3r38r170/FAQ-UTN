@@ -467,7 +467,7 @@ Post.belongsTo(Respuesta, {
 
 const respuestasCount = [
   sequelize.literal(
-    "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID and eliminadorDNI is null)"
+    "(SELECT COUNT(*) FROM respuesta join posts on posts.ID = respuesta.ID WHERE respuesta.preguntaID = pregunta.ID and posts.eliminadorDNI is null)"
   ),
   "respuestasCount",
 ]
@@ -684,7 +684,6 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
               }
             },
             {
-              // TODO Feature: Votos no?? Yo diría que sí.
               model: Usuario,
               as: "duenio",
               include: {

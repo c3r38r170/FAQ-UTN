@@ -21,11 +21,8 @@ import { mensajeError401, mensajeError403, mensajeError404 } from "./mensajesErr
 
 const router = express.Router();
 
-
-// valoracion
-// TODO Feature: No permitir autovotarse.
-
-const valorarPost = function (req, res) {
+//valoracion
+router.post("/:votadoID/valoracion", function (req, res) {
   //res tendría idpregunta
   //la valoracion(true es positiva, false negativa)
   //el usuario viene con la sesión
@@ -77,9 +74,9 @@ const valorarPost = function (req, res) {
     .catch((err) => {
       res.status(500).send(err.message);
     });
-};
+});
 
-const eliminarVoto = function (req, res) {
+router.delete("/:votadoID/valoracion", function (req, res) {
   if (!req.session.usuario) {
     res.status(401).send(mensajeError401);
     return;
@@ -111,17 +108,11 @@ const eliminarVoto = function (req, res) {
     .catch((err) => {
       res.status(500).send(err.message);
     });
-};
-
-// TODO Feature: Hacer las funciones anónimas, si ya no hace falta usarlas en diferentes lugares. valorar, eliminarVoto, y reportarPost
-
-router.post("/:votadoID/valoracion", valorarPost);
-
-router.delete("/:votadoID/valoracion", eliminarVoto);
+});
 
 //reporte post
 
-const reportarPost = function (req, res) {
+router.post("/:reportadoID/reporte", function (req, res) {
   // TODO Refactor: ocupar la sesión activa válida en el server.js así no hay que repetirlo a cada rato
 
   let reportadoID = req.params.reportadoID;
@@ -148,9 +139,7 @@ const reportarPost = function (req, res) {
     .catch((err) => {
       res.status(500).send(err.message);
     });
-};
-
-router.post("/:reportadoID/reporte", reportarPost);
+});
 
 // TODO Feature: Los reportes no se eliminan. Solo se actua sobre ellos (eliminando o unificando) o se ignoran. Esta ignoración podría ser interesante de implementar.
 //Eliminamos el reporte? o agregamos algun campo que diga si fue tratado(y por quien)

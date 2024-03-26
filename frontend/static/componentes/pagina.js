@@ -318,7 +318,6 @@ class Encabezado {
 			) : (
 				new Boton({ titulo: 'Ingresar', classes: 'button is-link is-outlined js-modal-trigger', dataTarget: 'modal-login' }).render()
 				+ new Boton({ titulo: 'Registrarse', classes: 'button is-link js-modal-trigger', dataTarget: 'modal-registro' }).render()
-				// TODO Feature: Botón de olvidé la contraseña
 				+ this.#modalLogin.render() + ' '
 				+ this.#modalRegistro.render() + ' '
 				+ this.#modalResetearContrasenia.render() + ' '

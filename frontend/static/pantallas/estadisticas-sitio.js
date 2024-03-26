@@ -12,7 +12,7 @@ function crearPagina(ruta, usuario) {
                 stat.nombre
         },
         {
-            nombre: "Valor",
+            nombre: "Total",
             clases: ["centrado"],
             celda: (stat) =>
                 stat.valor
