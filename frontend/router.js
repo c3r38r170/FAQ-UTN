@@ -136,7 +136,10 @@ router.get("/pregunta/:id?", async (req, res) => {
               ]
             }
           ],
-          order: [['updatedAt', 'DESC']]
+          order: [
+            Sequelize.literal('(select coalesce(sum(valoracion),1) from votos where votadoID = respuesta.ID) DESC'),
+            ['updatedAt', 'DESC'], //
+          ]
         },
         {
           model: EtiquetasPreguntaDAO,
