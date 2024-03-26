@@ -42,7 +42,7 @@ import {
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
 // TODO Refactor: Usar todas.js
-import { PantallaEstadisticasUsuariosMasRelevantes, PantallaEstadisticasPostsEtiquetas, PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual, PantallaEstadisticasPostsRelevantes, PantallaEstadisticasPostsNegativos } from './static/pantallas/todas.js';
+import { PantallaModeracionPostsBorrados ,PantallaEstadisticasUsuariosMasRelevantes, PantallaEstadisticasPostsEtiquetas, PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual, PantallaEstadisticasPostsRelevantes, PantallaEstadisticasPostsNegativos } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
   // ! req.path es ''
@@ -308,6 +308,23 @@ router.get('/moderacion/preguntas-y-respuestas', (req, res) => {
   }
   const query = req.url.substring(req.url.indexOf("?"));
   let pagina = PantallaModeracionPosts(req.path, req.session, query);
+  res.send(pagina.render());
+})
+
+
+router.get('/moderacion/posts-borrados', (req, res) => {
+  let usu = req.session;
+  if (!usu.usuario) {
+    let pagina = SinPermisos(usu, "No está logueado");
+    res.send(pagina.render());
+    return;
+  } else if (usu.usuario.perfil.permiso.ID < 2) {
+    let pagina = SinPermisos(usu, "No tiene permisos para ver esta página");
+    res.send(pagina.render());
+    return;
+  }
+  const query = req.url.substring(req.url.indexOf("?"));
+  let pagina = PantallaModeracionPostsBorrados(req.path, req.session, query);
   res.send(pagina.render());
 })
 
@@ -609,6 +626,19 @@ router.get("/administracion/usuarios", (req, res) => {
 });
 
 //estadisticas
+
+router.get("/estadisticas", (req, res) => {
+  res.redirect('/estadisticas/posts/etiquetas');
+})
+
+router.get("/estadisticas/posts", (req, res) => {
+  res.redirect('/estadisticas/posts/etiquetas');
+})
+
+router.get("/estadisticas/usuarios", (req, res) => {
+  res.redirect('/estadisticas/usuarios/masRelevantes');
+})
+
 router.get("/estadisticas/posts/etiquetas", (req, res) => {
   let usu = req.session;
   if (!usu.usuario) {

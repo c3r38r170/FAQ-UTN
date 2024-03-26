@@ -146,6 +146,15 @@ function crearPagina(ruta,usuario) {
 					<img srcset="eliminar-post.png 1.4x">
 					Por otro lado el modal de Unificar será parecido al siguiente y te permitira seleccionar de una lista, una pregunta de otro usuario para poder unificar las dos preguntas en cuestión. Esto permite que el contenido del sitio no sea redundante.
 					<img srcset="unificar-pregunta.png 1.4x">`
+				)),
+				// Moderar posts borrados
+				new Titulo('h2',5,'Moderar Posts Borrados','mt-5','moderar-posts-borrados')
+				,new ComponenteLiteral(()=>formatearParrafos(
+					`Para acceder al panel de <a href="/moderacion/posts-borrados">Moderación de Posts Borrados</a> podés dirigirte al link "Moderación > Posts Borrados" en la barra de navegación izquierda.
+					Ahí vas a encontrar una tabla con los posts que han sido borrados.
+					<img srcset="posts-borrados.png 1.4x">
+					En esta tabla, podrás ver la información sobre el Post y el usuario que lo creó.
+					Si accionás en Restaurar (a la derecha de cada fila) aparecerá un cartel modal pidiendo una confirmación para la restauración del post.`
 				))
 			);
 		}
