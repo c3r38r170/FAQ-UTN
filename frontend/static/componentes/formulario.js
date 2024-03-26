@@ -7,7 +7,7 @@ class Formulario {
 	#endpoint = '';
 	#id = '';
 	#textoEnviar = '';
-	#funcionRetorno = null;
+	funcionRetorno = null;
 	campos = [];
 	verbo = [];
 	#clasesBotonEnviar = '';
@@ -19,7 +19,7 @@ class Formulario {
 		this.campos = campos;
 		this.verbo = verbo;
 		this.#textoEnviar = textoEnviar;
-		this.#funcionRetorno = funcionRetorno;
+		this.funcionRetorno = funcionRetorno;
 		this.#clasesBotonEnviar = clasesBotonEnviar;
 		this.#alEnviar = alEnviar;
 
@@ -86,7 +86,7 @@ class Formulario {
 				codigo = res.status;
 				return res.text();
 			})
-			.then(txt => this.#funcionRetorno(txt, { ok, codigo }))
+			.then(txt => this.funcionRetorno(txt, { ok, codigo }))
 			.catch(error => {
 				console.error('Error con formulario:', error);
 			});
@@ -143,7 +143,7 @@ class Formulario {
 			return representacion;
 		}
 
-		let representacionDeLaFuncion = funcionAString(this.#funcionRetorno);
+		let representacionDeLaFuncion = funcionAString(this.funcionRetorno);
 		let representacionDeAlEnviar = funcionAString(this.#alEnviar);
 		// ! Queda terminantemente prohibido nombrar funciones con el prefijo `function` y `async`
 
