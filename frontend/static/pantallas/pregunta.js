@@ -40,7 +40,8 @@ function PaginaPregunta(ruta, sesion, pregunta){
             'nueva-respuesta'
             ,'/api/respuesta'
             ,[
-                {name:'cuerpo',textoEtiqueta:'Tu respuesta:',type:'textarea'},
+                // TODO Feature: Parámetro de máximo tamaño de post? Es tanto acá en respuesta como en detalles de pregunta
+                {name:'cuerpo',textoEtiqueta:'Tu respuesta:',type:'textarea', extra:'maxlength="7000"'},
                 {name:'IDPregunta', textoEtiqueta:'idPregunta', type:'hidden', value:pregunta.ID}
             ]
             ,(respuesta,{ok,codigo})=>{

@@ -184,16 +184,13 @@ router.get("/:DNI/posts", function (req, res) {
 });
 
 router.get("/:DNI/respuestas", function (req, res) {
-  let filtros = { pagina: null, DNI: req.params.DNI };
   let pagina = 0;
   if (req.query.pagina) {
-    filtros.pagina = req.query.pagina;
     pagina = req.query.pagina;
   }
 
-  Respuesta.pagina(filtros).then((posts) =>
-    res.send(posts)
-  );
+  Respuesta.pagina({ pagina, DNI: req.params.DNI })
+    .then((posts) =>res.send(posts));
 });
 
 router.post("/", (req, res) => {

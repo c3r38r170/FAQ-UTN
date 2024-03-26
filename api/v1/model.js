@@ -472,73 +472,6 @@ const respuestasCount = [
   "respuestasCount",
 ]
 
-Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
-  return Pregunta.findAll({
-    include: [
-      {
-        model: Post,
-        include: [
-          {
-            model: Usuario,
-            as: "duenio",
-            include: {
-              model: Perfil,
-            },
-          },
-        ],
-      },
-      {
-        model: Respuesta,
-        as: "respuestas",
-        required: true,
-        include: {
-          model: Post,
-          include: [
-            {
-              model: Usuario,
-              as: "duenio",
-              include: {
-                model: Perfil,
-              },
-            },
-            {
-              model: Voto,
-              separate: true,
-              include: { model: Usuario, as: "votante" },
-            },
-          ],
-        },
-      },
-      {
-        model: EtiquetasPregunta,
-        required: true,
-        as: "etiquetas",
-        include: {
-          model: Etiqueta,
-          include: {
-            model: Categoria,
-            as: "categoria",
-          },
-        },
-        separate: true,
-      },
-    ],
-    attributes: {
-      include: [
-        respuestasCount,
-      ],
-    },
-    separate: true,
-    where: {
-      "$respuestas.post.duenio.DNI$": DNI,
-    },
-    subQuery: false,
-    order: [[Post, "fecha", "DESC"]],
-    limit: getPaginacion().resultadosPorPagina,
-    offset: +pagina * getPaginacion().resultadosPorPagina
-  });
-};
-
 const Pregunta = sequelize.define(
   "pregunta",
   {
@@ -1016,13 +949,6 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         model: Post,
         include: [
           {
-            model: Usuario,
-            as: "duenio",
-            include: {
-              model: Perfil,
-            },
-          },
-          {
             model: Voto
             , separate: true
             , include: { model: Usuario, as: 'votante' }
@@ -1071,7 +997,7 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
             as: "categoria",
           },
         },
-        separate: true,
+        separate: true
       },
       {
         model: SuscripcionesPregunta
@@ -1081,6 +1007,7 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
           fecha_baja: null, // * Vigentes
         }
         , required: false
+        ,separate: true
       }
     ],
     attributes: {

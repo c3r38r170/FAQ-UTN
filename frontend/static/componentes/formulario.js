@@ -215,6 +215,7 @@ class Campo {
 				case 'textarea':
 					html = html.replaceAll('input', 'textarea');
 					endTag = `>${this.#value}</textarea>`;
+					// ! no break;
 				case 'file':
 				case 'number':
 					// * min, max, step...
