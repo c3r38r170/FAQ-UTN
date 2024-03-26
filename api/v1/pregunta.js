@@ -21,20 +21,17 @@ const router = express.Router();
 import { getModera, getPaginacion, getRechazaPost, getReportaPost } from "./parametros.js";
 
 router.get("/", (req, res) => {
-  // TODO Feature: Aceptar etiquetas.
-
-  let parametros = { pagina: req.query.pagina || 0, filtrar: {}, formatoCorto: req.query.formatoCorto !== undefined, usuarioActual: req.session?.usuario };
-
-  // TODO Refactor: DRY
-  if (req.query.searchInput) {
-    parametros.filtrar.texto = req.query.searchInput;
-  }
-
-  if (req.query.etiquetas) {
-    parametros.filtrar.etiquetas = Array.isArray(req.query.etiquetas) ? req.query.etiquetas : [req.query.etiquetas];
-  }
-
-  Pregunta.pagina(parametros)
+  Pregunta.pagina({
+    pagina: req.query.pagina || 0
+    , filtrar: {
+      texto : req.query.searchInput || undefined
+      ,etiquetas:req.query.etiquetas?
+        (Array.isArray(req.query.etiquetas) ? req.query.etiquetas : [req.query.etiquetas])
+        :undefined
+    }
+    , formatoCorto: req.query.formatoCorto !== undefined
+    , usuarioActual: req.session?.usuario
+  })
     .then((preguntas) => {
       res.status(200).send(preguntas);
     })

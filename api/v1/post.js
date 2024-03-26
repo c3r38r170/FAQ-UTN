@@ -18,9 +18,7 @@ import { mensajeError401, mensajeError403, mensajeError404 } from "./mensajesErr
 
 const router = express.Router();
 
-
 // valoracion
-// TODO Feature: No permitir autovotarse.
 
 const valorarPost = function (req, res) {
   //res tendría idpregunta
@@ -31,45 +29,55 @@ const valorarPost = function (req, res) {
   // TODO Refactor: ver si es posible traer solo un si existe
   let IDvotado = req.params.votadoID;
 
-  Post.findByPk(IDvotado)
+  Post.findByPk(IDvotado,{include:{model:Usuario,as:'duenio',attributes:['DNI']}})
     .then((post) => {
       if (!post) {
         res.status(404).send(mensajeError404);
         return;
-      } else {
-        Voto.findAll({
-          where: {
-            votadoID: IDvotado,
-            votanteDNI: req.session.usuario.DNI,
-          },
-          nest: true,
-          plain: true,
-        }).then((voto) => {
-          if (!voto) {
-            // si no exite el voto lo crea con lo que mandó
-            if (req.body.valoracion == "null") {
-              res.status(403).send(mensajeError403);
-            } else {
-              if (req.body.valoracion) {
-                Voto.create({
-                  valoracion: req.body.valoracion,
-                  votadoID: IDvotado,
-                  votanteDNI: req.session.usuario.DNI,
-                }).then((v) => v.save());
-                Notificacion.create({
-                  postNotificadoID: post.ID,
-                  notificadoDNI: post.duenioDNI,
-                });
-              }
-            }
-          } else {
-            voto.valoracion = req.body.valoracion;
-            voto.save();
-            //Notificación
-          }
-          res.status(201).send("Voto registrado.");
-        });
       }
+
+      if(post.duenio.DNI==req.session.usuario.DNI){
+        res.status(400).send('No puede votar su propio contenido.');
+        return;
+      }
+
+      Voto.findAll({
+        where: {
+          votadoID: IDvotado,
+          votanteDNI: req.session.usuario.DNI,
+        },
+        nest: true,
+        plain: true,
+      }).then((voto) => {
+        // TODO Refactor: !req.body.valoracion ??
+        if(!voto && req.body.valoracion == "null"){
+          res.status(403).send(mensajeError403);
+          return;
+        }
+        let esperarA;
+
+        if (voto) {
+          voto.valoracion = req.body.valoracion;
+          esperarA=voto.save();
+          //Notificación
+        } else { // * si no exite el voto lo crea con lo que mandó
+            // if (req.body.valoracion) {
+            // }
+          esperarA=Promise.all([
+            Voto.create({
+              valoracion: req.body.valoracion,
+              votadoID: IDvotado,
+              votanteDNI: req.session.usuario.DNI,
+            }).then((v) => v.save()),
+            Notificacion.create({
+              postNotificadoID: post.ID,
+              notificadoDNI: post.duenioDNI,
+            })
+          ])
+        }
+
+        esperarA.then(()=>res.status(201).send("Voto registrado."))
+      });
     })
     .catch((err) => {
       res.status(500).send(err.message);
@@ -174,7 +182,6 @@ router.post("/:reportadoID/reporte", reportarPost);
   }); */
 
 router.delete('/:ID', (req, res) => {
-
   Post.findByPk(req.params.ID, {
     include: { model: Usuario, as: 'eliminador' }
   })
@@ -230,7 +237,6 @@ router.get('/reporte', function (req, res) {
     limit: PAGINACION.resultadosPorPagina,
     offset: (+pagina) * PAGINACION.resultadosPorPagina,
     subQuery: false,
-    //separate: false,
     include: [
       {
         model: Post,

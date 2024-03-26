@@ -13,16 +13,13 @@ const sequelize = new Sequelize(
         rejectUnauthorized: false,
       },
     },
-    logging: false,
+    logging: true,
   }
 );
 /* new Sequelize('faqutn', 'root', 'password', {
     host: 'localhost',
     dialect: 'mariadb'
   }); */
-
-
-
 
 sequelize
   .authenticate()
@@ -32,9 +29,6 @@ sequelize
   .catch((error) => {
     console.error("Unable to connect to the database: ", error);
   });
-
-
-
 
 const Parametro = sequelize.define("parametro", {
   ID: {
@@ -277,7 +271,6 @@ const Voto = sequelize.define("voto", {
 });
 
 Usuario.hasMany(Voto, {
-  // as:'votante',
   constraints: false,
   foreignKey: "votanteDNI",
 });
@@ -288,7 +281,6 @@ Voto.belongsTo(Usuario, {
 });
 
 Post.hasMany(Voto, {
-  // as:'votado',
   constraints: false,
   foreignKey: "votadoID",
 });
@@ -617,7 +609,6 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
               }
             },
             {
-              // TODO Feature: Votos no?? Yo diría que sí.
               model: Usuario,
               as: "duenio",
               include: {
@@ -692,16 +683,17 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
       if (filtrar.texto) {
         opciones.where = Sequelize.or(
           Sequelize.literal(
-            `match(post.cuerpo) against (? IN BOOLEAN MODE)`
+            `match(post.cuerpo) against (:where_cuerpo IN BOOLEAN MODE)`
           ),
           Sequelize.literal(
-            `match(titulo) against (? IN BOOLEAN MODE)`
+            `match(titulo) against (:where_titulo IN BOOLEAN MODE)`
           )
         )
-        opciones.replacements=[
-          `${filtrar.texto}*`
-          ,`${filtrar.texto}*`
-        ];
+        let valorAgainstMatch=`${filtrar.texto}*`;
+        opciones.replacements={
+          where_cuerpo:valorAgainstMatch
+          ,where_titulo:valorAgainstMatch
+        };
         filtrarTexto = true;
       }
 
@@ -730,12 +722,16 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
           }
         );
         if(!opciones.replacements)
-          opciones.replacements=[];
-        opciones.replacements.push(...filtrar.etiquetas);
+          opciones.replacements={};
+        let variablesEnConsulta=filtrar.etiquetas.map(eti=>{
+          let nombreVariable='eti_'+eti
+          opciones.replacements[nombreVariable]=eti;
+          return ':'+nombreVariable;
+        });
         opciones.attributes.include.push(
           [
             sequelize.literal(
-              `(SELECT COUNT(*) FROM etiquetasPregunta WHERE etiquetasPregunta.preguntumID = pregunta.ID AND etiquetasPregunta.etiquetumID IN(${new Array(filtrar.etiquetas.length).fill('?').join()}))`
+              `(SELECT COUNT(*) FROM etiquetasPregunta WHERE etiquetasPregunta.preguntumID = pregunta.ID AND etiquetasPregunta.etiquetumID IN(${variablesEnConsulta.join()}))`
             ),
             "coincidencias",
           ]
@@ -764,12 +760,11 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
     if (filtrarEtiquetas || filtrarTexto) {//filtrar siempre esta? viene como objeto vació tonces entra en el if
       let ranking = [];
       if (filtrarTexto) {
-        ranking.push(`(match(post.cuerpo) against (? IN BOOLEAN MODE) + match(titulo) against (? IN BOOLEAN MODE)*2)`);
+        ranking.push(`(match(post.cuerpo) against (:order_cuerpo IN BOOLEAN MODE) + match(titulo) against (:order_titulo IN BOOLEAN MODE)*2)`);
         // * En la definición del where se establece replacements con un par de el mismo valor.
-        opciones.replacements.push(
-          `${filtrar.texto}*`
-          ,`${filtrar.texto}*`
-        );
+        opciones.replacements['order_cuerpo']=
+          opciones.replacements['order_titulo']=
+          opciones.replacements['where_cuerpo']
       }
       if (filtrarEtiquetas) {
         ranking.push(`coincidencias/${filtrar.etiquetas.length}`) // * 0..1
@@ -844,6 +839,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
       }
     }
 
+    console.log(opciones);
     return Pregunta.findAll(opciones);
   }
 }

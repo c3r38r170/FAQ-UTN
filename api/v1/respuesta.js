@@ -81,14 +81,12 @@ function crearRespuesta(req, res, respuestaIA = null) {
 }
 
 router.post("/", function (req, res) {
-  // TODO Refactor: Unificar if y else. Ver cuál es la versión más reciente de cada parte.
   let modera = getModera();
   let rechazaPost = getRechazaPost();
   if (modera == 1) {
     moderarWithRetry(req.body.cuerpo, 10)
       .then((respuesta) => {
         if (respuesta.apropiado < rechazaPost) {
-          // TODO Feature: ¿Devolver razón? Si se decidió que no, está bien.
           res.status(400).send("Texto rechazo por moderación automática. Razón: " + respuesta.motivo);
           return;
         }
