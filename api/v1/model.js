@@ -840,6 +840,8 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
       if (filtrarEtiquetas) {
         ranking.push(`coincidencias/${filtrar.etiquetas.length}`) // * 0..1
       }
+      ranking.push(`((SELECT COUNT(*) FROM respuesta join posts on posts.ID = respuesta.ID WHERE respuesta.preguntaID = pregunta.ID and posts.eliminadorDNI is null)+1)*0.1`)  //cada respuesta suma 0.1 punto, normalizarlo para que el maximo sea 1?
+      ranking.push('((select coalesce(sum(valoracion),1) from votos where votadoID = pregunta.ID)+1)*0.1') // cada voto suma 0.1 punto, normalizar?
       opciones.order = [
         Sequelize.literal(ranking.join(' * ') + ' desc') // ! Si hay uno sono, no se multiplica nada.
         , ordenadoPorFecha

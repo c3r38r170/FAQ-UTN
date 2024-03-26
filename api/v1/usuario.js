@@ -96,10 +96,10 @@ router.get("/", function (req, res) {
           fecha_desbloqueo: { [Sequelize.Op.is]: null },
         },
         required: false,
-        include:{
-           model:Usuario
-           ,as:'bloqueador'
-           ,attributes:['nombre']
+        include: {
+          model: Usuario
+          , as: 'bloqueador'
+          , attributes: ['nombre']
         }
       },
       {
@@ -265,7 +265,7 @@ router.post("/", (req, res) => {
         });
     })
     .catch((err) => {
-      res.status(500).send(err.message);
+      res.status(500).send(err?.message);
     });
 });
 
