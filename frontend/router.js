@@ -659,6 +659,19 @@ router.get("/administracion/usuarios", (req, res) => {
 });
 
 //estadisticas
+
+router.get("/estadisticas", (req, res) => {
+  res.redirect('/estadisticas/posts/etiquetas');
+})
+
+router.get("/estadisticas/posts", (req, res) => {
+  res.redirect('/estadisticas/posts/etiquetas');
+})
+
+router.get("/estadisticas/usuarios", (req, res) => {
+  res.redirect('/estadisticas/usuarios/masRelevantes');
+})
+
 router.get("/estadisticas/posts/etiquetas", (req, res) => {
   let usu = req.session;
   if (!usu.usuario) {
