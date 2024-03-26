@@ -367,52 +367,62 @@ router.get("/masNegativos", function (req, res) {
 
 
 router.get("/estadisticas", async function (req, res) {
-  let estadisticas = [
-    {
-      nombre: "Cantidad de Preguntas",
-      valor: 0,
-      ultimoMes: 0
-    },
-    {
-      nombre: "Cantidad de Posts",
-      valor: 0,
-      ultimoMes: 0
-    },
-    {
-      nombre: "Cantidad de Votos",
-      valor: 0,
-      ultimoMes: 0
-    },
-    {
-      nombre: "Cantidad de Bloqueos",
-      valor: 0,
-      ultimoMes: 0
-    },
-    {
-      nombre: "Cantidad de Suscripciones",
-      valor: 0,
-      ultimoMes: 0
-    },
-  ]
-  estadisticas[0].valor = await Pregunta.count();
-  estadisticas[1].valor = await Post.count();
-  estadisticas[2].valor = await Voto.count();
-  estadisticas[3].valor = await Bloqueo.count();
-  estadisticas[4].valor = await SuscripcionesPregunta.count() + await SuscripcionesEtiqueta.count();
+  //con promises en vez de await porque son muchas consultas y tarda mucho si no las hace en paralelo
+  const obtenerEstadisticas = async () => {
+    const estadisticas = [
+      { nombre: 'Preguntas', valor: 0, ultimoMes: 0 },
+      { nombre: 'Posts', valor: 0, ultimoMes: 0 },
+      { nombre: 'Votos', valor: 0, ultimoMes: 0 },
+      { nombre: 'Bloqueos', valor: 0, ultimoMes: 0 },
+      { nombre: 'Suscripciones', valor: 0, ultimoMes: 0 }
+    ];
 
+    // Consultas para obtener el valor total y el valor del último mes para cada estadística
+    const consultas = [
+      Pregunta.count(),
+      Post.count(),
+      Voto.count(),
+      Bloqueo.count(),
+      SuscripcionesPregunta.count(),
+      SuscripcionesEtiqueta.count(),
+      Pregunta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }),
+      Post.count({ where: { fecha: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }),
+      Voto.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }),
+      Bloqueo.count({ where: { fecha: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }),
+      SuscripcionesPregunta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }),
+      SuscripcionesEtiqueta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } })
+    ];
+
+    const resultados = await Promise.all(consultas);
+
+    estadisticas[0].valor = resultados[0];
+    estadisticas[1].valor = resultados[1];
+    estadisticas[2].valor = resultados[2];
+    estadisticas[3].valor = resultados[3];
+    estadisticas[4].valor = resultados[4] + resultados[5];
+    estadisticas[0].ultimoMes = resultados[6];
+    estadisticas[1].ultimoMes = resultados[7];
+    estadisticas[2].ultimoMes = resultados[8];
+    estadisticas[3].ultimoMes = resultados[9];
+    estadisticas[4].ultimoMes = resultados[10] + resultados[11];
+
+    return estadisticas;
+  };
 
   const fechaInicioMesActual = new Date();
   const fechaInicioMesPasado = new Date(fechaInicioMesActual);
   fechaInicioMesPasado.setMonth(fechaInicioMesActual.getMonth() - 1);
 
-  estadisticas[0].ultimoMes = await Pregunta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } });
-  estadisticas[1].ultimoMes = await Post.count({ where: { fecha: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } });
-  estadisticas[2].ultimoMes = await Voto.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } });
-  estadisticas[3].ultimoMes = await Bloqueo.count({ where: { fecha: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } });
-  estadisticas[4].ultimoMes = await SuscripcionesPregunta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } }) + await SuscripcionesEtiqueta.count({ where: { createdAt: { [Sequelize.Op.between]: [fechaInicioMesPasado, fechaInicioMesActual] } } });
-
-  res.status(200).send(estadisticas)
-
+  const handleRequest = async (req, res) => {
+    try {
+      const estadisticas = await obtenerEstadisticas();
+      res.status(200).send(estadisticas);
+    } catch (error) {
+      console.error('Error al obtener las estadísticas:', error);
+      res.status(500).send('Error interno del servidor');
+    }
+  };
+  handleRequest(req, res);
 })
 
 export { router };
