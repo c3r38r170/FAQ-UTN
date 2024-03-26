@@ -262,6 +262,7 @@ router.post("/", (req, res) => {
         });
     })
     .catch((err) => {
+      // ! Este error solo puede ser provocado por SYSACAD.obtenerDatosPorDNI
       res.status(500).send(err.message);
     });
 });

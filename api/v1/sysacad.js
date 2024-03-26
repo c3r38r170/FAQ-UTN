@@ -5062,43 +5062,47 @@ var baseDeDatos = {
 
 function obtenerDatosPorDNI(DNI) {
 	return new Promise((resolve,reject)=>{
-		let encontrado = baseDeDatos[DNI];
-
-		if (!encontrado) {
-			//TODO Feature: promises
-			reject();
+		try{
+			let encontrado = baseDeDatos[DNI];
+	
+			if (!encontrado) {
+				//TODO Feature: promises
+				resolve(null);
+			}
+	
+			if (!encontrado.correo) {
+				// ! replace(//g) es equivalente a replaceAll
+				encontrado.correo = encontrado.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f.]/g, "").replaceAll(" ", ".") + '@gmail.com';
+			}
+	
+			// ! ¿Qué pasa si directamente no hay info? Nada. Esto es una prueba.
+			if (encontrado.info && !encontrado.info.some(i => i.rol == "Docente")) {
+				encontrado.carreras = encontrado.info.map(({ rol, legajo }) => {
+					let ID;
+					switch (rol) {
+						case 'IC':
+							ID = 1;
+							break;
+						case 'IE':
+							ID = 2;
+							break;
+						case 'IQ':
+							ID = 3;
+							break;
+						case 'IM':
+							ID = 4;
+							break;
+						case 'ISI':
+							ID = 5;
+							break;
+					}
+					return ({ ID, legajo });
+				});
+			}
+			resolve(encontrado);
+		}catch(err){
+			reject(err);
 		}
-
-		if (!encontrado.correo) {
-			// ! replace(//g) es equivalente a replaceAll
-			encontrado.correo = encontrado.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f.]/g, "").replaceAll(" ", ".") + '@gmail.com';
-		}
-
-		// ! ¿Qué pasa si directamente no hay info? Nada. Esto es una prueba.
-		if (encontrado.info && !encontrado.info.some(i => i.rol == "Docente")) {
-			encontrado.carreras = encontrado.info.map(({ rol, legajo }) => {
-				let ID;
-				switch (rol) {
-					case 'IC':
-						ID = 1;
-						break;
-					case 'IE':
-						ID = 2;
-						break;
-					case 'IQ':
-						ID = 3;
-						break;
-					case 'IM':
-						ID = 4;
-						break;
-					case 'ISI':
-						ID = 5;
-						break;
-				}
-				return ({ ID, legajo });
-			});
-		}
-		resolve(encontrado);
 	});
 }
 
