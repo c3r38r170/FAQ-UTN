@@ -105,6 +105,7 @@ $paleta-4: #f3f6ff;
 			}
 			img{
 				min-width: 32px;
+				object-fit: cover;
 			}
 		}
 	}
@@ -369,6 +370,7 @@ div.notificacion{
 	.img-usuario{
 		width: 200px;
 		height: 200px;
+		object-fit: cover;
 	}
 
 	.contenido-perfil{
@@ -646,6 +648,7 @@ div.respuesta{
 			margin-right: 1.5rem;
 			& .chip-usuario img{
 				width: 24px;
+				object-fit: cover;
 			}
 		}
 	}
