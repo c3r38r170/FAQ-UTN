@@ -31,10 +31,10 @@ function crearPantalla(ruta, sesion, query = "") {
 
 				// TODO Refactor: Estaría bueno poder comparar números... pero bueno, depende de que el endpoint devuelva números en vez de letras.
 				if (tipos.includes('1')) {
-					html += crearBoton('is-danger', 'eliminar', 'Eliminar');
+					html += crearBoton('is-danger is-small', 'eliminar', 'Eliminar');
 				}
 				if (tipos.includes('2')) {
-					html += crearBoton('is-link', 'unificar', 'Unificar');
+					html += crearBoton('is-link is-small', 'unificar', 'Unificar');
 				}
 
 				return html;

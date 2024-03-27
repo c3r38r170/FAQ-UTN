@@ -230,7 +230,7 @@ class Encabezado {
 				, '/api/sesion'
 				, []
 				, this.procesarRespuesta
-				, { textoEnviar: 'Cerrar Sesion', verbo: 'DELETE', clasesBoton: 'is-link is-light is-small' }
+				, { textoEnviar: 'Cerrar Sesion', verbo: 'DELETE', clasesBoton: 'is-link is-outlined is-small' }
 			);
 
 		} else {

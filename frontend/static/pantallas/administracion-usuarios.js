@@ -34,7 +34,7 @@ function crearPantalla(ruta, sesion, query = "") {
       nombre: "Editar",
       clases: ["centrado"],
       celda: (usuario) =>
-        `<button class="button is-link is-small is-rounded" id="boton-editar-${usuario.DNI}" type="button">
+        `<button class="button is-link is-small" id="boton-editar-${usuario.DNI}" type="button">
         Editar
       </button>`,
     },
@@ -58,7 +58,7 @@ function crearPantalla(ruta, sesion, query = "") {
       contenedor2,
       new Boton({
         titulo: "Agregar",
-        classes: "button is-link is-small is-rounded botonAgregar",
+        classes: "button is-link is-small botonAgregar",
         dataTarget: "modal-agregar-usuario",
         type: "button",
         id: "botonAgregar",
