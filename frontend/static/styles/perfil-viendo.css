@@ -2,6 +2,9 @@
 #contenedorImagen {
   position: relative;
   display: inline-block; /* Para que el contenedor se ajuste al tamaño del contenido */
+  width: 200px;
+  height: 200px;
+  border: 1px solid lightgray;
 }
 
 #divImagenHover {

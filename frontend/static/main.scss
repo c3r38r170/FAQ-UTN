@@ -350,10 +350,17 @@ div.notificacion{
 	}
 
 	a.contenedor-img{
+		width: 32px;
 		min-width: 32px;
+		overflow: hidden;
+		height: 32px;
+		border-radius: 100%;
+		border: 1px solid lightgray;
+		margin-right: 0.5rem;
 		.img-usuario{
-			width: 32px;
-			border-radius: 100%;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
 		}
 	}
 	
@@ -646,10 +653,17 @@ div.respuesta{
 			margin-left: auto;
 			flex-wrap: wrap;
 			margin-right: 1.5rem;
-			& .chip-usuario img{
+			& .chip-usuario .contenedor-img{
 				width: 24px;
-				object-fit: cover;
-			}
+				height: 24px;
+				min-width: 24px;
+				border-radius: 100%;
+				img{
+					width: 100%;
+					height: 100%;
+					object-fit: cover;
+				}
+			} 
 		}
 	}
 }

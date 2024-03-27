@@ -294,11 +294,19 @@ div.notificacion div.noti-container .fecha {
   mix-blend-mode: multiply;
 }
 .chip-usuario a.contenedor-img {
+  width: 32px;
   min-width: 32px;
+  overflow: hidden;
+  height: 32px;
+  border-radius: 100%;
+  border: 1px solid lightgray;
+  margin-right: 0.5rem;
 }
 .chip-usuario a.contenedor-img .img-usuario {
-  width: 32px;
-  border-radius: 100%;
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 
 .chip-usuario-perfil {
@@ -558,8 +566,15 @@ div.respuesta .cuerpo .usuario {
   flex-wrap: wrap;
   margin-right: 1.5rem;
 }
-div.respuesta .cuerpo .usuario .chip-usuario img {
+div.respuesta .cuerpo .usuario .chip-usuario .contenedor-img {
   width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 100%;
+}
+div.respuesta .cuerpo .usuario .chip-usuario .contenedor-img img {
+  width: 100%;
+  height: 100%;
   -o-object-fit: cover;
      object-fit: cover;
 }
