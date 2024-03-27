@@ -325,17 +325,32 @@ div.notificacion{
     width: 200px;
     height: 200px;
     border: 1px solid lightgray;
+	input{
+	cursor: default;
+	}
+	#cambiarFoto {
+	  height: 50px;
+	  display: flex;
+	  justify-content: center;
+	  align-items: center;
+	  background-color: rgba(0, 0, 0, 0.6);
+	  width: 100%;
+	  text-align: center;
+	  color: white;
+	  position: absolute;
+	  bottom: 0px;
+	  left: 0;
+	  transition: opacity 0.1s ease;
+	  opacity: 0;
+
+	  font-size: 14px;
+	}
+	&:hover #cambiarFoto{
+		opacity: 100;
+		cursor: pointer;
+	}
   }
   
-  #divImagenHover {
-    position: absolute;
-    top: 0px; /* Ajusta la posición vertical (hacia arriba) según tu diseño */
-    left: 0; /* Ajusta la posición horizontal según tu diseño */
-    display: none;
-    transition: opacity 0.5s ease;
-    opacity: 0; /* La imagen comienza invisible */
-	cursor: pointer;
-  }
   
   #fotoPerfil:hover + #divImagenHover,
   #divImagenHover:hover {
