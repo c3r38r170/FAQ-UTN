@@ -17,7 +17,7 @@ import {
 } from "./model.js";
 
 import { getPaginacion } from "./parametros.js";
-import { mensajeError401, mensajeError403, mensajeError404 } from "./mensajesError.js";
+import { mensajeError400, mensajeError401, mensajeError403, mensajeError404 } from "./mensajesError.js";
 
 const router = express.Router();
 
@@ -52,10 +52,12 @@ router.post("/:votadoID/valoracion", function (req, res) {
         plain: true,
       }).then((voto) => {
         // TODO Refactor: !req.body.valoracion ??
+        // TODO Docs: Comentar esta condición
         if(!voto && req.body.valoracion == "null"){
-          res.status(403).send(mensajeError403);
+          res.status(400).send(mensajeError400);
           return;
         }
+
         let esperarA;
 
         if (voto) {
@@ -132,7 +134,6 @@ router.post("/:reportadoID/reporte", function (req, res) {
         res.status(404).send(mensajeError404);
         return;
       } else {
-        // TODO Feature: ver si ya se reportó, y prohibir
         // Se podría hacer un get a los reportes y si ya existe que aparezca mensajito de ya está reportado y directamente no te aparezca el form
         // TODO Feature: determinar tipos
         ReportePost.findOne({
