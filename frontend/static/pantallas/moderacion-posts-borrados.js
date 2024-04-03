@@ -23,7 +23,7 @@ function crearPantalla(ruta, usuario, query = "") {
             nombre: "Acción",
             clases: ["centrado"],
             celda: (post) => [
-                `<button id="botonRestaurar${post.ID}" data-ID="${post.ID}" type="button" class="button is-link is-small is-rounded">Restaurar</button>`
+                `<button id="botonRestaurar${post.ID}" data-ID="${post.ID}" type="button" class="button is-link is-small">Restaurar</button>`
             ]
         },
     ]);

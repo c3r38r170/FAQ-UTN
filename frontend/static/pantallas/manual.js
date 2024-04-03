@@ -148,7 +148,7 @@ function crearPagina(ruta,usuario) {
 					<img srcset="unificar-pregunta.png 1.4x">`
 				)),
 				// Moderar posts borrados
-				new Titulo('h2',5,'Moderar Posts Borrados','mt-5','moderar-posts-borrados')
+				new Titulo(...elementoTitulo2,'Moderar Posts Borrados','mt-5','moderar-posts-borrados')
 				,new ComponenteLiteral(()=>formatearParrafos(
 					`Para acceder al panel de <a href="/moderacion/posts-borrados">Moderación de Posts Borrados</a> podés dirigirte al link "Moderación > Posts Borrados" en la barra de navegación izquierda.
 					Ahí vas a encontrar una tabla con los posts que han sido borrados.
