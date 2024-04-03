@@ -24,10 +24,10 @@ router.get("/", (req, res) => {
   Pregunta.pagina({
     pagina: req.query.pagina || 0
     , filtrar: {
-      texto : req.query.searchInput || undefined
-      ,etiquetas:req.query.etiquetas?
+      texto: req.query.searchInput || undefined
+      , etiquetas: req.query.etiquetas ?
         (Array.isArray(req.query.etiquetas) ? req.query.etiquetas : [req.query.etiquetas])
-        :undefined
+        : undefined
     }
     , formatoCorto: req.query.formatoCorto !== undefined
     , usuarioActual: req.session?.usuario
@@ -165,7 +165,7 @@ function crearPregunta(req, res, respuestaIA = null) {
     // TODO Refactor: Se puede simplificar incluso más. Para empezar, poniendo todo lo del push obligatorio dentro de la definición.
     let esperarA = [];
     let reportaPost = getReportaPost();
-    let reportado=false;
+    let reportado = false;
     if (respuestaIA && respuestaIA.apropiado < reportaPost) {
       esperarA.push(
         ReportePost.create({
@@ -173,7 +173,7 @@ function crearPregunta(req, res, respuestaIA = null) {
           reportadoID: pregunta.ID,
         })
       );
-      reportado=true;
+      reportado = true;
     }
     //si es una tira error
     const etiquetasIDs = Array.isArray(req.body.etiquetasIDs) ? req.body.etiquetasIDs : [req.body.etiquetasIDs];
@@ -220,7 +220,7 @@ function crearPregunta(req, res, respuestaIA = null) {
       .then(() => pregunta.save())
       .then(() => {
         // ! Sin las comillas se piensa que pusimos el status dentro del send
-        res.status(201).json({ID:pregunta.ID,motivo:reportado?respuestaIA.motivo:null});
+        res.status(201).json({ ID: pregunta.ID, motivo: reportado ? respuestaIA.motivo : null });
       })
   })
     .catch(err => {
@@ -379,7 +379,6 @@ router.delete("/:preguntaID/suscripcion", function (req, res) {
 
 router.get("/masVotadas", function (req, res) {
   let resultadosPorPagina = getPaginacion().resultadosPorPagina;
-  console.log(resultadosPorPagina)
   const respuestasCount = [
     Sequelize.literal(
       "(SELECT COUNT(*) FROM respuesta WHERE respuesta.preguntaID = pregunta.ID)"

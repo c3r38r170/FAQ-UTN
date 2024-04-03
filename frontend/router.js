@@ -41,14 +41,14 @@ import {
 
 // TODO Refactor: Hacer raw o plain todas las consultas que se puedan
 
-import { PantallaModeracionPostsBorrados ,PantallaEstadisticasSitio, PantallaEstadisticasUsuariosMasRelevantes, PantallaEstadisticasPostsEtiquetas, PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual, PantallaEstadisticasPostsRelevantes, PantallaEstadisticasPostsNegativos } from './static/pantallas/todas.js';
+import { PantallaModeracionPostsBorrados, PantallaEstadisticasSitio, PantallaEstadisticasUsuariosMasRelevantes, PantallaEstadisticasPostsEtiquetas, PantallaEditarRespuesta, PantallaAdministracionUsuarios, PantallaEtiquetaPreguntas, PantallaAdministracionEtiquetas, PantallaAdministracionCategorias, PantallaAdministracionPerfiles, SinPermisos, PantallaAdministracionParametros, PantallaSuscripciones, PaginaPerfilPropioRespuestas, PaginaPerfilPropioPreguntas, PaginaPerfilPropioInfo, PaginaPerfil, PaginaInicio, PantallaNuevaPregunta, PaginaPregunta, PantallaModeracionUsuarios, PantallaModeracionPosts, PantallaEditarPregunta, PantallaQuienesSomos, PantallaManual, PantallaEstadisticasPostsRelevantes, PantallaEstadisticasPostsNegativos } from './static/pantallas/todas.js';
 
 router.get("/", (req, res) => {
   // ! req.path es ''
   /* * Inicio regular. */
   let parametros = { usuarioActual: req.session.usuario };
   let queryString = '';
-  
+
   let etiquetas = req.query.etiquetas;
   let texto = req.query.searchInput;
   if (texto || etiquetas) {
@@ -75,8 +75,8 @@ router.get("/", (req, res) => {
 
       res.send(pagina.render());
     });
-    
-    // TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
+
+  // TODO Feature: Catch (¿generic Catch? "res.status(500).send(e.message)" o algo así))
 });
 
 // * Ruta que muestra 1 pregunta con sus respuestas
@@ -478,7 +478,7 @@ router.get("/perfil/respuestas", (req, res) => {
 
 // TODO Refactor: Quitar lo async, usar promesas, y reducir el código.
 router.get("/perfil/:DNI?", async (req, res) => {
-  const mandarPagina=pag=>res.send(pag.render());
+  const mandarPagina = pag => res.send(pag.render());
   // * pagina error
   let paginaError = SinPermisos(req.session, 'Algo ha malido sal. <a href="/">Volver al inicio</a>')
   let usuarioActual;
@@ -496,17 +496,17 @@ router.get("/perfil/:DNI?", async (req, res) => {
         fecha_desbloqueo: null
       }
     })
-      .then(bloqueo=>{
+      .then(bloqueo => {
         let perfilBloqueado = bloqueo.length > 0;
-    
-        if(perfilBloqueado) {
-          if(req.session.usuario){
-            if(req.session.usuario.perfil.permiso.ID < 2){
+
+        if (perfilBloqueado) {
+          if (req.session.usuario) {
+            if (req.session.usuario.perfil.permiso.ID < 2) {
               // * Esta bloqueado y estoy logueado pero no tengo permisos
               mandarPagina(paginaError);
               return;
             }
-          }else{
+          } else {
             // * Si está bloqueado y no hay sesion CHAU
             mandarPagina(paginaError);
             return;
@@ -514,28 +514,29 @@ router.get("/perfil/:DNI?", async (req, res) => {
         }
 
 
-        UsuarioDAO.findByPk(req.params.DNI, { include: [PerfilDAO,Carrera] })
-          .then(usu=>{
+        UsuarioDAO.findByPk(req.params.DNI, { include: [PerfilDAO, Carrera] })
+          .then(usu => {
             if (!usu) {
               // * no existe el usuario buscado
               mandarPagina(paginaError);
               return;
             }
-    
+
             // * Perfil ajeno
             // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
-            PostDAO.pagina({ DNI: usu.DNI, usuarioActual })
-              .then(pre=>{
+
+            PostDAO.pagina({ DNI: usu.DNI })
+              .then(pre => {
                 let pagina = PaginaPerfil(req.path, req.session, usu, perfilBloqueado);
-                pagina.partes[2] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
+                pagina.partes[4] /* ! DesplazamientoInfinito */.entidadesIniciales = pre;
                 mandarPagina(pagina);
-              }); 
+              });
           });
       })
   } else { // * perfil propio
-    mandarPagina(req.session.usuario?
+    mandarPagina(req.session.usuario ?
       PaginaPerfilPropioInfo(req.path, req.session)
-      :paginaError)// * error no hay id ni sesion
+      : paginaError)// * error no hay id ni sesion
   }
 
 });
