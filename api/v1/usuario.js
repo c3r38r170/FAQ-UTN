@@ -267,7 +267,6 @@ router.post("/", (req, res) => {
     });
 });
 
-// * Te deja reinciar la contra de cualquiera lol
 router.post("/contrasenia", function (req, res) {
   function generarContrasenia() {
     var length = 8,
@@ -288,7 +287,8 @@ router.post("/contrasenia", function (req, res) {
     , limit: 1
   }).then((usu) => {
     if (!usu[0]) {
-      res.status(404).send("DNI inexistente");
+      // TODO UX: ¿Separ casos? Se podría hacer el correo no obligatorio, y después revisar... A debatir igual, eh.
+      res.status(404).send("DNI inexistente, o correo equivocado.");
       return;
     }
 
