@@ -33,8 +33,8 @@ class ChipUsuario {
                 ${this.#propio ? `
                   <div id="contenedorImagen">
                     <input class="mr-3 img-usuario"  id="fotoPerfil" type="image" src="/api/usuario/${this.#DNI}/foto"></input>
-                    <div id="divImagenHover">
-                      <img id="cambiarFoto" class="mr-3 img-usuario" src="../imagenCambiarFoto.png"></img>
+                    <div id="cambiarFoto">
+                      Editar
                     </div>
                   </div>
                     `:

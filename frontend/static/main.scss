@@ -105,6 +105,7 @@ $paleta-4: #f3f6ff;
 			}
 			img{
 				min-width: 32px;
+				object-fit: cover;
 			}
 		}
 	}
@@ -318,6 +319,44 @@ div.notificacion{
 	}
 }
 
+#contenedorImagen {
+    position: relative;
+    display: inline-block; /* Para que el contenedor se ajuste al tamaño del contenido */
+    width: 200px;
+    height: 200px;
+    border: 1px solid lightgray;
+	input{
+	cursor: default;
+	}
+	#cambiarFoto {
+	  height: 50px;
+	  display: flex;
+	  justify-content: center;
+	  align-items: center;
+	  background-color: rgba(0, 0, 0, 0.6);
+	  width: 100%;
+	  text-align: center;
+	  color: white;
+	  position: absolute;
+	  bottom: 0px;
+	  left: 0;
+	  transition: opacity 0.1s ease;
+	  opacity: 0;
+
+	  font-size: 14px;
+	}
+	&:hover #cambiarFoto{
+		opacity: 100;
+		cursor: pointer;
+	}
+  }
+  
+  
+  #fotoPerfil:hover + #divImagenHover,
+  #divImagenHover:hover {
+    display: block;
+    opacity: 1; /* La imagen se vuelve visible cuando se muestra */
+  }
 
 
 .chip-usuario{
@@ -349,10 +388,17 @@ div.notificacion{
 	}
 
 	a.contenedor-img{
+		width: 32px;
 		min-width: 32px;
+		overflow: hidden;
+		height: 32px;
+		border-radius: 100%;
+		border: 1px solid lightgray;
+		margin-right: 0.5rem;
 		.img-usuario{
-			width: 32px;
-			border-radius: 100%;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
 		}
 	}
 	
@@ -369,6 +415,7 @@ div.notificacion{
 	.img-usuario{
 		width: 200px;
 		height: 200px;
+		object-fit: cover;
 	}
 
 	.contenido-perfil{
@@ -644,9 +691,17 @@ div.respuesta{
 			margin-left: auto;
 			flex-wrap: wrap;
 			margin-right: 1.5rem;
-			& .chip-usuario img{
+			& .chip-usuario .contenedor-img{
 				width: 24px;
-			}
+				height: 24px;
+				min-width: 24px;
+				border-radius: 100%;
+				img{
+					width: 100%;
+					height: 100%;
+					object-fit: cover;
+				}
+			} 
 		}
 	}
 }
