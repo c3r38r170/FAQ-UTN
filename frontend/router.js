@@ -214,7 +214,7 @@ router.get("/pregunta/:id?", async (req, res) => {
       // TODO UX: Esto no se ve muy lindo. Alternativa: Alguna forma de que la pregunta no renderice el link, y sí renderice un título h-
       // let preguntaID = p.ID;
       let pagina = PaginaPregunta(req.path, req.session, p);
-      pagina.titulo = p.titulo;
+      pagina.titulo = `<i class="fa-solid fa-circle-question mr-4"></i>` + p.titulo;
 
       pagina.globales.pregunta = p;
       res.send(pagina.render());
