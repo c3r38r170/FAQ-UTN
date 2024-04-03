@@ -4,7 +4,7 @@ import { Modal } from "../componentes/modal.js";
 
 let usuario = window.usuarioActual;
 let pagina = PaginaPerfilPropioInfo(location.pathname, { usuario }, { DNI: usuario.DNI });
-pagina.partes[4]/* ! DesplazamientoInfinito */.pagina = 2;
+pagina.partes[2]/* ! DesplazamientoInfinito */.pagina = 2;
 
 let modal = pagina.partes[0];
 
