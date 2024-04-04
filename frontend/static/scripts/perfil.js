@@ -39,7 +39,7 @@ gEt("botonCambiarContraseña").onclick = (e) => {
       (txt, info) => {
         if (info.ok) {
 
-          window.location.reload();
+          Swal.exito(`Contraseña cambiada correctamente`);
 
         } else {
           Swal.error(`Error ${info.codigo}: ${txt}`);
@@ -84,7 +84,7 @@ gEt("botonCambiarMail").onclick = (e) => {
       (txt, info) => {
         if (info.ok) {
 
-          window.location.reload();
+          Swal.exito(`Correo cambiada correctamente`);
 
         } else {
           Swal.error(`Error ${info.codigo}: ${txt}`);
