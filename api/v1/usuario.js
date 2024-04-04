@@ -311,7 +311,7 @@ router.post("/contrasenia", function (req, res) {
           to: usu[0].correo, // list of receivers
           subject: "UTN FAQ - Recuperación de contraseña", // Subject line
           text: `¡Saludos, ${usu[0].nombre}! Tu contraseña temporal es "${contraseniaNueva}" (sin comillas).`, // plain text body
-          html: `<big>¡Saludos, ${usu[0].nombre}!</big><br/><p>Se ha reestablecido tu contraseña, tu nueva contraseña temporal es:</p><pre>${contraseniaNueva}}</pre><p>No olvides cambiarla por otra / personalizarla cuando entres.</p><p><a href=${process.env.DIRECCION}>¡Te esperamos!</a></p>`, // html body
+          html: `<big>¡Saludos, ${usu[0].nombre}!</big><br/><p>Se ha reestablecido tu contraseña, tu nueva contraseña temporal es:</p><pre>${contraseniaNueva}</pre><p>No olvides cambiarla por otra / personalizarla cuando entres.</p><p><a href=${process.env.DIRECCION}>¡Te esperamos!</a></p>`, // html body
         })
       , usu[0].save()
     ])
