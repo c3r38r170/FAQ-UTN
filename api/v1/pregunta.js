@@ -3,7 +3,7 @@ import { Sequelize } from "sequelize";
 import { moderarWithRetry } from "./ia.js";
 import {
   Usuario,
-  ReportePost,
+  ReportePost,TipoReporte,
   Pregunta,
   SuscripcionesPregunta,
   Post,
@@ -260,8 +260,12 @@ router.put('/:ID', function (req, res) {
 
   Pregunta.findByPk(req.params.ID, {
     include: [
-      { model: Post, include: { model: Usuario, as: 'eliminador' } },
+      { model: Post, include:[
+        {model: Usuario, as: 'eliminador' }
+        ,{model:ReportePost,include:{model:TipoReporte, as:'tipo',where:{ID:2}, attributes:[]}} // ! 2 es pregunta repetida
+      ] },
       { model: Respuesta, as: 'respuestas', include: Post },
+      // TODO Refactor: Algún ENUM de tipos de reportes
     ]
   })
     .then(pre => {
@@ -277,8 +281,10 @@ router.put('/:ID', function (req, res) {
       if (pre.respuestas.length) {
         esperarA.push(...pre.respuestas.map(resp => resp.setPregunta(preguntaReemplazoID).then(r => r.save())));
       }
-
+      
       esperarA.push(pre.post.setEliminador(usuarioActual.DNI).then(p => p.save()));
+      
+      esperarA.push(pre.post.getReportePosts().then(reportes=>Promise.all(reportes.map(reporte => reporte.destroy()))));
 
       Promise.all(esperarA).then(() => {
         res.send();
