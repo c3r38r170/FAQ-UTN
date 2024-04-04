@@ -98,7 +98,7 @@ gEt('moderar-posts').onclick = (e) => {
           , textoEnviar: 'Unificar'
           , clasesBoton: 'is-link is-rounded mt-3'
           , alEnviar: (e) => {
-            if (e.target.elements.duplicadoID) {
+            if (e.target.elements.duplicadaID) {
               alEnviar(e);
             } else {
               e.preventDefault();
