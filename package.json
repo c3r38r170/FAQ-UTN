@@ -5,7 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "mocha test.js --timeout 15000",
+    "test": "mocha testApi.js --timeout 15000",
     "start": "nodemon server.js"
   },
   "keywords": [],

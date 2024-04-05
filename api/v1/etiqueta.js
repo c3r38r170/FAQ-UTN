@@ -199,7 +199,10 @@ router.delete("/:etiquetaID/suscripcion", function (req, res) {
 });
 
 router.get("/masUsadas", function (req, res) {
-
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(401).send(mensajeError401);
+    return;
+  }
 
   EtiquetasPregunta.findAll({
     attributes: ["etiquetumID", [Sequelize.fn('COUNT', Sequelize.col('etiquetumID')), 'cantidad']],

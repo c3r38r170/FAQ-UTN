@@ -1,9 +1,9 @@
 import * as express from "express";
 import {
-    Etiqueta,
-    Categoria,
-  } from "./model.js";
-  import { mensajeError401, mensajeError403, mensajeError404 } from "./mensajesError.js";
+  Etiqueta,
+  Categoria,
+} from "./model.js";
+import { mensajeError401, mensajeError403, mensajeError404 } from "./mensajesError.js";
 
 
 const router = express.Router();
@@ -67,8 +67,8 @@ router.post("/", async (req, res) => {
     res.status(400).send(error.message);
   }
 });
-  
-  // Ruta para actualizar una categoría por su ID
+
+// Ruta para actualizar una categoría por su ID
 router.patch("/:id", async (req, res) => {
   if (req.session.usuario.perfil.permiso.ID < 3) {
     res.status(401).send(mensajeError401);
@@ -106,7 +106,7 @@ router.delete("/:id", async (req, res) => {
     res.status(500).send(error.message);
   }
 });
-  
+
 
 
 
