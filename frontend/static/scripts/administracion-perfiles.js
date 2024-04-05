@@ -119,7 +119,7 @@ gEt("administrar-perfiles").onclick = (e) => {
   );
   let perfilElegido = tabla.entidades[indicePerfilElegido];
 
-  modal.titulo = "Editar el perfil \"" + perfilElegido.descripcion+'"';
+  modal.titulo = "Editar el perfil \"" + perfilElegido.descripcion + '"';
   modal.contenido = [
     new Formulario(
       "administracion-perfiles-editar",
@@ -154,7 +154,7 @@ gEt("administrar-perfiles").onclick = (e) => {
             tab.rows[
               indicePerfilElegido + 1
             ].cells[0].innerHTML = `<div class="perfil" style="background-color: ${JSON.parse(txt).color
-              }"><div class="descripcion">${JSON.parse(txt).descripcion}</div></div>`;
+            }"><div class="descripcion">${JSON.parse(txt).descripcion}</div></div>`;
             tab.rows[indicePerfilElegido + 1].cells[1].innerText =
               JSON.parse(txt).permisoID == 1
                 ? "Usuario"
@@ -221,7 +221,7 @@ gEt("botonAgregar").onclick = (e) => {
       [
         {
           name: "nombre",
-          textoEtiqueta: "Nombre",
+          textoEtiqueta: "Descripción",
           type: "text",
         },
         {
