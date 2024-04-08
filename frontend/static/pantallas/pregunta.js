@@ -48,7 +48,7 @@ function PaginaPregunta(ruta, sesion, pregunta){
                 if(ok){
                     const reload=()=>window.location.reload();
                     if(respuesta.motivo){
-                        Swal.redirigirEn(10,`La pregunta se va a publicar, pero fue automáticamente reportada por el siguiente motivo:<br><br><i>${respuesta.motivo}</i>`)
+                        Swal.redirigirEn(10,`La respuesta se va a publicar, pero fue automáticamente reportada por el siguiente motivo:<br><br><i>${respuesta.motivo}</i>`)
                             .then(reload);
                     }else reload();
                 }else{

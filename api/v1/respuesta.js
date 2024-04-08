@@ -114,10 +114,10 @@ router.patch("/", function (req, res) {
           res.status(403).send(mensajeError403);
           return;
         } else {
-          const editarRespuesta = () => {
+          const editarRespuesta = (motivo=null) => {
             respuesta.post.cuerpo = req.body.cuerpo;
             respuesta.post.save();
-            res.status(200).send(req.body.IDPregunta + "");
+            res.status(200).send(motivo);
           }
 
           let modera = getModera();
@@ -130,17 +130,18 @@ router.patch("/", function (req, res) {
                 return;
               }
               if (resp.apropiado < reportaPost) {
-                //Crear reporte
+                // * Crear reporte
                 ReportePost.create({
                   tipoID: 1,
                   reportadoID: respuesta.ID,
                 });
+
+                editarRespuesta(resp.motivo);
               }
-              editarRespuesta();
             });
-          } else {
-            editarRespuesta();
           }
+
+          editarRespuesta();
         }
       }
     })
