@@ -190,7 +190,7 @@ router.get("/:DNI/respuestas", function (req, res) {
   }
 
   Respuesta.pagina({ pagina, DNI: req.params.DNI })
-    .then((posts) =>res.send(posts));
+    .then((posts) => res.send(posts));
 });
 
 router.post("/", (req, res) => {
@@ -455,16 +455,19 @@ router.patch("/imagen", upload.single("image"), function (req, res) {
   res.status(200).send("Imagen Actualizada");
 });
 
-router.patch("/contrasenia", function (req, res) {
+router.patch("/contrasenia", async function (req, res) {
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
-      if (bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)) {
-        usuario.contrasenia = req.body.contraseniaNueva;
-        req.session.usuario.contrasenia = req.body.contraseniaNueva;
-        usuario.save();
-        res.status(200).send("Datos actualizados exitosamente");
-        return;
-      }
+      bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia).then(coinciden => {
+        if (coinciden) {
+          usuario.contrasenia = req.body.contraseniaNueva;
+          req.session.usuario.contrasenia = req.body.contraseniaNueva;
+          usuario.save();
+          res.status(200).send("Datos actualizados exitosamente");
+          return;
+        }
+      });
+
       res.status(402).send("Contraseña anterior no válida")
     })
     .catch((err) => {
@@ -475,13 +478,15 @@ router.patch("/contrasenia", function (req, res) {
 router.patch("/mail", function (req, res) {
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
-      if (bcrypt.compare(req.body.contrasenia, usuario.contrasenia)) {
-        usuario.correo = req.body.correo;
-        req.session.usuario.correo = req.body.correo;
-        usuario.save();
-        res.status(200).send("Datos actualizados exitosamente");
-        return;
-      }
+      bcrypt.compare(req.body.contrasenia, usuario.contrasenia).then(coinciden => {
+        if (coinciden) {
+          usuario.correo = req.body.correo;
+          req.session.usuario.correo = req.body.correo;
+          usuario.save();
+          res.status(200).send("Datos actualizados exitosamente");
+          return;
+        }
+      });
       res.status(402).send("Contraseña anterior no válida")
     })
     .catch((err) => {
