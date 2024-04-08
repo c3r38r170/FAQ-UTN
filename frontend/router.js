@@ -136,8 +136,9 @@ router.get("/pregunta/:id?", async (req, res) => {
             model: EtiquetaDAO,
             include: { model: Categoria, as: "categoria" },
           }
-        },
+        }
         // TODO Refactor: Agregar la condición de suscripciones solo si req.session.usuario.DNI está definido. No hace falta traer todas, sino solo la que nos interesa. Ver voto como ejemplo.
+        /* ,
         {
           model: UsuarioDAO
           , as: 'usuariosSuscriptos',
@@ -147,8 +148,24 @@ router.get("/pregunta/:id?", async (req, res) => {
               fecha_baja: null // Condición para que la fecha de baja sea nula
             }
           }
-        }
+        } */
       ];
+
+      // TODO Refactor: Evitar chequear antes y después.
+      if(req.session.usuario){
+        include.push(
+          // TODO Refactor: DRY, esto se repite en Pregunta.pagina
+          {
+            model:SuscripcionesPreguntaDAO
+            ,as:'suscripciones'
+            , include: { model: UsuarioDAO, as: 'suscripto', where: { DNI: req.session.usuario.DNI }, attributes: [] }
+            , where: {
+              fecha_baja: null // * Vigentes
+            }
+            ,required:false
+          }
+        )
+      }
 
       const p = await PreguntaDAO.findByPk(req.params.id, { include });
 
@@ -162,6 +179,7 @@ router.get("/pregunta/:id?", async (req, res) => {
           res.redirect('/');
           return;
         }
+
         NotificacionDAO.findAll({
           include: [
             {
@@ -189,7 +207,7 @@ router.get("/pregunta/:id?", async (req, res) => {
 
 
       } else if (p.post.eliminadorDNI) {
-        // No está logueado y la pregunta esta eliminada
+        // * No está logueado y la pregunta esta eliminada
         res.redirect('/');
         return;
       }
