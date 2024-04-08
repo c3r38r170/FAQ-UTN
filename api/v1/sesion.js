@@ -33,7 +33,7 @@ router.post("/", function (req, res) {
     })
     .then((coinciden) => {
       if (coinciden) {
-        if (usuario.bloqueosRecibidos) {
+        if (usuario.bloqueosRecibidos.length > 0) {
           res.status(402).send("Usuario bloqueado")
           return;
         }
