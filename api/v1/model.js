@@ -689,10 +689,10 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
             `match(titulo) against (:where_titulo IN BOOLEAN MODE)`
           )
         )
-        let valorAgainstMatch=`${filtrar.texto}*`;
-        opciones.replacements={
-          where_cuerpo:valorAgainstMatch
-          ,where_titulo:valorAgainstMatch
+        let valorAgainstMatch = `${filtrar.texto}*`;
+        opciones.replacements = {
+          where_cuerpo: valorAgainstMatch
+          , where_titulo: valorAgainstMatch
         };
         filtrarTexto = true;
       }
@@ -721,12 +721,12 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
             }
           }
         );
-        if(!opciones.replacements)
-          opciones.replacements={};
-        let variablesEnConsulta=filtrar.etiquetas.map(eti=>{
-          let nombreVariable='eti_'+eti
-          opciones.replacements[nombreVariable]=eti;
-          return ':'+nombreVariable;
+        if (!opciones.replacements)
+          opciones.replacements = {};
+        let variablesEnConsulta = filtrar.etiquetas.map(eti => {
+          let nombreVariable = 'eti_' + eti
+          opciones.replacements[nombreVariable] = eti;
+          return ':' + nombreVariable;
         });
         opciones.attributes.include.push(
           [
@@ -762,8 +762,8 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
       if (filtrarTexto) {
         ranking.push(`(match(post.cuerpo) against (:order_cuerpo IN BOOLEAN MODE) + match(titulo) against (:order_titulo IN BOOLEAN MODE)*2)`);
         // * En la definición del where se establece replacements con un par de el mismo valor.
-        opciones.replacements['order_cuerpo']=
-          opciones.replacements['order_titulo']=
+        opciones.replacements['order_cuerpo'] =
+          opciones.replacements['order_titulo'] =
           opciones.replacements['where_cuerpo']
       }
       if (filtrarEtiquetas) {
@@ -851,6 +851,7 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
     include: [
       {
         model: Post,
+        where: { eliminadorDNI: { [Sequelize.Op.is]: null } },
         include: [
           {
             model: Usuario,
@@ -881,6 +882,7 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
         required: false,
         include: {
           model: Post,
+          where: { eliminadorDNI: { [Sequelize.Op.is]: null } },
           include: [
             {
               model: Usuario,
@@ -944,6 +946,7 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     include: [
       {
         model: Post,
+        where: { eliminadorDNI: { [Sequelize.Op.is]: null } },
         include: [
           {
             model: Voto
@@ -967,6 +970,7 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         required: true,
         include: {
           model: Post,
+          where: { eliminadorDNI: { [Sequelize.Op.is]: null } },
           include: [
             {
               model: Usuario,
@@ -1004,7 +1008,7 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
           fecha_baja: null, // * Vigentes
         }
         , required: false
-        ,separate: true
+        , separate: true
       }
     ],
     attributes: {
@@ -1251,7 +1255,6 @@ Parametro.findAll().then((parametros) => {
     if (p.ID == 4) setReportaPost(p.valor);
   });
 });
-
 
 export {
   Parametro,

@@ -31,14 +31,14 @@ router.post("/:votadoID/valoracion", function (req, res) {
   // TODO Refactor: ver si es posible traer solo un si existe
   let IDvotado = req.params.votadoID;
 
-  Post.findByPk(IDvotado,{include:{model:Usuario,as:'duenio',attributes:['DNI']}})
+  Post.findByPk(IDvotado, { include: { model: Usuario, as: 'duenio', attributes: ['DNI'] } })
     .then((post) => {
       if (!post) {
         res.status(404).send(mensajeError404);
         return;
       }
 
-      if(post.duenio.DNI==req.session.usuario.DNI){
+      if (post.duenio.DNI == req.session.usuario.DNI) {
         res.status(400).send('No puede votar su propio contenido.');
         return;
       }
@@ -53,7 +53,7 @@ router.post("/:votadoID/valoracion", function (req, res) {
       }).then((voto) => {
         // TODO Refactor: !req.body.valoracion ??
         // TODO Docs: Comentar esta condición
-        if(!voto && req.body.valoracion == "null"){
+        if (!voto && req.body.valoracion == "null") {
           res.status(400).send(mensajeError400);
           return;
         }
@@ -62,12 +62,12 @@ router.post("/:votadoID/valoracion", function (req, res) {
 
         if (voto) {
           voto.valoracion = req.body.valoracion;
-          esperarA=voto.save();
+          esperarA = voto.save();
           //Notificación
         } else { // * si no exite el voto lo crea con lo que mandó
-            // if (req.body.valoracion) {
-            // }
-          esperarA=Promise.all([
+          // if (req.body.valoracion) {
+          // }
+          esperarA = Promise.all([
             Voto.create({
               valoracion: req.body.valoracion,
               votadoID: IDvotado,
@@ -80,7 +80,7 @@ router.post("/:votadoID/valoracion", function (req, res) {
           ])
         }
 
-        esperarA.then(()=>res.status(201).send("Voto registrado."))
+        esperarA.then(() => res.status(201).send("Voto registrado."))
       });
     })
     .catch((err) => {
@@ -236,6 +236,10 @@ router.patch('/:ID/restaurar', (req, res) => {
 
 
 router.get('/reporte', function (req, res) {
+  if (req.session.usuario.perfil.permiso.ID < 2) {
+    res.status(403).send(mensajeError403);
+    return;
+  }
   let pagina = req.query.pagina || 0;
   let PAGINACION = getPaginacion();
   ReportePost.findAndCountAll({
@@ -248,6 +252,10 @@ router.get('/reporte', function (req, res) {
         attributes: ['cuerpo', 'fecha'],
         required: true,
         as: 'reportado',
+        // TODO Refactor: DRY sobre las cuestiones de eliminar cosas
+        where:{
+          eliminadorDNI:null
+        },
         include: [
           {
             model: Usuario
@@ -312,6 +320,10 @@ router.get('/reporte', function (req, res) {
 })
 
 router.get("/borrados", function (req, res) {
+  if (req.session.usuario.perfil.permiso.ID < 2) {
+    res.status(403).send(mensajeError403);
+    return;
+  }
   Post.findAll({
     where: {
       eliminadorDNI: {
@@ -373,6 +385,10 @@ router.get("/borrados", function (req, res) {
 
 
 router.get("/masNegativos", function (req, res) {
+  if (req.session.usuario.perfil.permiso.ID < 3) {
+    res.status(403).send(mensajeError403);
+    return;
+  }
   Post.findAll({
     attributes: [[Sequelize.fn('SUM', Sequelize.col('valoracion')), 'valoracion'], 'cuerpo', 'ID'],
     include: [
@@ -435,6 +451,10 @@ router.get("/masNegativos", function (req, res) {
 
 
 router.get("/estadisticas", async function (req, res) {
+  if (req.session.usuario.perfil.permiso.ID < 2) {
+    res.status(403).send(mensajeError403);
+    return;
+  }
   //con promises en vez de await porque son muchas consultas y tarda mucho si no las hace en paralelo
   const obtenerEstadisticas = async () => {
     const estadisticas = [

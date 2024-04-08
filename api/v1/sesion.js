@@ -1,5 +1,6 @@
 import * as express from "express";
-import { Usuario, Perfil, Permiso, Carrera } from "./model.js"
+import { Sequelize } from "sequelize";
+import { Usuario, Perfil, Permiso, Carrera, Bloqueo } from "./model.js"
 
 import * as bcrypt from "bcrypt";
 
@@ -12,6 +13,13 @@ router.post("/", function (req, res) {
       include: Permiso,
     }, {
       model: Carrera
+    }, {
+      model: Bloqueo,
+      as: "bloqueosRecibidos",
+      where: {
+        fecha_desbloqueo: { [Sequelize.Op.is]: null }
+      },
+      required: false
     }]
   })
     .then((usu) => {
@@ -25,6 +33,10 @@ router.post("/", function (req, res) {
     })
     .then((coinciden) => {
       if (coinciden) {
+        if (usuario.bloqueosRecibidos.length > 0) {
+          res.status(402).send("Usuario bloqueado")
+          return;
+        }
         req.session.usuario = usuario;
         res.status(200).send();
         return;

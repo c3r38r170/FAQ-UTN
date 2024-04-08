@@ -190,7 +190,7 @@ router.get("/:DNI/respuestas", function (req, res) {
   }
 
   Respuesta.pagina({ pagina, DNI: req.params.DNI })
-    .then((posts) =>res.send(posts));
+    .then((posts) => res.send(posts));
 });
 
 router.post("/", (req, res) => {
@@ -328,19 +328,18 @@ router.post("/:DNI/reporte", function (req, res) {
       } else {
         // TODO Refactor: Usar Sequelize, usuario.addReporteUsuario(new ReporteUsuario({reportante: ... o como sea }))
         ReportesUsuario
-          .findOne({ where: { usuarioReportadoDNI: req.params.DNI } })
+          .findOne({ where: { reportadoDNI: req.params.DNI } })
           .then(re => {
             if (re) {
-              re.usuarioReportanteDNI = req.session.usuario.DNI;
+              re.reportanteDNI = req.session.usuario.DNI;
               re.createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
               return re.save();
             } else {
               // ?? ReportesUsuario.ReportesUsuario.
-              return ReportesUsuario.
-                ReportesUsuario.create({
-                  usuarioReportanteDNI: req.session.usuario.DNI,
-                  usuarioReportadoDNI: req.params.DNI,
-                });
+              return ReportesUsuario.create({
+                reportanteDNI: req.session.usuario.DNI,
+                reportadoDNI: req.params.DNI,
+              });
             }
           })
           .then(() => {
@@ -455,16 +454,19 @@ router.patch("/imagen", upload.single("image"), function (req, res) {
   res.status(200).send("Imagen Actualizada");
 });
 
-router.patch("/contrasenia", function (req, res) {
+router.patch("/contrasenia", async function (req, res) {
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
-      if (bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia)) {
-        usuario.contrasenia = req.body.contraseniaNueva;
-        req.session.usuario.contrasenia = req.body.contraseniaNueva;
-        usuario.save();
-        res.status(200).send("Datos actualizados exitosamente");
-        return;
-      }
+      bcrypt.compare(req.body.contraseniaAnterior, usuario.contrasenia).then(coinciden => {
+        if (coinciden) {
+          usuario.contrasenia = req.body.contraseniaNueva;
+          req.session.usuario.contrasenia = req.body.contraseniaNueva;
+          usuario.save();
+          res.status(200).send("Datos actualizados exitosamente");
+          return;
+        }
+      });
+
       res.status(402).send("Contraseña anterior no válida")
     })
     .catch((err) => {
@@ -475,13 +477,15 @@ router.patch("/contrasenia", function (req, res) {
 router.patch("/mail", function (req, res) {
   Usuario.findByPk(req.session.usuario.DNI)
     .then((usuario) => {
-      if (bcrypt.compare(req.body.contrasenia, usuario.contrasenia)) {
-        usuario.correo = req.body.correo;
-        req.session.usuario.correo = req.body.correo;
-        usuario.save();
-        res.status(200).send("Datos actualizados exitosamente");
-        return;
-      }
+      bcrypt.compare(req.body.contrasenia, usuario.contrasenia).then(coinciden => {
+        if (coinciden) {
+          usuario.correo = req.body.correo;
+          req.session.usuario.correo = req.body.correo;
+          usuario.save();
+          res.status(200).send("Datos actualizados exitosamente");
+          return;
+        }
+      });
       res.status(402).send("Contraseña anterior no válida")
     })
     .catch((err) => {
