@@ -13,7 +13,7 @@ tabla.iniciar();
 
 let modalElemento = gEt("modal-general");
 modalElemento.addEventListener("submit", () => {
-  modalElemento.classList.remove("is-active");
+    modalElemento.classList.remove("is-active");
 });
 
 
@@ -22,20 +22,20 @@ gEt('posts-borrados').onclick = (e) => {
     console.log(e.target);
     if (t.type != "button") {
         return;
-        }
+    }
     e.preventDefault();
     let postID = t.getAttribute('data-id');
     modal.titulo = "Restaurar Post";
-        modal.contenido = [
-            new ComponenteLiteral(
+    modal.contenido = [
+        new ComponenteLiteral(
             () =>
                 `<p class="has-text-centered">Vas a restaurar el post #${postID}</p><br/>`
-            ),
-            new Formulario('restaurarPost' + postID, '/api/post/' + postID + '/restaurar', [], (res) => { alert(res), location.reload() }, { textoEnviar: 'Restaurar', verbo: 'PATCH', clasesBoton: 'mx-auto is-link w-100' })        
+        ),
+        new Formulario('restaurarPost' + postID, '/api/post/' + postID + '/restaurar', [], (res) => { Swal.exito(res), location.reload() }, { textoEnviar: 'Restaurar', verbo: 'PATCH', clasesBoton: 'mx-auto is-link w-100' })
 
-        ];
-        modal.redibujar();
-        modalElemento.classList.add("is-active");
+    ];
+    modal.redibujar();
+    modalElemento.classList.add("is-active");
 
-    
+
 }
