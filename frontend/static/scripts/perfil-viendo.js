@@ -162,3 +162,39 @@ if (desbloqueado) {
     }
 
 }
+
+let reportado = document.getElementById("botonReportar");
+if (reportado) {
+
+    gEt("botonReportar").onclick = (e) => {
+        let boton = e.target;
+        if (boton.type != "button") {
+            return;
+        }
+
+        var usuarioDNI = boton.getAttribute("data-DNI");
+        modal.titulo = "Está seguro que desea reportar al usuario?";
+
+        modal.contenido = [
+            new Formulario(
+                "moderacion-usuario-bloquear",
+                "/api/usuario/" + usuarioDNI + "/reporte",
+                [
+                ],
+                (res) => { Swal.exito(`${res}`) },
+                {
+                    verbo: "POST",
+                    textoEnviar: "Reportar Usuario",
+                    clasesBoton: "is-link is-rounded mt-3",
+                    // alEnviar: () => (checkbox.disabled = true),
+                }
+            ),
+        ];
+
+        modal.redibujar();
+
+
+        modalElemento.classList.add("is-active");
+    }
+}
+

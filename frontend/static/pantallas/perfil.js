@@ -18,7 +18,13 @@ function crearPagina(ruta, usuario, usu, perfilBloqueado = false) {
             posibleMensajeUsuarioBloqueado = new ComponenteLiteral(() => ``)
         }
         posibleBotonModerar = new ComponenteLiteral(() => `<div class="contenedor-boton-bloqueo">${boton}</div> `)
-    } else {
+    } else if (usuario.usuario?.DNI != usu.DNI && usuario.usuario) {
+        let boton;
+        boton = `<button id="botonReportar" data-DNI="${usu.DNI}" type="button" class="button is-warning is-small is-rounded">Reportar</button>`
+        posibleMensajeUsuarioBloqueado = new ComponenteLiteral(() => ``)
+        posibleBotonModerar = new ComponenteLiteral(() => `<div class="contenedor-boton-bloqueo">${boton}</div> `)
+    }
+    else {
         posibleMensajeUsuarioBloqueado = new ComponenteLiteral(() => ``)
         posibleBotonModerar = new ComponenteLiteral(() => ``)
     };

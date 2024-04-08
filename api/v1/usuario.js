@@ -328,19 +328,18 @@ router.post("/:DNI/reporte", function (req, res) {
       } else {
         // TODO Refactor: Usar Sequelize, usuario.addReporteUsuario(new ReporteUsuario({reportante: ... o como sea }))
         ReportesUsuario
-          .findOne({ where: { usuarioReportadoDNI: req.params.DNI } })
+          .findOne({ where: { reportadoDNI: req.params.DNI } })
           .then(re => {
             if (re) {
-              re.usuarioReportanteDNI = req.session.usuario.DNI;
+              re.reportanteDNI = req.session.usuario.DNI;
               re.createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
               return re.save();
             } else {
               // ?? ReportesUsuario.ReportesUsuario.
-              return ReportesUsuario.
-                ReportesUsuario.create({
-                  usuarioReportanteDNI: req.session.usuario.DNI,
-                  usuarioReportadoDNI: req.params.DNI,
-                });
+              return ReportesUsuario.create({
+                reportanteDNI: req.session.usuario.DNI,
+                reportadoDNI: req.params.DNI,
+              });
             }
           })
           .then(() => {
