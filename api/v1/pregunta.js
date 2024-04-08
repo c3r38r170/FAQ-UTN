@@ -40,6 +40,9 @@ router.get("/", (req, res) => {
     });
 });
 
+function editarPregunta(req, res, respuestaIA = null) {
+}
+
 router.patch("/", function (req, res) {
   Pregunta.findByPk(req.body.ID, {
     include: [
@@ -61,60 +64,22 @@ router.patch("/", function (req, res) {
         } else {
           // TODO Refactor: DRY en este if
           let modera = getModera();
-          if (modera == 1) {
-            moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 50).then(
-              (respuesta) => {
-                let esperarA = []
-                let rechazaPost = getRechazaPost();
-                let reportaPost = getReportaPost();
-                if (respuesta.apropiado < rechazaPost) {
-                  res
-                    .status(400)
-                    .send("Texto rechazo por moderación automática. Razón: " + respuesta.motivo);
-                  return;
-                } else if (respuesta.apropiado < reportaPost) {
-                  //Crear reporte
-                  esperarA.push(ReportePost.create({
-                    tipoID: 1,
-                    reportadoID: pregunta.ID,
-                  }))
-
-                }
-                //si pasa el filtro
-                pregunta.post.cuerpo = req.body.cuerpo;
-                pregunta.titulo = req.body.titulo;
-                const etiquetasIDs = Array.isArray(req.body.etiquetas) ? req.body.etiquetas : [req.body.etiquetas];
-                // !no se porque pero asi anda pregunta.save() no
-                esperarA.push(
-                  pregunta.post.save()
-                    .then(() =>
-                      pregunta.setEtiquetas([])
-                    )
-                    .then(pre => pre.save())
-                    .then(() =>
-                      Promise.all(etiquetasIDs.map(
-                        (ID) => EtiquetasPregunta.create({ etiquetumID: ID, preguntumID: pregunta.post.ID })
-                      ))
-                    )
-                  // .then(ep => pregunta.setEtiquetas(req.body.etiquetas.map(
-                  //   (ID) =>({ preguntumID : pregunta.post.ID , etiquetumID: ID })
-                  // )))
-                )
-                Promise.all(esperarA)
-                  .then(() =>
-                    res.status(200).send(req.body.ID + "")
-                  )
-
-              }
-            );
-          } else {
-            let esperarA = []
+          let esperarA = []
+          const editarPregunta = (motivo = null) => {
             pregunta.post.cuerpo = req.body.cuerpo;
             pregunta.titulo = req.body.titulo;
 
-
             const etiquetas = Array.isArray(req.body.etiquetas) ? req.body.etiquetas : [req.body.etiquetas];
             // !no se porque pero asi anda pregunta.save() no
+            //TODO Refactor: Usar setEtiquetas.  etiquetas vienen los id en array
+            // pregunta.setEtiquetas(
+            //   req.body.etiquetasIDs.map(
+            //     (ID) => new EtiquetasPregunta({ etiquetumID: ID })
+            //   )
+            // );
+            // .then(ep => pregunta.setEtiquetas(req.body.etiquetas.map(
+            //   (ID) =>({ preguntumID : pregunta.post.ID , etiquetumID: ID })
+            // )))
             esperarA.push(
               pregunta.post.save()
                 .then(() =>
@@ -126,24 +91,40 @@ router.patch("/", function (req, res) {
                     (ID) => EtiquetasPregunta.create({ etiquetumID: ID, preguntumID: pregunta.post.ID })
                   ))
                 )
-              // .then(ep => pregunta.setEtiquetas(req.body.etiquetas.map(
-              //   (ID) =>({ preguntumID : pregunta.post.ID , etiquetumID: ID })
-              // )))
             )
             Promise.all(esperarA)
               .then(() =>
-                res.status(200).send(req.body.ID + "")
+                res.status(200).json({ ID: req.body.ID, motivo })
               )
-            //etiquetas vienen los id en array
-            // pregunta.setEtiquetas(
-            //   req.body.etiquetasIDs.map(
-            //     (ID) => new EtiquetasPregunta({ etiquetumID: ID })
-            //   )
-            // );
-            //no se porque pero asi anda pregunta.save() no
-            // pregunta.post.save();
-            // res.status(200).send("Pregunta actualizada exitosamente");
           }
+
+          if (modera == 1) {
+            moderarWithRetry(req.body.titulo + " " + req.body.cuerpo, 50).then(
+              (respuesta) => {
+                let rechazaPost = getRechazaPost();
+                if (respuesta.apropiado < rechazaPost) {
+                  res
+                    .status(400)
+                    .send("Texto rechazo por moderación automática. Razón: " + respuesta.motivo);
+                  return;
+                }
+
+                if (respuesta.apropiado < getReportaPost()) {
+                  // * Crear reporte
+                  esperarA.push(ReportePost.create({
+                    tipoID: 1,
+                    reportadoID: req.body.ID
+                  }))
+
+                  editarPregunta(respuesta.motivo);
+                  return;
+                }
+
+                // TODO Refactor: DRY. No se si es posible igual, dejar comentario en todo caso.
+                editarPregunta();
+              }
+            );
+          } else editarPregunta();
         }
       }
     })
@@ -263,9 +244,10 @@ router.put('/:ID', function (req, res) {
       {
         model: Post, include: [
           { model: Usuario, as: 'eliminador' }
-          , { model: ReportePost, include: { model: TipoReporte, as: 'tipo', where: { ID: 2 }, attributes: [] } } // ! 2 es pregunta repetida
+          // ,{model:ReportePost,include:{model:TipoReporte, as:'tipo',attributes:[]}}
         ]
       },
+      { model: SuscripcionesPregunta, as: 'suscripciones' },
       { model: Respuesta, as: 'respuestas', include: Post },
       // TODO Refactor: Algún ENUM de tipos de reportes
     ]
@@ -278,7 +260,8 @@ router.put('/:ID', function (req, res) {
       }
 
       // TODO Refactor: Ver si es posible simplificar
-      let esperarA = [], preguntaReemplazoID = req.body.duplicadaID;
+      let esperarA = []
+        , preguntaReemplazoID = req.body.duplicadaID;
 
       if (pre.respuestas.length) {
         esperarA.push(...pre.respuestas.map(resp => resp.setPregunta(preguntaReemplazoID).then(r => r.save())));
@@ -286,7 +269,11 @@ router.put('/:ID', function (req, res) {
 
       esperarA.push(pre.post.setEliminador(usuarioActual.DNI).then(p => p.save()));
 
-      esperarA.push(pre.post.getReportePosts().then(reportes => Promise.all(reportes.map(reporte => reporte.destroy()))));
+      // TODO Feature: Test this.
+      esperarA.push(pre.getSuscripciones().then(suscripciones => Promise.all(suscripciones.map(suscripcion => suscripcion.setPregunta(preguntaReemplazoID).then(s => s.save())))));
+
+      // TODO Feature: ¿Pasar reportes de otras índoles?
+      // esperarA.push(pre.post.getReportePosts().then(reportes=>Promise.all(reportes.map(reporte => reporte.tipoID==2?/* ! 2 es pregunta repetida */reporte.destroy()))));
 
       Promise.all(esperarA).then(() => {
         res.send();

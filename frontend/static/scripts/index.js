@@ -8,12 +8,10 @@ inicializarListas();
 
 //Al clickear etiqueta la agrega a la busqueda
 
-
 if (window.location.href.includes("searchInput") || window.location.href.includes("etiquetas")) {
 
     document.addEventListener('click', function (event) {
         // Evitar el comportamiento predeterminado del clic
-
 
         if (event.target.className == "tag") {
             event.preventDefault();

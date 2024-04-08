@@ -252,6 +252,10 @@ router.get('/reporte', function (req, res) {
         attributes: ['cuerpo', 'fecha'],
         required: true,
         as: 'reportado',
+        // TODO Refactor: DRY sobre las cuestiones de eliminar cosas
+        where:{
+          eliminadorDNI:null
+        },
         include: [
           {
             model: Usuario
