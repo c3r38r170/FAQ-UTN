@@ -117,7 +117,7 @@ router.patch("/", function (req, res) {
           const editarRespuesta = (motivo=null) => {
             respuesta.post.cuerpo = req.body.cuerpo;
             respuesta.post.save();
-            res.status(200).send(motivo);
+            res.status(200).json({ID:req.body.IDPregunta,motivo});
           }
 
           let modera = getModera();
@@ -129,6 +129,7 @@ router.patch("/", function (req, res) {
                 res.status(400).send("Texto rechazo por moderación automática. Razón: " + respuesta.motivo);
                 return;
               }
+
               if (resp.apropiado < reportaPost) {
                 // * Crear reporte
                 ReportePost.create({
@@ -138,10 +139,13 @@ router.patch("/", function (req, res) {
 
                 editarRespuesta(resp.motivo);
               }
+              
+              editarRespuesta();
             });
+          }else{
+            editarRespuesta();
           }
 
-          editarRespuesta();
         }
       }
     })

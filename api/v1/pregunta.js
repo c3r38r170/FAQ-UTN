@@ -94,7 +94,7 @@ router.patch("/", function (req, res) {
             )
             Promise.all(esperarA)
               .then(() =>
-                res.status(200).send(motivo)
+                res.status(200).json({ID:req.body.ID ,motivo})
               )
           }
 
@@ -119,11 +119,12 @@ router.patch("/", function (req, res) {
                   editarPregunta(respuesta.motivo);
                   return;
                 }
+
+                // TODO Refactor: DRY. No se si es posible igual, dejar comentario en todo caso.
+                editarPregunta();
               }
             );
-          }
-
-          editarPregunta();
+          }else editarPregunta();
         }
       }
     })

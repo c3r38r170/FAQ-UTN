@@ -31,7 +31,8 @@ async function moderar(post) {
   try {
     const response = await fetch(`${base_url}/chat/completions`, requestOptions);
     const responseData = await response.json();
-    return JSON.parse(responseData.choices[0].message.content);
+    const contenido=responseData.choices[0].message.content;
+    return JSON.parse(contenido);
   } catch (error) {
     throw error;
   }
