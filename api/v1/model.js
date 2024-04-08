@@ -851,6 +851,7 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
     include: [
       {
         model: Post,
+        where: { eliminadorDNI: { [Sequelize.Op.is]: null } },
         include: [
           {
             model: Usuario,
@@ -881,6 +882,7 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
         required: false,
         include: {
           model: Post,
+          where: { eliminadorDNI: { [Sequelize.Op.is]: null } },
           include: [
             {
               model: Usuario,
@@ -944,6 +946,7 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
     include: [
       {
         model: Post,
+        where: { eliminadorDNI: { [Sequelize.Op.is]: null } },
         include: [
           {
             model: Voto
@@ -967,6 +970,7 @@ Respuesta.pagina = ({ pagina = 0, DNI } = {}) => {
         required: true,
         include: {
           model: Post,
+          where: { eliminadorDNI: { [Sequelize.Op.is]: null } },
           include: [
             {
               model: Usuario,
