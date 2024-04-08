@@ -262,8 +262,9 @@ router.put('/:ID', function (req, res) {
     include: [
       { model: Post, include:[
         {model: Usuario, as: 'eliminador' }
-        ,{model:ReportePost,include:{model:TipoReporte, as:'tipo',where:{ID:2}, attributes:[]}} // ! 2 es pregunta repetida
+        // ,{model:ReportePost,include:{model:TipoReporte, as:'tipo',attributes:[]}}
       ] },
+      {model:SuscripcionesPregunta,as:'suscripciones'},
       { model: Respuesta, as: 'respuestas', include: Post },
       // TODO Refactor: Algún ENUM de tipos de reportes
     ]
@@ -276,16 +277,21 @@ router.put('/:ID', function (req, res) {
       }
 
       // TODO Refactor: Ver si es posible simplificar
-      let esperarA = [], preguntaReemplazoID = req.body.duplicadaID;
+      let esperarA = []
+        , preguntaReemplazoID = req.body.duplicadaID;
 
       if (pre.respuestas.length) {
         esperarA.push(...pre.respuestas.map(resp => resp.setPregunta(preguntaReemplazoID).then(r => r.save())));
       }
       
       esperarA.push(pre.post.setEliminador(usuarioActual.DNI).then(p => p.save()));
-      
-      esperarA.push(pre.post.getReportePosts().then(reportes=>Promise.all(reportes.map(reporte => reporte.destroy()))));
 
+      // TODO Feature: Test this.
+      esperarA.push(pre.getSuscripciones().then(suscripciones=>Promise.all(suscripciones.map(suscripcion => suscripcion.setPregunta(preguntaReemplazoID).then(s => s.save())))));
+
+      // TODO Feature: ¿Pasar reportes de otras índoles?
+      // esperarA.push(pre.post.getReportePosts().then(reportes=>Promise.all(reportes.map(reporte => reporte.tipoID==2?/* ! 2 es pregunta repetida */reporte.destroy()))));
+      
       Promise.all(esperarA).then(() => {
         res.send();
       })
