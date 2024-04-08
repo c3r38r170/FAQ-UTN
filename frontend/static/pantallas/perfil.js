@@ -8,19 +8,19 @@ function crearPagina(ruta, usuario, usu, perfilBloqueado = false) {
     let modal = new Modal('General', 'modal-general');
     let posibleBotonModerar;
     let posibleMensajeUsuarioBloqueado;
-    if(usuario.usuario?.perfil.permiso.ID > 1){
+    if (usuario.usuario?.perfil.permiso.ID > 1 && usuario.usuario?.DNI != usu.DNI) {
         let boton;
-        if(perfilBloqueado){
+        if (perfilBloqueado) {
             boton = `<button id="botonDesbloquear" data-DNI="${usu.DNI}" type="button" class="button is-warning is-light is-small is-rounded">Desbloquear</button>`
-            posibleMensajeUsuarioBloqueado = new MensajeInterfaz(MensajeInterfaz.GRIS,'Este usuario se encuentra bloqueado')
-        }else{
+            posibleMensajeUsuarioBloqueado = new MensajeInterfaz(MensajeInterfaz.GRIS, 'Este usuario se encuentra bloqueado')
+        } else {
             boton = `<button id="botonBloquear" data-DNI="${usu.DNI}" type="button" class="button is-warning is-small is-rounded">Bloquear</button>`
-            posibleMensajeUsuarioBloqueado = new ComponenteLiteral(()=> ``)
+            posibleMensajeUsuarioBloqueado = new ComponenteLiteral(() => ``)
         }
-        posibleBotonModerar = new ComponenteLiteral(()=> `<div class="contenedor-boton-bloqueo">${boton}</div> `)
-    }else{
-        posibleMensajeUsuarioBloqueado = new ComponenteLiteral(()=> ``)
-        posibleBotonModerar = new ComponenteLiteral(()=> ``)
+        posibleBotonModerar = new ComponenteLiteral(() => `<div class="contenedor-boton-bloqueo">${boton}</div> `)
+    } else {
+        posibleMensajeUsuarioBloqueado = new ComponenteLiteral(() => ``)
+        posibleBotonModerar = new ComponenteLiteral(() => ``)
     };
 
     return new Pagina({

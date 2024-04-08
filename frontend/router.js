@@ -483,12 +483,6 @@ router.get("/perfil/:DNI?", async (req, res) => {
   let paginaError = SinPermisos(req.session, 'Algo ha malido sal. <a href="/">Volver al inicio</a>')
   let usuarioActual;
   if (req.params.DNI) {
-    if (req.session.usuario && req.session.usuario.DNI == req.params.DNI) {
-      // * perfil propio
-      let pagina = PaginaPerfilPropioInfo('/perfil' /* ! Sacamos el DNI para que cargue el script correcto. */, req.session);
-      mandarPagina(pagina);
-      return;
-    }
 
     BloqueoDAO.findAll({
       where: {
