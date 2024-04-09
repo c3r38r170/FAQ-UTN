@@ -566,18 +566,20 @@ footer#footer{
 	}
 
 	ul{
-		display: grid;
-		gap: .5rem;
-		grid-template-columns: 1fr 1fr;
-
+		font-size: 0.9rem;
+		li{
+			margin-bottom: 0.5rem;
+		}
 		a{
 			color: white;
 		}
 	}
 
 	#footer-enlaces-externos{
+		display: flex;
 		margin: auto;
 		text-align: center;
+		flex-direction: column;
 
 		a{
 			margin: .5rem;

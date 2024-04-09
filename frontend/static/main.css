@@ -493,16 +493,19 @@ footer#footer div img {
   width: 80px;
 }
 footer#footer ul {
-  display: grid;
-  gap: 0.5rem;
-  grid-template-columns: 1fr 1fr;
+  font-size: 0.9rem;
+}
+footer#footer ul li {
+  margin-bottom: 0.5rem;
 }
 footer#footer ul a {
   color: white;
 }
 footer#footer #footer-enlaces-externos {
+  display: flex;
   margin: auto;
   text-align: center;
+  flex-direction: column;
 }
 footer#footer #footer-enlaces-externos a {
   margin: 0.5rem;
