@@ -59,6 +59,7 @@ router.get("/", function (req, res) {
     attributes: ['ID', 'descripcion', 'activado'],
     limit: PAGINACION.resultadosPorPagina,
     offset: (+pagina) * PAGINACION.resultadosPorPagina,
+    order: [[Categoria, 'ID', 'ASC']]
   })
     .then((etiquetas) => {
       res.setHeader('untfaq-cantidad-paginas', Math.ceil(etiquetas.count / PAGINACION.resultadosPorPagina));
