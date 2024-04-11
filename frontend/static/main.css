@@ -827,4 +827,40 @@ tbody tr:nth-child(2n+1) td:first-child {
   display: flex;
   margin: 1rem 3rem;
   justify-content: right;
+}
+
+.fieldset-paginacion {
+  width: 100%;
+  margin: 1rem 0 0;
+  align-items: center;
+  padding: 10px;
+  background: #f2f2f2;
+}
+.fieldset-paginacion button.boton-paginacion {
+  border-radius: 100%;
+  border: none;
+  padding: 10px 12px;
+  background-color: white;
+  color: #485fc7;
+}
+.fieldset-paginacion button.boton-paginacion:disabled {
+  color: #f2f2f2;
+  cursor: no-drop;
+}
+.fieldset-paginacion button.boton-paginacion:disabled:hover {
+  cursor: default;
+  background-color: white;
+}
+.fieldset-paginacion button.boton-paginacion:hover {
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+.fieldset-paginacion .accion-boton {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  color: #485fc7;
+  font-weight: 700;
+}
+.fieldset-paginacion .paginas {
+  color: gray;
 }/*# sourceMappingURL=main.css.map */

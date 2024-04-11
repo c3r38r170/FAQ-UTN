@@ -33,6 +33,7 @@ class Tabla {
 		// TODO	Feature: Conseguir la cantidad de páginas. Quizá con otra consulta...
 		let tabla = document.getElementById(this.#id);
 		let fieldset = tabla.querySelector('tfoot fieldset');
+		fieldset.className = 'fieldset-paginacion';
 
 		fetch(this.#endpointPaginacion, {
 			credentials: 'include',
@@ -111,9 +112,11 @@ class Tabla {
 
 	generarElementosPaginacion() {
 		// TODO Refactor: Hacer new Boton() (y elemento texto?)
-		return `<button class="fa-solid fa-caret-left" name=accion value=-1 ` + (this.pagina == 1 ? ' disabled' : '') + `></button>
-		<span>${this.pagina} / ${this.cantidadDePaginas}</span>
-		<button class="fa-solid fa-caret-right" name=accion value=1 `+ (this.pagina == this.cantidadDePaginas ? ' disabled' : '') + `></button>`;
+		return `<button class="boton-paginacion fa-solid fa-caret-left" name=accion value=-1 ` + (this.pagina == 1 ? ' disabled' : '') + `></button>
+		<div class="accion-boton">Anterior</div>
+		<span class="paginas">Página ${this.pagina} de ${this.cantidadDePaginas}</span>
+		<div class="accion-boton">Siguiente</div>
+		<button class="boton-paginacion fa-solid fa-caret-right" name=accion value=1 `+ (this.pagina == this.cantidadDePaginas ? ' disabled' : '') + `></button>`;
 	}
 
 	render() {
