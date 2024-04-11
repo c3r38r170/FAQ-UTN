@@ -887,6 +887,7 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
             {
               model: Usuario,
               as: "duenio",
+              where: { DNI: DNI },
               include: {
                 model: Perfil,
               },
