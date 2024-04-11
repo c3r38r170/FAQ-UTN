@@ -11,6 +11,12 @@ modalElemento.addEventListener("submit", () => {
     modalElemento.classList.remove("is-active");
 });
 
+var formulario = document.getElementById('nueva-respuesta');
+var mensaje = document.createElement('div');
+mensaje.className = 'mensaje-respuesta';
+mensaje.textContent = 'Ten en cuenta que todos los usuarios de la plataforma podrán ver tu respuesta';
+formulario.querySelector('textarea').insertAdjacentElement('beforebegin', mensaje);
+
 
 let noBorrado = document.getElementById("botonBorrar");
 if (noBorrado) {

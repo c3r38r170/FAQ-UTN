@@ -508,6 +508,8 @@ footer#footer #footer-enlaces-externos {
   flex-direction: column;
 }
 footer#footer #footer-enlaces-externos a {
+  font-size: 0.9rem;
+  font-weight: 300;
   margin: 0.5rem;
   display: inline-block;
   text-decoration: underline;
@@ -748,8 +750,9 @@ form > fieldset {
   text-align: center;
 }
 
-.ml-3rem {
+.m-3rem {
   margin-left: 3rem;
+  margin-right: 3rem;
 }
 
 .olvide-contrasenia {

@@ -101,7 +101,7 @@ class Pagina {
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
-				${new Titulo('h1', 4, this.titulo, 'ml-3rem', 'titulo-principal').render()}
+				${new Titulo('h1', 4, this.titulo, 'm-3rem', 'titulo-principal').render()}
 				${this.partes ? this.partes.map((p) => p.render()).join("") : ''}
 				
 			</div>

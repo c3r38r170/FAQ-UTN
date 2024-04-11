@@ -12,7 +12,7 @@ function crearPagina(ruta, sesion){
             new ChipUsuario(sesion.usuario, true, true),
             new Boton({
               titulo: "Cambiar Contraseña",
-              classes: "button is-link is-small is-rounded botonAgregar ml-3rem my-5",
+              classes: "button is-link is-small is-rounded botonAgregar m-3rem my-5",
               dataTarget: "modal-cambiar-contraseña",
               type: "button",
               id: "botonCambiarContraseña",

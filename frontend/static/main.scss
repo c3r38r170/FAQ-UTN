@@ -582,6 +582,8 @@ footer#footer{
 		flex-direction: column;
 
 		a{
+			font-size: 0.9rem;
+			font-weight: 300;
 			margin: .5rem;
 			display: inline-block;
 			text-decoration: underline;
@@ -845,8 +847,9 @@ form > fieldset{
 .notification{
 	text-align: center;
 }
-.ml-3rem{
+.m-3rem{
 	margin-left: 3rem;
+	margin-right: 3rem;
 }
 .olvide-contrasenia{
 
