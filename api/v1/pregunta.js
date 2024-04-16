@@ -394,6 +394,7 @@ router.get("/masVotadas", function (req, res) {
       {
         model: Post,
         where: { eliminadorDNI: null },
+        // TODO Refactor: ver si no hace falta el required:true
         include: [
           {
             model: Voto,

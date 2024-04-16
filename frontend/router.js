@@ -67,7 +67,7 @@ router.get("/", (req, res) => {
   Promise.all([
     // * Acá sí pedimos antes de mandar para que cargué más rápido y se sienta mejor.
     PreguntaDAO.pagina(parametros)
-    , Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas' } })
+    , Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas', where:{activado:true} }, where:{activado:true} })
   ])
     .then(([preguntas, categorias]) => {
       let pagina = PaginaInicio(req.session, queryString, categorias);
@@ -91,7 +91,16 @@ router.get("/pregunta/:id?", async (req, res) => {
             {
               model: UsuarioDAO,
               as: 'duenio',
-              include: PerfilDAO
+              include: [
+                PerfilDAO
+                ,{
+                  model:BloqueoDAO,
+                  as: "bloqueosRecibidos",
+                  required:false,
+                  separate:true,
+                  where:{fecha_desbloqueo:null}
+                }
+              ],
             }
             , {
               model: VotoDAO
@@ -114,7 +123,16 @@ router.get("/pregunta/:id?", async (req, res) => {
                 {
                   model: UsuarioDAO,
                   as: 'duenio',
-                  include: PerfilDAO
+                  include:  [
+                    PerfilDAO
+                    ,{
+                      model:BloqueoDAO,
+                      as: "bloqueosRecibidos",
+                      required:false,
+                      separate:true,
+                      where:{fecha_desbloqueo:null}
+                    }
+                  ],
                 },
                 {
                   model: VotoDAO,
@@ -233,7 +251,8 @@ router.get("/pregunta/:id?", async (req, res) => {
       }
 
       // * Nueva pregunta.
-      Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas' } })
+      // TODO Refactor: DRY de esta selección where activado true de Categorias y Etiquetas.
+      Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas', where:{activado:true} }, where:{activado:true} })
         .then(categorias => {
           let pagina = PantallaNuevaPregunta(req.path, sesion, categorias);
           res.send(pagina.render());
@@ -381,11 +400,13 @@ router.get("/pregunta/:id/editar", (req, res) => {
         as: 'etiquetas',
         include: {
           model: EtiquetaDAO,
-          include: { model: Categoria, as: "categoria" },
+          include: { model: Categoria, as: "categoria" ,where:{activado:true},required:true },
+          where:{activado:true}
+          ,required:true
         }
       }
     ];
-    Promise.all([PreguntaDAO.findByPk(req.params.id, { include }), Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas' } })])
+    Promise.all([PreguntaDAO.findByPk(req.params.id, { include }), Categoria.findAll({ include: { model: EtiquetaDAO, as: 'etiquetas' ,where:{activado:true},required:true} ,where:{activado:true}})])
       .then(([pre, categorias]) => {
         // * Editar pregunta.
         let pagina = PantallaEditarPregunta(req.path, req.session, pre, categorias);
@@ -418,6 +439,7 @@ router.get("/respuesta/:id/editar", (req, res) => {
         as: 'post',
         where: {
           duenioDNI: req.session.usuario.DNI
+          ,eliminadorDNI:null
         }
       },
       {
@@ -426,25 +448,43 @@ router.get("/respuesta/:id/editar", (req, res) => {
         include: {
           model: PostDAO,
           as: 'post',
+          where:{eliminadorDNI:null},
           include: {
             model: UsuarioDAO,
             as: 'duenio',
-            include: {
-              model: PerfilDAO,
-            }
+            include: [
+              {
+                model: PerfilDAO,
+              }
+              // TODO DRY: Esto está en varios lugares.
+              ,{
+                model:BloqueoDAO,
+                as: "bloqueosRecibidos",
+                required:false,
+                separate:true,
+                where:{fecha_desbloqueo:null}
+                ,attributes:['ID'] // * No necesitamos nada mas que saber si está bloqueado.
+              }
+            ]
           }
         }
       }
     ];
+
     RespuestaDAO.findByPk(req.params.id, {
-      raw: true,
-      nest: true,
+      // ! raw y nest evitaban que se mostrara bien la fecha, y creo que se perdían algunas cosas más.
       include
     })
       .then((respuesta) => {
-        let pagina = PantallaEditarRespuesta(req.path, req.session, respuesta);
-        pagina.partes.unshift(new Pregunta(respuesta.pregunta, pagina.partes[0], req.session.usuario));
-        res.send(pagina.render());
+        if(!respuesta) {
+          res.send(SinPermisos(usu, "No puede editar esta respuesta, ha sido eliminada.").render());
+        }else if(!respuesta.pregunta){
+          res.send(SinPermisos(usu, "No puede editar esta respuesta, la pregunta ha sido eliminada y ya no es más visible.").render());
+        }else{
+          let pagina = PantallaEditarRespuesta(req.path, req.session, respuesta);
+          pagina.partes.unshift(new Pregunta(respuesta.pregunta, pagina.partes[0], req.session.usuario));
+          res.send(pagina.render());
+        }
       }).catch((error) => {
         console.error('Error:', error);
         res.status(409).send('Error al buscar la respuesta');

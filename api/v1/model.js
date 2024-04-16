@@ -596,6 +596,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
               , separate: true
               , include: { model: Usuario, as: 'votante' }
             }
+            // TODO Refactor: 2 Usuario???
             , {
               model: Usuario
               , as: 'duenio'
@@ -796,10 +797,21 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
         , {
           model: Usuario
           , as: 'duenio'
-          , include: {
-            model: Perfil
-            , attributes: ['ID', 'descripcion', 'color']
-          }
+          , include: [
+            {
+              model: Perfil
+              , attributes: ['ID', 'descripcion', 'color']
+            }
+            // TODO DRY: Esto está en varios lugares.
+            ,{
+              model:Bloqueo,
+              as: "bloqueosRecibidos",
+              required:false,
+              separate:true,
+              where:{fecha_desbloqueo:null}
+              ,attributes:['ID'] // * No necesitamos nada mas que saber si está bloqueado.
+            }
+          ]
           , attributes: ['DNI', 'nombre']
         }
       ];
@@ -847,19 +859,23 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
 
 // TODO Refactor: duenioDNI
 Post.pagina = ({ pagina = 0, DNI } = {}) => {
+  // TODO Refactor: Debería usarse Post.findAll ... Ver ejemplo en Notificaciones.
   return Pregunta.findAll({
     include: [
       {
         model: Post,
         where: { eliminadorDNI: { [Sequelize.Op.is]: null } },
         include: [
-          {
+          /* TODO Refactor: Esto estaba 2 veces, ver si hacía falta??{
             model: Usuario,
             as: "duenio",
-            include: {
-              model: Perfil,
-            },
-          },
+            include: [
+              {
+                model: Perfil
+              }
+              
+            ],
+          }, */
           {
             model: Voto
             , separate: true
@@ -868,10 +884,21 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
           , {
             model: Usuario
             , as: 'duenio'
-            , include: {
-              model: Perfil
-              , attributes: ['ID', 'descripcion', 'color']
-            }
+            , include: [
+              {
+                model: Perfil
+                , attributes: ['ID', 'descripcion', 'color']
+              }
+              // TODO Refactor: DRY: Esto está en varios lugares.
+              ,{
+                model:Bloqueo,
+                as: "bloqueosRecibidos",
+                required:false,
+                separate:true,
+                where:{fecha_desbloqueo:null}
+                ,attributes:['ID'] // * No necesitamos nada mas que saber si está bloqueado.
+              }
+            ]
             , attributes: ['DNI', 'nombre']
           }
         ],
@@ -882,18 +909,30 @@ Post.pagina = ({ pagina = 0, DNI } = {}) => {
         required: false,
         include: {
           model: Post,
-          where: { eliminadorDNI: { [Sequelize.Op.is]: null } },
+          where: { eliminadorDNI: null },
           include: [
             {
               model: Usuario,
               as: "duenio",
-              include: {
-                model: Perfil,
-              },
+              include: [
+                {
+                  model: Perfil,
+                }
+                // TODO Refactor: DRY: Esto está en varios lugares.
+                ,{
+                  model:Bloqueo,
+                  as: "bloqueosRecibidos",
+                  required:false,
+                  separate:true,
+                  where:{fecha_desbloqueo:null} // * Todavía bloqueado, un bloqueo vigente. No debería haber más de uno al mismo tiempo.
+                  ,attributes:['ID'] // * No necesitamos nada mas que saber si está bloqueado.
+                }
+              ]
             },
             {
               model: Voto,
               separate: true,
+              // TODO Refactor: Hace falta todos los votantes??
               include: { model: Usuario, as: "votante" },
             },
           ],

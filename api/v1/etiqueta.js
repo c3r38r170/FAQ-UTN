@@ -29,6 +29,7 @@ router.post("/", function (req, res) {
 
 // TODO Refactor: cambiar este endpoint a categoría. Hacer que categoría acepte un parámetro de con o sin etiquetas.
 router.get("/", function (req, res) {
+  // TODO Security: Este es para los administradores.
 
   // TODO Refactor: Ver si el estandar de REST permite enviar colecciones separadas en casos como este, donde la redundancia es aproximadamente el 50% de la carga. O si hay que hacer endpoint de categorias...
   // TODO Refactor: Quizá directamente pedir categorias ¯\_(ツ)_/¯

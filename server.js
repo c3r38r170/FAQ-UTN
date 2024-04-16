@@ -32,6 +32,7 @@ app.use(cors({
 
 
 app.use((req, res, next) => {
+	// TODO Security: Chequear constantemente que el usuario no haya sido bloqueado
 	const userRegex = /^\/api\/usuario\/\d+\/(foto|preguntas|posts|respuestas|contrasenia)$/;
 	// * Esta exp. regular admite las /api/usuario/:DNI/... --> foto, preguntas, posts, respuestas o contrasenia
 
