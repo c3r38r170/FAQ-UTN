@@ -118,6 +118,7 @@ router.patch("/:id", async (req, res) => {
   }
 });
 
+// TODO Refactor: Usar `then`s en el post y delete de :etiquetaID/suscripcion
 router.post("/:etiquetaID/suscripcion", function (req, res) {
   let IDetiqueta = req.params.etiquetaID;
 
@@ -131,23 +132,19 @@ router.post("/:etiquetaID/suscripcion", function (req, res) {
           where: {
             etiquetaID: IDetiqueta,
             suscriptoDNI: req.session.usuario.DNI,
-            fecha_baja: {
-              [Sequelize.Op.is]: null,
-            },
+            fecha_baja: null,
           },
           plain: true,
         })
           .then((sus) => {
+            let codigo=201;
             if (!sus) {
               SuscripcionesEtiqueta.create({
                 suscriptoDNI: req.session.usuario.DNI,
                 etiquetaID: IDetiqueta,
               }).then((s) => s.save());
-              res.status(201).send(s);
-              return;
-            } else {
-              res.status(401).send(mensajeError401);
-            }
+            }else codigo=204;
+            res.status(codigo).send(IDetiqueta);
           })
           .catch((err) => {
             res.status(500).send(err.message);
@@ -160,7 +157,6 @@ router.post("/:etiquetaID/suscripcion", function (req, res) {
 });
 
 router.delete("/:etiquetaID/suscripcion", function (req, res) {
-
   let IDetiqueta = req.params.etiquetaID;
 
   Etiqueta.findByPk(IDetiqueta)
@@ -180,14 +176,12 @@ router.delete("/:etiquetaID/suscripcion", function (req, res) {
           plain: true,
         })
           .then((sus) => {
-            if (!sus) {
-              res.status(401).send(mensajeError401);
-              return;
-            } else {
+            let codigo=200;
+            if (sus) {
               sus.fecha_baja = new Date().toISOString().split("T")[0];
               sus.save();
-              res.status(201).send("Suscripción cancelada");
-            }
+            }else codigo=204;
+            res.status(codigo).send(''+IDetiqueta);
           })
           .catch((err) => {
             res.status(500).send(err.message);

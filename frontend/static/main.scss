@@ -506,6 +506,10 @@ div.notificacion{
 	gap: 1rem;
 	clear: both;
 
+	.tag,.tags{
+		margin-bottom: 0 !important;
+	}
+
 	.tag{
 		line-height: 1.6;
 		color: gray;
@@ -854,6 +858,11 @@ form > fieldset{
 .boton-carga{
 	img{
 		height:100%;
+		object-fit: contain; // * Para cuando es demasiado chico, como en el boton de suscribir de etiquetas.
+	}
+	&::before{
+		// * Sobreescribe clases de íconos. Como las del boton de suscribir de etiquetas.
+		content: '' !important;
 	}
 	& + .button{
 		display: none;

@@ -532,6 +532,7 @@ Fuente: https://stackoverflow.com/questions/18838433/sequelize-find-based-on-ass
 
 Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usuarioActual } = {}) => {
   // TODO Refactor: DRY en los include.
+  // * Las etiquetas desativadas no se quitan de las preguntas viejas.
   /*
   1) Inicio: Pregunta completas, ordenada por más recientes
     Esto es la funcion `.pagina()`.
@@ -581,6 +582,33 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
     pagina: Paginación, paralelo a cualquier conjunto de las superiores
   }
 */
+  const INCLUDE_ETIQUETAS={
+    model: EtiquetasPregunta,
+    required: true,
+    as: "etiquetas",
+    include: {
+      model: Etiqueta,
+      include:[
+        {
+          model: Categoria,
+          as: "categoria",
+        }
+      ],
+    },
+    separate: true
+  };
+
+  if(usuarioActual){
+    INCLUDE_ETIQUETAS.include.include.push({
+      model:SuscripcionesEtiqueta
+      ,as:'suscripciones'
+      ,separate: true
+      ,where:{
+        suscriptoDNI:usuarioActual.DNI,
+        fecha_baja:null
+      }
+    });
+  }
 
   if (duenioDNI) { // * Esto es para los perfiles.
     // ! Esto no considera ningún filtro.
@@ -621,18 +649,9 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
           ],
         },
         {
-          model: EtiquetasPregunta,
-          required: true,
-          as: "etiquetas",
-          include: {
-            model: Etiqueta,
-            include: {
-              model: Categoria,
-              as: "categoria",
-            },
-          },
-          separate: true,
-        },
+          ...INCLUDE_ETIQUETAS,
+          required: true
+        }
       ],
       attributes: {
         include: [
@@ -642,8 +661,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
       order: [[Post, "fecha", "DESC"]],
       limit: getPaginacion().resultadosPorPagina,
       offset: +pagina * getPaginacion().resultadosPorPagina,
-
-      // ,raw:true,nest:true
+      // * Recuerden que raw y nest mata las fechas.
     };
 
     if (usuarioActual) {
@@ -700,19 +718,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
 
       if (filtrar.etiquetas) {
         opciones.include.push(
-          {
-            model: EtiquetasPregunta,
-            as: "etiquetas",
-            include: {
-              model: Etiqueta,
-              // TODO Refactor: Quizá Categoría no sirva de nada acá. Ver bien (colores).
-              include: {
-                model: Categoria,
-                as: "categoria",
-              },
-            },
-            separate: true,
-          }
+          INCLUDE_ETIQUETAS
           , {
             model: EtiquetasPregunta,
             as: "filtroEtiquetas",
@@ -838,18 +844,7 @@ Pregunta.pagina = ({ pagina = 0, duenioID: duenioDNI, filtrar, formatoCorto, usu
       }
 
       if (!filtrarEtiquetas) {
-        opciones.include.push({
-          model: EtiquetasPregunta
-          , include: {
-            model: Etiqueta,
-            include: {
-              model: Categoria,
-              as: "categoria",
-            },
-          },
-          as: "etiquetas",
-          separate: true,
-        });
+        opciones.include.push(INCLUDE_ETIQUETAS);
       }
     }
 
@@ -1178,6 +1173,15 @@ const SuscripcionesEtiqueta = sequelize.define("suscripcionesEtiqueta", {
   },
 });
 
+Etiqueta.hasMany(SuscripcionesEtiqueta, {
+  as: "suscripciones",
+  constraints: false,
+  foreignKey: 'etiquetaID'
+});
+
+SuscripcionesEtiqueta.belongsTo(Usuario, { constraints: false, as: 'suscripto', foreignKey: 'suscriptoDNI' });
+
+/* 
 Usuario.belongsToMany(Etiqueta, {
   through: SuscripcionesEtiqueta,
   constraints: false,
@@ -1191,6 +1195,7 @@ Etiqueta.belongsToMany(Usuario, {
   as: "suscriptos",
   foreignKey: "etiquetaID",
 });
+ */
 
 const SuscripcionesPregunta = sequelize.define("suscripcionesPregunta", {
   ID: {
@@ -1214,8 +1219,6 @@ Pregunta.hasMany(SuscripcionesPregunta, {
 });
 
 SuscripcionesPregunta.belongsTo(Usuario, { constraints: false, as: 'suscripto', foreignKey: 'suscriptoDNI' });
-
-
 
 Usuario.belongsToMany(Pregunta, {
   through: SuscripcionesPregunta,
