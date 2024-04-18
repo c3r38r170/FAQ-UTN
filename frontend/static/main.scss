@@ -526,6 +526,16 @@ div.notificacion{
 		color:grey;
 		mix-blend-mode: multiply;
 	}
+
+	form,fieldset,.fa{
+		height: 100%;
+	}
+	.fa{
+		border-top-left-radius: 0 !important;
+		border-bottom-left-radius: 0 !important;
+		padding: 0 0.4rem 0 0.2rem !important;
+		width: 27px;
+	}
 }
 
 
