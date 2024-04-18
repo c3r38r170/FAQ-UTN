@@ -101,7 +101,7 @@ class Pagina {
 			</div>
 			<div id="columna-principal" class="column is-5">
 				${new Breadcrumb(this.#ruta).render()}
-				${new Titulo('h1', 4, this.titulo, 'ml-3rem', 'titulo-principal').render()}
+				${new Titulo('h1', 4, this.titulo, 'm-3rem', 'titulo-principal').render()}
 				${this.partes ? this.partes.map((p) => p.render()).join("") : ''}
 				
 			</div>
@@ -118,12 +118,12 @@ class Pagina {
 			<div><img src="/logo-negativo.png"></div>
 			<div>
 				<ul>
-				<!-- TODO Refactor: que estos 3 links no se repitan acá y en Encabezado, DRY
-				<!--TODO UX Poner como una columna a la izquierda, porque se supone que tenga 3 items.-->
 					<li><a href="/">Inicio</a></li>
 					<li><a href="/quienes-somos">Quiénes Somos</a></li>
 					<li><a href="/manual">Ayuda</a></li>
 				</ul>
+			</div>
+			<div>
 				${new Navegacion(this.#sesion?.usuario).render()}
 			</div>
 			<div id="footer-enlaces-externos">

@@ -1,1 +1,13 @@
-#titulo-principal::before{content:"";font-family:FontAwesome;font-weight:normal;margin-right:1rem}/*# sourceMappingURL=pregunta-viendo.css.map */
+#titulo-principal::before {
+  content: "\f059";
+  font-family: FontAwesome;
+  font-weight: normal;
+  margin-right: 1rem;
+}
+
+.mensaje-respuesta {
+  font-size: 0.8rem;
+  margin: 0.5rem 0;
+  color: gray;
+  font-weight: 400;
+}/*# sourceMappingURL=pregunta-viendo.css.map */
