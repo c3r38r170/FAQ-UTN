@@ -179,6 +179,7 @@ function crearPregunta(req, res, respuestaIA = null) {
       , SuscripcionesEtiqueta.findAll({
         attributes: ['suscriptoDNI'],
         where: {
+          // TODO Refactor: `etiquetaID: etiquetasIDs`
           etiquetaID: {
             [Sequelize.Op.in]: etiquetasIDs
           },
@@ -394,6 +395,7 @@ router.get("/masVotadas", function (req, res) {
       {
         model: Post,
         where: { eliminadorDNI: null },
+        // TODO Refactor: ver si no hace falta el required:true
         include: [
           {
             model: Voto,

@@ -32,6 +32,7 @@ app.use(cors({
 
 
 app.use((req, res, next) => {
+	// TODO Security: Chequear constantemente que el usuario no haya sido bloqueado
 	const userRegex = /^\/api\/usuario\/\d+\/(foto|preguntas|posts|respuestas|contrasenia)$/;
 	// * Esta exp. regular admite las /api/usuario/:DNI/... --> foto, preguntas, posts, respuestas o contrasenia
 
@@ -43,14 +44,15 @@ app.use((req, res, next) => {
 	let rutasPermitidasPorMetodo = {
 		GET: () => [
 			'/',
-			'/api/perfil', // get
-			'/api/categoria', // get
-			'/api/etiqueta', // get
-			'/api/post/reporte', // get
-			'/api/pregunta', // get 
+			'/api/perfil',
+			'/api/categoria',
+			'/api/etiqueta',
+			'/api/post/reporte',
+			'/api/pregunta', 
 			// "/api/usuario/:DNI/foto",
 			req.path.match(userRegex), // * Todas las rutas que matchean con la expresion regular
 			'/api/usuarios/salir'
+			// TODO Docs: Documentar esta función que no tiene mucho sentido.
 		].some(route => route)
 		, POST: () => [
 			'/api/sesion', // * Ingreso.

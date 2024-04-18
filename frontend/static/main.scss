@@ -506,6 +506,10 @@ div.notificacion{
 	gap: 1rem;
 	clear: both;
 
+	.tag,.tags{
+		margin-bottom: 0 !important;
+	}
+
 	.tag{
 		line-height: 1.6;
 		color: gray;
@@ -521,6 +525,17 @@ div.notificacion{
 	.descripcion{
 		color:grey;
 		mix-blend-mode: multiply;
+	}
+
+	form,fieldset,.fa{
+		height: 100%;
+	}
+	// TODO Refactor: Quizá se puedan usar clases de Bulma.
+	.fa{
+		border-top-left-radius: 0 !important;
+		border-bottom-left-radius: 0 !important;
+		padding: 0 0.4rem 0 0.2rem !important;
+		width: 27px;
 	}
 }
 
@@ -566,20 +581,24 @@ footer#footer{
 	}
 
 	ul{
-		display: grid;
-		gap: .5rem;
-		grid-template-columns: 1fr 1fr;
-
+		font-size: 0.9rem;
+		li{
+			margin-bottom: 0.5rem;
+		}
 		a{
 			color: white;
 		}
 	}
 
 	#footer-enlaces-externos{
+		display: flex;
 		margin: auto;
 		text-align: center;
+		flex-direction: column;
 
 		a{
+			font-size: 0.9rem;
+			font-weight: 300;
 			margin: .5rem;
 			display: inline-block;
 			text-decoration: underline;
@@ -843,8 +862,9 @@ form > fieldset{
 .notification{
 	text-align: center;
 }
-.ml-3rem{
+.m-3rem{
 	margin-left: 3rem;
+	margin-right: 3rem;
 }
 .olvide-contrasenia{
 
@@ -854,6 +874,11 @@ form > fieldset{
 .boton-carga{
 	img{
 		height:100%;
+		object-fit: contain; // * Para cuando es demasiado chico, como en el boton de suscribir de etiquetas.
+	}
+	&::before{
+		// * Sobreescribe clases de íconos. Como las del boton de suscribir de etiquetas.
+		content: '' !important;
 	}
 	& + .button{
 		display: none;
@@ -928,4 +953,40 @@ tbody{
 	display: flex;
     margin: 1rem 3rem;
     justify-content: right;
+}
+
+.fieldset-paginacion{
+	width: 100%;
+	margin: 1rem 0 0;
+	align-items: center;
+    padding: 10px;
+    background: #f2f2f2;
+	button.boton-paginacion{
+		border-radius: 100%;
+		border: none;
+		padding: 10px 12px;
+		background-color: white;
+		color: #485fc7;
+		&:disabled{
+			color: #f2f2f2;
+			cursor: no-drop;
+			&:hover{
+				cursor: default;
+				background-color: white;
+			}
+		}
+		&:hover{
+			cursor: pointer;
+			background-color: rgba(0, 0, 0, 0.2);;
+		}
+	}
+	.accion-boton{
+		text-transform: uppercase;
+		font-size: 0.7rem;
+		color: #485fc7;
+		font-weight: 700;
+	}
+	.paginas{
+		color: gray;
+	}
 }

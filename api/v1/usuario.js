@@ -93,7 +93,7 @@ router.get("/", function (req, res) {
         as: "bloqueosRecibidos",
         attributes: ["motivo"],
         where: {
-          fecha_desbloqueo: { [Sequelize.Op.is]: null },
+          fecha_desbloqueo: null,
         },
         required: false,
         include: {
@@ -115,17 +115,23 @@ router.get("/", function (req, res) {
       {
         model: Bloqueo,
         as: "bloqueosRecibidos",
-        // TODO Feature: Traer quién bloqueó y razón.
+        // TODO Feature: Traer quién bloqueó
         attributes: ["motivo"],
         where: {
-          fecha_desbloqueo: { [Sequelize.Op.is]: null },
+          fecha_desbloqueo: null,
         },
         required: false,
         separated: true,
+        include: {
+          model: Usuario
+          , as: 'bloqueador'
+          , attributes: ['nombre']
+        }
       },
     );
   }
   let filtro = req.query.filtro;
+  // TODO Docs: Documentar cuál es la diferencia entre estos...
   if (filtro) {
     where.DNI = { [Sequelize.Op.substring]: filtro };
     where.nombre = { [Sequelize.Op.substring]: filtro };
@@ -541,6 +547,7 @@ router.get("/masRelevantes", function (req, res) {
     raw: true,
     nest: true,
     limit: getPaginacion().resultadosPorPagina,
+    where:{eliminadorDNI:null}
   })
     .then(posts => {
       res.status(200).send(posts)
@@ -550,10 +557,20 @@ router.get("/masRelevantes", function (req, res) {
     });
 })
 
+// TODO Feature: Pantalla.
 router.get("/masReportados", function (req, res) {
   Usuario.findAll({
     attributes: ['DNI', 'nombre'],
-    include: [],
+    // include: [],
+    // ! Esto intenta ser un filtro de los no-bloqueados. Probar cuando se implemente la vista para esto.
+    include:[{
+      model:Bloqueo,
+      as: "bloqueosRecibidos",
+      required:true,
+      where:{fecha_desbloqueo:null}
+    }],
+    where:{'$bloqueosRecibidos.ID$':null},
+
     group: ['DNI'], // Ajustando para agrupar por DNI del usuario
     subQuery: false,
     raw: true,

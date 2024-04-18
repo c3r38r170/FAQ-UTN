@@ -11,9 +11,10 @@ class ChipUsuario {
   #color;
   #propio;
   #carreras;
+  #bloqueado;
 
   constructor(
-    { DNI, nombre, correo, createdAt, fecha_alta, perfil, carreras },
+    { DNI, nombre, correo, createdAt, fecha_alta, perfil, carreras, bloqueosRecibidos },
     esPerfil = false, propio = false
   ) {
     this.#DNI = DNI;
@@ -25,6 +26,7 @@ class ChipUsuario {
     this.#color = perfil ? perfil.color : "#485fc7";
     this.#propio = propio;
     this.#carreras = carreras
+    this.#bloqueado=!!bloqueosRecibidos?.length;
   }
   render() {
     if (this.#esPerfil) {
@@ -51,12 +53,13 @@ class ChipUsuario {
             </div>
             `;
     } else {
+      let href=this.#bloqueado?'':`href="/perfil/${this.#DNI}"`;
       return `
         <div class="chip-usuario is-vcentered">
-          <a href="/perfil/${this.#DNI}" class="contenedor-img">
-          <img class="mr-3 img-usuario" src="/api/usuario/${this.#DNI}/foto" ></img>
+          <a ${href} class="contenedor-img">
+            <img class="mr-3 img-usuario" src="/api/usuario/${this.#DNI}/foto" ></img>
           </a>
-          <a class="nombre-usuario" href="/perfil/${this.#DNI}">${this.#nombreusuario}</a>
+          <a class="nombre-usuario" ${href}>${this.#nombreusuario}</a>
           <div class="tipo-usuario" style="background-color: ${this.#color}">
             <div class="descripcion">${this.#tipo}</div>
           </div>

@@ -16,6 +16,8 @@ class Pregunta {
     #estaSuscripto = false;
     #botonEditar;
     #desplegable;
+
+    // TODO Refactor: No chequear usuarioActual a cada rato. Quizá hasta no guardarlo, refactorizando render (capaz sea imposible por las respuestas)... Quitar este comentario cuando se mejoren los chequeos y se intente refactorizar.
     constructor({ ID, titulo, cuerpo, fecha, post, respuestas, etiquetas, respuestasCount, suscripciones }, instanciaModal, usuario) {
         // TODO Feature: Pensar condiciones de fallo de creación. Considerar que puede venir sin cuerpo (formato corto) o sin título (/pregunta, quitado "artificialmente")
 
@@ -157,7 +159,7 @@ class Pregunta {
                 <div class="etiquetas">
                 ${this.#etiquetas ? this.#etiquetas.map(e => new Etiqueta(e.etiquetum).render()).join('') : ''}
                 </div>
-                <div class="cantRespuestas">${this.#respuestasCount > 0 ? '<i class="fa-solid fa-reply mr-2"></i>' + this.#respuestasCount + ' Respuestas' : ''}</div>
+                <div class="cantRespuestas">${this.#respuestasCount > 0 ? '<i class="fa-solid fa-reply mr-2"></i>' + this.#respuestasCount + ' Respuesta' + (this.#respuestasCount>1?'s':'') : ''}</div>
                 <!-- ! Las respuestas están dentro de la pregunta por la posibilidad (descartada) de poner la respuesta destacada en los listados de preguntas. -->
                 ${this.#respuestas ? this.#respuestas.map((r) => new Respuesta(r, this.#instanciaModal, this.#usuarioActual ? this.#usuarioActual : null).render()).join("") : ''}
             </div>`

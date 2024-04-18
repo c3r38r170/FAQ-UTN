@@ -47,6 +47,8 @@ router.get('/', function (req, res) {
 			{
 				model: Post,
 				attributes: [/* 'ID', 'cuerpo' */],
+				// TODO Refactor: DRY
+				where:{eliminadorDNI: null },
 				required: true,
 				include: [
 					{ model: Usuario, as: 'duenio', attributes: [/* 'DNI', 'nombre' */] },
@@ -54,7 +56,8 @@ router.get('/', function (req, res) {
 						model: Respuesta
 						, as: 'respuesta'
 						, include: [
-							{ model: Pregunta, as: 'pregunta', attributes: [/* 'ID', 'titulo' */] } // *Include Pregunta in Respuesta
+							{model:Post,where:{eliminadorDNI: null},attributes:[], required:true},
+							{ model: Pregunta, as: 'pregunta', attributes: [/* 'ID', 'titulo' */], include:{model:Post,where:{eliminadorDNI: null},attributes:[], required:true} } // *Include Pregunta in Respuesta
 						],
 						required: false,
 						attributes: [/* 'ID', 'preguntaID' */]
