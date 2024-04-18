@@ -36,7 +36,6 @@ app.use((req, res, next) => {
 	const userRegex = /^\/api\/usuario\/\d+\/(foto|preguntas|posts|respuestas|contrasenia)$/;
 	// * Esta exp. regular admite las /api/usuario/:DNI/... --> foto, preguntas, posts, respuestas o contrasenia
 
-	console.log(req.session,req.path);
 	if (req.session.usuario) {
 		next();
 		return;
