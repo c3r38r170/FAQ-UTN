@@ -28,22 +28,9 @@ class Etiqueta{
         ,(txt, { ok, codigo })=>{
           if(ok){
             if(codigo!=204){
-              /* 
-              let etiquetaID=;
-              let formularioID=+etiquetaID;
-              let esteForm=gEt(formularioID);
-  
-              let campoEstaSuscrito=esteForm.elements['suscrito'];
-              let estaSuscrito=+campoEstaSuscrito.value;
-              */
               let estaSuscrito = codigo==201;
               let verbos=['POST','DELETE'];
               let claseIcono=['fa-bell','fa-bell-slash'];
-  
-              /* if(estaSuscrito){
-                verbos=verbos.reverse();
-                claseIcono=claseIcono.reverse();
-              } */
   
               for(let form of SqS(`[id^="${/* formularioID */'etiquetas-suscribir-'+txt}"]`,{n:ALL})){
                 Formulario.instancias[form.id].verbo=verbos[+estaSuscrito];

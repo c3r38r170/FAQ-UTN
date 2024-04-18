@@ -78,8 +78,9 @@ class Formulario {
 			.then(res => {
 				ok = res.ok;
 				if (!ok) {
+					// ! En los formularios que se reutilizan, ocuparse de estas dos cosas.
+					// TODO Refactor: Pasar una función que haga esto a la funcionRetorno, así no tiene que hacer acrobacias.
 					fieldset.disabled = false;
-					// TODO Feature: Probar en los formularios que se reutilizan, qué pasa cuando salen bien, y esto no se ejecuta
 					botonCarga.remove();
 					// ! La notificación de errores se encarga cada formulario. Podría haber errores recuperables o transparentes.
 				}
@@ -109,8 +110,6 @@ class Formulario {
 	}
 
 	render() {
-		// TODO Refactor: Eliminar estilo en línea, eliminar el atributo clase si no hace falta.
-		// style="padding-top:32px;" class="" 
 		return `<form id=${this.#id} onsubmit="Formulario.instancias['${this.#id}'].enviar(event)" enctype="multipart/form-data"><fieldset>`
 			+ this.campos.reduce((html, c) => html + (new Campo(c)).render(), '')
 			+ new Boton({ classes: this.#clasesBotonEnviar, titulo: this.#textoEnviar }).render()

@@ -179,6 +179,7 @@ function crearPregunta(req, res, respuestaIA = null) {
       , SuscripcionesEtiqueta.findAll({
         attributes: ['suscriptoDNI'],
         where: {
+          // TODO Refactor: `etiquetaID: etiquetasIDs`
           etiquetaID: {
             [Sequelize.Op.in]: etiquetasIDs
           },
