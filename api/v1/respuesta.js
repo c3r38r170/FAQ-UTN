@@ -118,6 +118,7 @@ router.patch("/", function (req, res) {
             respuesta.post.cuerpo = req.body.cuerpo;
             respuesta.post.save();
             res.status(200).json({ID:req.body.IDPregunta,motivo});
+            return;
           }
 
           let modera = getModera();
