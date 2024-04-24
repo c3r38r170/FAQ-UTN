@@ -40,9 +40,6 @@ router.get("/", (req, res) => {
     });
 });
 
-function editarPregunta(req, res, respuestaIA = null) {
-}
-
 router.patch("/", function (req, res) {
   Pregunta.findByPk(req.body.ID, {
     include: [
@@ -54,6 +51,7 @@ router.patch("/", function (req, res) {
     ],
   })
     .then((pregunta) => {
+      // TODO Refactor: Usar early return en vez de anidar tanto if-else
       if (!pregunta) {
         res.status(404).send("Pregunta no encontrada");
         return;
