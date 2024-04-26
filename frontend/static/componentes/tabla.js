@@ -33,7 +33,8 @@ class Tabla {
 		// TODO	Feature: Conseguir la cantidad de páginas. Quizá con otra consulta...
 		let tabla = document.getElementById(this.#id);
 		let fieldset = tabla.querySelector('tfoot fieldset');
-		fieldset.className = 'fieldset-paginacion';
+		if (this.#mostrarPaginacion)
+			fieldset.className = 'fieldset-paginacion';
 
 		fetch(this.#endpointPaginacion, {
 			credentials: 'include',
